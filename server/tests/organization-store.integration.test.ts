@@ -64,7 +64,7 @@ test("verified employee keeps the same-email local account and history identity 
       materializeUser: organizationUserStore(database),
     });
     const cookie =
-      "openbot.organization-session=" +
+      "shardsopenbot.organization-session=" +
       Buffer.from(
         JSON.stringify({
           authority: authority.url.origin,

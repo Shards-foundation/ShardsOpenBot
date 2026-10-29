@@ -146,7 +146,7 @@ export function accountFor(
   };
 }
 
-export const DEPLOYMENT_VENDOR_PREFIX = "openbot-deployment:";
+export const DEPLOYMENT_VENDOR_PREFIX = "shardsopenbot-deployment:";
 
 /**
  * The identity a deployment's own account is held under at the vendor.

@@ -1,6 +1,6 @@
 """LangGraph as a Bot, through the AG-UI integration rather than by hand.
 
-OpenBot already ships `agent-langgraph`, which speaks AG-UI itself because it predates the rule
+ShardsOpenBot already ships `agent-langgraph`, which speaks AG-UI itself because it predates the rule
 against writing adapters. This is the same framework served through `ag-ui-langgraph`, which is the
 package the AG-UI project maintains, so the protocol stops being ours to keep working.
 """
@@ -30,7 +30,7 @@ from .tool_runtime import (
     next_step,
 )
 
-TOKEN_HEADER = "x-openbot-agent-token"
+TOKEN_HEADER = "x-shardsopenbot-agent-token"
 
 # Provider names supported by LangChain's public init_chat_model contract. A colon in an opaque
 # compatible model ID (for example qwen2.5:1.5b) is not a provider separator.
@@ -65,7 +65,7 @@ MODEL_PROVIDERS = {
     "xai",
 }
 
-OPENBOT_PROVIDER_ALIASES = {
+SHARDSOPENBOT_PROVIDER_ALIASES = {
     "google": "google_genai",
 }
 
@@ -91,7 +91,7 @@ def _google_genai_kwargs(provider: str):
 
 
 def _resolve_provider(provider: str):
-    return OPENBOT_PROVIDER_ALIASES.get(provider, provider)
+    return SHARDSOPENBOT_PROVIDER_ALIASES.get(provider, provider)
 
 
 def _chatgpt_auth_file(store: str) -> Path:
@@ -230,7 +230,7 @@ builder.add_node("tools", execute_tools)
 builder.add_conditional_edges("answer", next_step)
 builder.add_edge("tools", "answer")
 # A checkpointer, because the AG-UI integration resumes a thread by id and LangGraph refuses to
-# without one. In memory rather than in Postgres: OpenBot's database is where a conversation lives,
+# without one. In memory rather than in Postgres: ShardsOpenBot's database is where a conversation lives,
 # and two stores remembering the same thread is how they come to disagree.
 graph = builder.compile(checkpointer=MemorySaver())
 
@@ -254,6 +254,6 @@ async def health():
 
 add_langgraph_fastapi_endpoint(
     app=app,
-    agent=ToolAwareAgent(name="openbot", graph=graph, config={"recursion_limit": 25}),
+    agent=ToolAwareAgent(name="shardsopenbot", graph=graph, config={"recursion_limit": 25}),
     path="/",
 )

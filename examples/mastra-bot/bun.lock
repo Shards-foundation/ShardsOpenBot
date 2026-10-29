@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@openbot/example-mastra-bot",
+      "name": "@shardsopenbot/example-mastra-bot",
       "dependencies": {
         "@ag-ui/core": "0.0.57",
         "@ag-ui/encoder": "0.0.57",

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { HttpAgent, type Message, type RunAgentInput } from "@ag-ui/client";
 import { EventSchemas } from "@ag-ui/core/schemas";
 import type { BuiltInAgentClassicConfig } from "@copilotkit/runtime/v2";
-import { PLAN_RUN_COMPLETED } from "@openbot/toolkit/copilotkit/agents";
+import { PLAN_RUN_COMPLETED } from "@shardsopenbot/toolkit/copilotkit/agents";
 import type { Subscription } from "rxjs";
 import {
   clearDesktopConnectionFailure,
@@ -40,7 +40,7 @@ export function planModelForEnvironment(
   const harness = claude ? "agent-claude-sdk" : "agent-langgraph-agui";
   if (
     environment.PICKED_HARNESS_SOURCE?.trim() === "byo" ||
-    !new RegExp(`(?:^|/)(?:openbot-)?${harness}(?::|@|$)`).test(image)
+    !new RegExp(`(?:^|/)(?:shardsopenbot-)?${harness}(?::|@|$)`).test(image)
   ) {
     throw new Error(
       `The selected plan requires the installed ${harness} harness for built-in Bots.`,
@@ -175,7 +175,7 @@ export class PlanModel implements PlanLanguageModel {
     frontendTools: ReadonlySet<string> = new Set(),
     signal?: AbortSignal,
   ) {
-    this.provider = `openbot-${config.provider}-plan`;
+    this.provider = `shardsopenbot-${config.provider}-plan`;
     this.modelId = config.provider;
     // Separate SDK/checkpoint state for two Bots in the same channel, stable across tool continuations.
     this.threadId = createHash("sha256")
@@ -205,7 +205,7 @@ export class PlanModel implements PlanLanguageModel {
               signal: AbortSignal.timeout(5000),
               headers: {
                 "content-type": "application/json",
-                "x-openbot-agent-token": config.token,
+                "x-shardsopenbot-agent-token": config.token,
               },
               body: JSON.stringify({ threadId: this.threadId }),
             },
@@ -267,7 +267,7 @@ export class PlanModel implements PlanLanguageModel {
     const names = new Set(tools.map((tool) => tool.name));
     const agent = new HttpAgent({
       url: this.config.endpoint.href,
-      headers: { "x-openbot-agent-token": this.config.token },
+      headers: { "x-shardsopenbot-agent-token": this.config.token },
       fetch: (url, init) =>
         fetch(url, {
           ...init,
@@ -311,8 +311,8 @@ export class PlanModel implements PlanLanguageModel {
               })),
             state: null,
             forwardedProps: {
-              openbotModelOnly: true,
-              openbotBotId: this.botId,
+              shardsopenbotModelOnly: true,
+              shardsopenbotBotId: this.botId,
             },
           })
           .subscribe({
@@ -402,8 +402,8 @@ export class PlanModel implements PlanLanguageModel {
                   }
                   case "RUN_ERROR": {
                     const error = new Error(event.message);
-                    if (event.code === "OPENBOT_MODEL_AUTH_REQUIRED") {
-                      error.name = "OpenBotModelAuthenticationError";
+                    if (event.code === "SHARDSOPENBOT_MODEL_AUTH_REQUIRED") {
+                      error.name = "ShardsOpenBotModelAuthenticationError";
                       recordDesktopConnectionFailure({
                         connection: "model",
                         code: "provider_authentication_failed",

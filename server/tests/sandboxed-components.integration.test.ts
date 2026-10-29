@@ -52,7 +52,7 @@ describe("authoring a component without a rebuild", () => {
       jsFunctions: "",
       argumentSchema: { type: "object" },
       sampleArguments: { a: 1 },
-      by: "admin@openbot.local",
+      by: "admin@shardsopenbot.local",
     });
 
     expect(saved.name).toBe(name);
@@ -74,7 +74,7 @@ describe("authoring a component without a rebuild", () => {
   });
 
   test("publishing releases the source and the description together", async () => {
-    const published = await store.publish(name, "admin@openbot.local");
+    const published = await store.publish(name, "admin@shardsopenbot.local");
     expect(published.published).toBe(true);
     expect(published.publishedHtml).toBe("<p>draft</p>");
     expect(published.revision).toBe(1);
@@ -111,7 +111,7 @@ describe("authoring a component without a rebuild", () => {
       jsFunctions: "",
       argumentSchema: { type: "object" },
       sampleArguments: { a: 1 },
-      by: "admin@openbot.local",
+      by: "admin@shardsopenbot.local",
     });
 
     const drawable = await store.published();
@@ -135,13 +135,13 @@ describe("authoring a component without a rebuild", () => {
         jsFunctions: "",
         argumentSchema: {},
         sampleArguments: {},
-        by: "admin@openbot.local",
+        by: "admin@shardsopenbot.local",
       }),
     ).rejects.toThrow();
   });
 
   test("deleting takes the governance row with it", async () => {
-    await store.remove(name, "admin@openbot.local");
+    await store.remove(name, "admin@shardsopenbot.local");
     const [governance] = await database
       .select()
       .from(components)
@@ -184,12 +184,12 @@ describe("deleting a name this surface does not own", () => {
     await database.insert(componentExclusions).values({
       componentName: compiled,
       agentId: bot,
-      withheldBy: "admin@openbot.local",
+      withheldBy: "admin@shardsopenbot.local",
     });
     await database.insert(componentFunctions).values({
       componentName: compiled,
       functionName: "listRecentOrders",
-      grantedBy: "admin@openbot.local",
+      grantedBy: "admin@shardsopenbot.local",
     });
   });
 
@@ -199,9 +199,9 @@ describe("deleting a name this surface does not own", () => {
   });
 
   test("refuses a compiled component's name instead of deleting its governance", async () => {
-    await expect(store.remove(compiled, "admin@openbot.local")).rejects.toThrow(
-      SandboxedNotFoundError,
-    );
+    await expect(
+      store.remove(compiled, "admin@shardsopenbot.local"),
+    ).rejects.toThrow(SandboxedNotFoundError);
 
     const [governance] = await database
       .select()
@@ -237,7 +237,7 @@ describe("deleting a name this surface does not own", () => {
     // Answered rather than reported as success. `{ ok: true }` for a name that was never there reads
     // as "the thing you named is gone", which is the one thing it does not establish.
     await expect(
-      store.remove(`custom_never_${suite}`, "admin@openbot.local"),
+      store.remove(`custom_never_${suite}`, "admin@shardsopenbot.local"),
     ).rejects.toThrow(SandboxedNotFoundError);
   });
 
@@ -257,10 +257,10 @@ describe("deleting a name this surface does not own", () => {
       kind: "sandboxed",
       draftDescription: "Authored here.",
       published: false,
-      updatedBy: "admin@openbot.local",
+      updatedBy: "admin@shardsopenbot.local",
     });
 
-    await store.remove(orphan, "admin@openbot.local");
+    await store.remove(orphan, "admin@shardsopenbot.local");
 
     const [gone] = await database
       .select()

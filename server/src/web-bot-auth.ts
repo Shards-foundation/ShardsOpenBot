@@ -50,7 +50,7 @@ function derivedSeed(keyEncryptionKey: string): Buffer {
       "sha256",
       Buffer.from(keyEncryptionKey, "base64"),
       Buffer.alloc(0),
-      Buffer.from("openbot web-bot-auth ed25519 v1"),
+      Buffer.from("shardsopenbot web-bot-auth ed25519 v1"),
       32,
     ),
   );
@@ -127,8 +127,8 @@ function httpsOrigin(url: string | undefined): string | undefined {
  * The deployment's Web Bot Auth identity, or undefined when it is off.
  *
  * Off unless `WEB_BOT_AUTH=on`. A signed request names the deployment's URL to every site a Bot
- * visits, and an OpenBot deployment is private by design, so signing is the operator's deliberate
- * choice, never inferred from the address. `on` needs an https `OPENBOT_PUBLIC_URL` (else
+ * visits, and an ShardsOpenBot deployment is private by design, so signing is the operator's deliberate
+ * choice, never inferred from the address. `on` needs an https `SHARDSOPENBOT_PUBLIC_URL` (else
  * `BETTER_AUTH_URL`) that is not this machine, because that is where verifiers fetch the key; it is
  * refused for plain http or loopback rather than signing with a directory nobody can read.
  *
@@ -150,7 +150,7 @@ export function webBotAuthFromEnv(
   const agent = httpsOrigin(options.publicUrl);
   if (!agent) {
     throw new Error(
-      "WEB_BOT_AUTH=on needs an HTTPS address in OPENBOT_PUBLIC_URL (or BETTER_AUTH_URL) other than this machine, where verifiers fetch the signing key.",
+      "WEB_BOT_AUTH=on needs an HTTPS address in SHARDSOPENBOT_PUBLIC_URL (or BETTER_AUTH_URL) other than this machine, where verifiers fetch the signing key.",
     );
   }
   const explicit = environment.WEB_BOT_AUTH_KEY?.trim();

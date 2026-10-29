@@ -27,7 +27,7 @@ const suite = randomUUID().slice(0, 8);
 const personalApp = `arcade-p-${suite}`;
 const sharedApp = `arcade-s-${suite}`;
 const composioApp = `composio-p-${suite}`;
-const SHARED_VENDOR_ID = `openbot-deployment:acme-${suite}:R`;
+const SHARED_VENDOR_ID = `shardsopenbot-deployment:acme-${suite}:R`;
 const ACTION = "Gmail.SendEmail";
 const SECRET_URL = "https://vendor.example/consent?secret=bearer-capability";
 
@@ -110,7 +110,7 @@ function appAs(
       signedIn,
       async () => true,
       {
-        publicUrl: "https://openbot.example",
+        publicUrl: "https://shardsopenbot.example",
         appUrl: "https://app.example",
         encryptionKey: `${"A".repeat(43)}=`,
         personHasAccess: async () => true,

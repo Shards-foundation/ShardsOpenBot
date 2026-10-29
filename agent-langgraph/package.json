@@ -1,5 +1,5 @@
 {
-  "name": "@openbot/agent-langgraph",
+  "name": "@shardsopenbot/agent-langgraph",
   "license": "MIT",
   "private": true,
   "type": "module",

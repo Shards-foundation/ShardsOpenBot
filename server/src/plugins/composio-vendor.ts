@@ -13,7 +13,7 @@ import type { AccountRef } from "./shared-accounts";
 
 /**
  * What Composio's API hands back, and how it is read: the vendor shapes, the parsers that turn a
- * response into OpenBot's own types, paging, and the mapping from a vendor's refusal to a sentence.
+ * response into ShardsOpenBot's own types, paging, and the mapping from a vendor's refusal to a sentence.
  *
  * Split out of `./composio-adapter`, which keeps the SDK client and the methods it is called
  * through. Nothing here imports `@composio/core`: these read plain objects, so they are exercised

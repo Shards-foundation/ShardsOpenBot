@@ -43,7 +43,7 @@ if (!process.env.TEST_DATABASE_URL?.trim()) {
   await writeStderr(
     "TEST_DATABASE_URL is empty or unset. The integration suites would each fail to connect, which\n" +
       "looks like a hundred broken tests rather than one missing variable. Run this as\n" +
-      "TEST_DATABASE_URL=postgres://openbot:openbot@localhost:5432/openbot_test bun run test:server:sharded\n",
+      "TEST_DATABASE_URL=postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot_test bun run test:server:sharded\n",
   );
   process.exit(1);
 }

@@ -23,7 +23,7 @@ export type HarnessChoice = {
   agentUrl?: string;
 };
 
-/** What OpenBot sets up unless somebody says otherwise. David's call. */
+/** What ShardsOpenBot sets up unless somebody says otherwise. David's call. */
 export const DEFAULT_HARNESS = "langgraph";
 
 /**
@@ -97,8 +97,8 @@ export function HarnessPicker({
         applies to will read it.
       */}
       <p className="lede">
-        OpenBot sets this up for you. If you write code, you can choose the
-        agent framework below.
+        ShardsOpenBot sets this up for you. If you write code, you can choose
+        the agent framework below.
       </p>
 
       <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>

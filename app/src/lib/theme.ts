@@ -1,4 +1,4 @@
-export const THEME_STORAGE_KEY = "openbot-theme";
+export const THEME_STORAGE_KEY = "shardsopenbot-theme";
 
 export function parseStoredDarkTheme(value: string | null) {
   return value === "dark";

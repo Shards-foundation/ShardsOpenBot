@@ -9,7 +9,7 @@ import {
   webBotAuthEnabled,
 } from "../src/web-bot-auth";
 
-const AGENT = "https://openbot.example.com";
+const AGENT = "https://shardsopenbot.example.com";
 const jwk = generateKeyPairSync("ed25519").privateKey.export({
   format: "jwk",
 });
@@ -54,7 +54,7 @@ describe("a policy push's webBotAuth member", () => {
   });
 
   test.each([
-    [{ agent: "http://openbot.example.com", jwk }, "https origin"],
+    [{ agent: "http://shardsopenbot.example.com", jwk }, "https origin"],
     [{ agent: `${AGENT}/path`, jwk }, "https origin"],
     [{ agent: "not a url", jwk }, "must be a URL"],
     [{ agent: AGENT, jwk: publicJwk }, "Ed25519 private key"],

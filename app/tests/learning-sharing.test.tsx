@@ -7,7 +7,7 @@ import {
   test,
 } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { PersonalLearningSharing } from "@openbot/shared/learning";
+import type { PersonalLearningSharing } from "@shardsopenbot/shared/learning";
 import { environmentManager, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import {
@@ -116,7 +116,7 @@ test("three choices, each with one plain line saying who sees what", async () =>
     view.getByText("Only the Bots you use draw on your Skills."),
   ).toBeTruthy();
   expect(
-    view.getByText("Every Bot on OpenBot draws on all of your Skills."),
+    view.getByText("Every Bot on ShardsOpenBot draws on all of your Skills."),
   ).toBeTruthy();
 });
 

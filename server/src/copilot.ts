@@ -13,25 +13,25 @@ import { createCopilotHonoHandler } from "@copilotkit/runtime/v2/hono";
 import {
   type ComputerGuidance,
   PROVENANCE_GUIDANCE,
-} from "@openbot/shared/bot-prompt";
+} from "@shardsopenbot/shared/bot-prompt";
 import {
   defaultModelFor,
   requiresResponsesApi,
-} from "@openbot/shared/model-providers";
+} from "@shardsopenbot/shared/model-providers";
 import {
   BuiltInAgentWithSaneHistory,
   CloningRemoteAgent,
   IntelligenceKnowingANewThread,
   RunBuiltAgent,
   UnavailableAgent,
-} from "@openbot/toolkit/copilotkit/agents";
-import { createIntelligenceThreadLock } from "@openbot/toolkit/copilotkit/thread-lock";
-import type { GrantedTool } from "@openbot/toolkit/granted-tool";
-import { parametersFor } from "@openbot/toolkit/granted-tool";
-import { HeadlessToolsMiddleware } from "@openbot/toolkit/headless-tools";
-import { sanitizeSeededHistory } from "@openbot/toolkit/history-sanitize";
-import { executeNativeApprovalTool } from "@openbot/toolkit/native-approval";
-import { historyOrEmpty } from "@openbot/toolkit/thread-history";
+} from "@shardsopenbot/toolkit/copilotkit/agents";
+import { createIntelligenceThreadLock } from "@shardsopenbot/toolkit/copilotkit/thread-lock";
+import type { GrantedTool } from "@shardsopenbot/toolkit/granted-tool";
+import { parametersFor } from "@shardsopenbot/toolkit/granted-tool";
+import { HeadlessToolsMiddleware } from "@shardsopenbot/toolkit/headless-tools";
+import { sanitizeSeededHistory } from "@shardsopenbot/toolkit/history-sanitize";
+import { executeNativeApprovalTool } from "@shardsopenbot/toolkit/native-approval";
+import { historyOrEmpty } from "@shardsopenbot/toolkit/thread-history";
 import { defer, from, switchMap } from "rxjs";
 import { z } from "zod";
 import {
@@ -365,7 +365,7 @@ function isHttpUrl(value: string) {
 /**
  * What the person asking has said they want, in every channel, from every coworker.
  *
- * The OpenBot equivalent of a CLAUDE.md, and the third instruction carrier beside the two that
+ * The ShardsOpenBot equivalent of a CLAUDE.md, and the third instruction carrier beside the two that
  * already existed. A role is the coworker's and reads the same to everybody who talks to it; a skill
  * is pulled in for one task. This is the person's, and it is true of every task they ever ask for —
  * how they want to be written to, what their company is called, what it is not to be called.
@@ -1362,7 +1362,7 @@ function remoteAgentWithStandingRole(
           agent.id,
           input.runId,
           input.threadId,
-          input.forwardedProps?.openbotRun,
+          input.forwardedProps?.shardsopenbotRun,
         )
       : undefined;
     // Governed vendor/host calls use the actual AG-UI client lifecycle, so approvals capture
@@ -1379,7 +1379,7 @@ function remoteAgentWithStandingRole(
       .map((tool) => tool.name);
     const forwardedProps = {
       ...(isPlainObject(input.forwardedProps) ? input.forwardedProps : {}),
-      openbotBotId: agent.id,
+      shardsopenbotBotId: agent.id,
       /*
        * Which of those tools this deployment runs, as opposed to the surface.
        *
@@ -1389,7 +1389,7 @@ function remoteAgentWithStandingRole(
        * could not, and then apologised to the person for not showing the chart that was on screen
        * in front of them. Only this side knows which is which, so only this side can say.
        */
-      openbotDeploymentTools: deploymentTools,
+      shardsopenbotDeploymentTools: deploymentTools,
       /*
        * This deployment's own statement of what this run is.
        *
@@ -1400,7 +1400,7 @@ function remoteAgentWithStandingRole(
        * one shared secret.
        */
       ...(runAssertion
-        ? { openbotRun: runAssertion }
+        ? { shardsopenbotRun: runAssertion }
         : /*
            * Absent means this deployment cannot sign, so the agent is given nothing to hand back
            * and its tool calls will be refused. That is the right direction to fail: a Bot that
@@ -1478,7 +1478,7 @@ function remoteAgentWithStandingRole(
             agent.type === "remote_mastra"
               ? [
                   ...callerMastraContext(input.context ?? []),
-                  ...mastraOpenBotContext({
+                  ...mastraShardsOpenBotContext({
                     standingMessage: agent.standingMessage,
                     holdingsMessage,
                     botId: agent.id,
@@ -1529,7 +1529,7 @@ function remoteAgentWithStandingRole(
       );
       const owned =
         !!process.env.MANAGED_AGENT_TOKEN &&
-        agent.headers?.["x-openbot-agent-token"] ===
+        agent.headers?.["x-shardsopenbot-agent-token"] ===
           process.env.MANAGED_AGENT_TOKEN &&
         [
           process.env.PICKED_HARNESS_URL,
@@ -1548,12 +1548,12 @@ function remoteAgentWithStandingRole(
 }
 
 const RESERVED_MASTRA_CONTEXT_DESCRIPTIONS = new Set([
-  "OpenBot standing role",
-  "OpenBot granted tools guidance",
-  "OpenBot Bot id",
-  "OpenBot deployment tools",
-  "OpenBot signed run assertion",
-  "OpenBot learned skills",
+  "ShardsOpenBot standing role",
+  "ShardsOpenBot granted tools guidance",
+  "ShardsOpenBot Bot id",
+  "ShardsOpenBot deployment tools",
+  "ShardsOpenBot signed run assertion",
+  "ShardsOpenBot learned skills",
 ]);
 
 function callerMastraContext(context: AgentContext[]): AgentContext[] {
@@ -1562,7 +1562,7 @@ function callerMastraContext(context: AgentContext[]): AgentContext[] {
   );
 }
 
-function mastraOpenBotContext({
+function mastraShardsOpenBotContext({
   standingMessage,
   holdingsMessage,
   botId,
@@ -1577,29 +1577,29 @@ function mastraOpenBotContext({
 }): AgentContext[] {
   return [
     {
-      description: "OpenBot standing role",
+      description: "ShardsOpenBot standing role",
       value: standingMessage.content,
     },
     ...(holdingsMessage
       ? [
           {
-            description: "OpenBot granted tools guidance",
+            description: "ShardsOpenBot granted tools guidance",
             value: holdingsMessage.content,
           },
         ]
       : []),
     {
-      description: "OpenBot Bot id",
+      description: "ShardsOpenBot Bot id",
       value: botId,
     },
     {
-      description: "OpenBot deployment tools",
+      description: "ShardsOpenBot deployment tools",
       value: JSON.stringify(deploymentTools),
     },
     ...(runAssertion
       ? [
           {
-            description: "OpenBot signed run assertion",
+            description: "ShardsOpenBot signed run assertion",
             value: runAssertion,
           },
         ]
@@ -1877,10 +1877,10 @@ export function mountCopilotRuntime(
     // See IntelligenceKnowingANewThread.
     intelligence: intelligenceClient,
     licenseToken: intelligence.licenseToken,
-    // Carried on the events the runtime already sends, so OpenBot's traffic is separable from any
+    // Carried on the events the runtime already sends, so ShardsOpenBot's traffic is separable from any
     // other deployment's. Adds no events of its own.
     telemetryProperties: {
-      ...(config.accessibility ? { accessibility_title: "OpenBot" } : {}),
+      ...(config.accessibility ? { accessibility_title: "ShardsOpenBot" } : {}),
       ...desktopTelemetryProperties(),
     },
     /*

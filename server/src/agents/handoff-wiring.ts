@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { IntelligenceAgentRunner } from "@copilotkit/runtime/v2";
-import { workOwner } from "@openbot/shared/work-owner";
+import { workOwner } from "@shardsopenbot/shared/work-owner";
 import { eq } from "drizzle-orm";
 import { type AuditStore, handoffInitiator } from "../audit";
 import type { GroupConversations } from "../channels/group";

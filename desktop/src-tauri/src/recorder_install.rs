@@ -1,4 +1,4 @@
-//! Writes the native messaging host manifests that let the Recorder extension find OpenBot Desktop.
+//! Writes the native messaging host manifests that let the Recorder extension find ShardsOpenBot Desktop.
 //!
 //! Where each manifest goes, checked against the official pages:
 //! - Chrome and Chromium, macOS, Linux and the Windows registry key:
@@ -17,7 +17,7 @@
 //!   <https://chromium.googlesource.com/chromium/src/+/HEAD/docs/user_data_dir.md>
 //!
 //! A browser installed after Desktop started is found too. On Windows every browser's key is written whether or not the
-//! browser is there yet: the manifest lives in OpenBot's own folder, and a key no browser reads changes nothing. On macOS
+//! browser is there yet: the manifest lives in ShardsOpenBot's own folder, and a key no browser reads changes nothing. On macOS
 //! and Linux a manifest goes inside the browser's own folder, which is not made for a browser that is not there, so the
 //! app checks again every minute and writes only what is missing or different.
 //!
@@ -229,7 +229,7 @@ pub fn host_manifest(path_to_exe: &Path) -> Value {
 pub fn host_manifest_with(path_to_exe: &Path, store: &StoreIds) -> Value {
     json!({
         "name": host_name(),
-        "description": "OpenBot Desktop: lets the Recorder find this computer's OpenBot",
+        "description": "ShardsOpenBot Desktop: lets the Recorder find this computer's ShardsOpenBot",
         "path": path_to_exe.to_string_lossy(),
         "type": "stdio",
         "allowed_origins": allowed_origins_with(store),
@@ -283,7 +283,7 @@ pub fn data_directory(os: Os, browser: Browser, dirs: UserDirs) -> PathBuf {
 pub fn host_manifest_location(os: Os, browser: Browser, dirs: UserDirs) -> PathBuf {
     match os {
         Os::Windows => windows_local_app_data(dirs)
-            .join("OpenBot")
+            .join("ShardsOpenBot")
             .join("recorder")
             .join(manifest_file_name()),
         Os::Mac | Os::Linux => data_directory(os, browser, dirs)
@@ -338,14 +338,14 @@ pub fn stable_host_path(
                 Ok(appimage.to_path_buf())
             } else if exe.starts_with("/tmp/.mount_") {
                 Err(Problem::plain(
-                    "Run OpenBot Desktop from its AppImage file to let the Recorder find it.",
+                    "Run ShardsOpenBot Desktop from its AppImage file to let the Recorder find it.",
                 ))
             } else {
                 Ok(current_exe.to_path_buf())
             }
         }
         Os::Mac if exe.contains("/AppTranslocation/") => Err(Problem::plain(
-            "Move OpenBot Desktop to Applications to let the Recorder find it.",
+            "Move ShardsOpenBot Desktop to Applications to let the Recorder find it.",
         )),
         Os::Mac | Os::Windows => Ok(current_exe.to_path_buf()),
     }
@@ -363,7 +363,7 @@ fn write_manifest(
     }
     writer.write_file(path, &contents).map_err(|error| {
         Problem::with(
-            "OpenBot Desktop could not set up the Recorder.",
+            "ShardsOpenBot Desktop could not set up the Recorder.",
             format!("{}: {error}", path.display()),
         )
     })
@@ -384,7 +384,7 @@ pub fn install(
             for argv in registry_commands(browser, &manifest) {
                 writer.run(&argv).map_err(|error| {
                     Problem::with(
-                        "OpenBot Desktop could not set up the Recorder.",
+                        "ShardsOpenBot Desktop could not set up the Recorder.",
                         format!("{}: {error}", argv.join(" ")),
                     )
                 })?;
@@ -513,7 +513,7 @@ mod tests {
         let shared: Value =
             serde_json::from_str(include_str!("../../../shared/recorder-extension.json")).unwrap();
         assert_eq!(host_name(), shared["nativeHost"]);
-        assert_eq!(host_name(), "ai.copilotkit.openbot.recorder");
+        assert_eq!(host_name(), "ai.copilotkit.shardsopenbot.recorder");
         assert_eq!(
             extension_origin(),
             format!(
@@ -527,14 +527,14 @@ mod tests {
     #[test]
     fn manifest_names_the_host_the_path_and_only_the_recorders_own_origins() {
         let manifest = host_manifest(Path::new(
-            "/Applications/OpenBot.app/Contents/MacOS/openbot",
+            "/Applications/ShardsOpenBot.app/Contents/MacOS/shardsopenbot",
         ));
         assert_eq!(
             manifest,
             serde_json::json!({
-                "name": "ai.copilotkit.openbot.recorder",
-                "description": "OpenBot Desktop: lets the Recorder find this computer's OpenBot",
-                "path": "/Applications/OpenBot.app/Contents/MacOS/openbot",
+                "name": "ai.copilotkit.shardsopenbot.recorder",
+                "description": "ShardsOpenBot Desktop: lets the Recorder find this computer's ShardsOpenBot",
+                "path": "/Applications/ShardsOpenBot.app/Contents/MacOS/shardsopenbot",
                 "type": "stdio",
                 "allowed_origins": shared_origins(),
             })
@@ -603,7 +603,7 @@ mod tests {
 
     #[test]
     fn the_manifest_allows_each_store_id_exactly_and_the_fixed_one_once() {
-        let exe = Path::new("/Applications/OpenBot.app/Contents/MacOS/openbot");
+        let exe = Path::new("/Applications/ShardsOpenBot.app/Contents/MacOS/shardsopenbot");
         let both = StoreIds {
             chrome: Some(CHROME_STORE.into()),
             edge: Some(EDGE_STORE.into()),
@@ -648,7 +648,7 @@ mod tests {
                 "{os:?} {browser:?}"
             );
         };
-        let file = "ai.copilotkit.openbot.recorder.json";
+        let file = "ai.copilotkit.shardsopenbot.recorder.json";
         let mac = |dir: &str| {
             format!("/home/a/Library/Application Support/{dir}/NativeMessagingHosts/{file}")
         };
@@ -661,7 +661,7 @@ mod tests {
         expect(Os::Linux, Browser::Edge, plain, &linux("microsoft-edge"));
         expect(Os::Linux, Browser::Chromium, plain, &linux("chromium"));
         let windows = PathBuf::from("/c/Local")
-            .join("OpenBot")
+            .join("ShardsOpenBot")
             .join("recorder")
             .join(file);
         let with_local = UserDirs {
@@ -681,7 +681,7 @@ mod tests {
         let h = home();
         let xdg = PathBuf::from("/xdg");
         let chrome = PathBuf::from("/chrome-config");
-        let file = "NativeMessagingHosts/ai.copilotkit.openbot.recorder.json";
+        let file = "NativeMessagingHosts/ai.copilotkit.shardsopenbot.recorder.json";
         let with_xdg = UserDirs {
             xdg_config_home: Some(&xdg),
             ..UserDirs::at(&h)
@@ -747,7 +747,7 @@ mod tests {
         writer.present.insert(xdg.join("google-chrome"));
         writer.present.insert(h.join(".config").join("chromium"));
         let written = install(
-            Path::new("/usr/bin/openbot-desktop"),
+            Path::new("/usr/bin/shardsopenbot-desktop"),
             dirs,
             Os::Linux,
             &mut writer,
@@ -758,7 +758,7 @@ mod tests {
             vec![xdg
                 .join("google-chrome")
                 .join("NativeMessagingHosts")
-                .join("ai.copilotkit.openbot.recorder.json")]
+                .join("ai.copilotkit.shardsopenbot.recorder.json")]
         );
     }
 
@@ -771,22 +771,22 @@ mod tests {
             home()
                 .join("AppData")
                 .join("Local")
-                .join("OpenBot")
+                .join("ShardsOpenBot")
                 .join("recorder")
-                .join("ai.copilotkit.openbot.recorder.json")
+                .join("ai.copilotkit.shardsopenbot.recorder.json")
         );
     }
 
     #[test]
     fn registry_commands_set_the_default_value_under_each_browsers_key() {
         let path = Path::new(
-            "C:\\Users\\a\\AppData\\Local\\OpenBot\\recorder\\ai.copilotkit.openbot.recorder.json",
+            "C:\\Users\\a\\AppData\\Local\\ShardsOpenBot\\recorder\\ai.copilotkit.shardsopenbot.recorder.json",
         );
         let argv = |key: &str| {
             vec![vec![
                 "reg.exe".to_string(),
                 "add".to_string(),
-                format!("{key}\\NativeMessagingHosts\\ai.copilotkit.openbot.recorder"),
+                format!("{key}\\NativeMessagingHosts\\ai.copilotkit.shardsopenbot.recorder"),
                 "/ve".to_string(),
                 "/t".to_string(),
                 "REG_SZ".to_string(),
@@ -872,17 +872,17 @@ mod tests {
     fn an_appimage_run_names_the_appimage_itself() {
         let got = stable_host_path(
             Os::Linux,
-            Path::new("/tmp/.mount_abc/usr/bin/openbot-desktop"),
-            Some(Path::new("/home/a/OpenBot.AppImage")),
+            Path::new("/tmp/.mount_abc/usr/bin/shardsopenbot-desktop"),
+            Some(Path::new("/home/a/ShardsOpenBot.AppImage")),
         );
-        assert_eq!(got.unwrap(), PathBuf::from("/home/a/OpenBot.AppImage"));
+        assert_eq!(got.unwrap(), PathBuf::from("/home/a/ShardsOpenBot.AppImage"));
     }
 
     #[test]
     fn a_mounted_binary_without_an_appimage_is_refused() {
         let got = stable_host_path(
             Os::Linux,
-            Path::new("/tmp/.mount_abc/usr/bin/openbot-desktop"),
+            Path::new("/tmp/.mount_abc/usr/bin/shardsopenbot-desktop"),
             None,
         );
         assert!(got.is_err());
@@ -892,25 +892,25 @@ mod tests {
     fn a_translocated_mac_app_asks_to_be_moved() {
         let got = stable_host_path(
             Os::Mac,
-            Path::new("/private/var/folders/x/T/AppTranslocation/1/d/OpenBot.app/Contents/MacOS/openbot-desktop"),
+            Path::new("/private/var/folders/x/T/AppTranslocation/1/d/ShardsOpenBot.app/Contents/MacOS/shardsopenbot-desktop"),
             None,
         );
         assert_eq!(
             got.unwrap_err().said,
-            "Move OpenBot Desktop to Applications to let the Recorder find it."
+            "Move ShardsOpenBot Desktop to Applications to let the Recorder find it."
         );
     }
 
     #[test]
     fn installed_paths_are_returned_unchanged() {
-        let mac = Path::new("/Applications/OpenBot.app/Contents/MacOS/openbot-desktop");
+        let mac = Path::new("/Applications/ShardsOpenBot.app/Contents/MacOS/shardsopenbot-desktop");
         assert_eq!(stable_host_path(Os::Mac, mac, None).unwrap(), mac);
-        let windows = Path::new("C:\\Program Files\\OpenBot\\openbot-desktop.exe");
+        let windows = Path::new("C:\\Program Files\\ShardsOpenBot\\shardsopenbot-desktop.exe");
         assert_eq!(
             stable_host_path(Os::Windows, windows, None).unwrap(),
             windows
         );
-        let deb = Path::new("/usr/bin/openbot-desktop");
+        let deb = Path::new("/usr/bin/shardsopenbot-desktop");
         assert_eq!(stable_host_path(Os::Linux, deb, None).unwrap(), deb);
     }
 
@@ -924,7 +924,7 @@ mod tests {
         writer
             .present
             .insert(h.join("Library/Application Support/Microsoft Edge"));
-        let exe = Path::new("/Applications/OpenBot.app/Contents/MacOS/openbot-desktop");
+        let exe = Path::new("/Applications/ShardsOpenBot.app/Contents/MacOS/shardsopenbot-desktop");
         let written = install(exe, UserDirs::at(&h), Os::Mac, &mut writer).unwrap();
         assert_eq!(written.len(), 2);
         assert_eq!(writer.files.len(), 2);
@@ -946,7 +946,7 @@ mod tests {
         let h = home();
         let mut writer = Recording::default();
         let written = install(
-            Path::new("/usr/bin/openbot-desktop"),
+            Path::new("/usr/bin/shardsopenbot-desktop"),
             UserDirs::at(&h),
             Os::Linux,
             &mut writer,
@@ -960,7 +960,7 @@ mod tests {
     #[test]
     fn a_browser_installed_after_the_first_round_gets_its_manifest_on_the_next() {
         let h = home();
-        let exe = Path::new("/Applications/OpenBot.app/Contents/MacOS/openbot-desktop");
+        let exe = Path::new("/Applications/ShardsOpenBot.app/Contents/MacOS/shardsopenbot-desktop");
         let mut writer = Recording::default();
         writer
             .present
@@ -981,7 +981,7 @@ mod tests {
             .to_string_lossy()
             .contains("Microsoft Edge"));
         // A manifest that names another binary is put right.
-        let moved = Path::new("/Users/a/Applications/OpenBot.app/Contents/MacOS/openbot-desktop");
+        let moved = Path::new("/Users/a/Applications/ShardsOpenBot.app/Contents/MacOS/shardsopenbot-desktop");
         install(moved, UserDirs::at(&h), Os::Mac, &mut writer).unwrap();
         assert_eq!(writer.files.len(), 4);
     }
@@ -996,12 +996,12 @@ mod tests {
         };
         // No browser is there yet: each key is written anyway, so one installed later finds the host.
         let mut writer = Recording::default();
-        let exe = Path::new("C:\\Program Files\\OpenBot\\openbot-desktop.exe");
+        let exe = Path::new("C:\\Program Files\\ShardsOpenBot\\shardsopenbot-desktop.exe");
         let written = install(exe, dirs, Os::Windows, &mut writer).unwrap();
         let manifest = local
-            .join("OpenBot")
+            .join("ShardsOpenBot")
             .join("recorder")
-            .join("ai.copilotkit.openbot.recorder.json");
+            .join("ai.copilotkit.shardsopenbot.recorder.json");
         assert_eq!(written, vec![manifest.clone()]);
         assert_eq!(writer.files.len(), 1);
         assert_eq!(writer.files[0].0, manifest);
@@ -1109,8 +1109,8 @@ mod tests {
         let theirs = [
             home.join(".config/google-chrome/Default/Bookmarks"),
             home.join(".config/google-chrome/NativeMessagingHosts/com.1password.json"),
-            home.join(".local/share/openbot/deployment/docker-compose.yml"),
-            system.join(".local/share/openbot/local-computer/profiles/x"),
+            home.join(".local/share/shardsopenbot/deployment/docker-compose.yml"),
+            system.join(".local/share/shardsopenbot/local-computer/profiles/x"),
         ];
         let bin = scratch.join("bin");
         std::fs::create_dir_all(&bin).unwrap();

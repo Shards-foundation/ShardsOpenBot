@@ -92,7 +92,7 @@ async function post(
   app: ReturnType<typeof appWithSecret>,
   init: RequestInit = {},
 ) {
-  return app.request("http://openbot.local/internal/routines/run", {
+  return app.request("http://shardsopenbot.local/internal/routines/run", {
     method: "POST",
     ...init,
   });

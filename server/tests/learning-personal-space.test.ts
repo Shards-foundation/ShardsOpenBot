@@ -6,8 +6,8 @@ import {
 import {
   isLearningContainerId,
   type LearningSettings,
-} from "@openbot/shared/learning";
-import type { LearningSpaceState } from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/learning";
+import type { LearningSpaceState } from "@shardsopenbot/shared/recorder-api";
 import type { LearningContainerSpec } from "../src/learning/ensure-container";
 import {
   classifyLearningSpaceProbe,
@@ -24,7 +24,7 @@ type Call = { containerId: string; signal?: AbortSignal };
 
 const enabled: LearningSettings = {
   enabled: true,
-  defaultTarget: { containerId: "openbot" },
+  defaultTarget: { containerId: "shardsopenbot" },
   agents: {},
 };
 const ADA = "person-ada";
@@ -166,7 +166,7 @@ describe("the person's Learning space", () => {
       containerId: ADA_SPACE,
     });
     expect(h.creates).toEqual([
-      { id: ADA_SPACE, name: "OpenBot: Ada Lovelace" },
+      { id: ADA_SPACE, name: "ShardsOpenBot: Ada Lovelace" },
     ]);
     expect(h.store.rows.get(ADA)).toBe(ADA_SPACE);
   });

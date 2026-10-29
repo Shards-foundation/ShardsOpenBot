@@ -66,7 +66,7 @@ export function GrantList({
     onSuccess: (authorizationUrl) => {
       if (authorizationUrl === null) {
         setNotice(
-          "OpenBot answered without a consent link, so nothing was authorized. Try again, or ask an admin if it keeps happening.",
+          "ShardsOpenBot answered without a consent link, so nothing was authorized. Try again, or ask an admin if it keeps happening.",
         );
         return;
       }

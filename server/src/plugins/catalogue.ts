@@ -34,7 +34,7 @@ import type { CuratedTransportKind } from "./transport";
 import {
   type ResearchRole,
   researchRoleOfTool,
-} from "@openbot/shared/research";
+} from "@shardsopenbot/shared/research";
 
 export type CatalogueAuth =
   /** Answers without any credential at all. */
@@ -412,7 +412,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = Object.freeze([
   {
     key: "routines",
     title: "Routines",
-    vendor: "OpenBot",
+    vendor: "ShardsOpenBot",
     summary:
       "Standing instructions a Bot runs on a schedule, as whoever scheduled them.",
     /*
@@ -433,7 +433,8 @@ export const CATALOGUE: readonly CatalogueEntry[] = Object.freeze([
       "resume_trigger",
       "delete_trigger",
     ]),
-    docsUrl: "https://github.com/CopilotKit/OpenBot/blob/main/docs/routines.md",
+    docsUrl:
+      "https://github.com/CopilotKit/ShardsOpenBot/blob/main/docs/routines.md",
   },
 ]);
 

@@ -1,4 +1,4 @@
-import type { AuditInitiator } from "@openbot/toolkit/initiator";
+import type { AuditInitiator } from "@shardsopenbot/toolkit/initiator";
 import {
   and,
   desc,
@@ -613,7 +613,7 @@ export const auditEventTypes = [
    */
   "recorder.bearer_refused",
   /*
-   * A browser connected to OpenBot as the Recorder, by whom and through which extension copy. Never
+   * A browser connected to ShardsOpenBot as the Recorder, by whom and through which extension copy. Never
    * the token or the code; the label is the person's own name for the browser.
    */
   "recorder.connected",

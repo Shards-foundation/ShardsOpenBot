@@ -179,17 +179,17 @@ def assert_learning_delivery(monkeypatch, harness, route="/"):
         body = {
             "threadId": "learning_" + str(uuid4()), "runId": str(uuid4()), "state": {},
             "messages": [
-                {"id": "openbot:learned-skills", "role": "system", "content": CATALOG},
+                {"id": "shardsopenbot:learned-skills", "role": "system", "content": CATALOG},
                 {"id": "user", "role": "user", "content": "Apply the refund policy."},
             ],
-            "context": [{"description": "OpenBot learned skills", "value": CATALOG}],
-            "tools": TOOLS, "forwardedProps": {"openbotDeploymentTools": []},
+            "context": [{"description": "ShardsOpenBot learned skills", "value": CATALOG}],
+            "tools": TOOLS, "forwardedProps": {"shardsopenbotDeploymentTools": []},
         }
 
         async def roundtrip():
             async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://harness", follow_redirects=True) as client:
                 for expected_name, result in [(LOAD, SKILL), (READ, SUPPORT), (None, None)]:
-                    response = await client.post(route, headers={"x-openbot-agent-token": "test-token"}, json=body)
+                    response = await client.post(route, headers={"x-shardsopenbot-agent-token": "test-token"}, json=body)
                     assert response.status_code == 200, (harness, response.text)
                     events = _normalize_chunks([json.loads(line[5:]) for line in response.text.splitlines() if line.startswith("data:")])
                     assert not [event for event in events if event["type"] == "RUN_ERROR"], (harness, events)

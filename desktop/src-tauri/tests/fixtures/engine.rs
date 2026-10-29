@@ -35,7 +35,7 @@ fn main() {
         println!("fixture");
         return;
     }
-    if let Some(path) = std::env::var_os("OPENBOT_TEST_ENGINE_RECORD") {
+    if let Some(path) = std::env::var_os("SHARDSOPENBOT_TEST_ENGINE_RECORD") {
         let cwd = std::fs::canonicalize(std::env::current_dir().unwrap()).unwrap();
         let mut log = std::fs::OpenOptions::new()
             .create(true)
@@ -82,7 +82,7 @@ fn main() {
         if joined.contains("config --format json") {
             println!(
                 "{}",
-                r#"{"services":{"supervisor":{"environment":{"COMPUTER_NAMESPACE":"openbot"}}}}"#
+                r#"{"services":{"supervisor":{"environment":{"COMPUTER_NAMESPACE":"shardsopenbot"}}}}"#
             );
         }
         return;

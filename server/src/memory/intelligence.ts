@@ -1,7 +1,7 @@
 import type { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
 
 /**
- * The slice of the Intelligence client memory needs. Typed from the client OpenBot already uses, so a
+ * The slice of the Intelligence client memory needs. Typed from the client ShardsOpenBot already uses, so a
  * test can hand in a fake without standing up the platform.
  */
 export type IntelligenceMemoryClient = Pick<
@@ -39,7 +39,7 @@ const FAILURE_TTL_MS = 60_000;
 /**
  * How long a person's list is reused. Every turn reads it for the memory context, so without this
  * each turn would wait on a platform round trip. Any write of that person's through this client
- * clears it, so OpenBot's own changes show at once; a memory another app adds shows within this.
+ * clears it, so ShardsOpenBot's own changes show at once; a memory another app adds shows within this.
  */
 const LIST_TTL_MS = 30_000;
 
@@ -75,7 +75,7 @@ function statusOf(error: unknown): number | undefined {
 /**
  * Intelligence memory behind one guard: entitled, reachable, or out of the way.
  *
- * Memory is a licensed Intelligence feature, and OpenBot has to work without it. So every call here
+ * Memory is a licensed Intelligence feature, and ShardsOpenBot has to work without it. So every call here
  * answers `undefined` instead of throwing when the deployment is not entitled, Intelligence is
  * unreachable, or a call fails; the store then keeps working on its own tables. A `403` (the
  * platform's `MEMORY_NOT_ENTITLED`), a `401` or a network failure holds memory on the local store

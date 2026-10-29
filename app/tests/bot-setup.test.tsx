@@ -123,7 +123,7 @@ function serve(endpoint: string, ownerUserId = actor.id) {
       }
       return routes.request(
         new Request(
-          `http://openbot.test${path.slice("/api/agents".length)}`,
+          `http://shardsopenbot.test${path.slice("/api/agents".length)}`,
           init,
         ),
       );

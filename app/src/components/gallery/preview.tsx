@@ -117,8 +117,8 @@ function PreviewOf({ name }: { name: string }) {
      */
     return (
       <p className="text-muted-foreground text-sm">
-        Shows OpenBot's own records. There's nothing to show until a Bot asks
-        for it.
+        Shows ShardsOpenBot's own records. There's nothing to show until a Bot
+        asks for it.
       </p>
     );
   }

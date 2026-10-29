@@ -18,7 +18,7 @@ from langroid.language_models import OpenAIGPTConfig
 
 from .frontend_tools import FrontendToolsAgent
 
-TOKEN_HEADER = "x-openbot-agent-token"
+TOKEN_HEADER = "x-shardsopenbot-agent-token"
 
 
 def _model_id() -> str:
@@ -59,7 +59,7 @@ agent = ChatAgent(
     )
 )
 
-app = create_langroid_app(FrontendToolsAgent(name="openbot", agent=agent))
+app = create_langroid_app(FrontendToolsAgent(name="shardsopenbot", agent=agent))
 
 
 @app.middleware("http")

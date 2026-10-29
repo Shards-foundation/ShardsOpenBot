@@ -17,7 +17,7 @@ import {
   maskNetworkEvent,
   sanitiseForIntelligence,
   trimEvent,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import {
   type Channels,
   createChannels,
@@ -41,8 +41,8 @@ type Transport = "fetch" | "xhr";
 type Outcome = "ok" | "error" | "aborted";
 type Request = { url: string; method: string; headers: Record<string, string> };
 
-const CONFIGURE = Symbol.for("openbot.recorder.configure");
-const STOP = Symbol.for("openbot.recorder.stop");
+const CONFIGURE = Symbol.for("shardsopenbot.recorder.configure");
+const STOP = Symbol.for("shardsopenbot.recorder.stop");
 const registry = globalThis as unknown as Record<symbol, unknown>;
 
 // Pages matching externally_connectable (all URLs) get chrome.runtime.sendMessage; the page's own scripts could replace it

@@ -1,15 +1,15 @@
 //! The person's own browser on this machine: the host-side local Chrome computer.
 //!
-//! OpenBot Desktop runs a fourth host process beside the server, the app and the worker:
+//! ShardsOpenBot Desktop runs a fourth host process beside the server, the app and the worker:
 //! `agent-computer` with `COMPUTER_BROWSER_BACKEND=local-chrome`, the computer
 //! `scripts/start-local-chrome-computer.ts` starts by hand for a developer. It opens the person's
 //! installed Google Chrome, or Microsoft Edge where Chrome is missing, as a window on their desktop,
 //! in a profile of its own, with the Recorder loaded from the deployment's prebuilt copy. The server
-//! finds it through `OPENBOT_BROWSER_URL`. Bots' own computers stay where they are, with the
+//! finds it through `SHARDSOPENBOT_BROWSER_URL`. Bots' own computers stay where they are, with the
 //! supervisor and the engine: only the person's browser runs here.
 //!
-//! It runs only where it can work. The deployment's release has to carry the OpenBot Browser (its
-//! contract, `shared/openbot-browser.ts`), the Recorder has to be in it (installation copies it out
+//! It runs only where it can work. The deployment's release has to carry the ShardsOpenBot Browser (its
+//! contract, `shared/shardsopenbot-browser.ts`), the Recorder has to be in it (installation copies it out
 //! of the release's computer image, `preparation::place_recorder`), and Chrome or Edge has to be
 //! installed where the computer will look. Anything less runs nothing here, and the server is told
 //! why (`BROWSER_ABSENT_ENV`) so the app can tell the person.
@@ -21,15 +21,15 @@ use std::path::{Path, PathBuf};
 
 use crate::recorder_install::Os;
 
-/// The file every part of the OpenBot Browser is built against. A release without it has no
+/// The file every part of the ShardsOpenBot Browser is built against. A release without it has no
 /// server route, computer route or Browser button that could use a browser on this machine.
-pub const CONTRACT: &str = "shared/openbot-browser.ts";
+pub const CONTRACT: &str = "shared/shardsopenbot-browser.ts";
 
 /// The contract's `RECORDER_DIR_ENV`: on the computer, the built Recorder, absolute.
-pub const RECORDER_DIR_ENV: &str = "OPENBOT_RECORDER_DIR";
+pub const RECORDER_DIR_ENV: &str = "SHARDSOPENBOT_RECORDER_DIR";
 
 /// The contract's `BROWSER_URL_ENV`: on the server, the computer that runs people's browsers.
-pub const BROWSER_URL_ENV: &str = "OPENBOT_BROWSER_URL";
+pub const BROWSER_URL_ENV: &str = "SHARDSOPENBOT_BROWSER_URL";
 
 /// The contract's `PEOPLE_ONLY_ENV`: on the computer, that it runs people's own browsers and no Bot. The
 /// computer runs a person's browser only on a computer of its own, and this is how it knows it is one.
@@ -175,16 +175,16 @@ pub fn data_root(os: Os, home: &Path, var: Variable) -> PathBuf {
         Os::Mac => home
             .join("Library")
             .join("Application Support")
-            .join("OpenBot"),
+            .join("ShardsOpenBot"),
         Os::Windows => var("LOCALAPPDATA")
             .map(PathBuf::from)
             .unwrap_or_else(|| home.join("AppData").join("Local"))
-            .join("OpenBot"),
+            .join("ShardsOpenBot"),
         Os::Linux => var("XDG_DATA_HOME")
             .map(PathBuf::from)
             .filter(|path| path.to_string_lossy().starts_with('/'))
             .unwrap_or_else(|| home.join(".local").join("share"))
-            .join("openbot"),
+            .join("shardsopenbot"),
     }
     .join("local-computer")
 }
@@ -194,17 +194,17 @@ pub fn recorder_dir(root: &Path) -> PathBuf {
     root.join(RECORDER_DIST)
 }
 
-/// Whether the deployment's release carries the OpenBot Browser at all.
+/// Whether the deployment's release carries the ShardsOpenBot Browser at all.
 pub fn in_release(root: &Path) -> bool {
     root.join(CONTRACT).is_file()
 }
 
-/// Why this machine runs no browser for the person. Each is logged, none is a failure: OpenBot runs
+/// Why this machine runs no browser for the person. Each is logged, none is a failure: ShardsOpenBot runs
 /// without it. The server is told why (`BROWSER_ABSENT_ENV`, [`Absent::code`]), and the app says so
 /// to the person in a sentence of their own beside whatever browser runs for them instead.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Absent {
-    /// The deployment's release predates the OpenBot Browser.
+    /// The deployment's release predates the ShardsOpenBot Browser.
     NotInRelease,
     /// The release carries it, and its Recorder is not in the deployment. Installation puts it
     /// there, and Start sends a deployment without it back to Installation, so this is a deployment
@@ -222,23 +222,23 @@ pub enum Absent {
 impl Absent {
     pub fn said(self) -> &'static str {
         match self {
-            Absent::NotInRelease => "this version of OpenBot has no browser of its own",
+            Absent::NotInRelease => "this version of ShardsOpenBot has no browser of its own",
             Absent::RecorderNotBuilt => "the Recorder is not in this deployment",
             Absent::NoChromeOrEdge => {
                 "neither Google Chrome nor Microsoft Edge is installed in its usual place"
             }
             Absent::FlatpakOnly(Product::Chrome) => {
-                "Google Chrome is installed only as a Flatpak, which OpenBot cannot open"
+                "Google Chrome is installed only as a Flatpak, which ShardsOpenBot cannot open"
             }
             Absent::FlatpakOnly(Product::Edge) => {
-                "Microsoft Edge is installed only as a Flatpak, which OpenBot cannot open"
+                "Microsoft Edge is installed only as a Flatpak, which ShardsOpenBot cannot open"
             }
             Absent::NoHomeFolder => "there is no home folder to keep the browser's profile in",
         }
     }
 
     /// The name the server knows this reason by, one of the contract's `BROWSER_ABSENCES`. None for
-    /// a release from before the OpenBot Browser, whose server has no browser to explain.
+    /// a release from before the ShardsOpenBot Browser, whose server has no browser to explain.
     pub fn code(self) -> Option<&'static str> {
         match self {
             Absent::NotInRelease => None,
@@ -252,13 +252,13 @@ impl Absent {
 }
 
 /// The contract's `BROWSER_ABSENT_ENV`: on the server, why there is no browser of the person's own.
-pub const BROWSER_ABSENT_ENV: &str = "OPENBOT_BROWSER_ABSENT";
+pub const BROWSER_ABSENT_ENV: &str = "SHARDSOPENBOT_BROWSER_ABSENT";
 
 /// The browser installed only as a Flatpak, where that is all there is: Chrome first, as ever.
 ///
 /// The Flatpaks of Chrome (`com.google.Chrome`) and Edge (`com.microsoft.Edge`) are community
 /// wrappers on Flathub that run the browser inside Flatpak's sandbox, which is given no access to
-/// the person's home beyond a few named folders: not the profile kept in OpenBot's data root, and
+/// the person's home beyond a few named folders: not the profile kept in ShardsOpenBot's data root, and
 /// not the Recorder in the deployment. So the computer cannot open them, and the person is told to
 /// install the vendor's own package instead. Found by the `metadata` file every installed Flatpak
 /// app has, system-wide (`/var/lib/flatpak/app`) or for this person (`flatpak/app` in
@@ -352,7 +352,7 @@ pub fn for_this_person(root: &Path) -> Result<LocalBrowser, Absent> {
     )
 }
 
-/// What the computer is started with, beyond what it inherits from OpenBot Desktop.
+/// What the computer is started with, beyond what it inherits from ShardsOpenBot Desktop.
 ///
 /// What `scripts/start-local-chrome-computer.ts` sets, for the same reasons: the local Chrome
 /// backend, headed (it refuses anything else, because the window is the point), Chromium's own
@@ -650,7 +650,7 @@ mod tests {
     /// Every reason the server is told is one it has a sentence for.
     #[test]
     fn every_reason_is_the_contracts() {
-        let contract = include_str!("../../../shared/openbot-browser.ts");
+        let contract = include_str!("../../../shared/shardsopenbot-browser.ts");
         assert!(contract.contains(&format!(
             "export const BROWSER_ABSENT_ENV = \"{BROWSER_ABSENT_ENV}\";"
         )));
@@ -664,7 +664,7 @@ mod tests {
             let code = absent.code().unwrap();
             assert!(
                 contract.contains(&format!("\"{code}\":")),
-                "shared/openbot-browser.ts has no sentence for {code}"
+                "shared/shardsopenbot-browser.ts has no sentence for {code}"
             );
         }
         assert_eq!(Absent::NotInRelease.code(), None);
@@ -714,15 +714,15 @@ mod tests {
         let home = Path::new("/home/ada");
         assert_eq!(
             data_root(Os::Mac, Path::new("/Users/ada"), &none),
-            PathBuf::from("/Users/ada/Library/Application Support/OpenBot/local-computer")
+            PathBuf::from("/Users/ada/Library/Application Support/ShardsOpenBot/local-computer")
         );
         assert_eq!(
             data_root(Os::Linux, home, &none),
-            PathBuf::from("/home/ada/.local/share/openbot/local-computer")
+            PathBuf::from("/home/ada/.local/share/shardsopenbot/local-computer")
         );
         assert_eq!(
             data_root(Os::Linux, home, &vars(&[("XDG_DATA_HOME", "/data/ada")])),
-            PathBuf::from("/data/ada/openbot/local-computer")
+            PathBuf::from("/data/ada/shardsopenbot/local-computer")
         );
         assert_eq!(
             data_root(
@@ -730,16 +730,16 @@ mod tests {
                 home,
                 &vars(&[("XDG_DATA_HOME", "relative/data")])
             ),
-            PathBuf::from("/home/ada/.local/share/openbot/local-computer"),
+            PathBuf::from("/home/ada/.local/share/shardsopenbot/local-computer"),
             "the XDG specification says a relative path is invalid and ignored"
         );
         assert_eq!(
             slashed(&data_root(Os::Windows, home, &windows_account())),
-            "C:/Users/Ada/AppData/Local/OpenBot/local-computer"
+            "C:/Users/Ada/AppData/Local/ShardsOpenBot/local-computer"
         );
         assert_eq!(
             slashed(&data_root(Os::Windows, Path::new("C:\\Users\\Ada"), &none)),
-            "C:/Users/Ada/AppData/Local/OpenBot/local-computer"
+            "C:/Users/Ada/AppData/Local/ShardsOpenBot/local-computer"
         );
     }
 
@@ -790,7 +790,7 @@ mod tests {
             Ok(LocalBrowser {
                 product: Product::Chrome,
                 executable: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome".into(),
-                data: "/Users/ada/Library/Application Support/OpenBot/local-computer".into(),
+                data: "/Users/ada/Library/Application Support/ShardsOpenBot/local-computer".into(),
             })
         );
         for root in [old, unbuilt, ready] {
@@ -803,10 +803,10 @@ mod tests {
         let browser = LocalBrowser {
             product: Product::Edge,
             executable: "/opt/microsoft/msedge/msedge".into(),
-            data: "/home/ada/.local/share/openbot/local-computer".into(),
+            data: "/home/ada/.local/share/shardsopenbot/local-computer".into(),
         };
         let env: BTreeMap<&str, String> = environment(
-            Path::new("/home/ada/OpenBot"),
+            Path::new("/home/ada/ShardsOpenBot"),
             &browser,
             4107,
             "synthetic-token",
@@ -828,8 +828,8 @@ mod tests {
                 ("PROFILES_DIR", lossy(browser.data.join("profiles"))),
                 ("WORKSPACE_DIR", lossy(browser.data.join("workspace"))),
                 (
-                    "OPENBOT_RECORDER_DIR",
-                    lossy(Path::new("/home/ada/OpenBot").join(RECORDER_DIST))
+                    "SHARDSOPENBOT_RECORDER_DIR",
+                    lossy(Path::new("/home/ada/ShardsOpenBot").join(RECORDER_DIST))
                 ),
             ])
         );
@@ -842,7 +842,7 @@ mod tests {
     /// it here is how Desktop stays on the same names without a second copy anybody must remember.
     #[test]
     fn the_names_are_the_contracts() {
-        let contract = include_str!("../../../shared/openbot-browser.ts");
+        let contract = include_str!("../../../shared/shardsopenbot-browser.ts");
         for (constant, value) in [
             ("RECORDER_DIR_ENV", RECORDER_DIR_ENV),
             ("BROWSER_URL_ENV", BROWSER_URL_ENV),
@@ -850,7 +850,7 @@ mod tests {
         ] {
             assert!(
                 contract.contains(&format!("export const {constant} = \"{value}\";")),
-                "shared/openbot-browser.ts no longer says {constant} = {value}"
+                "shared/shardsopenbot-browser.ts no longer says {constant} = {value}"
             );
         }
         assert!(contract.contains(&format!("http://127.0.0.1:{DEFAULT_PORT}")));

@@ -6,11 +6,11 @@
  * ordinary headless AG-UI turn through the same turn runner routines use, so governance, audit and
  * Automatic Learning apply unchanged. The restriction is the initiator (see `restriction.ts`), which
  * the turn runner's `buildAgentFor` narrows on; this module adds two tools of its own and nothing
- * that can write outside OpenBot.
+ * that can write outside ShardsOpenBot.
  */
 
-import type { HeadlessTool } from "@openbot/toolkit/headless-tools";
-import type { TurnRunner } from "@openbot/toolkit/run-turn";
+import type { HeadlessTool } from "@shardsopenbot/toolkit/headless-tools";
+import type { TurnRunner } from "@shardsopenbot/toolkit/run-turn";
 import { z } from "zod";
 import type { AuditInitiator } from "../audit";
 import type { MemoryStore } from "../memory/store";
@@ -284,7 +284,7 @@ export function createProactiveEngine(deps: ProactiveEngineDeps) {
       await deps.notify(scope, {
         id: `suggestion:${suggestion.id}`,
         kind: "reply",
-        text: `Suggested next step: ${suggestion.title}\n${suggestion.detail}${suggestion.sourceApp ? `\nFrom ${suggestion.sourceApp}` : ""}\nStart or dismiss it on the Bot's page in OpenBot.`,
+        text: `Suggested next step: ${suggestion.title}\n${suggestion.detail}${suggestion.sourceApp ? `\nFrom ${suggestion.sourceApp}` : ""}\nStart or dismiss it on the Bot's page in ShardsOpenBot.`,
       });
       await deps.store.markDelivered(suggestion.id);
     }

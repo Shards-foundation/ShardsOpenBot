@@ -45,7 +45,7 @@ describe("detectRecorder", () => {
       version: "1.2.3",
       installId: "a".repeat(32),
     });
-    expect(asked[0]).toEqual({ type: "openbot.ping" });
+    expect(asked[0]).toEqual({ type: "shardsopenbot.ping" });
   });
 
   test("an answer of only ok: true is detected with no installId", async () => {
@@ -103,7 +103,7 @@ describe("detectRecorder", () => {
 });
 
 describe("sendConnectCode", () => {
-  test("sends openbot.connect to the id and returns the answer's installId", async () => {
+  test("sends shardsopenbot.connect to the id and returns the answer's installId", async () => {
     let sent: { id: string; message: unknown } | undefined;
     installChrome((id, message, reply) => {
       sent = { id, message };
@@ -117,7 +117,7 @@ describe("sendConnectCode", () => {
     const answer = await sendConnectCode("aaa", "obc_x");
     expect(sent).toEqual({
       id: "aaa",
-      message: { type: "openbot.connect", code: "obc_x" },
+      message: { type: "shardsopenbot.connect", code: "obc_x" },
     });
     expect(answer).toEqual({
       ok: true,

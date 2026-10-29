@@ -1,4 +1,4 @@
-import { joinedLearningContainer } from "@openbot/shared/recorder-api";
+import { joinedLearningContainer } from "@shardsopenbot/shared/recorder-api";
 import {
   IconCircleCheck,
   IconCloudUpload,
@@ -181,7 +181,7 @@ function keptCounts(kept: NonNullable<RecorderState["kept"]>) {
 function keptSentence(kept: NonNullable<RecorderState["kept"]>): string {
   const { counts, verb } = keptCounts(kept);
   return kept.waitingFor
-    ? `${counts} by ${kept.waitingFor.name} ${verb} kept in this browser for up to ${KEPT_FOR_PERSON_DAYS} days. Connect this browser to OpenBot again as ${kept.waitingFor.name} to send them.`
+    ? `${counts} by ${kept.waitingFor.name} ${verb} kept in this browser for up to ${KEPT_FOR_PERSON_DAYS} days. Connect this browser to ShardsOpenBot again as ${kept.waitingFor.name} to send them.`
     : `${counts} ${verb} kept in this browser: ${stripCaptureStatus(kept.reason)}`;
 }
 

@@ -35,7 +35,7 @@ describe("brokered_connections", () => {
           app,
           holder: "deployment",
           userId: "someone",
-          vendorUserId: `openbot-deployment:x:${suite}`,
+          vendorUserId: `shardsopenbot-deployment:x:${suite}`,
         }),
       ),
     ).toMatch(/brokered_connections_holder_check/);

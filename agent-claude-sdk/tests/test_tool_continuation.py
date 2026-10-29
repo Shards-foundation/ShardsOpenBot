@@ -24,7 +24,7 @@ from claude_agent_sdk import (
 from claude_agent_sdk.types import StreamEvent
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.adapter import OpenBotClaudeAgentAdapter
+from src.adapter import ShardsOpenBotClaudeAgentAdapter
 
 
 def request(thread="thread-a", run="run-1", results=(), tool_count=1, tool_name="computer_navigate"):
@@ -52,7 +52,7 @@ def request(thread="thread-a", run="run-1", results=(), tool_count=1, tool_name=
                     "parameters": {"type": "object", "properties": {}},
                 }
             ],
-            "context": [{"description": "OpenBot learned skills", "value": "LEARNED_CATALOG_MARKER"}],
+            "context": [{"description": "ShardsOpenBot learned skills", "value": "LEARNED_CATALOG_MARKER"}],
             "forwardedProps": {},
         }
     )
@@ -214,7 +214,7 @@ async def events(adapter, input_data):
 @pytest.mark.parametrize("tool_name", ["computer_navigate", "copilotkit_load_skill", "copilotkit_read_skill_file"])
 def test_client_result_resumes_original_sdk_query(sdk, streaming, model_only, tool_name):
     async def scenario():
-        adapter = OpenBotClaudeAgentAdapter(
+        adapter = ShardsOpenBotClaudeAgentAdapter(
             name="test",
             options={"include_partial_messages": streaming},
             model_only=model_only,
@@ -278,7 +278,7 @@ def test_parallel_calls_with_identical_arguments_keep_distinct_results(
     sdk, separate_requests, model_only
 ):
     async def scenario():
-        adapter = OpenBotClaudeAgentAdapter(name="test", model_only=model_only)
+        adapter = ShardsOpenBotClaudeAgentAdapter(name="test", model_only=model_only)
         try:
             first = await events(adapter, request(tool_count=2))
             assert any(
@@ -323,7 +323,7 @@ def test_parallel_calls_with_identical_arguments_keep_distinct_results(
 @pytest.mark.parametrize("model_only", [False, True])
 def test_unknown_id_cannot_resolve_another_threads_tool(sdk, model_only):
     async def scenario():
-        adapter = OpenBotClaudeAgentAdapter(name="test", model_only=model_only)
+        adapter = ShardsOpenBotClaudeAgentAdapter(name="test", model_only=model_only)
         try:
             await events(adapter, request())
             await events(adapter, request(thread="thread-b"))
@@ -359,7 +359,7 @@ def test_unknown_id_cannot_resolve_another_threads_tool(sdk, model_only):
 @pytest.mark.parametrize("model_only", [False, True])
 def test_interrupt_cancels_pending_tool_without_fabricating_a_result(sdk, model_only):
     async def scenario():
-        adapter = OpenBotClaudeAgentAdapter(name="test", model_only=model_only)
+        adapter = ShardsOpenBotClaudeAgentAdapter(name="test", model_only=model_only)
         await events(adapter, request())
         await asyncio.wait_for(sdk[0].hooks_entered.wait(), 2)
         await asyncio.wait_for(adapter.interrupt("thread-a"), 2)
@@ -373,7 +373,7 @@ def test_interrupt_cancels_pending_tool_without_fabricating_a_result(sdk, model_
 
 def test_disconnected_event_consumer_cancels_the_sdk_query(sdk):
     async def scenario():
-        adapter = OpenBotClaudeAgentAdapter(name="test")
+        adapter = ShardsOpenBotClaudeAgentAdapter(name="test")
         stream = adapter.run(request())
         assert (await anext(stream)).type == "RUN_STARTED"
         assert (await anext(stream)).type == "STATE_SNAPSHOT"
@@ -394,7 +394,7 @@ def test_disconnected_event_consumer_cancels_the_sdk_query(sdk):
 @pytest.mark.parametrize("model_only", [False, True])
 def test_query_timeout_interrupts_sdk_before_abandoning_client_result(sdk, model_only):
     async def scenario():
-        adapter = OpenBotClaudeAgentAdapter(
+        adapter = ShardsOpenBotClaudeAgentAdapter(
             name="test", query_timeout_seconds=0.02, model_only=model_only
         )
         try:
@@ -417,11 +417,11 @@ def test_query_timeout_interrupts_sdk_before_abandoning_client_result(sdk, model
 @pytest.mark.parametrize("model_only", [False, True])
 def test_sdk_authentication_signal_is_typed(sdk, model_only):
     async def scenario():
-        adapter = OpenBotClaudeAgentAdapter(name="test", model_only=model_only)
+        adapter = ShardsOpenBotClaudeAgentAdapter(name="test", model_only=model_only)
         try:
             result = await events(adapter, request(tool_count="auth-failed"))
             assert result[-1].type == "RUN_ERROR"
-            assert result[-1].code == "OPENBOT_MODEL_AUTH_REQUIRED"
+            assert result[-1].code == "SHARDSOPENBOT_MODEL_AUTH_REQUIRED"
         finally:
             await adapter.shutdown()
 

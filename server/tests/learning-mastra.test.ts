@@ -69,7 +69,7 @@ test("Mastra's maintained AG-UI bridge consumes the catalog and both learned too
         type: "object", properties: { skill_name: { type: "string" }, path: { type: "string" } }, required: ["skill_name"]
       }
     }));
-    const remote = getLocalAgents({ mastra, resourceId: "learning-test" }).openbot;
+    const remote = getLocalAgents({ mastra, resourceId: "learning-test" }).shardsopenbot;
     const middleware = new RemoteLearnedSkillsMiddleware("bot", async () => ({
       catalog: "LEARNED_CATALOG_MARKER", tools,
       execute: async (name) => name === "copilotkit_load_skill" ? "LOADED_SKILL_CONTENT" : "SUPPORTING_FILE_CONTENT"

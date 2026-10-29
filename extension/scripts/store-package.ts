@@ -6,7 +6,7 @@
 // (https://chromium.googlesource.com/chromium/src/+/refs/tags/60.0.3112.1/chrome/common/extensions/docs/templates/articles/packaging.html).
 // Edge Add-ons always assigns its own id, so its package carries no key.
 //
-// The private key is read from the path in OPENBOT_RECORDER_SIGNING_KEY, else ~/.config/openbot-recorder, and goes
+// The private key is read from the path in SHARDSOPENBOT_RECORDER_SIGNING_KEY, else ~/.config/shardsopenbot-recorder, and goes
 // nowhere but into the Chrome zip, built in memory: it is never printed and never written to disk on its own. The zips
 // are refused anywhere inside a git work tree, so a package holding the key cannot be committed by accident.
 //
@@ -29,14 +29,14 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { type Zippable, zipSync } from "fflate";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { verifyDist } from "./verify-dist";
 
 export const CHROME_PACKAGE = "chrome-web-store.zip";
 export const EDGE_PACKAGE = "edge-add-ons.zip";
 /** Where the Chrome Web Store looks for the key on a new item's first upload. */
 export const KEY_FILE = "key.pem";
-export const SIGNING_KEY_VARIABLE = "OPENBOT_RECORDER_SIGNING_KEY";
+export const SIGNING_KEY_VARIABLE = "SHARDSOPENBOT_RECORDER_SIGNING_KEY";
 /** The Chrome Web Store refuses an upload whose manifest description is longer, and shows it as the item's summary:
  * https://developer.chrome.com/docs/webstore/prepare */
 export const DESCRIPTION_MAX = 132;
@@ -51,7 +51,7 @@ export class StorePackageError extends Error {
   }
 }
 
-/** The path in OPENBOT_RECORDER_SIGNING_KEY, else the key's home in the person's own config. */
+/** The path in SHARDSOPENBOT_RECORDER_SIGNING_KEY, else the key's home in the person's own config. */
 export function signingKeyPath(
   env: Record<string, string | undefined>,
   home: string,
@@ -59,7 +59,12 @@ export function signingKeyPath(
   const configured = env[SIGNING_KEY_VARIABLE]?.trim();
   return configured
     ? configured
-    : path.join(home, ".config", "openbot-recorder", "recorder-extension.pem");
+    : path.join(
+        home,
+        ".config",
+        "shardsopenbot-recorder",
+        "recorder-extension.pem",
+      );
 }
 
 /** The id Chrome gives an extension: the first 128 bits of the SHA-256 of its public key, each hex digit as a to p. */
@@ -252,7 +257,7 @@ async function main() {
     writeFileSync(path.join(outDir, EDGE_PACKAGE), made.edge);
     console.log(
       [
-        `OpenBot Recorder ${made.version}, ${made.files} files, id ${made.id}${made.id === RECORDER_EXTENSION_ID ? " (the Recorder's fixed id)" : ""}`,
+        `ShardsOpenBot Recorder ${made.version}, ${made.files} files, id ${made.id}${made.id === RECORDER_EXTENSION_ID ? " (the Recorder's fixed id)" : ""}`,
         `${path.join(outDir, CHROME_PACKAGE)}: no manifest key, ${KEY_FILE} at its root (${made.chrome.length} bytes)`,
         `${path.join(outDir, EDGE_PACKAGE)}: no manifest key, no key file (${made.edge.length} bytes)`,
       ].join("\n"),

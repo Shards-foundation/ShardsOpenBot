@@ -15,7 +15,10 @@ import {
   channelKeys,
 } from "@/lib/channels/queries";
 import { applyChannelEvent } from "@/lib/channels/use-channel-events";
-import { generativeUiProviderOptions, OPENBOT_UI } from "@/lib/copilot/a2ui";
+import {
+  generativeUiProviderOptions,
+  SHARDSOPENBOT_UI,
+} from "@/lib/copilot/a2ui";
 import { queryClient } from "@/query-client";
 
 type ChannelCache = InfiniteData<ChannelPage>;
@@ -225,7 +228,7 @@ test("generated UI actions run the actual channel agent and thread with edited v
     content: {
       surfaceId: "trip",
       target: "chat",
-      catalogId: OPENBOT_UI.id,
+      catalogId: SHARDSOPENBOT_UI.id,
       status: "ready",
       rejected: [],
       operations: [
@@ -233,7 +236,7 @@ test("generated UI actions run the actual channel agent and thread with edited v
           version: "v1.0",
           createSurface: {
             surfaceId: "trip",
-            catalogId: OPENBOT_UI.id,
+            catalogId: SHARDSOPENBOT_UI.id,
             dataModel: { destination: "Paris" },
           },
         },

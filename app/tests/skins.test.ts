@@ -16,7 +16,7 @@ const read = (path: string) =>
 const skinned = SKIN_IDS.filter((id) => id !== DEFAULT_SKIN);
 
 describe("skin preference", () => {
-  test("a stored skin is used only when OpenBot ships it", () => {
+  test("a stored skin is used only when ShardsOpenBot ships it", () => {
     for (const id of SKIN_IDS) expect(parseStoredSkin(id)).toBe(id);
     expect(parseStoredSkin(null)).toBe(DEFAULT_SKIN);
     expect(parseStoredSkin("")).toBe(DEFAULT_SKIN);
@@ -38,7 +38,7 @@ describe("skin preference", () => {
       [SKIN_STORAGE_KEY, "opendots"],
       [SKIN_STORAGE_KEY, DEFAULT_SKIN],
     ]);
-    // The default clears the attribute, so no skin's rules can match OpenBot's own look.
+    // The default clears the attribute, so no skin's rules can match ShardsOpenBot's own look.
     expect(roots).toEqual(["opendots", null]);
   });
 

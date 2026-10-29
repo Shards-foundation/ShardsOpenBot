@@ -86,10 +86,10 @@ describe("probing a Learning container with the runtime key", () => {
             return skillSnapshot();
           },
         },
-        "openbot",
+        "shardsopenbot",
       ),
     ).toBe("present");
-    expect(asked).toEqual(["openbot"]);
+    expect(asked).toEqual(["shardsopenbot"]);
   });
 
   test("a missing container and a timeout are told apart", async () => {
@@ -100,7 +100,7 @@ describe("probing a Learning container with the runtime key", () => {
             throw new LearnedSkillsError("CONTAINER_NOT_FOUND", false);
           },
         },
-        "openbot",
+        "shardsopenbot",
       ),
     ).toBe("absent");
     expect(
@@ -111,7 +111,7 @@ describe("probing a Learning container with the runtime key", () => {
               signal?.addEventListener("abort", () => reject(signal.reason)),
             ),
         },
-        "openbot",
+        "shardsopenbot",
         5,
       ),
     ).toBe("unavailable");
@@ -127,7 +127,7 @@ describe("which project a runtime key belongs to", () => {
   test("is read from the project's Learning link", async () => {
     for (const link of [
       "https://intelligence.copilotkit.ai/o/acme/support%20bots/learning",
-      "https://intelligence.copilotkit.ai/o/acme/support%20bots/learning/openbot",
+      "https://intelligence.copilotkit.ai/o/acme/support%20bots/learning/shardsopenbot",
     ])
       expect(
         await keyProject({ getInspectorLearning: async () => snapshot(link) }),
@@ -158,19 +158,19 @@ describe("which project a runtime key belongs to", () => {
 });
 
 describe("automatic Learning container assignment", () => {
-  test("assigns the openbot container when it exists and nobody chose one", async () => {
+  test("assigns the shardsopenbot container when it exists and nobody chose one", async () => {
     const h = harness();
     expect(h.autoAssign.state()).toEqual({ state: "pending" });
     expect(await h.autoAssign.check()).toEqual({
       state: "assigned",
-      containerId: "openbot",
+      containerId: "shardsopenbot",
     });
     expect(await h.store.read()).toEqual({
       enabled: true,
-      defaultTarget: { containerId: "openbot" },
+      defaultTarget: { containerId: "shardsopenbot" },
       agents: {},
     });
-    expect(h.probes).toEqual(["openbot"]);
+    expect(h.probes).toEqual(["shardsopenbot"]);
     expect(h.events).toEqual([
       {
         eventType: "configuration.changed",
@@ -179,7 +179,7 @@ describe("automatic Learning container assignment", () => {
         payload: {
           change: "default_container_assigned_automatically",
           enabled: true,
-          defaultContainerId: "openbot",
+          defaultContainerId: "shardsopenbot",
           botMappingCount: 0,
         },
       },
@@ -188,13 +188,13 @@ describe("automatic Learning container assignment", () => {
       expect.objectContaining({
         type: "learning-auto-assign",
         outcome: "assigned",
-        containerId: "openbot",
+        containerId: "shardsopenbot",
       }),
     ]);
     // Settled: later checks do not ask Intelligence again.
     expect(await h.autoAssign.check()).toEqual({
       state: "assigned",
-      containerId: "openbot",
+      containerId: "shardsopenbot",
     });
     expect(h.probes).toHaveLength(1);
   });
@@ -233,7 +233,7 @@ describe("automatic Learning container assignment", () => {
       "absent",
       {
         state: "absent",
-        containerId: "openbot",
+        containerId: "shardsopenbot",
         canCreate: false,
         instructions: expect.stringContaining("bun scripts/setup-learning.ts"),
       },
@@ -250,7 +250,7 @@ describe("automatic Learning container assignment", () => {
       expect(h.logs).toHaveLength(1);
       expect(h.logs[0]).toMatchObject({
         outcome: probe,
-        containerId: "openbot",
+        containerId: "shardsopenbot",
       });
       expect((await h.store.read()).defaultTarget).toBeNull();
       expect(h.events).toEqual([]);
@@ -278,12 +278,12 @@ describe("automatic Learning container assignment", () => {
     });
     expect(await h.autoAssign.check()).toEqual({
       state: "assigned",
-      containerId: "openbot",
+      containerId: "shardsopenbot",
     });
     expect(creates).toBe(1);
-    expect(h.probes).toEqual(["openbot", "openbot"]);
+    expect(h.probes).toEqual(["shardsopenbot", "shardsopenbot"]);
     expect((await h.store.read()).defaultTarget).toEqual({
-      containerId: "openbot",
+      containerId: "shardsopenbot",
     });
     expect(h.logs.map((entry) => entry.outcome)).toEqual([
       "container_created",
@@ -301,7 +301,7 @@ describe("automatic Learning container assignment", () => {
     const state = await h.autoAssign.check();
     expect(state).toEqual({
       state: "absent",
-      containerId: "openbot",
+      containerId: "shardsopenbot",
       instructions,
       canCreate: true,
     });
@@ -330,7 +330,7 @@ describe("automatic Learning container assignment", () => {
     expect(creates).toBe(1);
     expect(await h.autoAssign.createNow()).toEqual({
       state: "assigned",
-      containerId: "openbot",
+      containerId: "shardsopenbot",
     });
     expect(creates).toBe(2);
     // Assigned is settled: asking again creates nothing.
@@ -360,7 +360,7 @@ describe("automatic Learning container assignment", () => {
     probe = "present";
     expect((await h.autoAssign.check()).state).toBe("assigned");
     expect((await h.store.read()).defaultTarget).toEqual({
-      containerId: "openbot",
+      containerId: "shardsopenbot",
     });
   });
 
@@ -383,8 +383,8 @@ describe("automatic Learning container assignment", () => {
     const checks = [h.autoAssign.check(), h.autoAssign.check()];
     gate.resolve("present");
     expect(await Promise.all(checks)).toEqual([
-      { state: "assigned", containerId: "openbot" },
-      { state: "assigned", containerId: "openbot" },
+      { state: "assigned", containerId: "shardsopenbot" },
+      { state: "assigned", containerId: "shardsopenbot" },
     ]);
     expect(h.probes).toHaveLength(1);
     expect(h.events).toHaveLength(1);
@@ -450,7 +450,7 @@ describe("reading settings nudges assignment", () => {
     await Bun.sleep(0);
     await h.autoAssign.check();
     expect((await store.read()).defaultTarget).toEqual({
-      containerId: "openbot",
+      containerId: "shardsopenbot",
     });
     const probes = h.probes.length;
     await store.read();

@@ -295,7 +295,7 @@ export function ProviderPicker({
       if (attemptId) {
         invoke("cancel_model_oauth", { attemptId }).catch(() => {
           console.error(
-            "OpenBot could not cancel the pending provider sign-in.",
+            "ShardsOpenBot could not cancel the pending provider sign-in.",
           );
         });
       }
@@ -573,7 +573,7 @@ export function ProviderPicker({
               <p className="footnote">
                 {row.id === "google"
                   ? "Authorize Gemini API access using the configured Google Cloud project and its API quota."
-                  : "Authorize OpenBot to use models available to your xAI account."}
+                  : "Authorize ShardsOpenBot to use models available to your xAI account."}
               </p>
               {oauthSignedIn === row.id ? (
                 <p className="lede">Signed in to {row.name}.</p>

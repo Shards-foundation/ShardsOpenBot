@@ -414,7 +414,7 @@ pub fn compose(
     // Absent means no harness was picked, and the package's gated rows stay dropped.
     harness: Option<&PickedHarness>,
     // What a previous run of THIS deployment already minted, so it is not minted again. Empty on a
-    // machine that has never run OpenBot, which is exactly when generating is right.
+    // machine that has never run ShardsOpenBot, which is exactly when generating is right.
     kept: &BTreeMap<String, String>,
 ) -> BTreeMap<String, String> {
     let mut env = BTreeMap::new();
@@ -449,7 +449,7 @@ pub fn compose(
             "ANTHROPIC_API_KEY",
             "CLAUDE_CODE_OAUTH_TOKEN",
             "CHATGPT_AUTH_FILE",
-            "OPENBOT_MODEL_OAUTH_FILE",
+            "SHARDSOPENBOT_MODEL_OAUTH_FILE",
             "BOT_PROVIDER",
             /*
              * Retired, and cleared for exactly that reason. An earlier version put the ChatGPT
@@ -522,7 +522,7 @@ pub fn compose(
             model,
             ..
         } => {
-            env.insert("OPENBOT_MODEL_OAUTH_FILE".into(), path.clone());
+            env.insert("SHARDSOPENBOT_MODEL_OAUTH_FILE".into(), path.clone());
             env.insert("OPENAI_API_KEY".into(), proxy_token.clone());
             env.insert(
                 "OPENAI_BASE_URL".into(),
@@ -632,7 +632,7 @@ pub fn compose(
     env.insert(
         "DATABASE_URL".into(),
         format!(
-            "postgres://openbot:openbot@127.0.0.1:{}/openbot",
+            "postgres://shardsopenbot:shardsopenbot@127.0.0.1:{}/shardsopenbot",
             ports.postgres
         ),
     );
@@ -773,7 +773,7 @@ pub fn compose(
 
     env.extend(ports.settings());
     env.insert(
-        "OPENBOT_TOOL_URL".into(),
+        "SHARDSOPENBOT_TOOL_URL".into(),
         format!(
             "http://host.docker.internal:{}/api/agent-tools/call",
             ports.server
@@ -792,9 +792,9 @@ pub fn compose(
     // that came with the deployment, and the Bots somebody was given are not the Bots they get.
     env.insert("TENANT_PACKAGE_DIR".into(), "../examples/fintech".into());
 
-    // The one person, named. `OPENBOT_SINGLE_USER` says there is nobody else; this says who that
+    // The one person, named. `SHARDSOPENBOT_SINGLE_USER` says there is nobody else; this says who that
     // somebody is, so the routes that ask what an actor may do have an actor to answer about.
-    env.insert("INITIAL_ADMIN_EMAILS".into(), "dev@openbot.local".into());
+    env.insert("INITIAL_ADMIN_EMAILS".into(), "dev@shardsopenbot.local".into());
 
     // One machine, one person, no sign-in.
     //
@@ -802,7 +802,7 @@ pub fn compose(
     // every visitor is an administrator, which is the right refusal on a server and the wrong
     // question on a laptop: there is nobody else here. Saying so explicitly is how that refusal is
     // answered, and it is the same switch `ci.yml` uses for the same reason.
-    env.insert("OPENBOT_SINGLE_USER".into(), "true".into());
+    env.insert("SHARDSOPENBOT_SINGLE_USER".into(), "true".into());
 
     // Pull the published images rather than build them. A desktop install has no toolchain and no
     // reason to compile Chromium.
@@ -810,7 +810,7 @@ pub fn compose(
 
     // Which images, by digest, from the release's own manifest. Compose's defaults are local build
     // names, so leaving these unset does not fall back to something workable: it asks a registry
-    // for `openbot-supervisor:latest`, which nobody publishes, and the denial that comes back
+    // for `shardsopenbot-supervisor:latest`, which nobody publishes, and the denial that comes back
     // reads as a login problem.
     for (variable, reference) in images {
         env.insert(variable.clone(), reference.clone());
@@ -844,7 +844,7 @@ Nothing new had to be built to make a Bot appear.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum PickedHarness {
     Installed {
-        /// The published image, e.g. `openbot-agent-crewai`. Named by the release, not derived.
+        /// The published image, e.g. `shardsopenbot-agent-crewai`. Named by the release, not derived.
         image: String,
         /// The port that image listens on, fixed by its own Dockerfile.
         port: u16,
@@ -952,7 +952,7 @@ pub const NO_KEY_NEEDED: &str = "no-key-needed";
 ///
 /// Named rather than written inline, because `write` has to recognise its own from a previous start
 /// as well as put one down.
-const BANNER: &str = "# Written by OpenBot Desktop. Anything else in this file is left alone.";
+const BANNER: &str = "# Written by ShardsOpenBot Desktop. Anything else in this file is left alone.";
 
 /// The secrets this deployment mints for itself, once.
 pub const MINTED: [&str; 6] = [
@@ -967,7 +967,7 @@ pub const MINTED: [&str; 6] = [
 /// Settings `compose` writes only when this run's answer implies them, and Start takes out of the
 /// file when it does not. `write` keeps every line it does not own, so without this a value an
 /// earlier run wrote outlives the answer that implied it: `BOT_MODEL` once asked OpenAI for a model
-/// an earlier endpoint had named, and `OPENBOT_BROWSER_URL` would send the person to a browser that
+/// an earlier endpoint had named, and `SHARDSOPENBOT_BROWSER_URL` would send the person to a browser that
 /// no longer runs.
 pub const REMOVED_WHEN_UNSET: [&str; 5] = [
     "BOT_PROVIDER",
@@ -992,9 +992,9 @@ pub fn explain_browser_absence(
 
 const PUBLISHED: [&str; 4] = [
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-    "openbot-dev-supervisor-token",
-    "openbot-dev-computer-token",
-    "openbot-dev-worker-secret",
+    "shardsopenbot-dev-supervisor-token",
+    "shardsopenbot-dev-computer-token",
+    "shardsopenbot-dev-worker-secret",
 ];
 
 /// Whether an original installation key can be reused without replacement.
@@ -1107,7 +1107,7 @@ pub(crate) fn write_private_file(path: &Path, bytes: &[u8]) -> std::io::Result<(
     let parent = path
         .parent()
         .ok_or_else(|| std::io::Error::other("missing parent directory"))?;
-    let temporary = parent.join(format!(".openbot-write-{:016x}.tmp", rand::random::<u64>()));
+    let temporary = parent.join(format!(".shardsopenbot-write-{:016x}.tmp", rand::random::<u64>()));
     let result = (|| {
         let mut options = std::fs::OpenOptions::new();
         options.write(true).create_new(true);
@@ -1168,7 +1168,7 @@ pub fn write(
     {
         return Err(std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
-            "OpenBot setting names and values must not contain line breaks.",
+            "ShardsOpenBot setting names and values must not contain line breaks.",
         ));
     }
     let existing = match std::fs::read_to_string(path) {
@@ -1238,7 +1238,7 @@ mod tests {
             .map(|(published, variable)| {
                 (
                     (*variable).to_string(),
-                    format!("ghcr.io/copilotkit/openbot-{published}@sha256:abc"),
+                    format!("ghcr.io/copilotkit/shardsopenbot-{published}@sha256:abc"),
                 )
             })
             .collect()
@@ -1517,7 +1517,7 @@ HTTPS_PROXY=http://proxy:8080
             "KEY_ENCRYPTION_KEY",
         ] {
             let value = env.get(key).expect(key);
-            assert!(!value.contains("openbot-dev"), "{key} kept a dev default");
+            assert!(!value.contains("shardsopenbot-dev"), "{key} kept a dev default");
             assert!(
                 value.len() > 20,
                 "{key} is too short to be a generated secret"
@@ -1649,7 +1649,7 @@ HTTPS_PROXY=http://proxy:8080
             &BTreeMap::new(),
         );
         assert_eq!(
-            env.get("OPENBOT_SINGLE_USER").map(String::as_str),
+            env.get("SHARDSOPENBOT_SINGLE_USER").map(String::as_str),
             Some("true")
         );
     }
@@ -1703,7 +1703,7 @@ HTTPS_PROXY=http://proxy:8080
             &BTreeMap::new(),
         );
         assert_eq!(
-            with.get("OPENBOT_BROWSER_URL").map(String::as_str),
+            with.get("SHARDSOPENBOT_BROWSER_URL").map(String::as_str),
             Some("http://127.0.0.1:4107")
         );
         assert_eq!(with.get("BROWSER_PORT").map(String::as_str), Some("4107"));
@@ -1716,7 +1716,7 @@ HTTPS_PROXY=http://proxy:8080
             None,
             &BTreeMap::new(),
         );
-        assert!(!without.contains_key("OPENBOT_BROWSER_URL"));
+        assert!(!without.contains_key("SHARDSOPENBOT_BROWSER_URL"));
         assert!(!without.contains_key("BROWSER_PORT"));
         for key in ["AGENT_COMPUTER_URL", "COMPUTER_SUPERVISOR_URL"] {
             assert_eq!(with[key], without[key], "a Bot's computer moved: {key}");
@@ -1754,13 +1754,13 @@ HTTPS_PROXY=http://proxy:8080
         assert_eq!(
             value_of(
                 &std::fs::read_to_string(&path).unwrap(),
-                "OPENBOT_BROWSER_URL"
+                "SHARDSOPENBOT_BROWSER_URL"
             ),
             "http://127.0.0.1:4107"
         );
         run(None);
         let text = std::fs::read_to_string(&path).unwrap();
-        assert!(!text.contains("OPENBOT_BROWSER_URL"), "{text}");
+        assert!(!text.contains("SHARDSOPENBOT_BROWSER_URL"), "{text}");
         std::fs::remove_dir_all(dir).unwrap();
     }
 
@@ -1796,7 +1796,7 @@ HTTPS_PROXY=http://proxy:8080
         };
         let flatpak = run(None, Some(Absent::FlatpakOnly(Product::Chrome)));
         assert_eq!(value_of(&flatpak, BROWSER_ABSENT_ENV), "flatpak-chrome");
-        assert!(!flatpak.contains("OPENBOT_BROWSER_URL"), "{flatpak}");
+        assert!(!flatpak.contains("SHARDSOPENBOT_BROWSER_URL"), "{flatpak}");
         let found = run(Some(4107), None);
         assert!(!found.contains(BROWSER_ABSENT_ENV), "{found}");
         // A release from before the browser has nothing to explain.
@@ -2033,9 +2033,9 @@ HTTPS_PROXY=http://proxy:8080
         std::fs::write(
             &path,
             "KEY_ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\n\
-             SUPERVISOR_TOKEN=openbot-dev-supervisor-token\n\
-             COMPUTER_TOKEN=openbot-dev-computer-token\n\
-             WORKER_SHARED_SECRET=openbot-dev-worker-secret\n",
+             SUPERVISOR_TOKEN=shardsopenbot-dev-supervisor-token\n\
+             COMPUTER_TOKEN=shardsopenbot-dev-computer-token\n\
+             WORKER_SHARED_SECRET=shardsopenbot-dev-worker-secret\n",
         )
         .unwrap();
 
@@ -2134,7 +2134,7 @@ HTTPS_PROXY=http://proxy:8080
             "a setting that is not a secret was carried forward and is now stale"
         );
         assert_eq!(
-            value_of(&written, "OPENBOT_TOOL_URL"),
+            value_of(&written, "SHARDSOPENBOT_TOOL_URL"),
             "http://host.docker.internal:3999/api/agent-tools/call",
             "container tools must call the selected API port"
         );
@@ -2190,7 +2190,7 @@ mod model_tests {
             .map(|(published, variable)| {
                 (
                     (*variable).to_string(),
-                    format!("ghcr.io/copilotkit/openbot-{published}@sha256:abc"),
+                    format!("ghcr.io/copilotkit/shardsopenbot-{published}@sha256:abc"),
                 )
             })
             .collect()
@@ -2325,7 +2325,7 @@ mod model_tests {
                 &Ports::default(),
                 &pinned(),
                 Some(&PickedHarness::Installed {
-                    image: "openbot-agent-crewai".into(),
+                    image: "shardsopenbot-agent-crewai".into(),
                     port,
                     name: "CrewAI".into(),
                     mastra,

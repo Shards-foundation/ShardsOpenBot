@@ -15,7 +15,7 @@ import { testEnvironment } from "./support/environment";
 
 const KEY = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 const OTHER_KEY = "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=";
-const PUBLIC = "https://openbot.example.com";
+const PUBLIC = "https://shardsopenbot.example.com";
 
 function generatedJwk(): JsonWebKey {
   return generateKeyPairSync("ed25519").privateKey.export({ format: "jwk" });
@@ -24,15 +24,15 @@ function generatedJwk(): JsonWebKey {
 const ON = { WEB_BOT_AUTH: "on" };
 
 describe("whether Web Bot Auth is on", () => {
-  // A signed request names the deployment to every site a Bot visits, and OpenBot is private by
+  // A signed request names the deployment to every site a Bot visits, and ShardsOpenBot is private by
   // design, so no address, however public, switches it on by itself.
   test.each([
     PUBLIC,
     undefined,
-    "http://openbot.example.com",
+    "http://shardsopenbot.example.com",
     "https://localhost:3001",
     "https://10.0.0.5",
-    "https://openbot.internal",
+    "https://shardsopenbot.internal",
   ])("off by default, even for %s", (publicUrl) => {
     expect(
       webBotAuthFromEnv({}, { publicUrl, keyEncryptionKey: KEY }),
@@ -58,7 +58,7 @@ describe("whether Web Bot Auth is on", () => {
   // A verifier has to fetch the key over HTTPS, so anything else would sign with a directory nobody
   // can read.
   test.each([
-    "http://openbot.example.com",
+    "http://shardsopenbot.example.com",
     "https://localhost:3001",
     "https://127.0.0.1",
     "https://app.localhost",
@@ -76,7 +76,7 @@ describe("whether Web Bot Auth is on", () => {
   // Only the operator knows whether their verifier can reach a private address.
   test.each([
     "https://10.0.0.5",
-    "https://openbot.internal",
+    "https://shardsopenbot.internal",
     "https://intranet",
   ])("on signs with the private HTTPS address %s", (publicUrl) => {
     expect(
@@ -96,10 +96,11 @@ describe("whether Web Bot Auth is on", () => {
   test("reaches the configuration, and stays off without the switch", () => {
     expect(loadConfig(testEnvironment()).webBotAuth).toBeUndefined();
     expect(
-      loadConfig(testEnvironment({ OPENBOT_PUBLIC_URL: PUBLIC })).webBotAuth,
+      loadConfig(testEnvironment({ SHARDSOPENBOT_PUBLIC_URL: PUBLIC }))
+        .webBotAuth,
     ).toBeUndefined();
     expect(
-      loadConfig(testEnvironment({ OPENBOT_PUBLIC_URL: PUBLIC, ...ON }))
+      loadConfig(testEnvironment({ SHARDSOPENBOT_PUBLIC_URL: PUBLIC, ...ON }))
         .webBotAuth?.agent,
     ).toBe(PUBLIC);
   });
@@ -275,7 +276,7 @@ describe("the key directory", () => {
 
   test("is served at the well-known path when on, and not served when off", async () => {
     const on = createApp(
-      loadConfig(testEnvironment({ OPENBOT_PUBLIC_URL: PUBLIC, ...ON })),
+      loadConfig(testEnvironment({ SHARDSOPENBOT_PUBLIC_URL: PUBLIC, ...ON })),
     );
     const served = await on.request(`${PUBLIC}${DIRECTORY_PATH}`);
     expect(served.status).toBe(200);
@@ -283,7 +284,9 @@ describe("the key directory", () => {
     expect(served.headers.get("signature")).toStartWith("sig1=:");
 
     const off = createApp(loadConfig(testEnvironment()));
-    const missing = await off.request(`http://openbot.local${DIRECTORY_PATH}`);
+    const missing = await off.request(
+      `http://shardsopenbot.local${DIRECTORY_PATH}`,
+    );
     expect(missing.headers.get("content-type")).not.toBe(
       DIRECTORY_CONTENT_TYPE,
     );

@@ -3,8 +3,8 @@ import {
   RECORDER_SIGNED_OUT,
   recorderPaths,
   type TrajectoryGrant,
-} from "@openbot/shared/recorder-api";
-import { openbotRaw } from "../shared/openbot-client";
+} from "@shardsopenbot/shared/recorder-api";
+import { shardsopenbotRaw } from "../shared/shardsopenbot-client";
 
 /** The table's verdicts for the pass stage (rows 1-23a). Every one keeps every queued event; signed-out keeps them for the
  * person who recorded them until they connect this browser again (Decision 19). */
@@ -23,7 +23,7 @@ export class GrantError extends Error {
 
 const BUSY = "Intelligence is busy or unreachable. Retrying; nothing is lost.";
 const AUTHORITY =
-  "OpenBot could not reach your organization's sign-in. Retrying; nothing is lost.";
+  "ShardsOpenBot could not reach your organization's sign-in. Retrying; nothing is lost.";
 const MARKETPLACE =
   "Intelligence needs its marketplace licence before it can capture. Retrying; nothing is lost.";
 
@@ -32,13 +32,13 @@ export const PASS_HINTS: Record<string, string> = {
   INVALID_REQUEST:
     "Learning capture is off: the Recorder sent Intelligence a request it could not read.",
   FORBIDDEN:
-    "Learning capture is off: your OpenBot account has no role that may record.",
+    "Learning capture is off: your ShardsOpenBot account has no role that may record.",
   NOT_FOUND:
-    "Learning capture is off: OpenBot says this recording belongs to another person.",
+    "Learning capture is off: ShardsOpenBot says this recording belongs to another person.",
   IDENTITY_REQUIRED:
-    "Learning capture is paused: OpenBot could not tell Intelligence who you are.",
+    "Learning capture is paused: ShardsOpenBot could not tell Intelligence who you are.",
   INTELLIGENCE_RUNTIME_REQUIRED:
-    "Learning capture is off: this OpenBot is not connected to Intelligence.",
+    "Learning capture is off: this ShardsOpenBot is not connected to Intelligence.",
   INVALID_GRANT:
     "Learning capture is paused: Intelligence answered the capture pass in a form the Recorder cannot use.",
   REFUSED:
@@ -53,7 +53,8 @@ export const PASS_HINTS: Record<string, string> = {
     "Learning capture is off: Intelligence already holds this recording for someone else.",
   LEARNING_CONTAINER_NOT_FOUND:
     "Learning capture is paused: Intelligence could not find your Learning space.",
-  UNAUTHORIZED: "Learning capture is paused: OpenBot refused the capture pass.",
+  UNAUTHORIZED:
+    "Learning capture is paused: ShardsOpenBot refused the capture pass.",
   GATEWAY_NOT_ALLOWED:
     "Learning capture is off: the capture pass pointed at an Intelligence address your organization does not allow.",
   UNKNOWN_ANSWER:
@@ -189,8 +190,8 @@ function isGrant(value: unknown): value is TrajectoryGrant {
   );
 }
 
-/** Where a pass is asked for: the connected OpenBot and the recorder bearer. No Bot: the recording is the person's. */
-type GrantTarget = { openbotUrl: string; token: string };
+/** Where a pass is asked for: the connected ShardsOpenBot and the recorder bearer. No Bot: the recording is the person's. */
+type GrantTarget = { shardsopenbotUrl: string; token: string };
 
 /** Asks the runtime's `trajectory/connect` for a one-time capture pass, which joins the trajectory to the person's own
  * Learning space; throws a GrantError carrying the row's verdict. */
@@ -200,7 +201,7 @@ export async function fetchGrant(
 ): Promise<TrajectoryGrant> {
   let response: Response;
   try {
-    response = await openbotRaw(
+    response = await shardsopenbotRaw(
       target,
       recorderPaths.trajectoryConnect(trajectoryId),
       {
@@ -223,7 +224,7 @@ export async function fetchGrant(
     // A body that is not JSON carries no code.
     unparsable = true;
   }
-  // Row 21: a page that is not JSON on a 2xx is OpenBot or the network
+  // Row 21: a page that is not JSON on a 2xx is ShardsOpenBot or the network
   // misbehaving, not an answer the Recorder does not know (row 23a).
   if (response.ok && unparsable) {
     throw new GrantError(classifyGrantError(null, null));

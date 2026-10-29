@@ -10,7 +10,7 @@ import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import {
   maskNetworkEvent,
   sha256HexSync,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { collectorBeforeSend } from "../src/content/collector";
 import { createSensitivityTracker } from "../src/content/masking-context";
 

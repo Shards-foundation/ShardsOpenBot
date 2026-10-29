@@ -157,7 +157,7 @@ if (import.meta.main) {
    * This used to call `loadConfig(process.env)` and read one field of the result,
    * `config.databaseUrl`. That builds the whole `DeploymentConfig` first, which refuses to return
    * without `KEY_ENCRYPTION_KEY`, the three Intelligence addressing values, and a complete identity
-   * provider or `OPENBOT_SINGLE_USER`. So a sweep that deletes rows and touches no ciphertext,
+   * provider or `SHARDSOPENBOT_SINGLE_USER`. So a sweep that deletes rows and touches no ciphertext,
    * no model and no session died at start-up with `KEY_ENCRYPTION_KEY must be configured`, and the
    * documented external-cron path in `docs/deployment.md` — "it needs only DATABASE_URL" — was
    * simply false. It worked under Helm only because that CronJob injected five credentials it had

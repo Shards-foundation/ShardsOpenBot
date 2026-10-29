@@ -32,7 +32,7 @@ test("the committed public key derives the one extension id", async () => {
 });
 
 test("the derivation matches a vector computed with openssl", async () => {
-  // printf openbot | base64 | base64 -d | openssl dgst -sha256 -binary | xxd -p -c 64 | cut -c1-32 | tr '0-9a-f' 'a-p'
+  // printf shardsopenbot | base64 | base64 -d | openssl dgst -sha256 -binary | xxd -p -c 64 | cut -c1-32 | tr '0-9a-f' 'a-p'
   expect(await extensionIdFromPublicKey("b3BlbmJvdA==")).toBe(
     "fffgjjbhnklfhmeochieojhodiegmggn",
   );

@@ -63,7 +63,7 @@ export const Route = createFileRoute("/_authed/_app/connections/")({
   /*
    * `?connected=` is how the OAuth callback reports back, carrying a server key on success and
    * `failed` otherwise. `?linked=` is the same for the GitHub account-link callback: `github` on
-   * success, `github-taken` when that GitHub account belongs to another OpenBot user, `failed`
+   * success, `github-taken` when that GitHub account belongs to another ShardsOpenBot user, `failed`
    * otherwise (see linked-notice.ts). Each is the only channel available: the callback is a
    * redirect from another company's server, so there is no response body to read.
    *
@@ -133,7 +133,7 @@ export const AUTHORIZATION_NOTICES: ReadonlyMap<string, string> = new Map([
   ],
   [
     "vendor-unavailable",
-    "The app didn't answer when OpenBot tried to finish that authorization, so nothing was recorded. Try the link again in a moment.",
+    "The app didn't answer when ShardsOpenBot tried to finish that authorization, so nothing was recorded. Try the link again in a moment.",
   ],
   [
     "not-your-authorization",

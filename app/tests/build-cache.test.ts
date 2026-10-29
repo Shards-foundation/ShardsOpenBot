@@ -19,7 +19,7 @@ const serveOrBuildScriptPath = fileURLToPath(serveOrBuildScript);
 async function withProject(
   callback: (paths: { rootDir: string; appDir: string }) => Promise<void>,
 ) {
-  const rootDir = await mkdtemp(join(tmpdir(), "openbot-build-cache-"));
+  const rootDir = await mkdtemp(join(tmpdir(), "shardsopenbot-build-cache-"));
   const appDir = join(rootDir, "app");
   try {
     await mkdir(join(appDir, "src/lib/generated"), { recursive: true });
@@ -63,13 +63,13 @@ describe("production build cache", () => {
     await withProject(async (paths) => {
       await writeBuildCacheManifest(paths, {
         TENANT_PACKAGE_DIR: "../examples/brand",
-        VITE_PUBLIC_NAME: "OpenBot",
+        VITE_PUBLIC_NAME: "ShardsOpenBot",
       });
 
       expect(
         await isReusableBuild(paths, {
           TENANT_PACKAGE_DIR: "../examples/brand",
-          VITE_PUBLIC_NAME: "OpenBot",
+          VITE_PUBLIC_NAME: "ShardsOpenBot",
         }),
       ).toBe(true);
     });
@@ -102,7 +102,9 @@ describe("production build cache", () => {
 
   test("rejects a build when Vite-exposed environment changes", async () => {
     await withProject(async (paths) => {
-      await writeBuildCacheManifest(paths, { VITE_PUBLIC_NAME: "OpenBot" });
+      await writeBuildCacheManifest(paths, {
+        VITE_PUBLIC_NAME: "ShardsOpenBot",
+      });
 
       expect(
         await isReusableBuild(paths, { VITE_PUBLIC_NAME: "Changed" }),
@@ -165,8 +167,8 @@ describe("production build cache", () => {
       );
       const env = {
         ...process.env,
-        OPENBOT_BUILD_CACHE_ROOT_DIR: paths.rootDir,
-        OPENBOT_BUILD_CACHE_APP_DIR: paths.appDir,
+        SHARDSOPENBOT_BUILD_CACHE_ROOT_DIR: paths.rootDir,
+        SHARDSOPENBOT_BUILD_CACHE_APP_DIR: paths.appDir,
       };
       await writeBuildCacheManifest(paths, env);
 
@@ -218,8 +220,8 @@ describe("production build cache", () => {
       );
       const env = {
         ...process.env,
-        OPENBOT_BUILD_CACHE_ROOT_DIR: paths.rootDir,
-        OPENBOT_BUILD_CACHE_APP_DIR: paths.appDir,
+        SHARDSOPENBOT_BUILD_CACHE_ROOT_DIR: paths.rootDir,
+        SHARDSOPENBOT_BUILD_CACHE_APP_DIR: paths.appDir,
       };
       await writeBuildCacheManifest(paths, env);
       await writeFile(join(paths.appDir, "src/main.tsx"), "console.log('b')\n");

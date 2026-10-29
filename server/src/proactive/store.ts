@@ -87,7 +87,7 @@ export function createProactiveStore(database: Database) {
       if (!row) throw new ProactiveNotFoundError();
       return row;
     },
-    /** Removing research is turning it down for this Bot: OpenBot never switches it back on. */
+    /** Removing research is turning it down for this Bot: ShardsOpenBot never switches it back on. */
     async remove(owner: string, id: string) {
       const { agentId } = await get(owner, id);
       await database.transaction(async (transaction) => {

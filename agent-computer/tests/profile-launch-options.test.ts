@@ -11,7 +11,7 @@ afterEach(() => {
     "COMPUTER_BROWSER_BACKEND",
     "COMPUTER_BROWSER_MODE",
     "COMPUTER_SANDBOX",
-    "OPENBOT_RECORDER_DIR",
+    "SHARDSOPENBOT_RECORDER_DIR",
   ]) {
     if (original[name] === undefined) delete process.env[name];
     else process.env[name] = original[name];
@@ -30,7 +30,7 @@ describe.skipIf(
       delete process.env.COMPUTER_BROWSER_MODE;
       delete process.env.COMPUTER_SANDBOX;
       // A built Recorder on this computer changes nothing about a Bot's browser.
-      process.env.OPENBOT_RECORDER_DIR = join(
+      process.env.SHARDSOPENBOT_RECORDER_DIR = join(
         import.meta.dir,
         "fixtures",
         "recorder",
@@ -44,7 +44,9 @@ describe.skipIf(
       const { createProfiles } = await import(
         `../src/profiles?launch-options=${backend}`
       );
-      const root = await mkdtemp(join(tmpdir(), "openbot-launch-options-"));
+      const root = await mkdtemp(
+        join(tmpdir(), "shardsopenbot-launch-options-"),
+      );
       const profiles = createProfiles(root);
       try {
         await expect(profiles.page("bot-one")).rejects.toThrow(
@@ -135,7 +137,7 @@ describe.skipIf(
       join(import.meta.dir, "fixtures", "recorder"),
     );
     if (!found.ok) throw new Error(found.error);
-    const root = await mkdtemp(join(tmpdir(), "openbot-launch-options-"));
+    const root = await mkdtemp(join(tmpdir(), "shardsopenbot-launch-options-"));
     const profiles = createProfiles(root);
     try {
       await expect(profiles.page("bot-one")).rejects.toThrow(

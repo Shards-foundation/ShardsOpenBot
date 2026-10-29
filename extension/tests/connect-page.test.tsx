@@ -10,7 +10,7 @@ import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import {
   RECORDER_DESTINATION,
   RECORDER_DISCLOSURE,
-} from "@openbot/shared/recorder-disclosure";
+} from "@shardsopenbot/shared/recorder-disclosure";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ConnectPage } from "../src/pages/connect/connect-page";
@@ -20,7 +20,7 @@ beforeAll(() => GlobalRegistrator.register());
 afterEach(cleanup);
 afterAll(() => GlobalRegistrator.unregister());
 
-const ORIGIN = "https://openbot.example.test";
+const ORIGIN = "https://shardsopenbot.example.test";
 let fake: ChromeFake;
 let received: {
   type: string;
@@ -70,14 +70,14 @@ afterEach(() => {
 test("shows the origin and the default name", async () => {
   const { findByText, getByText } = render(<ConnectPage />);
   expect((await findByText(ORIGIN)).className).toContain("font-mono");
-  // Any site can ask, so the page never says the request came from OpenBot.
+  // Any site can ask, so the page never says the request came from ShardsOpenBot.
   expect(
     getByText("A page at this address in this browser asked to connect."),
   ).toBeTruthy();
   expect(getByText("Google Chrome on macOS")).toBeTruthy();
 });
 
-test("a connect that would replace this browser's connection says so before the click, naming that OpenBot and the person", async () => {
+test("a connect that would replace this browser's connection says so before the click, naming that ShardsOpenBot and the person", async () => {
   pendingAnswer = {
     ok: true,
     pending: { origin: ORIGIN, via: "web" },
@@ -103,24 +103,24 @@ test("a connect that replaces nothing says nothing about replacing", async () =>
   expect(container.textContent).not.toContain("replaces");
 });
 
-test("the page says OpenBot signs the browser in, and that recordings go straight to the organization's own Intelligence with OpenBot's pass, as the disclosure says", async () => {
+test("the page says ShardsOpenBot signs the browser in, and that recordings go straight to the organization's own Intelligence with ShardsOpenBot's pass, as the disclosure says", async () => {
   const { findByText, container } = render(<ConnectPage />);
   await findByText(ORIGIN);
   expect(
     await findByText(
-      "Confirm this is your OpenBot. It signs this browser in. What you record goes straight from your browser to your organization's own Intelligence, with a pass from your organization's OpenBot. OpenBot is told that you are recording, the task's name, when it started and how many steps it has, and when you record in a browser shown inside OpenBot, your narration passes through it to the Recorder without being stored.",
+      "Confirm this is your ShardsOpenBot. It signs this browser in. What you record goes straight from your browser to your organization's own Intelligence, with a pass from your organization's ShardsOpenBot. ShardsOpenBot is told that you are recording, the task's name, when it started and how many steps it has, and when you record in a browser shown inside ShardsOpenBot, your narration passes through it to the Recorder without being stored.",
     ),
   ).toBeTruthy();
   expect(container.ownerDocument.body.textContent).toContain(
     RECORDER_DESTINATION,
   );
-  // The disclosure says the same, and neither says the recording passes through OpenBot, which it never does.
+  // The disclosure says the same, and neither says the recording passes through ShardsOpenBot, which it never does.
   expect(RECORDER_DISCLOSURE).toContain(RECORDER_DESTINATION);
   for (const said of [
     RECORDER_DISCLOSURE,
     container.ownerDocument.body.textContent,
   ])
-    expect(said).not.toMatch(/through (your organization's )?OpenBot/i);
+    expect(said).not.toMatch(/through (your organization's )?ShardsOpenBot/i);
   expect(container.ownerDocument.body.textContent).not.toMatch(
     /save (your )?recordings/i,
   );
@@ -168,7 +168,7 @@ test("Connect asks for no permission: website access came with the install", asy
   ]);
 });
 
-test("a refusal from OpenBot shows its sentence", async () => {
+test("a refusal from ShardsOpenBot shows its sentence", async () => {
   decideAnswer = { ok: false, error: "That code has expired." };
   const { findByRole, findByText } = render(<ConnectPage />);
   fireEvent.click(await findByRole("button", { name: "Connect" }));

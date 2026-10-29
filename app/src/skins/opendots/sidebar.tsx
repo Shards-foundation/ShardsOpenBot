@@ -108,7 +108,7 @@ export function IconAction({
 
 /**
  * The deployment's own name, set in OpenDots' wordmark type, which is also the way home. The name
- * is `brand.yaml`'s, the same one OpenBot's sidebar header shows; a skin changes the look, never
+ * is `brand.yaml`'s, the same one ShardsOpenBot's sidebar header shows; a skin changes the look, never
  * whose product it is.
  */
 function Wordmark({ onNavigate }: { onNavigate: () => void }) {
@@ -221,7 +221,7 @@ function BotsSection({
                       }
                     : { to: "/channel/new", search: { agent: agent.id } })}
                 >
-                  {/* OpenBot's own avatar for the Bot; hidden so the row is named once. */}
+                  {/* ShardsOpenBot's own avatar for the Bot; hidden so the row is named once. */}
                   <span aria-hidden className="contents">
                     <AbstractAvatar
                       name={agent.name}
@@ -250,7 +250,7 @@ function BotsSection({
         </nav>
       )}
       {bots ? (
-        // OpenBot's Bots destination, from the shared list, closing the list of Bots above it.
+        // ShardsOpenBot's Bots destination, from the shared list, closing the list of Bots above it.
         <Link
           activeOptions={{ exact: true }}
           activeProps={{ className: navItemActive, "aria-current": "page" }}
@@ -454,7 +454,7 @@ function RecentChats({
             />
           ))
         )}
-        {/* OpenBot's own pager: it loads older conversations as the list scrolls to its end. */}
+        {/* ShardsOpenBot's own pager: it loads older conversations as the list scrolls to its end. */}
         <ChannelPagination
           query={channels}
           scrollRoot={scrollRoot}
@@ -494,7 +494,7 @@ function WorkspaceLinks({
   const current = (section: Place["section"]) =>
     place.section === section ? ("page" as const) : undefined;
   /*
-   * OpenDots' sidebar ends on a few rows. OpenBot's primary destinations and the person's own menu
+   * OpenDots' sidebar ends on a few rows. ShardsOpenBot's primary destinations and the person's own menu
    * are in the rail at desktop width, so they join these rows only in the phone drawer, where there
    * is no rail. Bots is the row under the list of Bots above.
    */
@@ -527,7 +527,7 @@ function WorkspaceLinks({
         <span className="min-w-0 flex-1 truncate">Memories</span>
         <Count value={memories.data?.length} />
       </Link>
-      {/* OpenBot's own destinations, from the one list every frame reads. */}
+      {/* ShardsOpenBot's own destinations, from the one list every frame reads. */}
       {navigation.map((item) => (
         <Link
           aria-current={place.section === item.id ? "page" : undefined}
@@ -556,7 +556,7 @@ export function initialsOf(user: { name?: string | null; email: string }) {
   );
 }
 
-/** Who is signed in, and the way out. OpenBot's sidebar keeps this in its user menu. */
+/** Who is signed in, and the way out. ShardsOpenBot's sidebar keeps this in its user menu. */
 function UserRow() {
   const user = useQuery(currentUserQueryOptions());
   const navigate = useNavigate();
@@ -590,8 +590,8 @@ function UserRow() {
 }
 
 /**
- * OpenDots' sidebar over OpenBot's data: the Bots as Dots, the conversations as recent chats, and
- * the workspace views beneath. Every OpenBot surface the default sidebar reaches is here too.
+ * OpenDots' sidebar over ShardsOpenBot's data: the Bots as Dots, the conversations as recent chats, and
+ * the workspace views beneath. Every ShardsOpenBot surface the default sidebar reaches is here too.
  */
 export function OpenDotsSidebar({
   place,

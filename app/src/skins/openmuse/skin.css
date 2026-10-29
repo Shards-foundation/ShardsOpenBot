@@ -5,7 +5,7 @@
  * canvas with a blue cast, cards one step up, and the sky blue deepened into a night blue so the
  * person's bubble and the primary pill still read as the one warm accent.
  *
- * Every token is set for both. A skin's `:root[data-skin]` outranks OpenBot's `.dark`, so a token set
+ * Every token is set for both. A skin's `:root[data-skin]` outranks ShardsOpenBot's `.dark`, so a token set
  * only for light would leak into dark.
  */
 
@@ -166,16 +166,16 @@
 }
 
 /*
- * OpenMuse is set in the device's own system font. `--font-sans` above is the token OpenBot's
- * headings read; the page itself takes it here, because OpenBot names Inter on `html` directly.
+ * OpenMuse is set in the device's own system font. `--font-sans` above is the token ShardsOpenBot's
+ * headings read; the page itself takes it here, because ShardsOpenBot names Inter on `html` directly.
  */
 :root[data-skin="openmuse"] {
   font-family: var(--font-sans);
 }
 
 /*
- * OpenBot's own pages, worn the OpenMuse way. Every rule below reaches OpenBot's components only
- * through the `data-slot` hooks they publish for this, so restyling a component inside OpenBot cannot
+ * ShardsOpenBot's own pages, worn the OpenMuse way. Every rule below reaches ShardsOpenBot's components only
+ * through the `data-slot` hooks they publish for this, so restyling a component inside ShardsOpenBot cannot
  * silently break the skin.
  */
 
@@ -191,7 +191,7 @@
   letter-spacing: -0.7px;
 }
 
-/* OpenBot's "a Bot needs you" badge, drawn as OpenMuse's small blue dot on the menu button. */
+/* ShardsOpenBot's "a Bot needs you" badge, drawn as OpenMuse's small blue dot on the menu button. */
 :root[data-skin="openmuse"] .openmuse-menu-badge [role="img"] {
   position: absolute;
   top: 7px;
@@ -236,7 +236,7 @@
   padding-inline: 0;
 }
 
-/* With the computer or settings beside it on a wide screen, the conversation takes OpenBot's own layout. */
+/* With the computer or settings beside it on a wide screen, the conversation takes ShardsOpenBot's own layout. */
 @media (min-width: 1100px) {
   :root[data-skin="openmuse"]
     .openmuse-frame[data-openmuse-tab="chat"]

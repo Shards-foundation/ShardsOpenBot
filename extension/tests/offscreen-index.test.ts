@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { RECORDER_SIGNED_OUT } from "@openbot/shared/recorder-api";
+import { RECORDER_SIGNED_OUT } from "@shardsopenbot/shared/recorder-api";
 import type {
   CapturedEvent,
   JsonValue,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { IDBKeyRange as FakeIDBKeyRange, IDBFactory } from "fake-indexeddb";
 import { PASS_HINTS } from "../src/offscreen/grant";
 import {
@@ -96,8 +96,8 @@ function virtualClock(start = CLOCK_START) {
 }
 type Clock = ReturnType<typeof virtualClock>;
 
-/** OpenBot's routes the offscreen document calls, served on the fake gateway's own origin. */
-type OpenBot = {
+/** ShardsOpenBot's routes the offscreen document calls, served on the fake gateway's own origin. */
+type ShardsOpenBot = {
   passes: {
     trajectoryId: string;
     authorization: string | null;
@@ -106,7 +106,7 @@ type OpenBot = {
   /** Answers for the next passes, in order; then `refuse`, then a grant. */
   passScript: (() => Response)[];
   refuse: ((trajectoryId: string) => Response | null) | null;
-  /** Every request to OpenBot's recorder routes: the document must send none (it asks only for passes). */
+  /** Every request to ShardsOpenBot's recorder routes: the document must send none (it asks only for passes). */
   recorderRequests: string[];
 };
 
@@ -128,11 +128,11 @@ const heldPass = () =>
     },
     { status: 403 },
   );
-/** Row 2: OpenBot's guard says this browser's connection is gone. */
+/** Row 2: ShardsOpenBot's guard says this browser's connection is gone. */
 const signedOutPass = (reason: "revoked" | "removed" | "organization") => () =>
   Response.json(
     {
-      error: "This browser is no longer connected to OpenBot.",
+      error: "This browser is no longer connected to ShardsOpenBot.",
       code: RECORDER_SIGNED_OUT,
       reason,
     },
@@ -151,7 +151,7 @@ type Message<T extends OffscreenToBackground["type"]> = Extract<
 
 type Harness = {
   gateway: FakeGateway;
-  openbot: OpenBot;
+  shardsopenbot: ShardsOpenBot;
   dbName: string;
   clock: Clock;
   /** "fetch <path>", in the order they happened. */
@@ -180,7 +180,7 @@ const harnesses: Harness[] = [];
 let dbCounter = 0;
 
 async function setup(): Promise<Harness> {
-  const openbot: OpenBot = {
+  const shardsopenbot: ShardsOpenBot = {
     passes: [],
     passScript: [],
     refuse: null,
@@ -190,21 +190,21 @@ async function setup(): Promise<Harness> {
   const route = (request: Request): Response | Promise<Response> | null => {
     const path = new URL(request.url).pathname;
     if (path.startsWith("/api/recorder/")) {
-      openbot.recorderRequests.push(`${request.method} ${path}`);
+      shardsopenbot.recorderRequests.push(`${request.method} ${path}`);
       return Response.json({ error: "Not found." }, { status: 404 });
     }
     if (!gateway || request.method !== "POST") return null;
     const pass = /^\/api\/copilotkit\/trajectory\/([^/]+)\/connect$/.exec(path);
     if (pass) {
       const trajectoryId = decodeURIComponent(pass[1]);
-      openbot.passes.push({
+      shardsopenbot.passes.push({
         trajectoryId,
         authorization: request.headers.get("authorization"),
-        bot: request.headers.get("x-openbot-recorder-bot"),
+        bot: request.headers.get("x-shardsopenbot-recorder-bot"),
       });
-      const scripted = openbot.passScript.shift();
+      const scripted = shardsopenbot.passScript.shift();
       if (scripted) return scripted();
-      const refused = openbot.refuse?.(trajectoryId);
+      const refused = shardsopenbot.refuse?.(trajectoryId);
       if (refused) return refused;
       return Response.json({
         joinToken: gateway.mintToken(trajectoryId),
@@ -221,7 +221,7 @@ async function setup(): Promise<Harness> {
 
   const h: Harness = {
     gateway: started,
-    openbot,
+    shardsopenbot,
     dbName: `offscreen-index-test-${Date.now()}-${dbCounter++}`,
     clock: virtualClock(),
     log: [],
@@ -292,7 +292,7 @@ async function setup(): Promise<Harness> {
       return {
         recordingId: "rec-1",
         title: "File the weekly report",
-        openbotUrl: started.httpUrl,
+        shardsopenbotUrl: started.httpUrl,
         token: "obr_first",
         trajectoryId: crypto.randomUUID(),
         startedAt: 1_700_000_000_000,
@@ -305,7 +305,7 @@ async function setup(): Promise<Harness> {
       return {
         recordingId: session.recordingId,
         title: session.title,
-        openbotUrl: session.openbotUrl,
+        shardsopenbotUrl: session.shardsopenbotUrl,
         userId: "user-1",
         userName: "Ada",
         trajectoryIds: [session.trajectoryId],
@@ -382,16 +382,16 @@ const NOT_ALLOWED = PASS_HINTS.GATEWAY_NOT_ALLOWED;
 /** An organization's pinned Intelligence addresses that leave the fake gateway out. */
 const ELSEWHERE = ["wss://intelligence.example.com"];
 
-/** A recording stopped with its events parked; then the next browser start opens a document and OpenBot passes again. */
+/** A recording stopped with its events parked; then the next browser start opens a document and ShardsOpenBot passes again. */
 async function keptThenRestart(h: Harness): Promise<StreamSession> {
-  h.openbot.refuse = () => parkedPass();
+  h.shardsopenbot.refuse = () => parkedPass();
   await h.open(virtualClock());
   const session = h.session();
   h.post({ type: "offscreen.start", session });
   h.post({ type: "offscreen.event", event: click(1) });
   h.post({ type: "offscreen.stop", outcome: "succeeded" });
   await until(() => h.received("offscreen.kept").length > 0, "kept");
-  h.openbot.refuse = null;
+  h.shardsopenbot.refuse = null;
   await h.open(virtualClock(NEXT_START));
   return session;
 }
@@ -664,7 +664,7 @@ describe("offscreen controller", () => {
     const session = h.session();
     h.post({
       type: "offscreen.recover",
-      openbotUrl: session.openbotUrl,
+      shardsopenbotUrl: session.shardsopenbotUrl,
       token: "obr_first",
       allowedIntelligenceUrls: null,
       version: "0.1.0",
@@ -673,7 +673,7 @@ describe("offscreen controller", () => {
     await until(() => h.received("offscreen.done").length === 1, "done");
     await sleep(30);
     expect(h.names(session.trajectoryId)).toEqual([]);
-    expect(h.openbot.passes).toEqual([]);
+    expect(h.shardsopenbot.passes).toEqual([]);
     const outbox = await openOutbox(h.dbName);
     expect(await outbox.trajectories()).toEqual([]);
   });
@@ -681,7 +681,7 @@ describe("offscreen controller", () => {
   test("resume restarts the streamer over the existing outbox", async () => {
     const h = await setup();
     // The first document cannot reach Intelligence, so its events wait in the outbox.
-    h.openbot.refuse = () => parkedPass();
+    h.shardsopenbot.refuse = () => parkedPass();
     await h.open(virtualClock());
     const session = h.session();
     const t = session.trajectoryId;
@@ -694,7 +694,7 @@ describe("offscreen controller", () => {
     );
 
     // The service worker restarted and found no document: a new one resumes the same session.
-    h.openbot.refuse = null;
+    h.shardsopenbot.refuse = null;
     await h.open(virtualClock(NEXT_START));
     h.post({ type: "offscreen.resume", session });
     await until(() => h.names(t).length === 7, "the queued events sent");
@@ -752,7 +752,7 @@ describe("offscreen controller", () => {
 
   test("a stopped recording whose events are kept posts offscreen.kept, and a later recover drains it and posts done", async () => {
     const h = await setup();
-    h.openbot.refuse = () => parkedPass();
+    h.shardsopenbot.refuse = () => parkedPass();
     await h.open(virtualClock());
     const session = h.session();
     const t = session.trajectoryId;
@@ -791,11 +791,11 @@ describe("offscreen controller", () => {
     expect(h.received("offscreen.done")).toEqual([]);
 
     // The next browser start: a new document recovers the kept recording.
-    h.openbot.refuse = null;
+    h.shardsopenbot.refuse = null;
     await h.open(virtualClock(NEXT_START));
     h.post({
       type: "offscreen.recover",
-      openbotUrl: session.openbotUrl,
+      shardsopenbotUrl: session.shardsopenbotUrl,
       token: session.token,
       allowedIntelligenceUrls: null,
       version: "0.1.0",
@@ -818,19 +818,19 @@ describe("offscreen controller", () => {
 
   test("no pass names a Bot, for the live recording or a recovered one: the recording is the person's", async () => {
     const h = await setup();
-    h.openbot.refuse = () => parkedPass();
+    h.shardsopenbot.refuse = () => parkedPass();
     await h.open(virtualClock());
     const session = h.session();
     h.post({ type: "offscreen.start", session });
     h.post({ type: "offscreen.stop", outcome: "succeeded" });
     await until(() => h.received("offscreen.kept").length > 0, "kept");
-    expect(h.openbot.passes.map((pass) => pass.bot)).toEqual([null]);
+    expect(h.shardsopenbot.passes.map((pass) => pass.bot)).toEqual([null]);
 
-    h.openbot.refuse = null;
+    h.shardsopenbot.refuse = null;
     await h.open(virtualClock(NEXT_START));
     h.post({
       type: "offscreen.recover",
-      openbotUrl: session.openbotUrl,
+      shardsopenbotUrl: session.shardsopenbotUrl,
       token: session.token,
       allowedIntelligenceUrls: null,
       version: "0.1.0",
@@ -838,15 +838,15 @@ describe("offscreen controller", () => {
       drains: [{ ...h.drain(session), botId: "bot-kept" } as never],
     });
     await until(() => h.received("offscreen.done").length === 1, "done");
-    expect(h.openbot.passes.slice(1).map((pass) => pass.bot)).toEqual(
-      h.openbot.passes.slice(1).map(() => null),
+    expect(h.shardsopenbot.passes.slice(1).map((pass) => pass.bot)).toEqual(
+      h.shardsopenbot.passes.slice(1).map(() => null),
     );
-    expect(h.openbot.passes.length).toBeGreaterThan(1);
+    expect(h.shardsopenbot.passes.length).toBeGreaterThan(1);
   });
 
   test("recover drains a stopped recording's outbox before reporting done, and adds an interrupted outcome only when none was queued", async () => {
     const h = await setup();
-    h.openbot.refuse = () => parkedPass();
+    h.shardsopenbot.refuse = () => parkedPass();
     await h.open(virtualClock());
     const stopped = h.session({ recordingId: "rec-stopped" });
     h.post({ type: "offscreen.start", session: stopped });
@@ -866,7 +866,7 @@ describe("offscreen controller", () => {
       "the interrupted recording's events queued",
     );
 
-    h.openbot.refuse = null;
+    h.shardsopenbot.refuse = null;
     await h.open(virtualClock(NEXT_START));
     const atDone = new Map<string, string[]>();
     const recovering = h.ports.at(-1);
@@ -881,7 +881,7 @@ describe("offscreen controller", () => {
     });
     h.post({
       type: "offscreen.recover",
-      openbotUrl: stopped.openbotUrl,
+      shardsopenbotUrl: stopped.shardsopenbotUrl,
       token: stopped.token,
       allowedIntelligenceUrls: null,
       version: "0.1.0",
@@ -918,14 +918,14 @@ describe("offscreen controller", () => {
     const h = await setup();
     const session = await keptThenRestart(h);
     const t = session.trajectoryId;
-    const passes = h.openbot.passes.length;
+    const passes = h.shardsopenbot.passes.length;
     const kept = h.received("offscreen.kept").length;
     const sockets = countSockets();
     try {
       // A fresh document after a browser start: no Record has told it any policy.
       h.post({
         type: "offscreen.recover",
-        openbotUrl: session.openbotUrl,
+        shardsopenbotUrl: session.shardsopenbotUrl,
         token: session.token,
         allowedIntelligenceUrls: ELSEWHERE,
         version: "0.1.0",
@@ -947,7 +947,7 @@ describe("offscreen controller", () => {
         parked: true,
         events: 4,
       });
-      expect(h.openbot.passes.length).toBeGreaterThan(passes);
+      expect(h.shardsopenbot.passes.length).toBeGreaterThan(passes);
       expect(sockets.opened).toEqual([]);
       expect(h.gateway.joins).toEqual([]);
       expect(h.names(t)).toEqual([]);
@@ -982,7 +982,7 @@ describe("offscreen controller", () => {
     try {
       h.post({
         type: "offscreen.recover",
-        openbotUrl: session.openbotUrl,
+        shardsopenbotUrl: session.shardsopenbotUrl,
         token: session.token,
         allowedIntelligenceUrls: [h.gateway.url],
         version: "0.1.0",
@@ -1032,7 +1032,7 @@ describe("offscreen controller", () => {
     try {
       h.post({
         type: "offscreen.recover",
-        openbotUrl: session.openbotUrl,
+        shardsopenbotUrl: session.shardsopenbotUrl,
         token: session.token,
         allowedIntelligenceUrls: null,
         version: "0.1.0",
@@ -1069,12 +1069,12 @@ describe("offscreen controller", () => {
     h.gateway.delayNextAck(200);
     h.post({ type: "offscreen.stop", outcome: "succeeded" });
     await until(() => h.received("offscreen.stopped").length === 1, "stopped");
-    const passes = h.openbot.passes.length;
+    const passes = h.shardsopenbot.passes.length;
 
     // The person connected again while it still sent: the service worker posts every drain they own.
     h.post({
       type: "offscreen.recover",
-      openbotUrl: session.openbotUrl,
+      shardsopenbotUrl: session.shardsopenbotUrl,
       token: "obr_second",
       allowedIntelligenceUrls: null,
       version: "0.1.0",
@@ -1083,7 +1083,7 @@ describe("offscreen controller", () => {
     await until(() => h.received("offscreen.done").length === 1, "done");
     await sleep(50);
 
-    expect(h.openbot.passes).toHaveLength(passes);
+    expect(h.shardsopenbot.passes).toHaveLength(passes);
     expect(outcomes(h, t).map((value) => value.phase)).toEqual([
       "started",
       "succeeded",
@@ -1093,7 +1093,7 @@ describe("offscreen controller", () => {
 
   test("discard clears a recording's events, and is posted only for the person's own discard or disconnect", async () => {
     const h = await setup();
-    h.openbot.refuse = () => parkedPass();
+    h.shardsopenbot.refuse = () => parkedPass();
     await h.open();
     const session = h.session();
     const t = session.trajectoryId;
@@ -1119,7 +1119,7 @@ describe("offscreen controller", () => {
   test("discarding a replaced recording's kept events leaves the recording that replaced it streaming", async () => {
     const h = await setup();
     const first = h.session();
-    h.openbot.refuse = (trajectoryId) =>
+    h.shardsopenbot.refuse = (trajectoryId) =>
       trajectoryId === first.trajectoryId ? parkedPass() : null;
     await h.open();
     h.post({ type: "offscreen.start", session: first });
@@ -1178,7 +1178,7 @@ describe("offscreen controller", () => {
 
   test("a signed-out pass stops sending and keeps the outbox, and a recover with a new token sends it", async () => {
     const h = await setup();
-    h.openbot.passScript.push(signedOutPass("removed"));
+    h.shardsopenbot.passScript.push(signedOutPass("removed"));
     await h.open();
     const session = h.session();
     const t = session.trajectoryId;
@@ -1200,7 +1200,7 @@ describe("offscreen controller", () => {
     await h.clock.advance(30 * MINUTE);
     await sleep(30);
     // Nothing more goes out, and nothing is thrown away.
-    expect(h.openbot.passes).toHaveLength(1);
+    expect(h.shardsopenbot.passes).toHaveLength(1);
     expect(h.names(t)).toEqual([]);
     expect(await h.pending(t)).toHaveLength(5);
     expect(h.received("offscreen.signed-out")).toHaveLength(1);
@@ -1215,7 +1215,7 @@ describe("offscreen controller", () => {
     const statuses = h.received("offscreen.status").length;
     h.post({
       type: "offscreen.recover",
-      openbotUrl: session.openbotUrl,
+      shardsopenbotUrl: session.shardsopenbotUrl,
       token: "obr_second",
       allowedIntelligenceUrls: null,
       version: "0.1.0",
@@ -1232,10 +1232,10 @@ describe("offscreen controller", () => {
       "click",
       "outcome",
     ]);
-    expect(h.openbot.passes.slice(1).map((pass) => pass.authorization)).toEqual(
-      h.openbot.passes.slice(1).map(() => "Bearer obr_second"),
-    );
-    expect(h.openbot.passes.length).toBeGreaterThan(1);
+    expect(
+      h.shardsopenbot.passes.slice(1).map((pass) => pass.authorization),
+    ).toEqual(h.shardsopenbot.passes.slice(1).map(() => "Bearer obr_second"));
+    expect(h.shardsopenbot.passes.length).toBeGreaterThan(1);
   });
 
   test("a new token for the live recording: its next pass asks with it", async () => {
@@ -1257,13 +1257,15 @@ describe("offscreen controller", () => {
       () => h.names(t).includes("click"),
       "the click after the switch",
     );
-    expect(h.openbot.passes.at(-1)?.authorization).toBe("Bearer obr_second");
+    expect(h.shardsopenbot.passes.at(-1)?.authorization).toBe(
+      "Bearer obr_second",
+    );
     expect(h.received("offscreen.signed-out")).toEqual([]);
   });
 
   test("a live recording a pass with the old token signed out goes on streaming once the new token comes", async () => {
     const h = await setup();
-    h.openbot.passScript.push(signedOutPass("revoked"));
+    h.shardsopenbot.passScript.push(signedOutPass("revoked"));
     await h.open();
     const session = h.session();
     const t = session.trajectoryId;
@@ -1286,7 +1288,9 @@ describe("offscreen controller", () => {
       "click",
       "click",
     ]);
-    expect(h.openbot.passes.at(-1)?.authorization).toBe("Bearer obr_second");
+    expect(h.shardsopenbot.passes.at(-1)?.authorization).toBe(
+      "Bearer obr_second",
+    );
     h.post({ type: "offscreen.stop", outcome: "succeeded" });
     await until(() => h.received("offscreen.done").length === 1, "done");
   });
@@ -1294,7 +1298,7 @@ describe("offscreen controller", () => {
   test("a sign-out stops every recording sent with its token, and is posted once", async () => {
     const h = await setup();
     const first = h.session({ recordingId: "rec-held" });
-    h.openbot.refuse = (trajectoryId) =>
+    h.shardsopenbot.refuse = (trajectoryId) =>
       trajectoryId === first.trajectoryId ? heldPass() : null;
     await h.open();
     h.post({ type: "offscreen.start", session: first });
@@ -1309,20 +1313,20 @@ describe("offscreen controller", () => {
     });
 
     // The next recording, on the same connection, hears that the connection is gone.
-    h.openbot.passScript.push(signedOutPass("revoked"));
+    h.shardsopenbot.passScript.push(signedOutPass("revoked"));
     const second = h.session({ recordingId: "rec-next" });
     h.post({ type: "offscreen.start", session: second });
     await until(
       () => h.received("offscreen.signed-out").length === 1,
       "signed out",
     );
-    const passes = h.openbot.passes.length;
-    h.openbot.refuse = null;
+    const passes = h.shardsopenbot.passes.length;
+    h.shardsopenbot.refuse = null;
 
-    // The held recording tries again with the same token: the attempt never reaches OpenBot.
+    // The held recording tries again with the same token: the attempt never reaches ShardsOpenBot.
     await h.clock.advance(10 * MINUTE);
     await sleep(50);
-    expect(h.openbot.passes).toHaveLength(passes);
+    expect(h.shardsopenbot.passes).toHaveLength(passes);
     expect(h.names(first.trajectoryId)).toEqual([]);
     expect(await h.pending(first.trajectoryId)).toHaveLength(3);
     expect(h.received("offscreen.signed-out")).toEqual([
@@ -1337,7 +1341,7 @@ describe("offscreen controller", () => {
     const t = session.trajectoryId;
     h.post({ type: "offscreen.start", session });
     await streaming(h, t);
-    const passes = h.openbot.passes.length;
+    const passes = h.shardsopenbot.passes.length;
     h.post({ type: "offscreen.halt", token: "obr_first" });
     await sleep(20);
     h.post({ type: "offscreen.event", event: click(1) });
@@ -1347,7 +1351,7 @@ describe("offscreen controller", () => {
     );
     await h.clock.advance(10 * MINUTE);
     expect(h.names(t)).toEqual(["recording.started", "outcome"]);
-    expect(h.openbot.passes).toHaveLength(passes);
+    expect(h.shardsopenbot.passes).toHaveLength(passes);
     // The service worker sent the halt: nothing is posted back about it.
     expect(h.received("offscreen.signed-out")).toEqual([]);
   });
@@ -1383,7 +1387,7 @@ describe("offscreen controller", () => {
   test("in the e2e build, session.e2eHoldRetryMs becomes the hold interval; in a release build it is ignored", async () => {
     process.env.RECORDER_VARIANT = "e2e";
     const e2e = await setup();
-    e2e.openbot.passScript.push(heldPass);
+    e2e.shardsopenbot.passScript.push(heldPass);
     await e2e.open();
     const first = e2e.session({ e2eHoldRetryMs: 2_000 });
     e2e.post({ type: "offscreen.start", session: first });
@@ -1394,14 +1398,14 @@ describe("offscreen controller", () => {
           .some((status) => status.capture.intelligence === "held"),
       "held",
     );
-    expect(e2e.openbot.passes).toHaveLength(1);
+    expect(e2e.shardsopenbot.passes).toHaveLength(1);
     await e2e.clock.advance(2_000);
     await streaming(e2e, first.trajectoryId);
-    expect(e2e.openbot.passes).toHaveLength(2);
+    expect(e2e.shardsopenbot.passes).toHaveLength(2);
 
     process.env.RECORDER_VARIANT = "release";
     const release = await setup();
-    release.openbot.passScript.push(heldPass);
+    release.shardsopenbot.passScript.push(heldPass);
     await release.open();
     const second = release.session({ e2eHoldRetryMs: 2_000 });
     release.post({ type: "offscreen.start", session: second });
@@ -1414,10 +1418,10 @@ describe("offscreen controller", () => {
     );
     await release.clock.advance(2_000);
     await sleep(50);
-    expect(release.openbot.passes).toHaveLength(1);
+    expect(release.shardsopenbot.passes).toHaveLength(1);
     await release.clock.advance(5 * MINUTE - 2_000);
     await streaming(release, second.trajectoryId);
-    expect(release.openbot.passes).toHaveLength(2);
+    expect(release.shardsopenbot.passes).toHaveLength(2);
   });
 
   test("a disconnected port is reconnected and the last status re-sent", async () => {
@@ -1537,7 +1541,7 @@ describe("offscreen controller", () => {
     ]);
 
     // A pass refused for a signed-out connection names the guard's reason and the token it used.
-    h.openbot.passScript.push(signedOutPass("organization"));
+    h.shardsopenbot.passScript.push(signedOutPass("organization"));
     const later = h.session({
       recordingId: "rec-3",
       token: "obr_later",
@@ -1554,9 +1558,9 @@ describe("offscreen controller", () => {
         token: "obr_later",
       },
     ]);
-    // A rollover, a Start over and a stop: OpenBot heard nothing but the capture passes.
-    expect(h.openbot.recorderRequests).toEqual([]);
-    expect(h.openbot.passes.length).toBeGreaterThan(3);
+    // A rollover, a Start over and a stop: ShardsOpenBot heard nothing but the capture passes.
+    expect(h.shardsopenbot.recorderRequests).toEqual([]);
+    expect(h.shardsopenbot.passes.length).toBeGreaterThan(3);
   });
 });
 

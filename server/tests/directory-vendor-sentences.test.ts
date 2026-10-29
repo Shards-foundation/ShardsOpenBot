@@ -49,7 +49,7 @@ function deployment(provider: BrokerProvider, listApps: () => Promise<never>) {
       signedIn,
       async () => true,
       {
-        publicUrl: "https://openbot.example",
+        publicUrl: "https://shardsopenbot.example",
         appUrl: "https://app.example",
         encryptionKey: `${"A".repeat(43)}=`,
         personHasAccess: async () => true,
@@ -57,7 +57,7 @@ function deployment(provider: BrokerProvider, listApps: () => Promise<never>) {
       { broker, provider },
     ),
   );
-  const url = "http://openbot.test/api/plugins/composio/apps";
+  const url = "http://shardsopenbot.test/api/plugins/composio/apps";
   return {
     read: () => app.request(url),
     enable: (slug: string) =>

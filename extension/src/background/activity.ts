@@ -1,29 +1,32 @@
-// What this browser's Recorder is doing, told to the OpenBot it is connected to (`recorderActivitySchema` in
+// What this browser's Recorder is doing, told to the ShardsOpenBot it is connected to (`recorderActivitySchema` in
 // shared/recorder-api.ts): whenever its recording phase or its recording changes, and every 30 s while a recording runs,
-// so OpenBot can show it (the Browser button's red dot) wherever the person records, their own everyday browser or the
-// OpenBot browser. Every connection reports, whatever made it.
+// so ShardsOpenBot can show it (the Browser button's red dot) wherever the person records, their own everyday browser or the
+// ShardsOpenBot browser. Every connection reports, whatever made it.
 //
 // Best effort. Nothing here holds up Record or Stop, and nothing here can fail them: a report goes out on its own, one at
-// a time, always with the newest state, and OpenBot not answering, or answering anything but signed out, is let go
-// (OpenBot treats a report older than 90 s as stale, so one that never arrives ends the red dot rather than freezing
+// a time, always with the newest state, and ShardsOpenBot not answering, or answering anything but signed out, is let go
+// (ShardsOpenBot treats a report older than 90 s as stale, so one that never arrives ends the red dot rather than freezing
 // it). A signed-out answer goes the way any other signed-out answer goes.
 import {
   type RecorderActivity,
   recorderPaths,
-} from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/recorder-api";
 import type { RecorderState } from "../protocol/messages";
-import { OpenBotError, openbotJson } from "../shared/openbot-client";
+import {
+  ShardsOpenBotError,
+  shardsopenbotJson,
+} from "../shared/shardsopenbot-client";
 
-/** How often a running recording reports, well inside the 90 s after which OpenBot treats a report as stale. */
+/** How often a running recording reports, well inside the 90 s after which ShardsOpenBot treats a report as stale. */
 export const ACTIVITY_REPORT_MS = 30_000;
-/** A report OpenBot has not answered in this long is let go, so the next one is not held behind it. */
+/** A report ShardsOpenBot has not answered in this long is let go, so the next one is not held behind it. */
 const REPORT_WAIT_MS = 10_000;
 /** `recorderActivitySchema`'s longest title. */
 const TITLE_MAX = 200;
 
 /** The connection a report goes with: the live recording's, else the stored one. */
 export type ActivityTarget = {
-  openbotUrl: string;
+  shardsopenbotUrl: string;
   token: string;
   userId: string;
 };
@@ -36,7 +39,7 @@ type Timers = {
 export type ActivityDeps = {
   state: () => RecorderState;
   target: () => Promise<ActivityTarget | null>;
-  /** OpenBot answered a report signed out: the recording controller's own sign-out path. */
+  /** ShardsOpenBot answered a report signed out: the recording controller's own sign-out path. */
   signedOut: (
     reason: "revoked" | "removed" | "organization",
     target: ActivityTarget,
@@ -72,26 +75,29 @@ export function createActivityReport(deps: ActivityDeps): ActivityReport {
     const target = await deps.target();
     if (!target) return;
     try {
-      await openbotJson(target, recorderPaths.activity, {
+      await shardsopenbotJson(target, recorderPaths.activity, {
         body: activityOf(deps.state()),
         signal: AbortSignal.timeout(REPORT_WAIT_MS),
       });
     } catch (error) {
-      if (error instanceof OpenBotError && error.signedOut)
+      if (error instanceof ShardsOpenBotError && error.signedOut)
         await deps.signedOut(error.body?.reason ?? "revoked", target);
-      // OpenBot refusing the report itself (400, or 415 for a body that is not JSON) is the Recorder's own mistake: said
+      // ShardsOpenBot refusing the report itself (400, or 415 for a body that is not JSON) is the Recorder's own mistake: said
       // in the worker's console, and the next report goes as usual.
       else if (
-        error instanceof OpenBotError &&
+        error instanceof ShardsOpenBotError &&
         (error.status === 400 || error.status === 415)
       )
-        console.error("Recorder: OpenBot refused its activity report", error);
-      // Anything else (OpenBot unreachable, slow, or one with no activity route yet) waits for the next report.
+        console.error(
+          "Recorder: ShardsOpenBot refused its activity report",
+          error,
+        );
+      // Anything else (ShardsOpenBot unreachable, slow, or one with no activity route yet) waits for the next report.
     }
   }
 
   /** One report at a time, in order, each with the state as it is when it leaves: a change while one is out sends once
-   * more after it, so the last state is always the last one OpenBot hears. */
+   * more after it, so the last state is always the last one ShardsOpenBot hears. */
   function send(): void {
     if (sending) {
       again = true;

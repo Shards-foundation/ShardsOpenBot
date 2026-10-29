@@ -48,7 +48,7 @@ def boundary(monkeypatch):
         "GOOGLE_GENERATIVE_AI_API_KEY",
         "GOOGLE_GENERATIVE_AI_BASE_URL",
         "CLAUDE_CODE_OAUTH_TOKEN",
-        "OPENBOT_TOOL_URL",
+        "SHARDSOPENBOT_TOOL_URL",
         "AGENT_TOOL_TOKEN",
     ]:
         monkeypatch.delenv(name, raising=False)
@@ -66,11 +66,11 @@ def boundary(monkeypatch):
             body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
             if self.path == "/api/agent-tools/call":
                 captured["callback"].append(
-                    {"body": body, "token": self.headers.get("x-openbot-agent-token")}
+                    {"body": body, "token": self.headers.get("x-shardsopenbot-agent-token")}
                 )
                 status = captured["callback_status"]
                 if authorize := captured.get("callback_authorize"):
-                    status = authorize(body, self.headers.get("x-openbot-agent-token"))
+                    status = authorize(body, self.headers.get("x-shardsopenbot-agent-token"))
                 self.send_response(status)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
@@ -192,7 +192,7 @@ def boundary(monkeypatch):
     thread.start()
     base = f"http://127.0.0.1:{server.server_port}"
     monkeypatch.setenv("OPENAI_BASE_URL", base + "/v1")
-    monkeypatch.setenv("OPENBOT_TOOL_URL", base + "/api/agent-tools/call")
+    monkeypatch.setenv("SHARDSOPENBOT_TOOL_URL", base + "/api/agent-tools/call")
     monkeypatch.setenv("AGENT_TOOL_TOKEN", "synthetic-callback-token")
     try:
         yield captured
@@ -219,8 +219,8 @@ def run_input(
         "context": [],
         "state": {},
         "forwardedProps": {
-            "openbotDeploymentTools": list(deployment),
-            "openbotRun": assertion,
+            "shardsopenbotDeploymentTools": list(deployment),
+            "shardsopenbotRun": assertion,
         },
     }
 
@@ -230,7 +230,7 @@ async def run_protocol(body, *, allow_error=False):
         transport=httpx.ASGITransport(app=main.app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/", json=body, headers={"x-openbot-agent-token": "synthetic-server-token"}
+            "/", json=body, headers={"x-shardsopenbot-agent-token": "synthetic-server-token"}
         )
     assert response.status_code == 200
     events = [
@@ -259,7 +259,7 @@ async def test_only_provider_auth_status_emits_model_refresh_code(
     events = await run_protocol(run_input([]), allow_error=True)
     errors = [event for event in events if event["type"] == "RUN_ERROR"]
     assert errors
-    assert (errors[-1].get("code") == "OPENBOT_MODEL_AUTH_REQUIRED") is expected
+    assert (errors[-1].get("code") == "SHARDSOPENBOT_MODEL_AUTH_REQUIRED") is expected
 
 
 def snapshot(events):
@@ -318,7 +318,7 @@ async def test_a2ui_catalog_context_reaches_model_without_entering_history(bound
 @pytest.mark.parametrize("name", ["computer_navigate", "computer_run_command", "copilotkit_load_skill", "copilotkit_read_skill_file"])
 async def test_surface_tool_calls_end_then_consume_actual_client_result(boundary, name):
     body = run_input([name])
-    body["context"] = [{"description": "OpenBot learned skills", "value": "LEARNED_CATALOG_MARKER"}]
+    body["context"] = [{"description": "ShardsOpenBot learned skills", "value": "LEARNED_CATALOG_MARKER"}]
     first = await run_protocol(body)
     assert "LEARNED_CATALOG_MARKER" in json.dumps(boundary["model"][0]["messages"])
     assert [t["function"]["name"] for t in boundary["model"][0].get("tools", [])] == [

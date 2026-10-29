@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { and, eq, gt, inArray, isNull } from "drizzle-orm";
 import { type AuditEventInput, createAuditStore } from "../src/audit";
 import { createDatabase } from "../src/db/client";

@@ -15,9 +15,9 @@ import type { StoredControl } from "../src/control-store";
  * A real computer process and a real Chromium, so it is asked for by name:
  *
  *   cd agent-computer && bunx playwright install chromium
- *   OPENBOT_COMPUTER_BROWSER=1 bun test tests/handoff-page-restore.test.ts
+ *   SHARDSOPENBOT_COMPUTER_BROWSER=1 bun test tests/handoff-page-restore.test.ts
  */
-const asked = process.env.OPENBOT_COMPUTER_BROWSER === "1";
+const asked = process.env.SHARDSOPENBOT_COMPUTER_BROWSER === "1";
 const TOKEN = "handoff-page-restore-token";
 const BOT = "bot-restore";
 /** Short, so the old awaited restore is still bounded; well above what an answer should take. */
@@ -38,8 +38,8 @@ function api(path: string, init?: RequestInit) {
     ...init,
     headers: {
       "content-type": "application/json",
-      "x-openbot-bot-id": BOT,
-      "x-openbot-computer-token": TOKEN,
+      "x-shardsopenbot-bot-id": BOT,
+      "x-shardsopenbot-computer-token": TOKEN,
       ...(init?.headers ?? {}),
     },
   });

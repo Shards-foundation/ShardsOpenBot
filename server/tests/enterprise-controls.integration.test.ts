@@ -36,7 +36,7 @@ import {
   teamBotPublications,
   users,
 } from "../src/db/schema";
-import { createTurnRunner } from "@openbot/toolkit/run-turn";
+import { createTurnRunner } from "@shardsopenbot/toolkit/run-turn";
 import { createTeamBots } from "../src/team-bots/team-bots";
 import { TEST_POOL, testDatabaseUrl } from "./support/database";
 import { serverTurnAdmission } from "../src/agents/turn-admission";
@@ -807,7 +807,7 @@ describe("action recording", () => {
 });
 
 describe("OpenTelemetry export", () => {
-  test("audit rows reach an OTLP/HTTP collector tagged with openbot.surface", async () => {
+  test("audit rows reach an OTLP/HTTP collector tagged with shardsopenbot.surface", async () => {
     const received: string[] = [];
     const collector = Bun.serve({
       hostname: "127.0.0.1",
@@ -836,7 +836,7 @@ describe("OpenTelemetry export", () => {
     collector.stop(true);
     expect(received.length).toBeGreaterThan(0);
     expect(received[0]).toContain("/v1/logs");
-    expect(received.join("")).toContain("openbot.surface");
+    expect(received.join("")).toContain("shardsopenbot.surface");
     expect(received.join("")).toContain("computer.action_refused");
   });
 });

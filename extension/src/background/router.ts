@@ -18,10 +18,10 @@ import {
   handleExternalConnect,
 } from "./connection";
 import {
-  answerOpenBotPage,
-  isOpenBotPageMessage,
-  type OpenBotPageControls,
-} from "./openbot-page";
+  answerShardsOpenBotPage,
+  isShardsOpenBotPageMessage,
+  type ShardsOpenBotPageControls,
+} from "./shardsopenbot-page";
 
 export type RouterHandlers = {
   page(
@@ -37,10 +37,10 @@ export type RouterHandlers = {
 };
 
 type RouterDeps = RouterHandlers &
-  OpenBotPageControls & {
+  ShardsOpenBotPageControls & {
     connected(): Promise<void>;
     disconnected(): Promise<void>;
-    /** The recording controller's, for a connection an approved Connect (or OpenBot Desktop's connect) replaces. */
+    /** The recording controller's, for a connection an approved Connect (or ShardsOpenBot Desktop's connect) replaces. */
     connectionLost(loss: ConnectionLoss): Promise<void>;
   };
 
@@ -98,13 +98,13 @@ async function routePage(
       : (raw as PageToBackground);
   if (message === null) return UNKNOWN;
   if (CONNECTION_TYPES.has(type)) {
-    // A connection a Connect approves in place of another person's, or another OpenBot's, ends the old one in the
+    // A connection a Connect approves in place of another person's, or another ShardsOpenBot's, ends the old one in the
     // recording controller first: what still runs with its token stops, kept for its person.
     const answer = await handleConnectionMessage(message, {
       connectionLost: deps.connectionLost,
     });
     if (answer === undefined) return UNKNOWN;
-    // The follow-up runs after the connection changed: never fail the page on it. OpenBot Desktop's connect, with no
+    // The follow-up runs after the connection changed: never fail the page on it. ShardsOpenBot Desktop's connect, with no
     // Connect page, is an approved Connect too.
     const connected =
       (message.type === "page.connect.decide" && message.approve) ||
@@ -134,7 +134,7 @@ async function routePage(
   return UNKNOWN;
 }
 
-/** openbot.ping and openbot.connect from a web page. A trusted OpenBot's connect, made with no Connect page, is an
+/** shardsopenbot.ping and shardsopenbot.connect from a web page. A trusted ShardsOpenBot's connect, made with no Connect page, is an
  * approved Connect, and followed up as one; its answer says so (`connected`). */
 async function routeConnect(
   message: ExternalToBackground,
@@ -219,8 +219,8 @@ export function installRouter(deps: RouterDeps): void {
       message.type === "recorder.page-network" ||
       message.type === "recorder.page-agent"
         ? deps.external(message, sender)
-        : isOpenBotPageMessage(message)
-          ? answerOpenBotPage(message, sender, deps)
+        : isShardsOpenBotPageMessage(message)
+          ? answerShardsOpenBotPage(message, sender, deps)
           : routeConnect(message, sender, deps);
     answer.then(
       (response) => sendResponse(response),

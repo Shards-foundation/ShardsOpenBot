@@ -8,7 +8,7 @@ type AnchorProps = Omit<React.ComponentProps<"a">, "href">;
 
 /**
  * A link to a Bot's main chat: its one-to-one conversation when it has one, otherwise a new
- * conversation already addressed to it. Both are OpenBot's own chat routes.
+ * conversation already addressed to it. Both are ShardsOpenBot's own chat routes.
  */
 export function MainChatLink({
   agentId,

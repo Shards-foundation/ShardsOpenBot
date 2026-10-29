@@ -27,8 +27,8 @@ const input: RunAgentInput = {
   tools: [],
   context: [],
   forwardedProps: {
-    openbotDeploymentTools: ["governed_action"],
-    openbotRun: "signed",
+    shardsopenbotDeploymentTools: ["governed_action"],
+    shardsopenbotRun: "signed",
   },
 };
 const start: BaseEvent = {
@@ -102,7 +102,7 @@ describe("remote Automatic Learning delivery", () => {
     expect(remote.inputs).toHaveLength(2);
     for (const request of remote.inputs) {
       expect(request.context).toContainEqual({
-        description: "OpenBot learned skills",
+        description: "ShardsOpenBot learned skills",
         value: "catalog revision-one",
       });
       expect(
@@ -415,7 +415,7 @@ test("disabled delivery removes a catalog replayed in a remote message snapshot"
       ...input,
       messages: [
         {
-          id: "openbot:learned-skills",
+          id: "shardsopenbot:learned-skills",
           role: "system",
           content: "old published catalog",
         },
@@ -423,7 +423,7 @@ test("disabled delivery removes a catalog replayed in a remote message snapshot"
       ],
       context: [
         {
-          description: "OpenBot learned skills",
+          description: "ShardsOpenBot learned skills",
           value: "old published catalog",
         },
       ],
@@ -444,7 +444,7 @@ for (const availability of ["disabled", "empty"]) {
     const output = await events(middleware, remote);
     expect(output.at(-1)).toMatchObject({
       type: EventType.RUN_ERROR,
-      code: "OPENBOT_LEARNED_SKILLS_ERROR",
+      code: "SHARDSOPENBOT_LEARNED_SKILLS_ERROR",
     });
     expect(
       output.filter((event) => event.type === EventType.RUN_FINISHED),

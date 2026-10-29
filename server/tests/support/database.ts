@@ -2,7 +2,7 @@
  * The database integration suite must never fall back to the developer's application database.
  * `createDatabase` deliberately removes `process.env.DATABASE_URL` after opening a connection so Bun
  * cannot ignore the explicit connection parts on Windows. That means a later test that reads
- * `process.env.DATABASE_URL ?? localhost/openbot` can silently fall into the live development DB.
+ * `process.env.DATABASE_URL ?? localhost/shardsopenbot` can silently fall into the live development DB.
  * Resolve one explicit test URL before opening a test pool and make the unsafe shape impossible.
  */
 let cachedTestDatabaseUrl: string | undefined;
@@ -27,7 +27,7 @@ export function testDatabaseUrlFrom(
     url = new URL(raw);
   } catch {
     throw new Error(
-      "TEST_DATABASE_URL must be a PostgreSQL URL such as postgres://openbot:openbot@localhost:5432/openbot_test.",
+      "TEST_DATABASE_URL must be a PostgreSQL URL such as postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot_test.",
     );
   }
   if (!/^postgres(?:ql)?:$/.test(url.protocol)) {
@@ -39,9 +39,9 @@ export function testDatabaseUrlFrom(
   if (!database) {
     throw new Error("TEST_DATABASE_URL must name a database.");
   }
-  if (database === "openbot") {
+  if (database === "shardsopenbot") {
     throw new Error(
-      "TEST_DATABASE_URL must not point at the live openbot database. Use a dedicated database such as openbot_test.",
+      "TEST_DATABASE_URL must not point at the live shardsopenbot database. Use a dedicated database such as shardsopenbot_test.",
     );
   }
   return raw;

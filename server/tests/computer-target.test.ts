@@ -30,7 +30,7 @@ describe("navigation targets", () => {
 
     expect(verdict.allowed).toBe(false);
     expect(verdict.allowed === false && verdict.reason).toContain(
-      "inside OpenBot's own network",
+      "inside ShardsOpenBot's own network",
     );
   });
 
@@ -90,7 +90,7 @@ describe("navigation targets", () => {
 
     expect(verdict.allowed).toBe(false);
     expect(verdict.allowed === false && verdict.reason).toContain(
-      "inside OpenBot's own network",
+      "inside ShardsOpenBot's own network",
     );
   });
 

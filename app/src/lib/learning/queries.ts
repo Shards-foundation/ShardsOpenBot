@@ -4,7 +4,7 @@ import type {
   LearningOverview,
   LearningSettings,
   PersonalLearningSharing,
-} from "@openbot/shared/learning";
+} from "@shardsopenbot/shared/learning";
 import { queryOptions } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 

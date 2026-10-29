@@ -45,12 +45,12 @@ function stateResponse(
     ok: true,
     state: { ...IDLE_STATE, ...state },
     connection: {
-      openbotUrl: "https://openbot.example.test",
+      shardsopenbotUrl: "https://shardsopenbot.example.test",
       user: { name: "Ada Lovelace", email: "ada@example.test" },
       via: "web",
     },
     me: null,
-    policy: { openbotUrl: null, invalid: false },
+    policy: { shardsopenbotUrl: null, invalid: false },
     notice: null,
     narration: null,
     excludedSites: [],
@@ -70,21 +70,26 @@ function setup(response: PageStateResponse) {
 
 test("shows the address, the person and how it connected", async () => {
   const { findByText, getByText } = setup(stateResponse());
-  await findByText("https://openbot.example.test");
+  await findByText("https://shardsopenbot.example.test");
   expect(getByText("Ada Lovelace")).toBeTruthy();
-  expect(getByText(/Connected from OpenBot in your browser/)).toBeTruthy();
+  expect(
+    getByText(/Connected from ShardsOpenBot in your browser/),
+  ).toBeTruthy();
 });
 
 test("shows the pinned address as set by the organization", async () => {
   const { findByText, getAllByText } = setup(
     stateResponse({
-      policy: { openbotUrl: "https://openbot.example.test", invalid: false },
+      policy: {
+        shardsopenbotUrl: "https://shardsopenbot.example.test",
+        invalid: false,
+      },
     }),
   );
   await findByText("Set by your organization");
-  expect(getAllByText("https://openbot.example.test").length).toBeGreaterThan(
-    0,
-  );
+  expect(
+    getAllByText("https://shardsopenbot.example.test").length,
+  ).toBeGreaterThan(0);
 });
 
 test("no organization row when policy sets no address", async () => {
@@ -191,28 +196,28 @@ test("confirming sends page.disconnect and shows the not-connected copy", async 
   await waitFor(() =>
     expect(sent.some((m) => m.type === "page.disconnect")).toBe(true),
   );
-  await findByText(/This browser is not connected to OpenBot/);
+  await findByText(/This browser is not connected to ShardsOpenBot/);
 });
 
 test("a refused disconnect shows the server's sentence and stays connected", async () => {
   const ask = async (message: PageToBackground): Promise<PageResponse> =>
     message.type === "page.state"
       ? stateResponse()
-      : { ok: false, error: "OpenBot did not answer." };
+      : { ok: false, error: "ShardsOpenBot did not answer." };
   const { findAllByRole, findByText } = render(
     <Options deps={{ ask: ask as never }} />,
   );
   fireEvent.click((await findAllByRole("button", { name: "Disconnect" }))[0]);
   const buttons = await findAllByRole("button", { name: "Disconnect" });
   fireEvent.click(buttons[buttons.length - 1]);
-  await findByText("OpenBot did not answer.");
+  await findByText("ShardsOpenBot did not answer.");
 });
 
 test("not connected shows the not-connected copy and no Disconnect", async () => {
   const { findByText, queryByRole } = setup(
     stateResponse({ connection: null }),
   );
-  await findByText(/This browser is not connected to OpenBot/);
+  await findByText(/This browser is not connected to ShardsOpenBot/);
   expect(queryByRole("button", { name: "Disconnect" })).toBeNull();
 });
 

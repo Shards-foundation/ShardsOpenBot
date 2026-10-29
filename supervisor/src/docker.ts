@@ -19,7 +19,7 @@ import {
  * root on the host, a supervisor that forwarded arbitrary calls would hand that straight back
  * through a politer door. Four verbs, expressed in Bots, and nothing else.
  *
- * Every write is scoped by ownership. Containers are created carrying `openbot.supervisor`, and
+ * Every write is scoped by ownership. Containers are created carrying `shardsopenbot.supervisor`, and
  * stop, reset and inspect refuse anything without it. A container whose name happens to match but
  * lacks the label is treated as absent.
  */
@@ -265,7 +265,7 @@ async function inspectOwned(names: ComputerNames): Promise<{
  * Whether the computer that exists is running the image this deployment now ships.
  *
  * `ensure` reused any container with the right name, whatever it was built from, so once a Bot had a
- * computer, upgrading OpenBot never reached it. Rebuilding the image moves the tag; the container
+ * computer, upgrading ShardsOpenBot never reached it. Rebuilding the image moves the tag; the container
  * goes on running the old one, indefinitely, and nothing says so. Found by rebuilding every image,
  * restarting the whole stack, and watching a Bot's computer answer with in-memory state from an hour
  * earlier: `docker compose down` does not touch these, because the supervisor makes them rather than

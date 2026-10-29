@@ -34,7 +34,7 @@ Setting it up takes three hands, and none of them can do another's:
 | Who              | Does                                                         | Where                                                             |
 | ---------------- | ------------------------------------------------------------ | ----------------------------------------------------------------- |
 | Whoever deploys  | Sets `ARCADE_API_KEY`                                        | The deployment's environment. There is no screen for it           |
-| Whoever deploys  | Sets `OPENBOT_BROKER_PROVIDER`, only where both keys are set | The deployment's environment                                      |
+| Whoever deploys  | Sets `SHARDSOPENBOT_BROKER_PROVIDER`, only where both keys are set | The deployment's environment                                      |
 | Whoever deploys  | Registers an OAuth app per provider, and sets the verifier   | Arcade's dashboard, below                                         |
 | An administrator | Enables an app and grants its actions to a Bot               | `/admin/plugins/arcade`, then the app's own page, as for Composio |
 | Each person      | Connects their own account to that app                       | `/connections`                                                    |
@@ -44,7 +44,7 @@ Arcade on from a page; `/admin/plugins/arcade` is where a key that is already se
 
 ### Choosing the provider
 
-A deployment runs one broker at a time. `OPENBOT_BROKER_PROVIDER` takes `composio` or `arcade`, and
+A deployment runs one broker at a time. `SHARDSOPENBOT_BROKER_PROVIDER` takes `composio` or `arcade`, and
 anything else stops the server at startup.
 
 **Where exactly one of the two keys is set and the variable is unset, that provider is the active
@@ -64,9 +64,9 @@ startup, above.)
 
 Four refusals protect this, and all four are deliberate:
 
-- **A named provider whose key is not set stops the server at startup.** An operator sees: _OPENBOT_BROKER_PROVIDER=arcade names a provider whose ARCADE_API_KEY is not set to a key. Set ARCADE_API_KEY to this deployment's key, or change or unset OPENBOT_BROKER_PROVIDER._ It does not fall back to a deployment with no broker, because that would send somebody looking for a broken vendor instead of at their own environment. A key that is empty or all whitespace — `ARCADE_API_KEY=` with nothing after it — is no key: that provider counts as unconfigured, and no client is ever built on an empty credential.
-- **Both keys set with the variable unset stops the server at startup.** An operator sees: _COMPOSIO_API_KEY and ARCADE_API_KEY are both set and OPENBOT_BROKER_PROVIDER is unset, so no provider is active and nothing brokered would work. Set OPENBOT_BROKER_PROVIDER to composio or arcade to say which vendor is live, or unset the key of the vendor this deployment is not using._ Nobody wants that state on purpose — the deployment would hold two vendor keys and broker nothing — and wiring no broker silently would surface much later and far away, as brokered features that simply do not work. "Both set" counts only keys that hold something: two blank keys are no keys, and are reported as such rather than as two configured vendors.
-- **Activating a provider is refused while the other one still holds connections.** It is keyed on connection rows, not on keys. The message names the provider being activated and how many connections still belong to the other. Switching by editing the environment would leave accounts nobody can revoke. **There is no one-step migration**; what ends the old provider's connections today is keeping it active — both keys set, `OPENBOT_BROKER_PROVIDER` naming the old provider — and using the ordinary ways a connection ends, each of which revokes at the vendor and deletes the row: each person disconnects their own on `/settings/connected-accounts`, an administrator disconnects a Shared app's account, an administrator removes an app (which ends every account connected to it), or a person is offboarded. When the old provider holds no connections, name the new one and restart.
+- **A named provider whose key is not set stops the server at startup.** An operator sees: _SHARDSOPENBOT_BROKER_PROVIDER=arcade names a provider whose ARCADE_API_KEY is not set to a key. Set ARCADE_API_KEY to this deployment's key, or change or unset SHARDSOPENBOT_BROKER_PROVIDER._ It does not fall back to a deployment with no broker, because that would send somebody looking for a broken vendor instead of at their own environment. A key that is empty or all whitespace — `ARCADE_API_KEY=` with nothing after it — is no key: that provider counts as unconfigured, and no client is ever built on an empty credential.
+- **Both keys set with the variable unset stops the server at startup.** An operator sees: _COMPOSIO_API_KEY and ARCADE_API_KEY are both set and SHARDSOPENBOT_BROKER_PROVIDER is unset, so no provider is active and nothing brokered would work. Set SHARDSOPENBOT_BROKER_PROVIDER to composio or arcade to say which vendor is live, or unset the key of the vendor this deployment is not using._ Nobody wants that state on purpose — the deployment would hold two vendor keys and broker nothing — and wiring no broker silently would surface much later and far away, as brokered features that simply do not work. "Both set" counts only keys that hold something: two blank keys are no keys, and are reported as such rather than as two configured vendors.
+- **Activating a provider is refused while the other one still holds connections.** It is keyed on connection rows, not on keys. The message names the provider being activated and how many connections still belong to the other. Switching by editing the environment would leave accounts nobody can revoke. **There is no one-step migration**; what ends the old provider's connections today is keeping it active — both keys set, `SHARDSOPENBOT_BROKER_PROVIDER` naming the old provider — and using the ordinary ways a connection ends, each of which revokes at the vendor and deletes the row: each person disconnects their own on `/settings/connected-accounts`, an administrator disconnects a Shared app's account, an administrator removes an app (which ends every account connected to it), or a person is offboarded. When the old provider holds no connections, name the new one and restart.
 - **Holding connections at BOTH providers while nothing is active stops the server at startup.** It is the refusal above seen from the other side: with no provider named there is nothing to read one vendor's rows as, and reading them as the other's is the failure this whole section exists to prevent. The message names both vendors and says plainly that **nothing in the deployment can get past this**: with rows at both, activating either provider is refused by the rule above. The only way out is by hand — end one vendor's accounts in that vendor's own dashboard, delete its rows from `brokered_connections`, then name the other provider. The refusal at activation exists so that this state is never reached.
 
 ## Setting up the Arcade project
@@ -89,7 +89,7 @@ link was minted for an arbitrary `user_id` against Arcade's default Google provi
 verification** with _"the authorization process was not completed"_. The same consent minted for an
 Arcade project member's own identity **completed**. Arcade's built-in verifier has to recognise the
 end user as a member of the project, so it can only serve a `user_id` that is one. Per-person
-connections in OpenBot are arbitrary ids by definition — nobody is made a member of your Arcade
+connections in ShardsOpenBot are arbitrary ids by definition — nobody is made a member of your Arcade
 project in order to connect their mailbox — so a default provider cannot serve them at all.
 
 Arcade's admin API can create the OAuth provider, so that part can be scripted.
@@ -98,7 +98,7 @@ Arcade's admin API can create the OAuth provider, so that part can be scripted.
 > _"Use this client for an AI-powered agent"_ on an OAuth client. It is a self-declaration, and
 > ticking it puts that client under a separate administrative-policy surface; Google's own advice is
 > to register separate client ids for human workflows and agent workflows. Every brokered call
-> OpenBot makes is agent-initiated, so this is a choice a deployer should make on purpose rather
+> ShardsOpenBot makes is agent-initiated, so this is a choice a deployer should make on purpose rather
 > than leave at its default. **It was not exercised:** the client used for the measurements on this
 > page was registered with the box left unticked, deliberately, to keep a policy variable out of the
 > measurement. What ticking it changes in practice is therefore not known here.
@@ -110,7 +110,7 @@ and there is no API that does it. It is the single manual step in setting Arcade
 one that is easy to do wrongly, so it is stated here rather than left to be discovered.
 
 Set it to this deployment's verifier address, then switch the project to a custom verifier. The
-address is this API's public origin — `OPENBOT_PUBLIC_URL`, which defaults to `BETTER_AUTH_URL` —
+address is this API's public origin — `SHARDSOPENBOT_PUBLIC_URL`, which defaults to `BETTER_AUTH_URL` —
 followed by the path, so paste:
 
 ```
@@ -123,7 +123,7 @@ is sent on to the Connections page, with a reason beside it if the consent was r
 **Nothing checks this setting, so the deployment warns about it instead.** Arcade has no API that
 reads which verifier a project uses, so this deployment cannot tell a correctly pointed project from
 one left at Arcade's default. Every time it starts with Arcade active it logs a warning naming the
-exact address to set — built from `OPENBOT_PUBLIC_URL` (or `BETTER_AUTH_URL`) — and pointing here.
+exact address to set — built from `SHARDSOPENBOT_PUBLIC_URL` (or `BETTER_AUTH_URL`) — and pointing here.
 
 **If the project is left at Arcade's built-in verifier, this deployment's verify route is never
 called.** That route is the return leg that binds a consent to the attempt that started it, checks
@@ -152,7 +152,7 @@ worth reading before pressing **Add**.
 ### Toolkits are curated or they are wrappers, and the difference was measured
 
 Every action carries a classification — whether it reads or writes, whether it is destructive — and
-what OpenBot asks before running it depends on that classification. Arcade publishes it as
+what ShardsOpenBot asks before running it depends on that classification. Arcade publishes it as
 `metadata.behavior` on each tool, and toolkits fall into two groups:
 
 | Toolkit     | Tools              | With `metadata.behavior` |
@@ -194,7 +194,7 @@ authorized, **the writes and the destructive one included**, because a GitHub Ap
 fixed when the app is registered, and no request can ask for fewer.
 
 > **Least privilege is a property of (provider × how its OAuth app was registered), not of Arcade.**
-> What OpenBot does is **measure which it is, per app, and say so before anybody grants anything.**
+> What ShardsOpenBot does is **measure which it is, per app, and say so before anybody grants anything.**
 
 So when somebody asks whether connecting an app "only lets it read", the answer is whatever that
 app's measurement says, not what Arcade says in general. The pre-redirect consent copy names the
@@ -209,7 +209,7 @@ Two different questions are easily run together, and an operator will be asked b
 - **The tool grant** answers _"may **this Bot** call `ListThreads`?"_ It is an administrator's
   decision, made per Bot, per action.
 
-**Only the second is OpenBot's to give and take instantly**, and no consent widens it. Somebody
+**Only the second is ShardsOpenBot's to give and take instantly**, and no consent widens it. Somebody
 consenting to a broad scope does not hand any Bot more actions; a Bot with no grant for an action
 cannot call it however much the account allows. On a provider that cannot narrow scopes (GitHub
 above), the tool grant is therefore the entire narrowing — the same position as Composio's.
@@ -223,14 +223,14 @@ each. _Measured_ in the 2026-10-13 live-suite run:
 | Where you are reading it                            | What it is                                       | Example                              |
 | --------------------------------------------------- | ------------------------------------------------ | ------------------------------------ |
 | A **tool** listing, `requirements.authorization`     | the provider **type** — the vendor               | `google`                             |
-| A **user connection** row                            | the provider **instance** — a configuration      | `google-openbot`, `cpk-poc`          |
+| A **user connection** row                            | the provider **instance** — a configuration      | `google-shardsopenbot`, `cpk-poc`          |
 | An **auth provider** config                          | `id` is the instance, `provider_id` is the type  | `id: arcade-google` of type `google` |
 
 The auth-provider config is the only bridge between the other two. Verbatim, from that run:
 
 ```
 {"id":"cpk-poc",        "provider_id":"github", "type":"oauth2", "status":"active"}
-{"id":"google-openbot", "provider_id":"google", "type":"oauth2", "status":"active"}
+{"id":"google-shardsopenbot", "provider_id":"google", "type":"oauth2", "status":"active"}
 {"id":"arcade-google",  "provider_id":"google", "type":"oauth2", "status":"active"}
 ```
 
@@ -246,14 +246,14 @@ only thing on a connection that says which vendor it belongs to, and the only wa
 `google` to a person's row is through the list of configured providers of type `google`.
 
 **This bit this deployment once.** A connection lookup compared a tool's type against a row's
-instance — `"google"` against `"google-openbot"` — and so matched nothing on every real deployment,
+instance — `"google"` against `"google-shardsopenbot"` — and so matched nothing on every real deployment,
 Arcade's own default providers included, since those are named `arcade-google` and `arcade-github`
 and never the bare type. It did not present as an error: a connection that existed read as
 **not connected**, with no account name beside it. It is fixed, and it is written down here because
 the same confusion is waiting for whoever next reads two Arcade objects side by side. **If a
-connection you can see in Arcade's dashboard looks absent in OpenBot, check that the provider the
+connection you can see in Arcade's dashboard looks absent in ShardsOpenBot, check that the provider the
 person connected under is one this project has configured** — a provider configuration deleted while
-somebody's connection outlived it reads the same way, and deliberately so: OpenBot leaves a row it
+somebody's connection outlived it reads the same way, and deliberately so: ShardsOpenBot leaves a row it
 cannot attribute alone rather than guess which vendor it belongs to.
 
 ## Disconnecting one app may end another
@@ -265,7 +265,7 @@ named after neither toolkit. One Google connection serves them both, and **no na
 exists** — there is nothing to disconnect that ends only one of them. **Somebody disconnecting Gmail can end their Calendar**, in
 production, today.
 
-So before somebody confirms a disconnect, OpenBot names the apps that genuinely share the
+So before somebody confirms a disconnect, ShardsOpenBot names the apps that genuinely share the
 connection and would end with it. _Genuinely_ is exact: siblings are computed on the **pair (vendor
 identity, auth provider)**. Two _Shared_ apps that both use Google do **not** share a connection,
 because each Shared app has its own randomly minted identity at Arcade — disconnecting one does not
@@ -277,7 +277,7 @@ Google's consent screen is reached with `include_granted_scopes=true`, so **gran
 account**. Somebody who consents to a read and later to a write holds both at Google, as one grant.
 
 Disconnect deletes the Arcade connection. That ends **this deployment's** ability to act, and
-OpenBot asks for the upstream withdrawal as well, but what the provider then does with the standing
+ShardsOpenBot asks for the upstream withdrawal as well, but what the provider then does with the standing
 grant happens out of sight. **Nobody should read Disconnect as "my Google account no longer trusts
 this."** The person who wants that has to withdraw the grant at the provider itself, and an operator asked
 about it should say so rather than reassure.

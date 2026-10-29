@@ -3,7 +3,7 @@ import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import type { AuditInitiator } from "../audit";
 import { type AuditStore, recordAuditEvent } from "../audit";
 import { createRoleRepository } from "../auth/guards";
-import type { OpenBotRole } from "../auth/roles";
+import type { ShardsOpenBotRole } from "../auth/roles";
 import type { Database } from "../db/client";
 import {
   agentProfiles,
@@ -486,7 +486,7 @@ export function createSharedUseStore(
       .limit(1);
     const held = await roles
       .rolesForUser(actorId)
-      .catch((): OpenBotRole[] => []);
+      .catch((): ShardsOpenBotRole[] => []);
     return {
       actorId,
       isAdmin: held.includes("admin"),

@@ -67,7 +67,7 @@ beforeEach(async () => {
     provenance: "composio",
     authScheme: "OAUTH2",
     accountMode: "shared",
-    sharedVendorUserId: "openbot-deployment:x:R",
+    sharedVendorUserId: "shardsopenbot-deployment:x:R",
   });
   await database
     .insert(agents)

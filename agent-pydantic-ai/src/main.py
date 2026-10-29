@@ -19,7 +19,7 @@ from fastapi.responses import JSONResponse
 from pydantic_ai import Agent
 from pydantic_ai.ui.ag_ui import AGUIAdapter
 
-TOKEN_HEADER = "x-openbot-agent-token"
+TOKEN_HEADER = "x-shardsopenbot-agent-token"
 
 
 def _model_id() -> str:
@@ -81,7 +81,7 @@ async def run(request: Request):
     Pydantic AI hands back the whole streaming response, so this route holds no protocol logic of
     its own: it passes the request and the agent and returns what comes back.
     """
-    # This authenticated client is OpenBot's server, which owns the standing
+    # This authenticated client is ShardsOpenBot's server, which owns the standing
     # role and verified learned catalog. Preserve its per-invocation prompt.
     return await AGUIAdapter.dispatch_request(
         request, agent=agent, manage_system_prompt="client"

@@ -19,8 +19,8 @@ import {
 import {
   RECORDER_COLLECTS,
   RECORDER_DISCLOSURE,
-} from "@openbot/shared/recorder-disclosure";
-import { RECORDER_STORE_IDS } from "@openbot/shared/recorder-extension";
+} from "@shardsopenbot/shared/recorder-disclosure";
+import { RECORDER_STORE_IDS } from "@shardsopenbot/shared/recorder-extension";
 import { storeTabSentence } from "@/components/browser/browser-nav-item";
 import { BrowserSections } from "@/components/settings/browsers/browser-sections";
 import { ConnectedBrowsers } from "@/components/settings/browsers/connected-browsers";
@@ -58,10 +58,10 @@ let recorder:
   | {
       ping: Record<string, unknown>;
       connect: Record<string, unknown>;
-      /** What the Recorder does with OpenBot as it connects with no Connect page: exchanges the code, which makes the
+      /** What the Recorder does with ShardsOpenBot as it connects with no Connect page: exchanges the code, which makes the
        * connection on the server. */
       exchange?: () => void;
-      /** Where the connect has got to on its Connect page (`openbot.connect.status`); waiting while unset. */
+      /** Where the connect has got to on its Connect page (`shardsopenbot.connect.status`); waiting while unset. */
       wait?: "waiting" | "cancelled" | "closed" | "none";
     }
   | undefined;
@@ -112,12 +112,12 @@ beforeEach(() => {
           return;
         }
         const type = (message as { type: string }).type;
-        if (type === "openbot.connect") recorder.exchange?.();
-        if (type === "openbot.connect.status") {
+        if (type === "shardsopenbot.connect") recorder.exchange?.();
+        if (type === "shardsopenbot.connect.status") {
           reply({ ok: true, connect: recorder.wait ?? "waiting" });
           return;
         }
-        reply(type === "openbot.ping" ? recorder.ping : recorder.connect);
+        reply(type === "shardsopenbot.ping" ? recorder.ping : recorder.connect);
       },
     },
   };
@@ -172,7 +172,7 @@ function draw(screen = <ThisBrowser />) {
 test("without the Recorder the row says so and offers no button or link", async () => {
   const view = draw();
   await view.findByText(
-    "The OpenBot Recorder isn't installed in this browser.",
+    "The ShardsOpenBot Recorder isn't installed in this browser.",
   );
   expect(view.queryByRole("button")).toBeNull();
   expect(view.queryByRole("link")).toBeNull();
@@ -187,7 +187,9 @@ test("Connect sends the code to the detected Recorder and asks for confirmation 
   fireEvent.click(
     await view.findByRole("button", { name: "Connect this browser" }),
   );
-  await view.findByText("Confirm in the OpenBot Recorder tab that opened.");
+  await view.findByText(
+    "Confirm in the ShardsOpenBot Recorder tab that opened.",
+  );
   expect(sent).toContainEqual({
     path: "/api/recorder/connect-codes",
     method: "POST",
@@ -195,7 +197,7 @@ test("Connect sends the code to the detected Recorder and asks for confirmation 
   });
   expect(messages).toContainEqual({
     id: EXTENSION_ID,
-    message: { type: "openbot.connect", code: "obc_x" },
+    message: { type: "shardsopenbot.connect", code: "obc_x" },
   });
 });
 
@@ -209,8 +211,10 @@ test("once the person approves on the Connect page, the install id the Recorder 
   fireEvent.click(
     await view.findByRole("button", { name: "Connect this browser" }),
   );
-  await view.findByText("Confirm in the OpenBot Recorder tab that opened.");
-  // The person clicks Connect on the Recorder's page: the connection is OpenBot's, and the Recorder's ping says which
+  await view.findByText(
+    "Confirm in the ShardsOpenBot Recorder tab that opened.",
+  );
+  // The person clicks Connect on the Recorder's page: the connection is ShardsOpenBot's, and the Recorder's ping says which
   // copy made it.
   connections = [connection()];
   recorder.ping = { ok: true, version: "1", installId: THIS_COPY };
@@ -221,15 +225,15 @@ test("once the person approves on the Connect page, the install id the Recorder 
 for (const [how, sentence] of [
   [
     "cancelled",
-    "You cancelled in the OpenBot Recorder tab. Nothing was connected.",
+    "You cancelled in the ShardsOpenBot Recorder tab. Nothing was connected.",
   ],
   [
     "closed",
-    "The OpenBot Recorder tab closed before you confirmed. Nothing was connected.",
+    "The ShardsOpenBot Recorder tab closed before you confirmed. Nothing was connected.",
   ],
 ] as const)
   test(`once the person ${how === "cancelled" ? "cancels on" : "closes"} the Connect page, the row says so within a second, with Connect back`, async () => {
-    // After a Cancel, Settings used to go on saying "Confirm in the OpenBot Recorder tab that opened." for up to five
+    // After a Cancel, Settings used to go on saying "Confirm in the ShardsOpenBot Recorder tab that opened." for up to five
     // minutes: nothing told it the person had cancelled.
     recorder = {
       ping: { ok: true },
@@ -239,7 +243,9 @@ for (const [how, sentence] of [
     fireEvent.click(
       await view.findByRole("button", { name: "Connect this browser" }),
     );
-    await view.findByText("Confirm in the OpenBot Recorder tab that opened.");
+    await view.findByText(
+      "Confirm in the ShardsOpenBot Recorder tab that opened.",
+    );
     recorder.wait = how;
     const at = Date.now();
     await view.findByText(sentence, {}, { timeout: 1500 });
@@ -249,14 +255,16 @@ for (const [how, sentence] of [
     // Connect again starts afresh: the wait before it is not read for this one.
     recorder.wait = "waiting";
     fireEvent.click(again);
-    await view.findByText("Confirm in the OpenBot Recorder tab that opened.");
+    await view.findByText(
+      "Confirm in the ShardsOpenBot Recorder tab that opened.",
+    );
     await new Promise((resolve) => setTimeout(resolve, 1200));
     expect(
-      view.getByText("Confirm in the OpenBot Recorder tab that opened."),
+      view.getByText("Confirm in the ShardsOpenBot Recorder tab that opened."),
     ).toBeTruthy();
   });
 
-test("a trusted OpenBot's connect, answered connected with no Connect page, reads Connected at once and never asks the person to confirm", async () => {
+test("a trusted ShardsOpenBot's connect, answered connected with no Connect page, reads Connected at once and never asks the person to confirm", async () => {
   recorder = {
     ping: { ok: true },
     connect: { ok: true, version: "1", installId: THIS_COPY, connected: true },
@@ -282,7 +290,7 @@ test("a trusted OpenBot's connect, answered connected with no Connect page, read
   watch.disconnect();
   expect(
     said.some((text) =>
-      text.includes("Confirm in the OpenBot Recorder tab that opened."),
+      text.includes("Confirm in the ShardsOpenBot Recorder tab that opened."),
     ),
   ).toBe(false);
   expect(view.queryByRole("button")).toBeNull();
@@ -298,11 +306,13 @@ test("a connection from another copy (Chrome connected, this is Edge) neither sh
   fireEvent.click(
     await view.findByRole("button", { name: "Connect this browser" }),
   );
-  await view.findByText("Confirm in the OpenBot Recorder tab that opened.");
+  await view.findByText(
+    "Confirm in the ShardsOpenBot Recorder tab that opened.",
+  );
   await new Promise((resolve) => setTimeout(resolve, 2500));
   expect(view.queryByText("Connected")).toBeNull();
   expect(
-    view.getByText("Confirm in the OpenBot Recorder tab that opened."),
+    view.getByText("Confirm in the ShardsOpenBot Recorder tab that opened."),
   ).toBeTruthy();
 });
 
@@ -326,7 +336,7 @@ test("a pinned-elsewhere refusal shows its sentence", async () => {
     await view.findByRole("button", { name: "Connect this browser" }),
   );
   await view.findByText(
-    "Your organization set the Recorder to another OpenBot.",
+    "Your organization set the Recorder to another ShardsOpenBot.",
   );
 });
 
@@ -373,23 +383,23 @@ test("an answer with no sentence of its own still gets one", async () => {
   await view.findByText("The Recorder didn't accept the request. Try again.");
 });
 
-test("the OpenBot browser's connection says it is the person's OpenBot browser", async () => {
+test("the ShardsOpenBot browser's connection says it is the person's ShardsOpenBot browser", async () => {
   connections = [
     connection({
       id: "conn-2",
-      label: "OpenBot browser",
-      via: "openbot-browser",
+      label: "ShardsOpenBot browser",
+      via: "shardsopenbot-browser",
       installId: "b".repeat(32),
     }),
   ];
   const view = draw(<ConnectedBrowsers />);
-  await view.findByText("OpenBot browser");
+  await view.findByText("ShardsOpenBot browser");
   const at = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(String(connections[0]?.createdAt)));
   expect(
-    view.getByText(`Your OpenBot browser, connected ${at}, never used`),
+    view.getByText(`Your ShardsOpenBot browser, connected ${at}, never used`),
   ).toBeTruthy();
 });
 
@@ -402,7 +412,7 @@ test("Disconnect sends the DELETE and the row disappears", async () => {
     timeStyle: "short",
   }).format(new Date(String(connections[0]?.createdAt)));
   expect(
-    view.getByText(`Connected ${at} from OpenBot, never used`),
+    view.getByText(`Connected ${at} from ShardsOpenBot, never used`),
   ).toBeTruthy();
   fireEvent.click(
     view.getByRole("button", { name: "Disconnect Chrome on Mac" }),
@@ -413,7 +423,7 @@ test("Disconnect sends the DELETE and the row disappears", async () => {
   });
   // Named as the row is: it is not known to be this browser, so the dialog does not say it is.
   expect(dialog.textContent).toContain(
-    "OpenBot signs the Recorder in Chrome on Mac out. It records nothing for you until you connect it again, and a recording running there stops.",
+    "ShardsOpenBot signs the Recorder in Chrome on Mac out. It records nothing for you until you connect it again, and a recording running there stops.",
   );
   expect(dialog.textContent).not.toContain("this browser");
   expect(sent).toEqual([]);
@@ -463,8 +473,8 @@ test("the Disconnect dialog says this browser only on this browser's row, and na
     }),
     connection({
       id: "conn-3",
-      label: "OpenBot browser",
-      via: "openbot-browser",
+      label: "ShardsOpenBot browser",
+      via: "shardsopenbot-browser",
       installId: "e".repeat(32),
     }),
   ];
@@ -478,13 +488,13 @@ test("the Disconnect dialog says this browser only on this browser's row, and na
     return text;
   };
   expect(await said("Disconnect Chrome on Mac · This browser")).toStartWith(
-    "OpenBot signs the Recorder in this browser out.",
+    "ShardsOpenBot signs the Recorder in this browser out.",
   );
   expect(await said("Disconnect Edge on Windows")).toStartWith(
-    "OpenBot signs the Recorder in Edge on Windows out.",
+    "ShardsOpenBot signs the Recorder in Edge on Windows out.",
   );
-  expect(await said("Disconnect OpenBot browser")).toStartWith(
-    "OpenBot signs the Recorder in your OpenBot browser out.",
+  expect(await said("Disconnect ShardsOpenBot browser")).toStartWith(
+    "ShardsOpenBot signs the Recorder in your ShardsOpenBot browser out.",
   );
   expect(sent).toEqual([]);
 });
@@ -559,7 +569,7 @@ test("in Chrome without the Recorder, This browser offers its store page in a ne
       </QueryClientProvider>,
     );
     await view.findByText(
-      "The OpenBot Recorder isn't installed in this browser.",
+      "The ShardsOpenBot Recorder isn't installed in this browser.",
     );
     const link = view.getByRole("link", { name: "Add to Chrome" });
     expect(link.getAttribute("href")).toBe(
@@ -641,7 +651,9 @@ test("a connect request nobody confirms expires after five minutes and stops pol
     fireEvent.click(
       await view.findByRole("button", { name: "Connect this browser" }),
     );
-    await view.findByText("Confirm in the OpenBot Recorder tab that opened.");
+    await view.findByText(
+      "Confirm in the ShardsOpenBot Recorder tab that opened.",
+    );
     expect(expiries.length).toBeGreaterThan(0);
     const polling = connectionsFetches;
     await new Promise((resolve) => realSetTimeout(resolve, 2500));
@@ -700,7 +712,7 @@ test("the copy in this browser is marked among connected browsers that share a n
   ).toBeTruthy();
   // Two copies connected two hours ago, a minute apart, read differently.
   const descriptions = view
-    .getAllByText(/^Connected .* from OpenBot, last used /)
+    .getAllByText(/^Connected .* from ShardsOpenBot, last used /)
     .map((element) => element.textContent);
   expect(new Set(descriptions).size).toBe(3);
 });

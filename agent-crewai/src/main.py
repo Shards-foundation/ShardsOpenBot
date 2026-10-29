@@ -5,7 +5,7 @@ integration that CrewAI's own ecosystem publishes, mounted on FastAPI, with noth
 written here. `agent-bot` and `agent-langgraph` speak AG-UI by hand because they predate the rule
 that we do not write adapters. This one imports `ag_ui_crewai` and stops.
 
-The contract with the rest of OpenBot is the same one the other Bots meet, and it is small:
+The contract with the rest of ShardsOpenBot is the same one the other Bots meet, and it is small:
 serve AG-UI on a port, answer `/health`, and refuse anybody who does not carry the server's token.
 """
 
@@ -30,9 +30,9 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from litellm import acompletion
 
-# The one header OpenBot's server sends when it calls a managed Bot. Same name the TypeScript Bots
+# The one header ShardsOpenBot's server sends when it calls a managed Bot. Same name the TypeScript Bots
 # check, because a Bot is a Bot whatever it is written in.
-TOKEN_HEADER = "x-openbot-agent-token"
+TOKEN_HEADER = "x-shardsopenbot-agent-token"
 
 
 def _expected_token() -> str:
@@ -40,7 +40,7 @@ def _expected_token() -> str:
 
 
 def _model() -> str:
-    """The provider and model OpenBot chose, in the form litellm wants.
+    """The provider and model ShardsOpenBot chose, in the form litellm wants.
 
     `BOT_PROVIDER` and `BOT_MODEL` are set by the shell from the model screen. litellm addresses a
     model as `provider/model`, and it reads that provider's key from the environment itself, which
@@ -128,7 +128,7 @@ def _provider_messages(messages: list[Any]) -> list[dict[str, Any]]:
 _prepare_crewai_inputs = crewai_endpoint.crewai_prepare_inputs
 
 
-def _openbot_prepare_crewai_inputs(
+def _shardsopenbot_prepare_crewai_inputs(
     *,
     state: dict,
     messages: list[Message],
@@ -152,10 +152,10 @@ def _openbot_prepare_crewai_inputs(
     return inputs
 
 
-crewai_endpoint.crewai_prepare_inputs = _openbot_prepare_crewai_inputs
+crewai_endpoint.crewai_prepare_inputs = _shardsopenbot_prepare_crewai_inputs
 
 
-class OpenBotFlow(Flow):
+class ShardsOpenBotFlow(Flow):
     """A crew of one, which is the right size for a Bot answering a person.
 
     CrewAI's own examples build multi-agent crews, and a person who wants that edits this. What
@@ -202,4 +202,4 @@ async def health():
     return {"ok": True, "harness": "crewai"}
 
 
-add_crewai_flow_fastapi_endpoint(app, OpenBotFlow(), "/")
+add_crewai_flow_fastapi_endpoint(app, ShardsOpenBotFlow(), "/")

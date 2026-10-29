@@ -9,7 +9,7 @@ import {
 import type {
   LearningSettings,
   PersonalLearningSharing,
-} from "@openbot/shared/learning";
+} from "@shardsopenbot/shared/learning";
 import { eq, inArray } from "drizzle-orm";
 import { createEnterpriseStore } from "../src/admin/settings-store";
 import { createActorAgentResolver } from "../src/agents/agent-resolver";
@@ -251,7 +251,7 @@ const call = (
   person: "ada" | "grace" | null,
   init: { method?: string; json?: unknown } = {},
 ) =>
-  app.request(`http://openbot.test${path}`, {
+  app.request(`http://shardsopenbot.test${path}`, {
     method: init.method ?? "GET",
     headers: {
       ...(person ? as(person) : {}),
@@ -279,7 +279,7 @@ const offered = async (
     identifyActor,
     resolver,
   )({
-    request: new Request("http://openbot.test/api/copilotkit", {
+    request: new Request("http://shardsopenbot.test/api/copilotkit", {
       headers: as(person),
     }),
   });
@@ -716,7 +716,7 @@ describe("every path that builds a Bot for a person gives its runs their Skills 
       identifyActor,
       resolver,
     )({
-      request: new Request("http://openbot.test/api/copilotkit", {
+      request: new Request("http://shardsopenbot.test/api/copilotkit", {
         headers: as("ada"),
       }),
     });

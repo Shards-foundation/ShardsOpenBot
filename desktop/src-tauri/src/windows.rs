@@ -66,21 +66,21 @@ impl Blocker {
                 "Virtual Machine Platform is switched off. Open Windows Terminal or PowerShell \
                  as an administrator, run `dism.exe /online /enable-feature \
                  /featurename:VirtualMachinePlatform /all /norestart`, restart Windows, and \
-                 start OpenBot again."
+                 start ShardsOpenBot again."
             }
-            // Says what to run, because OpenBot does not do it. The screen used to say "OpenBot
+            // Says what to run, because ShardsOpenBot does not do it. The screen used to say "ShardsOpenBot
             // can install it", and nothing in this application installs anything: there is no
             // button under the sentence and no code behind one. Somebody read that, waited, and
             // had been told to wait for something that was never going to happen.
             Blocker::WslAbsent => {
                 "Windows Subsystem for Linux is not installed. Open Windows Terminal or PowerShell \
-                 as an administrator, run `wsl --install`, restart Windows, and start OpenBot \
+                 as an administrator, run `wsl --install`, restart Windows, and start ShardsOpenBot \
                  again."
             }
             Blocker::WslOne => {
                 "Windows Subsystem for Linux is at version 1. Open Windows Terminal or PowerShell \
                  as an administrator, run `wsl --set-default-version 2`, restart Windows, and \
-                 start OpenBot again."
+                 start ShardsOpenBot again."
             }
             // Measured on Windows Server 2022. `wsl --install` enabled both features and stopped
             // there, leaving the inbox WSL with no kernel, and `Get-WindowsOptionalFeature` says
@@ -90,11 +90,11 @@ impl Blocker {
             Blocker::WslNoKernel => {
                 "Windows Subsystem for Linux is switched on but its Linux kernel is missing, so \
                  nothing can run inside it yet. Open Windows Terminal or PowerShell as an \
-                 administrator, run `wsl --update`, restart Windows, and start OpenBot again."
+                 administrator, run `wsl --update`, restart Windows, and start ShardsOpenBot again."
             }
             Blocker::VirtualizationDisabled => {
                 "Virtualization is switched off in this machine's firmware. It has to be turned on \
-                 there, which OpenBot cannot do: restart, open the firmware settings, and enable \
+                 there, which ShardsOpenBot cannot do: restart, open the firmware settings, and enable \
                  Intel VT-x or AMD-V."
             }
             Blocker::NotAdministrator => {
@@ -103,13 +103,13 @@ impl Blocker {
                  `dism.exe /online /enable-feature \
                  /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart`, \
                  `dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart`, \
-                 and `wsl --install`. Restart Windows, then start OpenBot again in your own account."
+                 and `wsl --install`. Restart Windows, then start ShardsOpenBot again in your own account."
             }
         }
     }
 
     /// Whether the shell can clear this itself. Two of the four are ours; two are not.
-    /// Whether OpenBot could fix this itself, one day.
+    /// Whether ShardsOpenBot could fix this itself, one day.
     ///
     /// Nothing acts on this yet. `wsl --install` needs elevation and a restart, and the resumable
     /// state machine that would carry somebody across that reboot is designed and not built, so
@@ -281,7 +281,7 @@ pub fn blocker() -> Result<Option<Blocker>, Problem> {
 #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 fn detection_failed(operation: &str, detail: impl Into<String>) -> Problem {
     Problem::with(
-        format!("OpenBot could not check {operation}. Close and reopen OpenBot to try again."),
+        format!("ShardsOpenBot could not check {operation}. Close and reopen ShardsOpenBot to try again."),
         detail,
     )
 }
@@ -1024,7 +1024,7 @@ mod tests {
         assert_eq!(blocker.instruction(), "Virtual Machine Platform is switched off. \
             Open Windows Terminal or PowerShell as an administrator, run \
             `dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart`, \
-            restart Windows, and start OpenBot again.");
+            restart Windows, and start ShardsOpenBot again.");
         assert!(blocker.ours_to_fix());
     }
 
@@ -1267,7 +1267,7 @@ mod tests {
             .args([
                 "-c",
                 "printf '%s' \"$1\"; printf '%s' \"$2\" >&2; exit \"$3\"",
-                "openbot-probe-fixture",
+                "shardsopenbot-probe-fixture",
                 stdout,
                 stderr,
                 code,
@@ -1446,7 +1446,7 @@ mod tests {
 
     #[test]
     fn no_blocker_screen_offers_to_do_something_this_application_does_not_do() {
-        // The screen said "OpenBot can install it" while nothing installed anything and there was
+        // The screen said "ShardsOpenBot can install it" while nothing installed anything and there was
         // no button to press. Seen on Windows Server 2022 with WSL genuinely disabled.
         for blocker in [
             Blocker::WslAbsent,
@@ -1456,9 +1456,9 @@ mod tests {
             Blocker::NotAdministrator,
         ] {
             let said = blocker.instruction();
-            // "OpenBot cannot" is the honest half of this and must survive the check.
+            // "ShardsOpenBot cannot" is the honest half of this and must survive the check.
             assert!(
-                !said.contains("OpenBot can install") && !said.contains("OpenBot can convert"),
+                !said.contains("ShardsOpenBot can install") && !said.contains("ShardsOpenBot can convert"),
                 "promises what nothing does: {said}"
             );
         }
@@ -1501,7 +1501,7 @@ mod tests {
         assert!(instruction.contains("Windows Terminal or PowerShell as an administrator and run"));
         assert!(instruction.to_ascii_lowercase().contains("restart"));
         assert!(instruction.contains("your own account"));
-        assert!(!instruction.contains("run OpenBot once"));
+        assert!(!instruction.contains("run ShardsOpenBot once"));
         assert!(!instruction.contains("account does not have"));
     }
 

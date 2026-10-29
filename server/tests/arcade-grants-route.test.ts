@@ -118,7 +118,7 @@ function build(who: string, role: "admin" | "user", provider: Provider) {
     typeof createApp
   >;
   args[0] = loadConfig(
-    testEnvironment({ OPENBOT_APP_URL: "https://app.example" }),
+    testEnvironment({ SHARDSOPENBOT_APP_URL: "https://app.example" }),
   );
   args[1] = {
     handler: () => new Response(null, { status: 204 }),
@@ -147,7 +147,7 @@ async function run(mode: "personal" | "shared", provider: Provider = "arcade") {
     id: `grants-${tag}`,
     toolkit: `Gmail${tag}`,
     viewer: `viewer-${tag}`,
-    sharedIdentity: `openbot-deployment:acme:${tag}`,
+    sharedIdentity: `shardsopenbot-deployment:acme:${tag}`,
   };
   ids.push(names.id);
   toolkits.push(names.toolkit);
@@ -175,7 +175,7 @@ const grants = (
   provider: Provider = "arcade",
 ) =>
   build(who, role, provider).request(
-    `http://openbot.test/api/plugins/servers/${id}/grants`,
+    `http://shardsopenbot.test/api/plugins/servers/${id}/grants`,
   );
 
 afterAll(async () => {
@@ -222,7 +222,7 @@ describe("whose identity is asked about", () => {
     ).toEqual([{ holder: "deployment", vendorUserId: n.sharedIdentity }]);
 
     const mint = await build(n.viewer, "user", "arcade").request(
-      `http://openbot.test/api/plugins/servers/${n.id}/authorize`,
+      `http://shardsopenbot.test/api/plugins/servers/${n.id}/authorize`,
       {
         method: "POST",
         headers: { "content-type": "application/json" },

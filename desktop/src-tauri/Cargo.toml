@@ -1,16 +1,16 @@
 [package]
-name = "openbot-desktop"
+name = "shardsopenbot-desktop"
 version = "0.2.0"
-description = "OpenBot Desktop"
+description = "ShardsOpenBot Desktop"
 edition = "2021"
 rust-version = "1.77"
 
 [lib]
-name = "openbot_desktop_lib"
+name = "shardsopenbot_desktop_lib"
 path = "src/lib.rs"
 
 [[bin]]
-name = "openbot-desktop"
+name = "shardsopenbot-desktop"
 path = "src/main.rs"
 
 [build-dependencies]

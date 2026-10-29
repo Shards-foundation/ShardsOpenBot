@@ -54,7 +54,7 @@ export function createExpoPushTransport(
           channelId: input.channelId,
           kind: input.kind,
           ...(input.requestId ? { requestId: input.requestId } : {}),
-          url: `openbotmobile://${path}?${query}`,
+          url: `shardsopenbotmobile://${path}?${query}`,
         },
       });
       const ticket = result.data;

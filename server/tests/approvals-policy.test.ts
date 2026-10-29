@@ -29,7 +29,7 @@ import {
 } from "../src/approvals/types";
 import { createHostAccessBroker } from "../src/host-access/broker";
 import { createPrivateShareCheck } from "../src/proactive/private-share";
-import { HeadlessToolSuspension } from "@openbot/toolkit/headless-tools";
+import { HeadlessToolSuspension } from "@shardsopenbot/toolkit/headless-tools";
 
 const candidate = (
   over: Partial<ApprovalCandidate> = {},
@@ -439,7 +439,7 @@ describe("auto-review", () => {
       candidate: candidate({
         toolRef: "composio/GITHUB_UPDATE_REPOSITORY_SETTINGS",
         scope: "github",
-        args: { repo: "openbot", private: false },
+        args: { repo: "shardsopenbot", private: false },
       }),
       autoReview: true,
       model: model(
@@ -761,7 +761,7 @@ describe("delegation is gated", () => {
       credentialActorFor: async (actorId) => actorId,
       coordinationCall: (input) => coordination.call(input),
       answer: (result) => result.text,
-      privateShareToolRef: "openbot/private_share",
+      privateShareToolRef: "shardsopenbot/private_share",
       refusalMarker: "REFUSED:",
       personInitiator: { kind: "person", id: "" },
     });

@@ -39,7 +39,7 @@ const keyPathOf = (db: IDBDatabase, store: string) =>
 
 describe("recorder database", () => {
   test("declares the default name and version 2", () => {
-    expect(RECORDER_DATABASE).toBe("openbot-recorder");
+    expect(RECORDER_DATABASE).toBe("shardsopenbot-recorder");
     expect(RECORDER_DATABASE_VERSION).toBe(2);
   });
 

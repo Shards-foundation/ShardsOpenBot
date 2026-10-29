@@ -1,8 +1,8 @@
 /**
- * The OpenTag pairing: OpenBot's Slack and Microsoft Teams reachability.
+ * The OpenTag pairing: ShardsOpenBot's Slack and Microsoft Teams reachability.
  *
  * OpenTag (CopilotKit's open-source Slack/Teams front on the Channels SDK) calls one AG-UI agent at
- * `AGENT_URL` with `Authorization: AGENT_AUTH_HEADER`. OpenBot is that agent: the shared secret is
+ * `AGENT_URL` with `Authorization: AGENT_AUTH_HEADER`. ShardsOpenBot is that agent: the shared secret is
  * checked in constant time, OpenTag's structured sender context names the Slack/Teams person, and the
  * person's authenticated delivery binding decides which owner, Bot and canonical thread the turn runs
  * in. Nothing in the message text or the RunAgentInput can choose an owner.
@@ -12,10 +12,10 @@
  * `__opentag_interrupt_id__` (32 lowercase hex) and `__copilotkit_interrupt_value__`
  * `{ action: "confirm_write", args }`. A card click re-runs the agent with
  * `forwardedProps.command.resume = { [interruptId]: { confirmed, always?, by } }`. The interrupt id is
- * the OpenBot approval id without dashes, and the decision still goes through the approvals service.
+ * the ShardsOpenBot approval id without dashes, and the decision still goes through the approvals service.
  *
- * Proactive messages (no Slack turn open) go the other way: OpenBot POSTs to OpenTag's
- * `/openbot/deliver`, because a managed Channel can only post inside a live delivery.
+ * Proactive messages (no Slack turn open) go the other way: ShardsOpenBot POSTs to OpenTag's
+ * `/shardsopenbot/deliver`, because a managed Channel can only post inside a live delivery.
  */
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
@@ -30,7 +30,7 @@ import {
 } from "./types";
 
 export type OpenTagConfig = {
-  /** Shared both ways: OpenTag sends `Bearer <secret>`, and OpenBot sends it back on deliveries. */
+  /** Shared both ways: OpenTag sends `Bearer <secret>`, and ShardsOpenBot sends it back on deliveries. */
   secret: string;
   /** OpenTag's base URL for proactive delivery; absent means proactive Slack/Teams sends fail visibly. */
   url?: string;
@@ -39,7 +39,7 @@ export type OpenTagConfig = {
   fetch?: ProviderFetch;
 };
 
-export const OPENTAG_SENDER_CONTEXT = "openbot.sender";
+export const OPENTAG_SENDER_CONTEXT = "shardsopenbot.sender";
 
 function sameSecret(expected: string, presented: string) {
   const a = Buffer.from(expected);
@@ -70,7 +70,7 @@ export function createOpenTagTransport(config: OpenTagConfig) {
     },
     /**
      * Whether a Slack user is in a channel, answered by OpenTag with the workspace's bot token
-     * (`POST /openbot/membership`). Fails closed: any error or missing configuration is `false`.
+     * (`POST /shardsopenbot/membership`). Fails closed: any error or missing configuration is `false`.
      * Installed for Slack triggers with `useSlackChannelMembership`.
      */
     async isMember(input: {
@@ -81,7 +81,7 @@ export function createOpenTagTransport(config: OpenTagConfig) {
       if (!config.url) return false;
       try {
         const response = await wire(
-          new URL("/openbot/membership", config.url),
+          new URL("/shardsopenbot/membership", config.url),
           {
             method: "POST",
             signal: AbortSignal.timeout(15_000),
@@ -115,7 +115,7 @@ export function createOpenTagTransport(config: OpenTagConfig) {
         input.transport === "teams" ? "teams" : "slack";
       let response: Response;
       try {
-        response = await wire(new URL("/openbot/deliver", config.url), {
+        response = await wire(new URL("/shardsopenbot/deliver", config.url), {
           method: "POST",
           signal: AbortSignal.timeout(DELIVERY_REQUEST_TIMEOUT_MS),
           headers: {
@@ -324,7 +324,7 @@ const resumeSchema = z.object({
   always: z.boolean().optional(),
   by: z.string().max(512).optional(),
 });
-/** A card click answering one OpenBot approval, or null when this run is not a resume. */
+/** A card click answering one ShardsOpenBot approval, or null when this run is not a resume. */
 export function resumeFromInput(input: OpenTagRunInput) {
   const props = input.forwardedProps;
   if (!props || typeof props !== "object" || !("command" in props)) return null;
@@ -422,7 +422,8 @@ export function agUiStream(
       // A long governed turn says nothing for minutes; an ignored CUSTOM event keeps proxies and the
       // runner's socket from treating the silence as a dead stream.
       const heartbeat = setInterval(
-        () => emit({ type: "CUSTOM", name: "openbot.working", value: {} }),
+        () =>
+          emit({ type: "CUSTOM", name: "shardsopenbot.working", value: {} }),
         heartbeatMs,
       );
       heartbeat.unref?.();
@@ -449,7 +450,7 @@ export function textEvents(messageId: string, text: string) {
 /** OpenTag's chart component (`app/tools/render-chart.tsx`): native in Slack and Teams. */
 export const OPENTAG_CHART_TOOL = "render_chart";
 /** Our component calls carry this id prefix, so the Channel's follow-up run is recognised. */
-export const COMPONENT_CALL_PREFIX = "openbot-component-";
+export const COMPONENT_CALL_PREFIX = "shardsopenbot-component-";
 
 const LABEL_MAX = 20;
 /** Labels clipped to OpenTag's limit and kept unique, since categories must be. */
@@ -472,7 +473,7 @@ const isPoint = (value: unknown): value is Point =>
   Number.isFinite((value as Point).value);
 
 /**
- * One of OpenBot's gallery charts as OpenTag's `render_chart` arguments, or null when it is not a
+ * One of ShardsOpenBot's gallery charts as OpenTag's `render_chart` arguments, or null when it is not a
  * chart or cannot be drawn within that component's limits (the reply text still carries it).
  */
 export function chartForOpenTag(component: {
@@ -558,7 +559,7 @@ export function chartForOpenTag(component: {
 /**
  * The line said under a chart drawn natively, saying where its figures came from, or "" when the
  * Bot said nothing about that. OpenTag's chart has no caption, so without it a Slack or Teams chart
- * would lose what the same chart says in OpenBot. Mirrors `Sources` in the app's gallery charts.
+ * would lose what the same chart says in ShardsOpenBot. Mirrors `Sources` in the app's gallery charts.
  */
 export function chartSourcesLine(args: Record<string, unknown>): string {
   const seen = new Set<string>();

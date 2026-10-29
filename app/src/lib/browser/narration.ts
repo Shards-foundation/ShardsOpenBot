@@ -1,15 +1,15 @@
 /*
- * NARRATION FROM THE PAGE. On hosted OpenBot the person's browser runs on a computer with no microphone, so this page
+ * NARRATION FROM THE PAGE. On hosted ShardsOpenBot the person's browser runs on a computer with no microphone, so this page
  * listens to them instead, in their own browser, with the Web Speech API, and hands each final phrase to the Recorder
  * with when they started and stopped saying it. It also says when a phrase began, as soon as its first words come
- * back, so the Recorder holds the steps taken while it is said until it arrives. On OpenBot Desktop none of this runs:
+ * back, so the Recorder holds the steps taken while it is said until it arrives. On ShardsOpenBot Desktop none of this runs:
  * the Recorder hears the microphone itself.
  *
  * It is the browser's own speech recognition (`SpeechRecognition`, or the `webkitSpeechRecognition` Chrome and Safari
  * still answer to), continuous and with interim results, which is what lets a phrase be timed from its first words
  * rather than from when it was finished. It runs on the person's own computer or not at all: Chrome sends the audio to
  * its speech service unless a recognition sets `processLocally`, so every recognition here sets it, and the browser is
- * asked first whether it can recognise the language on the device (@openbot/shared/on-device-speech). Where it cannot
+ * asked first whether it can recognise the language on the device (@shardsopenbot/shared/on-device-speech). Where it cannot
  * (Firefox, Safari, an older Chrome, a language it has no model for), narration is off and the page says why; where the
  * language is still to be downloaded, turning narration on downloads it (a click is the only thing that may), and
  * narration waits for it. Nothing here keeps any audio, and only the words of each final phrase, and when a phrase
@@ -19,7 +19,7 @@ import {
   keepOnDevice,
   type OnDeviceSpeech,
   onDeviceSpeech,
-} from "@openbot/shared/on-device-speech";
+} from "@shardsopenbot/shared/on-device-speech";
 
 type RecognitionAlternative = { readonly transcript: string };
 type RecognitionResult = {
@@ -80,7 +80,7 @@ export type Phrase = { text: string; startedAt: number; endedAt: number };
  * - Every event repeats the final results before it. A phrase is sent once, the first time it is final.
  *
  * A phrase never starts before the one ahead of it ended, which holds the order if Chrome shows a phrase's first words
- * while the one before is still being finished. The Recorder times the phrases it hears on OpenBot Desktop by the same
+ * while the one before is still being finished. The Recorder times the phrases it hears on ShardsOpenBot Desktop by the same
  * rule (extension/src/offscreen/voice.ts), so a recording's narration lines up with its steps the same way either way.
  */
 export class PhraseClock {

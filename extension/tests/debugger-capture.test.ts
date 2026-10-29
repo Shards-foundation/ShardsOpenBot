@@ -12,7 +12,7 @@ import {
   type CapturedEvent,
   normaliseSecret,
   sha256HexSync,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import {
   createNetworkCapture,
   type NetworkCapture,
@@ -31,7 +31,7 @@ import {
 } from "./support/recorded-text";
 
 const EXTENSION_ID = "test";
-const OPENBOT = "https://openbot.example.test";
+const SHARDSOPENBOT = "https://shardsopenbot.example.test";
 const MiB = 1024 * 1024;
 
 /** A write's exchange as the steps get it (steps.ts StepCall), seen as the request a step would carry. */
@@ -134,7 +134,7 @@ beforeEach(() => {
 
 function captureDeps() {
   return {
-    openbotUrl: () => OPENBOT,
+    shardsopenbotUrl: () => SHARDSOPENBOT,
     call: (call: StepCall) => {
       calls.push(call);
       if (call.exchange)
@@ -368,20 +368,20 @@ test("images, scripts, stylesheets, fonts and a document request outside the top
   expect(commandsTo("Network.getResponseBody")).toHaveLength(1);
 });
 
-test("calls to OpenBot itself are ignored, by the steps and by the agent events alike", async () => {
+test("calls to ShardsOpenBot itself are ignored, by the steps and by the agent events alike", async () => {
   await capture.start(7, "https://crm.example.test/");
   // The Recorder's own capture pass and connect code, had a tab made them: a pass answers join credentials as an
   // Intelligence run does, and neither is ever followed.
   request(7, {
     id: "1",
-    url: `${OPENBOT}/api/copilotkit/trajectory/x/connect`,
+    url: `${SHARDSOPENBOT}/api/copilotkit/trajectory/x/connect`,
     method: "POST",
     postData: "{}",
     body: '{"joinToken":"join-token-1","realtime":{"clientUrl":"wss://intelligence.example.test/client","topic":"trajectory:x"}}',
   });
   request(7, {
     id: "3",
-    url: `${OPENBOT}/api/recorder/connect-codes`,
+    url: `${SHARDSOPENBOT}/api/recorder/connect-codes`,
     method: "POST",
     postData: "{}",
     body: '{"code":"obc_live_connect_code"}',
@@ -848,7 +848,7 @@ test("a page-level write reaches the steps with its exchange, a read with when i
   ]);
 });
 
-test("a page-level event for a call to OpenBot itself is dropped, like the debugger drops it", async () => {
+test("a page-level event for a call to ShardsOpenBot itself is dropped, like the debugger drops it", async () => {
   await capture.start(7, "https://crm.example.test/");
   const now = Date.now();
   const pageEvent = (url: string, responseUrl = url): CapturedEvent => ({
@@ -871,12 +871,15 @@ test("a page-level event for a call to OpenBot itself is dropped, like the debug
   });
   await capture.recordPageEvent(
     7,
-    pageEvent(`${OPENBOT}/api/recorder/connect-codes`),
+    pageEvent(`${SHARDSOPENBOT}/api/recorder/connect-codes`),
   );
-  // A call that a redirect landed on OpenBot.
+  // A call that a redirect landed on ShardsOpenBot.
   await capture.recordPageEvent(
     7,
-    pageEvent("https://crm.example.test/go", `${OPENBOT}/api/recorder/me`),
+    pageEvent(
+      "https://crm.example.test/go",
+      `${SHARDSOPENBOT}/api/recorder/me`,
+    ),
   );
   await capture.recordPageEvent(7, pageEvent("https://crm.example.test/api"));
   expect(calls.map((call) => call.url)).toEqual([

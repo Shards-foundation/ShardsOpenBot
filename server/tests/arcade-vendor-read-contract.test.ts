@@ -326,7 +326,7 @@ const MINT_STATUS: Reader = {
           account,
           toolkit: "Gmail",
           action: "Gmail.SendEmail",
-          returnUrl: "https://openbot.example/settings/plugins",
+          returnUrl: "https://shardsopenbot.example/settings/plugins",
         },
       );
       return minted.redirectUrl === "https://consent.example/go"

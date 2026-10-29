@@ -11,7 +11,7 @@ import { installSetup } from "./setup";
 const recording = installRecording();
 installRouter(recording);
 // A connection that ends without the person's Disconnect (the keep-alive's sign-out, a policy move) also ends what it
-// still has running: the recording controller stops the live recording and the document's streams for it. One OpenBot
+// still has running: the recording controller stops the live recording and the document's streams for it. One ShardsOpenBot
 // Desktop makes as the Recorder installs is followed up as an approved Connect is.
 installConnection({
   connectionLost: recording.connectionLost,
@@ -19,7 +19,7 @@ installConnection({
 });
 // A fresh install opens the page that asks for the microphone; website access came with the install itself.
 installSetup();
-// What the process that launched this browser calls, over its DevTools pipe, when OpenBot opened the browser itself:
+// What the process that launched this browser calls, over its DevTools pipe, when ShardsOpenBot opened the browser itself:
 // the connection, Record and Stop, and narration from outside. In this worker's own scope, with no message route to it.
 installLauncher(recording);
 chrome.runtime.onStartup.addListener(recoverInterruptedRecording);

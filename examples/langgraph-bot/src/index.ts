@@ -15,7 +15,7 @@ import { listenPort } from "../../../shared/listen-port";
 /**
  * A Bot written in LangGraph.
  *
- * This is a real LangGraph `StateGraph` with its own model client and tool loop. OpenBot knows it
+ * This is a real LangGraph `StateGraph` with its own model client and tool loop. ShardsOpenBot knows it
  * only as an AG-UI endpoint URL.
  *
  * It is an AG-UI HTTP endpoint. One POST carrying a `RunAgentInput`, and
@@ -60,7 +60,7 @@ const BotState = Annotation.Root({
 function toLangChainMessages(input: RunAgentInput): BaseMessage[] {
   const messages: BaseMessage[] = [
     new SystemMessage(
-      "You are a Bot running on LangGraph inside OpenBot. You have a real web browser available " +
+      "You are a Bot running on LangGraph inside ShardsOpenBot. You have a real web browser available " +
         "through the tools you are given.\n\n" +
         // Page contents must come from a fresh tool result, not from model memory.
         "NEVER state what a page contains unless you have just read it with a tool in this " +

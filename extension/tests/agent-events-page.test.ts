@@ -4,10 +4,10 @@
 // the agent events and the steps, wired as the recording wires them, and each click is the content script's own capture
 // of the element the person clicked, at the moment the recording marks. What leaves is held to what CopilotKit's own
 // capture recorded for the same page flow (learning-page-copilotkit.json): its agent rows one for one, and the agent
-// context of each click. OpenBot's own chat (openbot-chat.json) goes the same way, with OpenBot connected.
+// context of each click. ShardsOpenBot's own chat (shardsopenbot-chat.json) goes the same way, with ShardsOpenBot connected.
 import { afterAll, afterEach, beforeAll, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import { createAgentEvents } from "../src/background/agent/events";
 import { createNetworkCapture } from "../src/background/network";
 import { createStepAssembler } from "../src/background/steps";
@@ -113,7 +113,7 @@ const AGENT_ROWS = new Set([
 /**
  * Records the page: its traffic through the network capture into the agent events, whose events the steps place by
  * their time; each click enriched as it arrives and settled as it leaves, as recording.ts wires them. Returns what left
- * the steps, in the Trajectory's order. `openbot` is the OpenBot the recording is connected to; `steps` draws what each
+ * the steps, in the Trajectory's order. `shardsopenbot` is the ShardsOpenBot the recording is connected to; `steps` draws what each
  * recorded click landed on and captures the steps it made, in place of the learning page's chat; `fixture` is the
  * traffic in place of the recorded one. The steps' timers run on the page's own clock: each fires before the first of
  * Chrome's messages that came after it, so a step leaves when the steps let it go, knowing what the page did by then.
@@ -121,7 +121,7 @@ const AGENT_ROWS = new Set([
 async function recordPage(
   name: string,
   page: {
-    openbot?: string;
+    shardsopenbot?: string;
     steps?: (mark: FixtureMark) => CapturedEvent[];
     fixture?: Fixture;
   } = {},
@@ -178,7 +178,7 @@ async function recordPage(
   });
   const capture = createNetworkCapture(
     {
-      openbotUrl: () => page.openbot ?? null,
+      shardsopenbotUrl: () => page.shardsopenbot ?? null,
       call: (call) => steps.call(call),
       writeStarted: (id, tabId, startedAt) =>
         steps.writeStarted(id, tabId, startedAt),
@@ -397,7 +397,7 @@ for (const name of ["single-route-sse", "intelligence-websocket"])
     expect(history?.map(({ role }) => role)).toEqual(["tool"]);
   });
 
-/** OpenBot's composer as run 3 recorded it: its Message editor, then Send, the submit button of its form. */
+/** ShardsOpenBot's composer as run 3 recorded it: its Message editor, then Send, the submit button of its form. */
 const composer = (mark: FixtureMark): CapturedEvent[] =>
   mark.data?.name === "focus"
     ? stepsOf(
@@ -413,7 +413,7 @@ const composer = (mark: FixtureMark): CapturedEvent[] =>
 
 const RUN_URL = "/api/copilotkit/agent/general-assistant/run";
 
-/** The Thread of the run OpenBot's Send started, from the run's body (past 64 KiB, so read with getRequestPostData). */
+/** The Thread of the run ShardsOpenBot's Send started, from the run's body (past 64 KiB, so read with getRequestPostData). */
 function sentThread(fixture: Fixture): string | undefined {
   const [runRequest] = [...requests(fixture)].find(([, request]) =>
     String((request.request as { url: string }).url).endsWith(RUN_URL),
@@ -443,7 +443,7 @@ const clicksIn = (sent: CapturedEvent[]) =>
     );
 
 /**
- * OpenBot's chat with its composer's routing call as slow as in end-to-end run 3: there an LLM picked the Bot, the
+ * ShardsOpenBot's chat with its composer's routing call as slow as in end-to-end run 3: there an LLM picked the Bot, the
  * call (POST /api/route) answered 2.06 s after Send, and the page asked for the run 2.18 s after the click, where this
  * traffic has it 0.29 s after. Everything Chrome sent from that call on comes later by the difference, its own clocks
  * with it. `marks` adds what the person did meanwhile, each so long after Send.
@@ -493,16 +493,17 @@ function routedSlowly(
   return { ...fixture, entries };
 }
 
-test("OpenBot's own chat: the composer, clicked before any Thread, names none, and Send names the Thread of the run it started", async () => {
-  // End-to-end run 3: neither click carried a threadId at all. The capture ignored OpenBot's runtime `info` call with
-  // the rest of OpenBot's own calls, so it never knew the page runs CopilotKit; and Send is the submit button of the
+test("ShardsOpenBot's own chat: the composer, clicked before any Thread, names none, and Send names the Thread of the run it started", async () => {
+  // End-to-end run 3: neither click carried a threadId at all. The capture ignored ShardsOpenBot's runtime `info` call with
+  // the rest of ShardsOpenBot's own calls, so it never knew the page runs CopilotKit; and Send is the submit button of the
   // composer's form, whose submit, a millisecond after the click, closed the click's span before the run it started.
   // The clicks land on the composer as run 3 recorded it: its Message editor, then Send.
-  const fixture = loadFixture("openbot-chat");
-  const openbot = new URL(String(marks(fixture, "navigate")[0]?.data?.url))
-    .origin;
-  const { sent } = await recordPage("openbot-chat", {
-    openbot,
+  const fixture = loadFixture("shardsopenbot-chat");
+  const shardsopenbot = new URL(
+    String(marks(fixture, "navigate")[0]?.data?.url),
+  ).origin;
+  const { sent } = await recordPage("shardsopenbot-chat", {
+    shardsopenbot,
     steps: composer,
   });
   const thread = sentThread(fixture);
@@ -515,15 +516,16 @@ test("OpenBot's own chat: the composer, clicked before any Thread, names none, a
   ]);
 });
 
-test("OpenBot's first Send names the Thread of its run when the page routes the message first and runs it 2.18 s later, as in end-to-end run 3", async () => {
-  // End-to-end run 3, row 005: OpenBot's routing call took 2.06 s, the run came 2.18 s after Send, and the click had
+test("ShardsOpenBot's first Send names the Thread of its run when the page routes the message first and runs it 2.18 s later, as in end-to-end run 3", async () => {
+  // End-to-end run 3, row 005: ShardsOpenBot's routing call took 2.06 s, the run came 2.18 s after Send, and the click had
   // left the steps a second after it (its form's submit closed its span), naming no Thread. Its run is the next one the
   // page asked for in the tab, before the person did anything else, inside the click's join.
-  const fixture = routedSlowly(loadFixture("openbot-chat"), 2_180);
-  const openbot = new URL(String(marks(fixture, "navigate")[0]?.data?.url))
-    .origin;
-  const { sent } = await recordPage("openbot-chat", {
-    openbot,
+  const fixture = routedSlowly(loadFixture("shardsopenbot-chat"), 2_180);
+  const shardsopenbot = new URL(
+    String(marks(fixture, "navigate")[0]?.data?.url),
+  ).origin;
+  const { sent } = await recordPage("shardsopenbot-chat", {
+    shardsopenbot,
     steps: composer,
     fixture,
   });
@@ -547,13 +549,14 @@ test("OpenBot's first Send names the Thread of its run when the page routes the 
 
 test("a Send whose run comes only after the person's next step names no Thread: the run is not the Send's to claim", async () => {
   // The crappy path of the join: the person clicks the composer again a second after Send, before the slow run.
-  const fixture = routedSlowly(loadFixture("openbot-chat"), 2_180, [
+  const fixture = routedSlowly(loadFixture("shardsopenbot-chat"), 2_180, [
     { after: 1_000, mark: { name: "click", data: { name: "focus" } } },
   ]);
-  const openbot = new URL(String(marks(fixture, "navigate")[0]?.data?.url))
-    .origin;
-  const { sent } = await recordPage("openbot-chat", {
-    openbot,
+  const shardsopenbot = new URL(
+    String(marks(fixture, "navigate")[0]?.data?.url),
+  ).origin;
+  const { sent } = await recordPage("shardsopenbot-chat", {
+    shardsopenbot,
     steps: composer,
     fixture,
   });

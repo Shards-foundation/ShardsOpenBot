@@ -2,7 +2,7 @@ import { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
 import {
   AUTOMATIC_LEARNING_CONTAINER_ID,
   type LearningAutoAssignState,
-} from "@openbot/shared/learning";
+} from "@shardsopenbot/shared/learning";
 import {
   type AuditStore,
   DEPLOYMENT_INITIATOR,
@@ -193,7 +193,7 @@ const RETRY_MS = 10 * 60_000;
 const MIN_INTERVAL_MS = 60_000;
 
 /**
- * Assign this project's `openbot` Learning container as the default when nobody has chosen one.
+ * Assign this project's `shardsopenbot` Learning container as the default when nobody has chosen one.
  *
  * Automatic Learning is on by default, but it collects and delivers nothing until a container is
  * assigned, and assigning one used to take a helper script or a trip to Admin. This closes that gap
@@ -249,7 +249,7 @@ export function createLearningAutoAssign(options: {
 
   const instructions =
     options.instructions ??
-    `Run bun scripts/setup-learning.ts, or create a container with ID "${containerId}" in Intelligence; OpenBot assigns it within ${Math.round((options.retryMs ?? RETRY_MS) / 60_000)} minutes.`;
+    `Run bun scripts/setup-learning.ts, or create a container with ID "${containerId}" in Intelligence; ShardsOpenBot assigns it within ${Math.round((options.retryMs ?? RETRY_MS) / 60_000)} minutes.`;
   /** Whether this process already tried `create`: once at boot, again only when Admin asks. */
   let createTried = false;
   let createError: string | undefined;
@@ -312,7 +312,7 @@ export function createLearningAutoAssign(options: {
     if (found === "unavailable") {
       once("unavailable", {
         message:
-          "Intelligence could not be asked about the Learning container. OpenBot tries again.",
+          "Intelligence could not be asked about the Learning container. ShardsOpenBot tries again.",
       });
       return { state: "unavailable" };
     }
@@ -348,7 +348,7 @@ export function createLearningAutoAssign(options: {
         once("error", {
           errorType: error instanceof Error ? error.name : typeof error,
           message:
-            "Automatic Learning container assignment failed. OpenBot tries again.",
+            "Automatic Learning container assignment failed. ShardsOpenBot tries again.",
         });
         return { state: "unavailable" } as LearningAutoAssignState;
       })

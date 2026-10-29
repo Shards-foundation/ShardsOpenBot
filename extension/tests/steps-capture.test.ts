@@ -1,7 +1,7 @@
 // The capture and the steps together, as the recording runs them: what Chrome reports about a click amid the page's
 // noise reaches Intelligence only as that click's save, on both capture paths.
 import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import {
   createNetworkCapture,
   type NetworkCapture,
@@ -14,7 +14,7 @@ import {
 import { type ChromeFake, installChromeFake } from "./support/chrome-fake";
 import { CARD_AND_PIN_CLOCK, leakedSecrets } from "./support/recorded-text";
 
-const OPENBOT = "https://openbot.example.test";
+const SHARDSOPENBOT = "https://shardsopenbot.example.test";
 /** When each test begins, in seconds since the epoch: the pinned clock, from which the steps' own clock runs on. */
 const CLICK = CARD_AND_PIN_CLOCK / 1000;
 /** The steps' timing, shortened so a test runs in a moment; every rule is the same. */
@@ -74,7 +74,7 @@ beforeEach(() => {
   });
   capture = createNetworkCapture(
     {
-      openbotUrl: () => OPENBOT,
+      shardsopenbotUrl: () => SHARDSOPENBOT,
       call: (call) => steps.call(call),
       writeStarted: (id, tabId, startedAt) =>
         steps.writeStarted(id, tabId, startedAt),

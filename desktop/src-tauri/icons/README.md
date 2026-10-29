@@ -1,4 +1,4 @@
-# OpenBot desktop icons
+# ShardsOpenBot desktop icons
 
 These assets export the existing static `.orb`, `.orb::before`, and `.orb::after`
 artwork in [the desktop stylesheet](../../src/styles.css). The Welcome screen
@@ -84,14 +84,14 @@ main().catch(error => { console.error(error); process.exitCode = 1; });
 Run from the checkout root, substituting the installed tooling paths:
 
 ```sh
-node /path/to/export-orb.cjs "$PWD" /tmp/openbot-orb-export \
+node /path/to/export-orb.cjs "$PWD" /tmp/shardsopenbot-orb-export \
   /path/to/playwright /path/to/chromium
 cd desktop
-bun run tauri icon /tmp/openbot-orb-export/icon.png \
-  --output /tmp/openbot-orb-generated
-cp /tmp/openbot-orb-export/icon.png src-tauri/icons/icon.png
+bun run tauri icon /tmp/shardsopenbot-orb-export/icon.png \
+  --output /tmp/shardsopenbot-orb-generated
+cp /tmp/shardsopenbot-orb-export/icon.png src-tauri/icons/icon.png
 for asset in 32x32.png 64x64.png 128x128.png 128x128@2x.png icon.ico icon.icns; do
-  cp "/tmp/openbot-orb-generated/$asset" "src-tauri/icons/$asset"
+  cp "/tmp/shardsopenbot-orb-generated/$asset" "src-tauri/icons/$asset"
 done
 ```
 
@@ -104,7 +104,7 @@ including the 64×64 RGBA image embedded by `tray::icon()` on all platforms.
 For fidelity checks, rerun the renderer and icon command in new directories and
 compare decoded RGBA pixels of the master and PNG derivatives. ICO includes 16,
 24, 32, 48, 64, and 256 pixel PNG frames. Decode ICNS using
-`iconutil --convert iconset --output /tmp/openbot-orb.iconset src-tauri/icons/icon.icns`
+`iconutil --convert iconset --output /tmp/shardsopenbot-orb.iconset src-tauri/icons/icon.icns`
 on macOS. ICNS chunk ordering varies across CLI runs; compare the typed chunk
 payloads and decoded frame pixels instead of requiring an identical whole-file
 hash. The export and replay used for these assets had equal decoded pixels.

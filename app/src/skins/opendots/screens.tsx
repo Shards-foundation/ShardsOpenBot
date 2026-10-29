@@ -4,8 +4,8 @@ import { RoutinesList } from "@/components/routines/routines-list";
 
 /**
  * OpenDots' workspace page: a small eyebrow, a large quiet title and one line under it, with the
- * page's primary action on the title's right. What sits beneath is OpenBot's own list, so every
- * switch, Run now, history and delete OpenBot offers is still there.
+ * page's primary action on the title's right. What sits beneath is ShardsOpenBot's own list, so every
+ * switch, Run now, history and delete ShardsOpenBot offers is still there.
  */
 function OpenDotsPage({
   eyebrow = "YOUR WORKSPACE",
@@ -43,7 +43,7 @@ function OpenDotsPage({
   );
 }
 
-/** Routines: what each Bot does on a schedule, as OpenBot's routines list. */
+/** Routines: what each Bot does on a schedule, as ShardsOpenBot's routines list. */
 export function RoutinesScreen() {
   return (
     <OpenDotsPage
@@ -55,7 +55,7 @@ export function RoutinesScreen() {
   );
 }
 
-/** "Memories": what the person's Bots know about them, as OpenBot's memory. */
+/** "Memories": what the person's Bots know about them, as ShardsOpenBot's memory. */
 export function MemoriesScreen() {
   return (
     <OpenDotsPage

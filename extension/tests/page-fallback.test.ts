@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import {
   acceptPageNetworkEvent,
   createPageFallback,
@@ -51,7 +51,7 @@ test("the configure function calls the hook's configure symbol with the extensio
   await createPageFallback().start([7]);
   const configure = fake.scripting.executed[1]?.func as (id: string) => void;
   const seen: string[] = [];
-  const symbol = Symbol.for("openbot.recorder.configure");
+  const symbol = Symbol.for("shardsopenbot.recorder.configure");
   const holder = globalThis as unknown as Record<symbol, unknown>;
   holder[symbol] = (id: string) => seen.push(id);
   try {
@@ -109,7 +109,7 @@ test("stop calls the stop symbol in every frame of the recorded tabs", async () 
   ]);
   const stopFn = fake.scripting.executed[0]?.func as () => void;
   let stopped = 0;
-  const symbol = Symbol.for("openbot.recorder.stop");
+  const symbol = Symbol.for("shardsopenbot.recorder.stop");
   const holder = globalThis as unknown as Record<symbol, unknown>;
   holder[symbol] = () => stopped++;
   try {
@@ -160,7 +160,7 @@ test("a page event is re-masked and marked as page captured", () => {
 
 test("a digest match in a page body is redacted", async () => {
   const { sha256HexSync, normaliseSecret } = await import(
-    "@openbot/shared/recorder-masking"
+    "@shardsopenbot/shared/recorder-masking"
   );
   const digest = sha256HexSync(normaliseSecret("correct-horse-battery"));
   const result = acceptPageNetworkEvent(
@@ -272,7 +272,9 @@ test("a page event whose JSON body was cut short is re-masked key by key", () =>
 });
 
 test("a page event is re-masked for one-time codes: a verification code key, a bare code of digits, and a typed code anywhere", async () => {
-  const { sha256HexSync } = await import("@openbot/shared/recorder-masking");
+  const { sha256HexSync } = await import(
+    "@shardsopenbot/shared/recorder-masking"
+  );
   const result = acceptPageNetworkEvent(
     event({
       method: "POST",

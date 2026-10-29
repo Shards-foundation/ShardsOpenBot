@@ -156,7 +156,7 @@ server/tests/headless-components.test.ts: error TS7006: Parameter 'entry' implic
 server/tests/headless-tools.test.ts: error TS2322: Type '(context: { ownerUserId: string; agentId: string; initiator: { kind: string; id?: string | undefined; }; }) => Promise<unknown[]>' is not assignable to type '(input: { ownerUserId: string; agentId: string; initiator: AuditInitiator; threadId: string; runId: string; }) => Promise<HeadlessTool[]>'.
 server/tests/headless-tools.test.ts: error TS2741: Property 'preconnect' is missing in type '(url: URL | RequestInfo, init: RequestInit | BunFetchRequestInit | undefined) => Promise<Response>' but required in type 'typeof fetch'.
 server/tests/health.test.ts: error TS2345: Argument of type '{ handler: () => Response; }' is not assignable to parameter of type 'AuthService'.
-server/tests/identity-provider-audit.test.ts: error TS2322: Type 'Promise<string[]>' is not assignable to type 'Promise<OpenBotRole[]>'.
+server/tests/identity-provider-audit.test.ts: error TS2322: Type 'Promise<string[]>' is not assignable to type 'Promise<ShardsOpenBotRole[]>'.
 server/tests/identity-provider-audit.test.ts: error TS7006: Parameter 'event' implicitly has an 'any' type.
 server/tests/intelligence-authentication.test.ts: error TS2769: No overload matches this call.
 server/tests/intelligence-authentication.test.ts: error TS2769: No overload matches this call.

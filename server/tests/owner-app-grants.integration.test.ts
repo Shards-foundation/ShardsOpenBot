@@ -163,7 +163,7 @@ async function seedApp(
     authScheme: "OAUTH2",
     accountMode,
     sharedVendorUserId:
-      accountMode === "shared" ? `openbot-deployment:${suite}` : null,
+      accountMode === "shared" ? `shardsopenbot-deployment:${suite}` : null,
   });
   await database.insert(mcpTools).values([
     {
@@ -495,7 +495,7 @@ describe("a Shared app whose rule lets Bot owners decide", () => {
       app: slug("slack"),
       holder: "deployment",
       userId: null,
-      vendorUserId: `openbot-deployment:${suite}`,
+      vendorUserId: `shardsopenbot-deployment:${suite}`,
       verified: true,
     });
     const opened = await appAs(admin, "admin").request(

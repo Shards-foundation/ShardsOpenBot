@@ -55,7 +55,7 @@ async function seed(provider: BrokerProvider) {
       provenance: provider,
       authScheme: "OAUTH2",
       accountMode: "shared",
-      sharedVendorUserId: "openbot-deployment:x:R",
+      sharedVendorUserId: "shardsopenbot-deployment:x:R",
     });
   await database
     .insert(agents)

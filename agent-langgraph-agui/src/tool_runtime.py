@@ -1,7 +1,7 @@
 """The current run's tools, with the same ownership contract as agent-langgraph.
 
 Computer/UI tools finish the run for the surface to execute and resume. Only tools
-marked by OpenBot's server execute here, through its signed callback. The request
+marked by ShardsOpenBot's server execute here, through its signed callback. The request
 context is deliberately outside graph state: assertions must never enter a
 checkpoint, model message, or AG-UI state snapshot.
 """
@@ -29,7 +29,7 @@ class RunTools:
     connection: dict = field(default_factory=dict, compare=False, repr=False)
 
 
-_current: ContextVar[RunTools | None] = ContextVar("openbot_run_tools", default=None)
+_current: ContextVar[RunTools | None] = ContextVar("shardsopenbot_run_tools", default=None)
 
 
 def current_tools() -> RunTools:
@@ -43,8 +43,8 @@ class UnofferedToolError(ValueError):
 class ToolAwareAgent(ParallelToolAgent):
     async def run(self, input: RunAgentInput):
         props = input.forwarded_props if isinstance(input.forwarded_props, dict) else {}
-        names = props.get("openbotDeploymentTools", [])
-        assertion = props.get("openbotRun", "")
+        names = props.get("shardsopenbotDeploymentTools", [])
+        assertion = props.get("shardsopenbotRun", "")
         context = RunTools(
             tools=tuple(input.tools or []),
             context=tuple(input.context or []),
@@ -64,10 +64,10 @@ class ToolAwareAgent(ParallelToolAgent):
                 for key, value in props.items()
                 if key
                 not in {
-                    "openbotRun",
-                    "openbotDeploymentTools",
-                    "openbot_run",
-                    "openbot_deployment_tools",
+                    "shardsopenbotRun",
+                    "shardsopenbotDeploymentTools",
+                    "shardsopenbot_run",
+                    "shardsopenbot_deployment_tools",
                 }
             }
             async with aclosing(
@@ -78,7 +78,7 @@ class ToolAwareAgent(ParallelToolAgent):
                         "authentication_failed"
                     ):
                         event = event.model_copy(
-                            update={"code": "OPENBOT_MODEL_AUTH_REQUIRED"}
+                            update={"code": "SHARDSOPENBOT_MODEL_AUTH_REQUIRED"}
                         )
                     yield event
         except UnofferedToolError:
@@ -92,7 +92,7 @@ class ToolAwareAgent(ParallelToolAgent):
             yield RunErrorEvent(
                 type=EventType.RUN_ERROR,
                 message="Sign in to your model provider again.",
-                code="OPENBOT_MODEL_AUTH_REQUIRED",
+                code="SHARDSOPENBOT_MODEL_AUTH_REQUIRED",
             )
         finally:
             _current.reset(token)
@@ -179,7 +179,7 @@ async def _call_tool(call, context):
                 True,
             )
         url = (
-            os.environ.get("OPENBOT_TOOL_URL")
+            os.environ.get("SHARDSOPENBOT_TOOL_URL")
             or "http://127.0.0.1:3001/api/agent-tools/call"
         )
         try:
@@ -187,7 +187,7 @@ async def _call_tool(call, context):
             async with httpx.AsyncClient(timeout=30, follow_redirects=False) as client:
                 response = await client.post(
                     url,
-                    headers={"x-openbot-agent-token": token},
+                    headers={"x-shardsopenbot-agent-token": token},
                     json={
                         "name": call["name"],
                         "args": call["args"],

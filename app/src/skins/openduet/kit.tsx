@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 /*
  * The two pieces of OpenDuet's chrome the frame's parts share: the focus ring and the glass disc.
- * Everything a screen lists is OpenBot's own component; these only dress the frame around it.
+ * Everything a screen lists is ShardsOpenBot's own component; these only dress the frame around it.
  */
 
 /** The focus ring every control in the frame draws: the accent, soft. */

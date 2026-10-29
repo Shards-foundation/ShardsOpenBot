@@ -15,7 +15,10 @@ import {
   type GalleryComponent,
   galleryManifest,
 } from "@/lib/copilot/gallery-registry";
-import { NOT_SHOWN, NOT_SHOWN_TAIL } from "@openbot/shared/component-markers";
+import {
+  NOT_SHOWN,
+  NOT_SHOWN_TAIL,
+} from "@shardsopenbot/shared/component-markers";
 
 /**
  * Register compiled gallery components once per name, scoped to the active Bot with `available`.

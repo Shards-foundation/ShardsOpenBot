@@ -180,15 +180,15 @@ impl Telemetry {
         env.insert("CPK_TELEMETRY_ID".into(), id);
         env.insert("COPILOTKIT_TELEMETRY_SAMPLE_RATE".into(), "1".into());
         env.insert(
-            "OPENBOT_DISTRIBUTION".into(),
+            "SHARDSOPENBOT_DISTRIBUTION".into(),
             context.distribution.as_str().into(),
         );
-        env.insert("OPENBOT_VERSION".into(), context.app_version.to_string());
-        env.insert("OPENBOT_PLATFORM".into(), context.platform.as_str().into());
-        env.insert("OPENBOT_ARCH".into(), context.arch.as_str().into());
-        env.insert("OPENBOT_ENGINE".into(), context.engine.as_str().into());
+        env.insert("SHARDSOPENBOT_VERSION".into(), context.app_version.to_string());
+        env.insert("SHARDSOPENBOT_PLATFORM".into(), context.platform.as_str().into());
+        env.insert("SHARDSOPENBOT_ARCH".into(), context.arch.as_str().into());
+        env.insert("SHARDSOPENBOT_ENGINE".into(), context.engine.as_str().into());
         if let Some(version) = &context.os_version {
-            env.insert("OPENBOT_OS_VERSION".into(), version.to_string());
+            env.insert("SHARDSOPENBOT_OS_VERSION".into(), version.to_string());
         }
         env
     }
@@ -355,17 +355,17 @@ pub struct SinkPackage {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct Context {
-    #[serde(rename = "openbot_distribution")]
+    #[serde(rename = "shardsopenbot_distribution")]
     pub distribution: Distribution,
-    #[serde(rename = "openbot_version")]
+    #[serde(rename = "shardsopenbot_version")]
     pub app_version: NumericVersion,
-    #[serde(rename = "openbot_platform")]
+    #[serde(rename = "shardsopenbot_platform")]
     pub platform: Platform,
-    #[serde(rename = "openbot_arch")]
+    #[serde(rename = "shardsopenbot_arch")]
     pub arch: Architecture,
-    #[serde(rename = "openbot_os_version", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "shardsopenbot_os_version", skip_serializing_if = "Option::is_none")]
     pub os_version: Option<NumericVersion>,
-    #[serde(rename = "openbot_engine")]
+    #[serde(rename = "shardsopenbot_engine")]
     pub engine: Engine,
     pub runtime_env: RuntimeEnv,
 }
@@ -445,18 +445,18 @@ impl<'de> Deserialize<'de> for NumericVersion {
 impl Context {
     fn to_global_properties(&self) -> serde_json::Value {
         let mut properties = serde_json::json!({
-            "openbot_distribution": self.distribution,
-            "openbot_version": &self.app_version,
-            "openbot_platform": self.platform,
-            "openbot_arch": self.arch,
-            "openbot_engine": self.engine,
+            "shardsopenbot_distribution": self.distribution,
+            "shardsopenbot_version": &self.app_version,
+            "shardsopenbot_platform": self.platform,
+            "shardsopenbot_arch": self.arch,
+            "shardsopenbot_engine": self.engine,
             "runtime_env": self.runtime_env,
             "sampleRate": 1,
             "sampleWeight": 1,
             "sampleRateAdjustmentFactor": 0
         });
         if let Some(os_version) = &self.os_version {
-            properties["openbot_os_version"] =
+            properties["shardsopenbot_os_version"] =
                 serde_json::to_value(os_version).unwrap_or(serde_json::Value::Null);
         }
         properties
@@ -558,7 +558,7 @@ impl Event {
             properties: serde_json::to_value(&self.data).unwrap_or_else(|_| serde_json::json!({})),
             global_properties: self.context.to_global_properties(),
             package: SinkPackage {
-                name: "openbot-desktop".to_string(),
+                name: "shardsopenbot-desktop".to_string(),
                 version: self.context.app_version.to_string(),
             },
             ts: self.occurred_at_ms / 1000,
@@ -790,12 +790,12 @@ pub fn schema_json() -> serde_json::Value {
         "event_name_prefix": "oss.desktop.",
         "numeric_version_pattern": r"^\d+(?:\.\d+){1,3}$",
         "context": {
-            "openbot_distribution": ["desktop"],
-            "openbot_version": { "pattern": r"^\d+(?:\.\d+){1,3}$" },
-            "openbot_platform": ["windows", "macos", "linux", "other"],
-            "openbot_arch": ["x86_64", "aarch64", "other"],
-            "openbot_os_version": { "optional": true, "pattern": r"^\d+(?:\.\d+){1,3}$" },
-            "openbot_engine": ["docker", "podman", "none"],
+            "shardsopenbot_distribution": ["desktop"],
+            "shardsopenbot_version": { "pattern": r"^\d+(?:\.\d+){1,3}$" },
+            "shardsopenbot_platform": ["windows", "macos", "linux", "other"],
+            "shardsopenbot_arch": ["x86_64", "aarch64", "other"],
+            "shardsopenbot_os_version": { "optional": true, "pattern": r"^\d+(?:\.\d+){1,3}$" },
+            "shardsopenbot_engine": ["docker", "podman", "none"],
             "runtime_env": ["development", "production", "test"]
         },
         "events": {
@@ -907,7 +907,7 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let dir = std::env::temp_dir().join(format!("openbot-telemetry-{name}-{unique}"));
+        let dir = std::env::temp_dir().join(format!("shardsopenbot-telemetry-{name}-{unique}"));
         fs::create_dir_all(&dir).unwrap();
         dir
     }
@@ -943,7 +943,7 @@ mod tests {
         };
         assert!(serde_json::to_value(&without_os)
             .unwrap()
-            .get("openbot_os_version")
+            .get("shardsopenbot_os_version")
             .is_none());
         assert_eq!(
             NumericVersion::parse("1.2.3.4").unwrap().to_string(),
@@ -1247,7 +1247,7 @@ mod tests {
             .to_ascii_lowercase()
             .contains("x-copilotkit-telemetry-id"));
         assert!(request.contains("oss.desktop.setup_abandoned"));
-        assert!(request.contains("openbot_distribution"));
+        assert!(request.contains("shardsopenbot_distribution"));
         assert_eq!(
             serde_json::from_str::<PersistedState>(&fs::read_to_string(state_path(&dir)).unwrap())
                 .unwrap()

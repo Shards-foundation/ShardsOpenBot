@@ -1,5 +1,5 @@
 {
-  "name": "@openbot/agent-computer",
+  "name": "@shardsopenbot/agent-computer",
   "license": "MIT",
   "private": true,
   "type": "module",

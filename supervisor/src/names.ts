@@ -20,12 +20,12 @@ const ALLOWED = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
 /**
  * The deployment a computer belongs to.
  *
- * Container and volume names are global to a Docker host, so two OpenBot deployments sharing a host
+ * Container and volume names are global to a Docker host, so two ShardsOpenBot deployments sharing a host
  * would otherwise derive the same names for the same Bot id and each would treat the other's
  * containers as its own. The namespace is part of every derived name, and is held to the same
  * character rules for the same reason.
  */
-export const DEFAULT_NAMESPACE = "openbot";
+export const DEFAULT_NAMESPACE = "shardsopenbot";
 
 export const NAMESPACE = (() => {
   const configured = process.env.COMPUTER_NAMESPACE?.trim();
@@ -56,13 +56,13 @@ export type NameResult =
   | { ok: false; reason: string };
 
 /** The label every container and volume the supervisor owns carries. */
-export const OWNER_LABEL = "openbot.supervisor";
+export const OWNER_LABEL = "shardsopenbot.supervisor";
 
 /** The label holding the Bot a container belongs to, so a listing can report it without parsing names. */
-export const BOT_LABEL = "openbot.bot-id";
+export const BOT_LABEL = "shardsopenbot.bot-id";
 
 /** The label holding the deployment a container belongs to. */
-export const NAMESPACE_LABEL = "openbot.namespace";
+export const NAMESPACE_LABEL = "shardsopenbot.namespace";
 
 export function namesFor(botId: unknown): NameResult {
   if (typeof botId !== "string" || botId.length === 0) {

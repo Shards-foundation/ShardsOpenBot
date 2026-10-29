@@ -26,8 +26,8 @@ import { readTeamBotConsent } from "@/lib/team-bots";
 import {
   readConnectPrompt,
   SHOW_APP_ACCESS_TOOL,
-} from "@openbot/shared/connect-prompt";
-import { researchRoleOfTool } from "@openbot/shared/research";
+} from "@shardsopenbot/shared/connect-prompt";
+import { researchRoleOfTool } from "@shardsopenbot/shared/research";
 import { browserStepDetails, isBrowserStep } from "./browser-activity";
 import type { VisibleChatItem } from "./chat-messages";
 import { ToolLine } from "./tool-line";

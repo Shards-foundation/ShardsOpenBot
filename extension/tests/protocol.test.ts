@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { MAX_TIMESTAMP_MS } from "@openbot/shared/recorder-masking";
+import { MAX_TIMESTAMP_MS } from "@shardsopenbot/shared/recorder-masking";
 import {
   parseContentMessage,
   parseExternalMessage,
@@ -76,13 +76,13 @@ describe("parseContentMessage", () => {
 
 describe("parseExternalMessage", () => {
   test("accepts a ping and a connect code", () => {
-    expect(parseExternalMessage({ type: "openbot.ping" })).toEqual({
-      type: "openbot.ping",
+    expect(parseExternalMessage({ type: "shardsopenbot.ping" })).toEqual({
+      type: "shardsopenbot.ping",
     });
     expect(
-      parseExternalMessage({ type: "openbot.connect", code: "obc_x" }),
+      parseExternalMessage({ type: "shardsopenbot.connect", code: "obc_x" }),
     ).toEqual({
-      type: "openbot.connect",
+      type: "shardsopenbot.connect",
       code: "obc_x",
     });
   });
@@ -90,17 +90,17 @@ describe("parseExternalMessage", () => {
   test("never accepts an origin in the body", () => {
     expect(
       parseExternalMessage({
-        type: "openbot.connect",
+        type: "shardsopenbot.connect",
         code: "obc_x",
         origin: "https://evil",
       }),
     ).toBeNull();
   });
 
-  test("returns null for an openbot.connect over 64 KiB", () => {
+  test("returns null for an shardsopenbot.connect over 64 KiB", () => {
     expect(
       parseExternalMessage({
-        type: "openbot.connect",
+        type: "shardsopenbot.connect",
         code: `obc_${"x".repeat(70 * 1024)}`,
       }),
     ).toBeNull();
@@ -125,7 +125,7 @@ describe("parsePageConnectDecide", () => {
     type: "page.connect.decide",
     approve: true,
     label: "Chrome on macOS",
-    origin: "https://openbot.example.test",
+    origin: "https://shardsopenbot.example.test",
   };
 
   test("returns a decide naming the origin its connect tab shows", () => {
@@ -142,10 +142,10 @@ describe("parsePageConnectDecide", () => {
   test("returns null for an origin not in the form a pending connect stores", () => {
     for (const origin of [
       "",
-      "https://openbot.example.test/",
-      "https://openbot.example.test/path",
-      "http://openbot.example.test",
-      "HTTPS://OpenBot.example.test",
+      "https://shardsopenbot.example.test/",
+      "https://shardsopenbot.example.test/path",
+      "http://shardsopenbot.example.test",
+      "HTTPS://ShardsOpenBot.example.test",
       "not an address",
     ])
       expect(parsePageConnectDecide({ ...decide, origin })).toBeNull();

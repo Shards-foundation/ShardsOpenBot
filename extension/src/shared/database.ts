@@ -1,4 +1,4 @@
-export const RECORDER_DATABASE = "openbot-recorder";
+export const RECORDER_DATABASE = "shardsopenbot-recorder";
 export const RECORDER_DATABASE_VERSION = 2;
 
 /**

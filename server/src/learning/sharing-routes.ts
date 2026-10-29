@@ -2,7 +2,7 @@ import {
   isLearnedSkillName,
   isLearningSharingMode,
   type PersonalLearningSharing,
-} from "@openbot/shared/learning";
+} from "@shardsopenbot/shared/learning";
 import { Hono, type MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { type AuditStore, recordAuditEvent } from "../audit";

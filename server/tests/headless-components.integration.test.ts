@@ -10,7 +10,7 @@ import {
 import { inArray } from "drizzle-orm";
 import { Observable } from "rxjs";
 import { GALLERY } from "../../app/src/components/gallery/charts";
-import { NOT_SHOWN } from "@openbot/shared/component-markers";
+import { NOT_SHOWN } from "@shardsopenbot/shared/component-markers";
 import { type AuditEventInput, type AuditStore, auditSink } from "../src/audit";
 import {
   createHeadlessComponentTools,
@@ -21,7 +21,10 @@ import { createComputerGateway } from "../src/computer/gateway";
 import { createHeadlessComputerTools } from "../src/computer/headless-tools";
 import { createDatabase } from "../src/db/client";
 import { agents, componentExclusions, components } from "../src/db/schema";
-import { createTurnRunner, type RunnerLike } from "@openbot/toolkit/run-turn";
+import {
+  createTurnRunner,
+  type RunnerLike,
+} from "@shardsopenbot/toolkit/run-turn";
 import { TEST_POOL, testDatabaseUrl } from "./support/database";
 import { serverTurnAdmission } from "../src/agents/turn-admission";
 
@@ -68,7 +71,7 @@ beforeAll(async () => {
     throw new Error(
       `The test database has showBarChart unpublished: ${decision.reason}`,
     );
-  await store.revoke("showBarChart", deniedBot, "test@openbot.local");
+  await store.revoke("showBarChart", deniedBot, "test@shardsopenbot.local");
 });
 
 afterAll(async () => {
@@ -348,7 +351,7 @@ describe("an unattended routine turn answering with a governed chart", () => {
     });
     const bar = tools.find((tool) => tool.definition.name === "showBarChart");
     expect(bar?.hidden).toBeUndefined();
-    await store.revoke("showBarChart", allowedBot, "test@openbot.local");
+    await store.revoke("showBarChart", allowedBot, "test@shardsopenbot.local");
     try {
       const result = String(
         await bar?.execute(chartArgs, {

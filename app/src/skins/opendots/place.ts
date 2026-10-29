@@ -29,12 +29,12 @@ export type Place = {
   botId?: string;
   channelId?: string;
   /**
-   * The page draws OpenBot's own Computer pane, opened by `?watch`. The frame's computer toggle
+   * The page draws ShardsOpenBot's own Computer pane, opened by `?watch`. The frame's computer toggle
    * drives that pane rather than opening a second one beside it.
    */
   ownsWatch: boolean;
   watching: boolean;
-  /** OpenBot's new-conversation page with its Bot already chosen: OpenDots' coworker home. */
+  /** ShardsOpenBot's new-conversation page with its Bot already chosen: OpenDots' coworker home. */
   coworkerHome: boolean;
 };
 
@@ -57,7 +57,7 @@ const BOT_TABS: Record<string, string> = {
 
 /**
  * The page a pathname is, as OpenDots names its own views: a Bot's name for a chat with it,
- * "Activity" and "Memories" for its two workspace views, and OpenBot's own page names otherwise.
+ * "Activity" and "Memories" for its two workspace views, and ShardsOpenBot's own page names otherwise.
  */
 export function parsePlace(
   pathname: string,

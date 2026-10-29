@@ -21,7 +21,7 @@ function useColourScheme() {
 }
 
 /**
- * The frame every extension page sits in. `prose` is OpenBot's own column and header from
+ * The frame every extension page sits in. `prose` is ShardsOpenBot's own column and header from
  * `page-parts`, minus the sidebar toggle and back button that belong to the app's router.
  */
 export function Page({
@@ -45,7 +45,7 @@ export function Page({
     );
   }
   return (
-    // Deviation from openbot-screen-layout: a toolbar popup has no pane and no sidebar, and Chrome
+    // Deviation from shardsopenbot-screen-layout: a toolbar popup has no pane and no sidebar, and Chrome
     // sizes it to its content, so it sets its own width and padding (`px-4` is PageColumn's gutter).
     <div className="w-96 px-4 py-4">
       <PageHeader title={title} description={description} />

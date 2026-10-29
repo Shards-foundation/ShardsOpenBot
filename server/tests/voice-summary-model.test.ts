@@ -127,7 +127,7 @@ test.each(["claude", "chatgpt"] as const)(
         expect(new URL(request.url).pathname).toBe(
           provider === "claude" ? "/model" : "/",
         );
-        expect(request.headers.get("x-openbot-agent-token")).toBe(
+        expect(request.headers.get("x-shardsopenbot-agent-token")).toBe(
           "owned-harness-token",
         );
         expect(request.headers.get("authorization")).toBeNull();
@@ -180,7 +180,7 @@ test.each(["claude", "chatgpt"] as const)(
       expect(requests[0]?.threadId).not.toBe(requests[1]?.threadId);
       for (const request of requests) {
         expect(request.tools).toEqual([]);
-        expect(request.forwardedProps.openbotModelOnly).toBe(true);
+        expect(request.forwardedProps.shardsopenbotModelOnly).toBe(true);
         expect(JSON.stringify(request.context)).toContain("untrusted");
         expect(JSON.stringify(request.messages)).toContain("Plan the launch.");
         expect(JSON.stringify(request)).not.toContain("synthetic-plan-token");
@@ -194,7 +194,7 @@ test.each(["claude", "chatgpt"] as const)(
 test.each(["google", "xai"] as const)(
   "voice summaries reuse the authenticated native %s OAuth proxy",
   async (provider) => {
-    const root = await mkdtemp(join(tmpdir(), "openbot-voice-summary-"));
+    const root = await mkdtemp(join(tmpdir(), "shardsopenbot-voice-summary-"));
     const file = join(root, "oauth.json");
     const record: ModelOAuthRecord = {
       version: 1,
@@ -255,7 +255,7 @@ test.each(["google", "xai"] as const)(
         BOT_MODEL: "selected-model",
         OPENAI_BASE_URL: `${server.url.origin}/api/model-provider/v1`,
         OPENAI_API_KEY: record.proxyToken,
-        OPENBOT_MODEL_OAUTH_FILE: file,
+        SHARDSOPENBOT_MODEL_OAUTH_FILE: file,
       };
       expect(await summarizer(environment)(transcript)).toBe(answer);
       expect(received).toHaveLength(1);

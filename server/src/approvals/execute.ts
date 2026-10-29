@@ -2,8 +2,8 @@ import { z } from "zod";
 import type { RunAssertion } from "../agents/callback-token";
 import type { AuditInitiator } from "../audit";
 import { PluginRefusedError } from "../plugins/store";
-import type { GrantedTool } from "@openbot/toolkit/granted-tool";
-import type { HeadlessTool } from "@openbot/toolkit/headless-tools";
+import type { GrantedTool } from "@shardsopenbot/toolkit/granted-tool";
+import type { HeadlessTool } from "@shardsopenbot/toolkit/headless-tools";
 import { isApprovalRecheck } from "./service";
 import {
   type ApprovalAction,
@@ -142,8 +142,10 @@ export function createApprovedActionExecutor(deps: ApprovedActionDependencies) {
     if (action.toolRef.startsWith("bot/")) {
       const forwarded = snapshot.forwardedProps;
       const signed =
-        forwarded && typeof forwarded === "object" && "openbotRun" in forwarded
-          ? (deps.readRun?.(forwarded.openbotRun) ?? null)
+        forwarded &&
+        typeof forwarded === "object" &&
+        "shardsopenbotRun" in forwarded
+          ? (deps.readRun?.(forwarded.shardsopenbotRun) ?? null)
           : null;
       const run: RunAssertion =
         signed &&

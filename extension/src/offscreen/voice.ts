@@ -7,7 +7,7 @@
 //
 // Recognition runs on this computer or not at all. Chrome's speech recognition sends the audio to a speech service unless
 // the recognition sets `processLocally`, so every recognition here sets it, and before the microphone opens the browser
-// is asked whether it can recognise the narration's language on the device (@openbot/shared/on-device-speech): where it
+// is asked whether it can recognise the narration's language on the device (@shardsopenbot/shared/on-device-speech): where it
 // cannot, narration is off and the popup says why in one sentence; where the language is still to be downloaded, which
 // takes the person's click (the popup's Download, the setup page, or the Record button), it says so; while it downloads,
 // it waits for it. Only the words leave: each final phrase becomes one masked `transcript` event in the recording, and no
@@ -19,8 +19,8 @@ import {
   keepOnDevice,
   type OnDeviceSpeech,
   onDeviceSpeech,
-} from "@openbot/shared/on-device-speech";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/on-device-speech";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import type { VoiceCapture, VoiceProblem } from "../protocol/messages";
 
 type Timers = {

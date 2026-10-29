@@ -42,7 +42,7 @@ export const triggerKinds = [
 ] as const;
 export type TriggerKind = (typeof triggerKinds)[number];
 
-/** Kinds whose secret OpenBot generates; the others' secret is pasted from the vendor. */
+/** Kinds whose secret ShardsOpenBot generates; the others' secret is pasted from the vendor. */
 const GENERATED_SECRET: ReadonlySet<TriggerKind> = new Set([
   "webhook",
   "github",
@@ -325,7 +325,7 @@ export async function slackAccessAllows(
     return "Slack triggers are not available on this deployment: the Slack pairing is not connected.";
   const slackUserId = await access.linkedIdentity(ownerUserId, teamId);
   if (!slackUserId)
-    return "Link your own Slack account in that workspace first (the Bot's Reaching you page in OpenBot), so the trigger only hears channels you are in.";
+    return "Link your own Slack account in that workspace first (the Bot's Reaching you page in ShardsOpenBot), so the trigger only hears channels you are in.";
   if (!access.isMember)
     return "Slack channel membership cannot be checked on this deployment yet, so Slack triggers are refused.";
   for (const channelId of channelIds)
@@ -461,7 +461,7 @@ export function createTriggerStore(
         );
       return rows.map(record);
     },
-    /** Returns the secret once when OpenBot generated it; vendor secrets are pasted in `input.secret`. */
+    /** Returns the secret once when ShardsOpenBot generated it; vendor secrets are pasted in `input.secret`. */
     async create(
       ownerUserId: string,
       responsibilityId: string,

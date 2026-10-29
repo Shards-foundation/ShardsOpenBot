@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import type { TrajectoryGrant } from "@openbot/shared/recorder-api";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { TrajectoryGrant } from "@shardsopenbot/shared/recorder-api";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import { IDBKeyRange as FakeIDBKeyRange, IDBFactory } from "fake-indexeddb";
 import {
   currentConnection,
@@ -33,26 +33,32 @@ afterEach(() => {
 
 test("with no policy the Recorder is unpinned and unrestricted", async () => {
   expect(await readPolicy()).toEqual({
-    openbotUrl: null,
-    openbotUrlInvalid: false,
+    shardsopenbotUrl: null,
+    shardsopenbotUrlInvalid: false,
     allowedIntelligenceUrls: null,
   });
 });
 
-test("a valid OpenBot address is read as its origin", async () => {
-  fake.storage.setManaged({ OpenBotUrl: "https://openbot.example.test" });
-  expect((await readPolicy()).openbotUrl).toBe("https://openbot.example.test");
+test("a valid ShardsOpenBot address is read as its origin", async () => {
+  fake.storage.setManaged({
+    ShardsOpenBotUrl: "https://shardsopenbot.example.test",
+  });
+  expect((await readPolicy()).shardsopenbotUrl).toBe(
+    "https://shardsopenbot.example.test",
+  );
 });
 
 test("an http address that is not loopback is invalid and the bad string is never returned", async () => {
-  fake.storage.setManaged({ OpenBotUrl: "http://openbot.example.test" });
+  fake.storage.setManaged({
+    ShardsOpenBotUrl: "http://shardsopenbot.example.test",
+  });
   const policy = await readPolicy();
   expect(policy).toEqual({
-    openbotUrl: null,
-    openbotUrlInvalid: true,
+    shardsopenbotUrl: null,
+    shardsopenbotUrlInvalid: true,
     allowedIntelligenceUrls: null,
   });
-  expect(JSON.stringify(policy)).not.toContain("openbot.example.test");
+  expect(JSON.stringify(policy)).not.toContain("shardsopenbot.example.test");
 });
 
 test("the managed schema keeps to what Chrome loads: an object root, and exactly one type for each policy", async () => {
@@ -70,20 +76,20 @@ test("the managed schema keeps to what Chrome loads: an object root, and exactly
   expect(schema.additionalProperties).toBeUndefined();
   expect(Object.keys(schema.properties).sort()).toEqual([
     "AllowedIntelligenceUrls",
-    "OpenBotUrl",
+    "ShardsOpenBotUrl",
   ]);
-  expect(schema.properties.OpenBotUrl?.type).toBe("string");
+  expect(schema.properties.ShardsOpenBotUrl?.type).toBe("string");
   expect(schema.properties.AllowedIntelligenceUrls?.type).toBe("array");
   for (const property of Object.values(schema.properties))
     expect(property.description).toContain("chrome://policy");
 });
 
-test("an empty or non-string OpenBot address is invalid", async () => {
+test("an empty or non-string ShardsOpenBot address is invalid", async () => {
   for (const value of ["", "   ", 7, "https://x.test/path"]) {
-    fake.storage.setManaged({ OpenBotUrl: value });
+    fake.storage.setManaged({ ShardsOpenBotUrl: value });
     expect(await readPolicy()).toMatchObject({
-      openbotUrl: null,
-      openbotUrlInvalid: true,
+      shardsopenbotUrl: null,
+      shardsopenbotUrlInvalid: true,
     });
   }
 });
@@ -204,32 +210,34 @@ test("onPolicyChanged reports the new policy on a managed change, ignores other 
   const seen: RecorderPolicy[] = [];
   const stop = onPolicyChanged((policy) => seen.push(policy));
   await chrome.storage.local.set({
-    OpenBotUrl: "https://ignored.example.test",
+    ShardsOpenBotUrl: "https://ignored.example.test",
   });
   await new Promise((resolve) => setTimeout(resolve, 10));
   expect(seen).toEqual([]);
 
-  fake.storage.setManaged({ OpenBotUrl: "https://openbot.example.test" });
+  fake.storage.setManaged({
+    ShardsOpenBotUrl: "https://shardsopenbot.example.test",
+  });
   await new Promise((resolve) => setTimeout(resolve, 10));
   expect(seen).toEqual([
     {
-      openbotUrl: "https://openbot.example.test",
-      openbotUrlInvalid: false,
+      shardsopenbotUrl: "https://shardsopenbot.example.test",
+      shardsopenbotUrlInvalid: false,
       allowedIntelligenceUrls: null,
     },
   ]);
 
   stop();
-  fake.storage.setManaged({ OpenBotUrl: "https://other.example.test" });
+  fake.storage.setManaged({ ShardsOpenBotUrl: "https://other.example.test" });
   await new Promise((resolve) => setTimeout(resolve, 10));
   expect(seen).toHaveLength(1);
 });
 
 test("a policy pinning another address refuses a connect from elsewhere through handleExternalConnect", async () => {
-  fake.storage.setManaged({ OpenBotUrl: "https://pinned.example.test" });
+  fake.storage.setManaged({ ShardsOpenBotUrl: "https://pinned.example.test" });
   const opened: string[] = [];
   const answer = await handleExternalConnect(
-    { type: "openbot.connect", code: "obc_a" },
+    { type: "shardsopenbot.connect", code: "obc_a" },
     { origin: "https://elsewhere.example.test" },
     {
       readPolicy,
@@ -244,19 +252,21 @@ test("a policy pinning another address refuses a connect from elsewhere through 
 });
 
 test("an invalid policy refuses every connect with policy-invalid", async () => {
-  fake.storage.setManaged({ OpenBotUrl: "http://openbot.example.test" });
+  fake.storage.setManaged({
+    ShardsOpenBotUrl: "http://shardsopenbot.example.test",
+  });
   expect(
     await handleExternalConnect(
-      { type: "openbot.connect", code: "obc_a" },
-      { origin: "https://openbot.example.test" },
+      { type: "shardsopenbot.connect", code: "obc_a" },
+      { origin: "https://shardsopenbot.example.test" },
       { readPolicy, openTab: async () => 1 },
     ),
   ).toEqual({ ok: false, error: "policy-invalid" });
 });
 
-async function storeConnection(openbotUrl: string) {
+async function storeConnection(shardsopenbotUrl: string) {
   await writeLocal("connection", {
-    openbotUrl,
+    shardsopenbotUrl,
     token: "obr_fixture",
     connectionId: "c1",
     user: { id: "u1", name: "Ada", email: "ada@example.test" },
@@ -268,12 +278,12 @@ async function storeConnection(openbotUrl: string) {
 const settle = () => new Promise((resolve) => setTimeout(resolve, 30));
 
 test("a policy change to another origin forgets the stored connection and says the Recorder moved", async () => {
-  await storeConnection("https://openbot.example.test");
+  await storeConnection("https://shardsopenbot.example.test");
   installConnection({ readPolicy });
   await settle();
   expect(await currentConnection()).not.toBeNull();
 
-  fake.storage.setManaged({ OpenBotUrl: "https://moved.example.test" });
+  fake.storage.setManaged({ ShardsOpenBotUrl: "https://moved.example.test" });
   await settle();
   expect(await currentConnection()).toBeNull();
   expect(await readLocal("notice")).toMatchObject({
@@ -283,8 +293,8 @@ test("a policy change to another origin forgets the stored connection and says t
 });
 
 test("a policy that pinned another origin while the browser was closed is reconciled at start", async () => {
-  await storeConnection("https://openbot.example.test");
-  fake.storage.setManaged({ OpenBotUrl: "https://moved.example.test" });
+  await storeConnection("https://shardsopenbot.example.test");
+  fake.storage.setManaged({ ShardsOpenBotUrl: "https://moved.example.test" });
   installConnection({ readPolicy });
   await settle();
   expect(await currentConnection()).toBeNull();
@@ -295,14 +305,18 @@ test("a policy that pinned another origin while the browser was closed is reconc
 });
 
 test("an invalid policy forgets the connection with an empty origin, and a matching policy keeps it", async () => {
-  await storeConnection("https://openbot.example.test");
+  await storeConnection("https://shardsopenbot.example.test");
   installConnection({ readPolicy });
-  fake.storage.setManaged({ OpenBotUrl: "https://openbot.example.test" });
+  fake.storage.setManaged({
+    ShardsOpenBotUrl: "https://shardsopenbot.example.test",
+  });
   await settle();
   expect(await currentConnection()).not.toBeNull();
   expect(await readLocal("notice")).toBeUndefined();
 
-  fake.storage.setManaged({ OpenBotUrl: "http://openbot.example.test" });
+  fake.storage.setManaged({
+    ShardsOpenBotUrl: "http://shardsopenbot.example.test",
+  });
   await settle();
   expect(await currentConnection()).toBeNull();
   expect(await readLocal("notice")).toMatchObject({

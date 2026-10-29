@@ -1,4 +1,4 @@
-import { connectAppRefusal } from "@openbot/shared/connect-prompt";
+import { connectAppRefusal } from "@shardsopenbot/shared/connect-prompt";
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { recordAuditEvent } from "../../audit";
 import {
@@ -262,7 +262,7 @@ export function createStoreContext(options: PluginStoreOptions) {
       .limit(1);
     if (!dialled)
       return {
-        refusal: `OpenBot has no app called ${serverId}.`,
+        refusal: `ShardsOpenBot has no app called ${serverId}.`,
       };
     /*
      * THE NAME IS THE DIALLED ROW'S; THE ACCOUNT IS THE APP'S.
@@ -289,7 +289,7 @@ export function createStoreContext(options: PluginStoreOptions) {
     const app = toolkit ? await brokeredAppRow(toolkit) : null;
     if (toolkit && !app)
       return {
-        refusal: `OpenBot has no app called ${serverId}.`,
+        refusal: `ShardsOpenBot has no app called ${serverId}.`,
       };
     const row = app
       ? {

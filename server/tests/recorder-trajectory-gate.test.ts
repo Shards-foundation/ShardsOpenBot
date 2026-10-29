@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   RECORDER_SIGNED_OUT,
   TRAJECTORY_GATE_REFUSALS,
-} from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/recorder-api";
 import type { AuditEventInput } from "../src/audit";
 import type {
   RecorderActor,
@@ -177,7 +177,7 @@ describe("createTrajectoryConnectHook", () => {
     expect(response?.status).toBe(401);
     expect(await bodyOf(response)).toEqual({
       code: "IDENTITY_REQUIRED",
-      message: "Connect this browser to OpenBot to record.",
+      message: "Connect this browser to ShardsOpenBot to record.",
     });
     expect(asked).toEqual([]);
     expect(refusals).toEqual([
@@ -199,7 +199,7 @@ describe("createTrajectoryConnectHook", () => {
 
     expect(
       await connect(TRAJECTORY, {
-        "x-openbot-recorder-bot": "someone-elses-bot",
+        "x-shardsopenbot-recorder-bot": "someone-elses-bot",
       }),
     ).toBeNull();
     expect(bound.get(TRAJECTORY)).toBe(PERSON);

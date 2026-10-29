@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { isPersonBrowserId } from "@openbot/shared/openbot-browser";
+import { isPersonBrowserId } from "@shardsopenbot/shared/shardsopenbot-browser";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { parse } from "yaml";
 import { DEPLOYMENT_ROUTES } from "./computer/deployment-routes";
@@ -401,11 +401,11 @@ function parseAgents(
         `${source}: agent.id "${id}" is reserved for a deployment route and cannot name a Bot`,
       );
     }
-    // Nor after a person's own OpenBot browser, which is a computer named the same way a Bot's is: a Bot with that id
+    // Nor after a person's own ShardsOpenBot browser, which is a computer named the same way a Bot's is: a Bot with that id
     // would share its computer with the person whose browser it is.
     if (isPersonBrowserId(id)) {
       throw new Error(
-        `${source}: agent.id "${id}" is the shape of a person's OpenBot browser and cannot name a Bot`,
+        `${source}: agent.id "${id}" is the shape of a person's ShardsOpenBot browser and cannot name a Bot`,
       );
     }
     if (type === "remote_ag_ui" || type === "remote_mastra") {

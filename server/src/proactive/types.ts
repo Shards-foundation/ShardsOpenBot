@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export type ProactiveRunStatus = "idle" | "running" | "succeeded" | "error";
 /**
- * `superseded` is OpenBot's, never the person's: a later run's suggestions replaced this one while it
+ * `superseded` is ShardsOpenBot's, never the person's: a later run's suggestions replaced this one while it
  * was still open. Kept apart from `dismissed` so that list stays a record of their own decisions.
  */
 export type SuggestionStatus = "open" | "dismissed" | "started" | "superseded";

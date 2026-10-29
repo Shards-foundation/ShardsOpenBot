@@ -14,8 +14,11 @@ import {
   createComputerGateway,
 } from "../src/computer/gateway";
 import * as headless from "../src/computer/headless-tools";
-import { HeadlessToolsMiddleware } from "@openbot/toolkit/headless-tools";
-import { createTurnRunner, type RunnerLike } from "@openbot/toolkit/run-turn";
+import { HeadlessToolsMiddleware } from "@shardsopenbot/toolkit/headless-tools";
+import {
+  createTurnRunner,
+  type RunnerLike,
+} from "@shardsopenbot/toolkit/run-turn";
 import { serverTurnAdmission } from "../src/agents/turn-admission";
 
 const definition = {
@@ -596,7 +599,7 @@ test("remote backend tool results are persisted without executing the client too
   ).toHaveLength(1);
 });
 
-test("a computer tool the caller offers is left to the caller when OpenBot adds plugin tools beside it", async () => {
+test("a computer tool the caller offers is left to the caller when ShardsOpenBot adds plugin tools beside it", async () => {
   const remote = remoteTurn((input) =>
     lifecycle(
       input,
@@ -717,7 +720,7 @@ test("human help creates a durable suspension, persists the waiting event, and r
     persisted.filter((event) => event.type === EventType.CUSTOM),
   ).toMatchObject([
     {
-      name: "openbot.headless.waiting",
+      name: "shardsopenbot.headless.waiting",
       value: { requestId: "durable-handoff" },
     },
   ]);

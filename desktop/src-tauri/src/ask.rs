@@ -13,7 +13,7 @@ stream opens, says `RUN_STARTED`, says `STEP_STARTED`, and then simply stops. No
 reason, nothing to show. The whole of `OpenAIAuthenticationError: Error code: 401` went to the
 container's log, which is where the framework's own handler put it. Passing that experience through
 would leave somebody staring at a screen that stopped, so a run that produces no text is treated as
-a failure here, the sentence is OpenBot's own, and the container's log is fetched to fill the
+a failure here, the sentence is ShardsOpenBot's own, and the container's log is fetched to fill the
 developer half, because otherwise there is no developer half at all.
 */
 
@@ -23,7 +23,7 @@ use crate::problem::Problem;
 
 /// The header the server puts its token in, and the one every harness checks. One spelling, here,
 /// because a second copy of it is a 401 nobody can explain.
-pub const AGENT_TOKEN_HEADER: &str = "x-openbot-agent-token";
+pub const AGENT_TOKEN_HEADER: &str = "x-shardsopenbot-agent-token";
 
 /// Long enough for a cold model, short enough that a hung run is not mistaken for a slow one.
 const PATIENCE: Duration = Duration::from_secs(90);
@@ -53,8 +53,8 @@ pub fn ask(endpoint: &str, token: &str, question: &str) -> Result<String, Proble
     let body = serde_json::json!({
         // New every time. The harness keeps a thread in memory, and reusing an id would ask the
         // question into a conversation that already has an answer in it.
-        "threadId": format!("openbot-setup-{}", moment()),
-        "runId": format!("openbot-run-{}", moment()),
+        "threadId": format!("shardsopenbot-setup-{}", moment()),
+        "runId": format!("shardsopenbot-run-{}", moment()),
         "state": {},
         "messages": [{ "id": "m1", "role": "user", "content": question }],
         "tools": [],
@@ -70,7 +70,7 @@ pub fn ask(endpoint: &str, token: &str, question: &str) -> Result<String, Proble
         .send()
         .map_err(|error| {
             Problem::with(
-                "OpenBot could not reach the Bot it just set up.",
+                "ShardsOpenBot could not reach the Bot it just set up.",
                 error.to_string(),
             )
         })?;
@@ -81,7 +81,7 @@ pub fn ask(endpoint: &str, token: &str, question: &str) -> Result<String, Proble
         // "check your API key" would send them to fix the wrong thing.
         return Err(Problem::with(
             if status == reqwest::StatusCode::UNAUTHORIZED {
-                "The Bot refused OpenBot's own request. Stop OpenBot and start it again."
+                "The Bot refused ShardsOpenBot's own request. Stop ShardsOpenBot and start it again."
             } else {
                 "The Bot could not answer."
             },
@@ -120,7 +120,7 @@ pub fn ask_mastra(
     let agent_id = agent_id.trim();
     if agent_id.is_empty() {
         return Err(Problem::plain(
-            "OpenBot cannot find the Mastra Bot it just set up. Stop OpenBot and start it again.",
+            "ShardsOpenBot cannot find the Mastra Bot it just set up. Stop ShardsOpenBot and start it again.",
         ));
     }
 
@@ -133,8 +133,8 @@ pub fn ask_mastra(
     let url = mastra_stream_url(endpoint, agent_id)?;
     let stream_endpoint = url.as_str().to_string();
     let body = serde_json::json!({
-        "threadId": format!("openbot-setup-{}", moment()),
-        "resourceId": "openbot-setup",
+        "threadId": format!("shardsopenbot-setup-{}", moment()),
+        "resourceId": "shardsopenbot-setup",
         "messages": [{ "role": "user", "content": question }],
         "clientTools": {},
         "requestContext": { "ag-ui": { "context": [] } },
@@ -148,7 +148,7 @@ pub fn ask_mastra(
         .send()
         .map_err(|error| {
             Problem::with(
-                "OpenBot could not reach the Bot it just set up.",
+                "ShardsOpenBot could not reach the Bot it just set up.",
                 error.to_string(),
             )
         })?;
@@ -157,7 +157,7 @@ pub fn ask_mastra(
     if !status.is_success() {
         return Err(Problem::with(
             if status == reqwest::StatusCode::UNAUTHORIZED {
-                "The Bot refused OpenBot's own request. Stop OpenBot and start it again."
+                "The Bot refused ShardsOpenBot's own request. Stop ShardsOpenBot and start it again."
             } else {
                 "The Bot could not answer."
             },
@@ -179,7 +179,7 @@ fn read_response(
             if status.is_success() {
                 "The Bot started answering and then stopped. Its own record of what happened is below."
             } else if status == reqwest::StatusCode::UNAUTHORIZED {
-                "The Bot refused OpenBot's own request. Stop OpenBot and start it again."
+                "The Bot refused ShardsOpenBot's own request. Stop ShardsOpenBot and start it again."
             } else {
                 "The Bot could not answer."
             },
@@ -219,14 +219,14 @@ pub fn answer_in(body: &str) -> Option<String> {
 fn mastra_stream_url(endpoint: &str, agent_id: &str) -> Result<reqwest::Url, Problem> {
     let mut url = reqwest::Url::parse(endpoint.trim()).map_err(|error| {
         Problem::with(
-            "OpenBot cannot find the Bot it just set up. Stop OpenBot and start it again.",
+            "ShardsOpenBot cannot find the Bot it just set up. Stop ShardsOpenBot and start it again.",
             error.to_string(),
         )
     })?;
     url.path_segments_mut()
         .map_err(|_| {
             Problem::plain(
-                "OpenBot cannot find the Bot it just set up. Stop OpenBot and start it again.",
+                "ShardsOpenBot cannot find the Bot it just set up. Stop ShardsOpenBot and start it again.",
             )
         })?
         .clear()
@@ -288,7 +288,7 @@ pub fn why_nothing_came_back(log: &str) -> Problem {
     }
     if lower.contains("rate limit") || lower.contains("429") {
         return Problem::with(
-            "The model provider is asking OpenBot to slow down. Wait a minute and ask again.",
+            "The model provider is asking ShardsOpenBot to slow down. Wait a minute and ask again.",
             log,
         );
     }
@@ -428,7 +428,7 @@ mod tests {
     it against one by hand:
 
     ```text
-    OPENBOT_ASK_ENDPOINT=http://127.0.0.1:4288/ OPENBOT_ASK_TOKEN=... \
+    SHARDSOPENBOT_ASK_ENDPOINT=http://127.0.0.1:4288/ SHARDSOPENBOT_ASK_TOKEN=... \
       cargo test --lib live_harness -- --ignored --nocapture
     ```
 
@@ -438,8 +438,8 @@ mod tests {
     #[test]
     #[ignore = "needs a running harness and a real model credential"]
     fn live_harness_answers_the_suggested_question() {
-        let endpoint = std::env::var("OPENBOT_ASK_ENDPOINT").expect("OPENBOT_ASK_ENDPOINT");
-        let token = std::env::var("OPENBOT_ASK_TOKEN").expect("OPENBOT_ASK_TOKEN");
+        let endpoint = std::env::var("SHARDSOPENBOT_ASK_ENDPOINT").expect("SHARDSOPENBOT_ASK_ENDPOINT");
+        let token = std::env::var("SHARDSOPENBOT_ASK_TOKEN").expect("SHARDSOPENBOT_ASK_TOKEN");
         let answer = ask(&endpoint, &token, SUGGESTED).expect("the harness did not answer");
         println!("the Bot said: {answer}");
         assert!(
@@ -452,8 +452,8 @@ mod tests {
     #[test]
     #[ignore = "needs a running harness holding a deliberately invalid credential"]
     fn live_harness_that_cannot_answer_produces_a_sentence_not_a_silence() {
-        let endpoint = std::env::var("OPENBOT_ASK_BAD_ENDPOINT").expect("OPENBOT_ASK_BAD_ENDPOINT");
-        let token = std::env::var("OPENBOT_ASK_TOKEN").expect("OPENBOT_ASK_TOKEN");
+        let endpoint = std::env::var("SHARDSOPENBOT_ASK_BAD_ENDPOINT").expect("SHARDSOPENBOT_ASK_BAD_ENDPOINT");
+        let token = std::env::var("SHARDSOPENBOT_ASK_TOKEN").expect("SHARDSOPENBOT_ASK_TOKEN");
         let problem = ask(&endpoint, &token, SUGGESTED).expect_err("it answered on a bad key");
         // An empty sentence is this module saying the reason is in the log, not in the stream.
         assert!(problem.said.is_empty(), "got {problem:?}");
@@ -479,17 +479,17 @@ mod tests {
             "managed-token",
             "What is 20 plus 19?",
             Some("remote-mastra"),
-            Some("openbot"),
+            Some("shardsopenbot"),
         )
         .expect("native Mastra answer");
 
         let request = server.request();
-        assert_eq!(request.path, "/api/agents/openbot/stream");
+        assert_eq!(request.path, "/api/agents/shardsopenbot/stream");
         assert!(
             request
                 .headers
                 .iter()
-                .any(|line| line == "x-openbot-agent-token: managed-token"),
+                .any(|line| line == "x-shardsopenbot-agent-token: managed-token"),
             "{:?}",
             request.headers
         );
@@ -513,7 +513,7 @@ mod tests {
             "managed-token",
             "hello",
             Some("remote-ag-ui"),
-            Some("openbot"),
+            Some("shardsopenbot"),
         )
         .expect("AG-UI answer");
 
@@ -541,7 +541,7 @@ mod tests {
             "managed-token",
             "hello",
             Some("remote-ag-ui"),
-            Some("openbot"),
+            Some("shardsopenbot"),
         )
         .expect_err("a truncated AG-UI response must not become an empty answer");
 
@@ -577,7 +577,7 @@ mod tests {
             "managed-token",
             "hello",
             Some("remote-mastra"),
-            Some("openbot"),
+            Some("shardsopenbot"),
         )
         .expect_err("a truncated Mastra response must keep the transport error");
 
@@ -588,7 +588,7 @@ mod tests {
         );
         let detail = problem.detail.as_deref().expect("body read detail");
         assert!(detail.contains("kind remote-mastra"), "{detail}");
-        assert!(detail.contains("/api/agents/openbot/stream"), "{detail}");
+        assert!(detail.contains("/api/agents/shardsopenbot/stream"), "{detail}");
         assert!(detail.contains("HTTP 502 Bad Gateway"), "{detail}");
         assert!(
             detail.contains("body") || detail.contains("error"),

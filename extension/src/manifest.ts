@@ -35,15 +35,15 @@ export function buildManifest(input: {
   };
   return {
     manifest_version: 3,
-    name: "OpenBot Recorder",
+    name: "ShardsOpenBot Recorder",
     version: input.version,
     description:
-      "Record a task in your browser so an OpenBot Bot can learn to do it.",
+      "Record a task in your browser so an ShardsOpenBot Bot can learn to do it.",
     minimum_chrome_version: MINIMUM_CHROME_VERSION,
     incognito: "not_allowed",
     icons,
     action: {
-      default_title: "OpenBot Recorder",
+      default_title: "ShardsOpenBot Recorder",
       default_popup: "popup.html",
       default_icon: icons,
     },

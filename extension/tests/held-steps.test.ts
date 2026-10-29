@@ -8,7 +8,7 @@ import { join } from "node:path";
 import type {
   CapturedEvent,
   JsonValue,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { IDBKeyRange as FakeIDBKeyRange, IDBFactory } from "fake-indexeddb";
 import type { CaptureObservation } from "../src/background/agent/observation";
 import type { NetworkCaptureDeps } from "../src/background/network";
@@ -86,7 +86,7 @@ async function until(check: () => boolean | Promise<boolean>, label: string) {
   }
 }
 
-// ---- The fake OpenBot and Intelligence --------------------------------------------------------
+// ---- The fake ShardsOpenBot and Intelligence --------------------------------------------------------
 
 let gateway: FakeGateway;
 function route(request: Request): Response | null {
@@ -240,8 +240,8 @@ function startWorker() {
     }),
     acceptPageNetworkEvent: () => null,
     readPolicy: async () => ({
-      openbotUrl: null,
-      openbotUrlInvalid: false,
+      shardsopenbotUrl: null,
+      shardsopenbotUrlInvalid: false,
       allowedIntelligenceUrls: null,
     }),
     hasHostPermission: async () => true,
@@ -325,7 +325,7 @@ beforeEach(async () => {
     setTimeout(runDocument, 0);
   });
   fake.storage.local.set("connection", {
-    openbotUrl: gateway.httpUrl,
+    shardsopenbotUrl: gateway.httpUrl,
     token: "obr_one",
     connectionId: "c-obr_one",
     user: ada,
@@ -859,7 +859,7 @@ async function recordRunFourWithoutStop(conversation: boolean) {
     setTimeout(runDocument, 0);
   });
   fake.storage.local.set("connection", {
-    openbotUrl: gateway.httpUrl,
+    shardsopenbotUrl: gateway.httpUrl,
     token: "obr_one",
     connectionId: "c-obr_one",
     user: ada,
@@ -1080,7 +1080,7 @@ test("a browser's service worker still finishing its last Stop never closes the 
     setTimeout(runDocument, 0);
   });
   fake.storage.local.set("connection", {
-    openbotUrl: gateway.httpUrl,
+    shardsopenbotUrl: gateway.httpUrl,
     token: "obr_one",
     connectionId: "c-obr_one",
     user: ada,

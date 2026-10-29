@@ -4,7 +4,7 @@
  * A directory (Okta, Entra, OneLogin, JumpCloud) is given `<BETTER_AUTH_URL>/api/auth/scim/v2` and
  * the bearer token in `SCIM_BEARER_TOKEN`. From then on:
  *
- * - Creating a user there creates the OpenBot user, with the `user` role (or `admin` for an address
+ * - Creating a user there creates the ShardsOpenBot user, with the `user` role (or `admin` for an address
  *   in INITIAL_ADMIN_EMAILS). They still sign in through the company's SSO; SCIM never creates a
  *   password or any other way in.
  * - Group membership there becomes `users.groups` here, which is what per-group capability switches
@@ -160,7 +160,7 @@ export function scimOptions(
      * Groups become `users.groups`. The role projection maps each SCIM Group to its display name as
      * an opaque "role" slug, which is the plugin's supported way to hand group membership to the
      * application; `reconcileUser` then writes the complete set, so a removal from a group removes it
-     * here too. The OpenBot role (admin/user) is never taken from the directory.
+     * here too. The ShardsOpenBot role (admin/user) is never taken from the directory.
      */
     projection: {
       roles: {

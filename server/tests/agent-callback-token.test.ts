@@ -431,12 +431,12 @@ describe("the tool-call route a callback token guards", () => {
   /** What the model is handed, as the route builds it. */
   async function toolResult(thrown: unknown): Promise<string> {
     const response = await appWhoseToolThrows(thrown).request(
-      "http://openbot.local/api/agent-tools/call",
+      "http://shardsopenbot.local/api/agent-tools/call",
       {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-openbot-agent-token": DEPLOYMENT_TOKEN,
+          "x-shardsopenbot-agent-token": DEPLOYMENT_TOKEN,
         },
         body: JSON.stringify({
           name: "mcp__linear__LINEAR_CREATE_ISSUE",
@@ -621,11 +621,11 @@ describe("the tool-call route a callback token guards", () => {
       undefined,
       undefined,
       store,
-    ).request("http://openbot.local/api/agent-tools/call", {
+    ).request("http://shardsopenbot.local/api/agent-tools/call", {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-openbot-agent-token": DEPLOYMENT_TOKEN,
+        "x-shardsopenbot-agent-token": DEPLOYMENT_TOKEN,
       },
       body: JSON.stringify({
         name: "mcp__linear__LINEAR_CREATE_ISSUE",

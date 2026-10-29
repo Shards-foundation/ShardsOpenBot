@@ -57,12 +57,12 @@ const unreadable = (kind: Unreadable): Response =>
         headers: { "content-type": "text/html; charset=utf-8" },
       });
 
-/** A live connection row held under the `google-openbot` INSTANCE of the `google` provider. */
+/** A live connection row held under the `google-shardsopenbot` INSTANCE of the `google` provider. */
 const connectionRow = () => ({
   id: "at_0",
   connection_id: "ac_0",
   connection_status: "active",
-  provider_id: "google-openbot",
+  provider_id: "google-shardsopenbot",
   provider_type: "oauth2",
   provider_user_info: { name: "person 0" },
   scopes: [],
@@ -107,7 +107,11 @@ function startEngine(malformed: Malformed, kind: Unreadable): Engine {
         if (malformed === "authProviders") return unreadable(kind);
         return Response.json({
           items: [
-            { id: "google-openbot", provider_id: "google", type: "oauth2" },
+            {
+              id: "google-shardsopenbot",
+              provider_id: "google",
+              type: "oauth2",
+            },
           ],
           offset: 0,
           limit,
@@ -294,7 +298,7 @@ describe("a listing whose body is not JSON refuses rather than reading as empty"
  * body ITSELF, never a page — so it has no `body` property to read through and its own properties
  * are the honest ones. Nothing was manufactured for it, so reading it directly is not a guess.
  * `authProviderInstances` is the only reader of it, and `isConnected` answering TRUE here is the
- * whole chain saying so: the `google` type resolved to the `google-openbot` INSTANCE off that
+ * whole chain saying so: the `google` type resolved to the `google-shardsopenbot` INSTANCE off that
  * body, and the connection row matched it.
  */
 describe("a listing that is its own body is still read", () => {

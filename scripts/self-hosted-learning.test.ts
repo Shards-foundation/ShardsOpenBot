@@ -9,7 +9,7 @@ import {
 const apiUrl = "https://intelligence.example";
 const path = "/api/learning/projects/12/containers";
 const container = {
-  container: { id: "openbot", projectId: 12, name: "OpenBot" },
+  container: { id: "shardsopenbot", projectId: 12, name: "ShardsOpenBot" },
 };
 type Response = { status: number; body: unknown };
 
@@ -46,7 +46,7 @@ function fixture(
           status: 200,
           body: { projects: [{ id: 12, name: "Research" }] },
         };
-      if (route === `${path}/openbot`)
+      if (route === `${path}/shardsopenbot`)
         return { status: 200, body: { container: null } };
       if (route === path) return { status: 201, body: container };
       if (route === "/api/projects/12/api-keys")
@@ -82,7 +82,7 @@ test("fresh browser setup creates a verified container before minting its projec
   expect(await setupSelfHostedLearning(f.options)).toEqual({
     apiUrl,
     apiKey: "cpk-synthetic-key",
-    learningContainerId: "openbot",
+    learningContainerId: "shardsopenbot",
   });
   const signIn = new URL(f.navigations[0]);
   expect(signIn.pathname).toBe("/auth/signin");
@@ -91,12 +91,12 @@ test("fresh browser setup creates a verified container before minting its projec
     {
       url: `${apiUrl}${path}`,
       method: "POST",
-      data: { id: "openbot", name: "OpenBot" },
+      data: { id: "shardsopenbot", name: "ShardsOpenBot" },
     },
     {
       url: `${apiUrl}/api/projects/12/api-keys`,
       method: "POST",
-      data: { name: "OpenBot" },
+      data: { name: "ShardsOpenBot" },
     },
   ]);
   expect(f.closed()).toBe(1);
@@ -112,13 +112,13 @@ test("a deployment with a key gains only the container: nothing is minted and th
   ).toEqual({
     apiUrl,
     apiKey: "cpk-existing-key",
-    learningContainerId: "openbot",
+    learningContainerId: "shardsopenbot",
   });
   expect(f.calls.filter((call) => call.method === "POST")).toEqual([
     {
       url: `${apiUrl}${path}`,
       method: "POST",
-      data: { id: "openbot", name: "OpenBot" },
+      data: { id: "shardsopenbot", name: "ShardsOpenBot" },
     },
   ]);
   expect(JSON.stringify(f.calls)).not.toContain("cpk-existing-key");
@@ -129,7 +129,7 @@ test("existing containers are reused and an exact create race is re-read once", 
   for (const race of [false, true]) {
     let reads = 0;
     const f = fixture((route) => {
-      if (route === `${path}/openbot`) {
+      if (route === `${path}/shardsopenbot`) {
         reads += 1;
         return {
           status: 200,
@@ -152,13 +152,16 @@ test("existing containers are reused and an exact create race is re-read once", 
 
 test("wrong-project, forbidden, redirected, and unrelated conflict responses never mint a key", async () => {
   for (const response of [
-    { status: 200, body: { container: { id: "openbot", projectId: 99 } } },
+    {
+      status: 200,
+      body: { container: { id: "shardsopenbot", projectId: 99 } },
+    },
     { status: 403, body: { error: { message: "secret-response" } } },
     { status: 302, body: null },
     { status: 409, body: { error: { code: "OTHER_CONFLICT" } } },
   ]) {
     const f = fixture((route) =>
-      route === `${path}/openbot` ? response : undefined,
+      route === `${path}/shardsopenbot` ? response : undefined,
     );
     await expect(setupSelfHostedLearning(f.options)).rejects.toThrow(
       "could not be verified",
@@ -188,7 +191,7 @@ test("only accessible projects can be selected, and Learning denial blocks write
   ).rejects.toThrow("accessible");
   expect(unknown.calls.some((call) => call.method === "POST")).toBe(false);
   const denied = fixture((route) =>
-    route === `${path}/openbot` ? { status: 403, body: null } : undefined,
+    route === `${path}/shardsopenbot` ? { status: 403, body: null } : undefined,
   );
   await expect(setupSelfHostedLearning(denied.options)).rejects.toThrow(
     "could not be verified",
@@ -283,7 +286,7 @@ test("local setup signs in and provisions through the dashboard while preserving
   expect(connection).toEqual({
     apiUrl: localApi,
     apiKey: "cpk-existing-runtime-key",
-    learningContainerId: "openbot",
+    learningContainerId: "shardsopenbot",
   });
   expect(
     f.calls.some(

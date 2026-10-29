@@ -1,6 +1,6 @@
 //! The native messaging host the Recorder extension talks to.
 //!
-//! Chrome, Edge and Chromium start OpenBot Desktop's own binary as the host. Its first argument is
+//! Chrome, Edge and Chromium start ShardsOpenBot Desktop's own binary as the host. Its first argument is
 //! the caller's origin, and on Windows a `--parent-window=<n>` argument follows. Each message, both
 //! ways, is UTF-8 JSON preceded by its length as a 32-bit integer in native byte order; a message
 //! from the host may be at most 1 MB. The browser closes the host's stdin when it is done with it.
@@ -9,18 +9,18 @@
 //! The host answers three messages, each within its own deadline ([`DEADLINES`]), which sits below the time the
 //! extension waits for the answer, so the extension always hears why instead of giving up.
 //!
-//! `ping` says, cheaply, whether a connect would work now: an OpenBot is installed, its app answers on its port, and in
+//! `ping` says, cheaply, whether a connect would work now: an ShardsOpenBot is installed, its app answers on its port, and in
 //! organization mode Desktop holds a sign-in for the organization. It reads two files and asks the app one question. It
 //! does not prove which process answers, sends nothing secret and mints nothing.
 //!
 //! `handoff` makes sure the deployment's own processes hold its ports, hands the organization sign-in over in
-//! organization mode, asks that OpenBot for a one-time connect code and returns it with the OpenBot's address, so the
+//! organization mode, asks that ShardsOpenBot for a one-time connect code and returns it with the ShardsOpenBot's address, so the
 //! Recorder can connect without the person typing either.
 //!
-//! `address` says which address this computer's OpenBot answers on, after the same ownership checks a handoff makes, and
+//! `address` says which address this computer's ShardsOpenBot answers on, after the same ownership checks a handoff makes, and
 //! mints nothing. The Recorder takes a connect from a page with no Connect click only when the page's origin is exactly
 //! this address: any other program on this computer can serve a page on a loopback port, and only the host knows which
-//! one is OpenBot Desktop's.
+//! one is ShardsOpenBot Desktop's.
 //!
 //! Every reply carries `ok`. `ok: false` comes with `error`, one of the stable codes of [`Refusal`]. Neither a code nor
 //! any cookie is ever written to a log.
@@ -34,8 +34,8 @@ use std::sync::mpsc::{self, RecvTimeoutError};
 use std::sync::Arc;
 use std::time::Duration;
 
-/// Tauri's bundle identifier for OpenBot Desktop (`tauri.conf.json` `identifier`).
-const APP_IDENTIFIER: &str = "ai.copilotkit.openbot.desktop";
+/// Tauri's bundle identifier for ShardsOpenBot Desktop (`tauri.conf.json` `identifier`).
+const APP_IDENTIFIER: &str = "ai.copilotkit.shardsopenbot.desktop";
 
 /// The largest message either way. Chrome refuses a host message over 1 MB, and the extension sends
 /// only a few bytes, so a longer length prefix is a broken or hostile pipe.
@@ -47,23 +47,23 @@ const MESSAGE_LIMIT: usize = 1024 * 1024;
 pub enum Refusal {
     /// `origin-not-allowed`: the caller is not the Recorder's own extension, under its fixed id or a store's.
     OriginNotAllowed,
-    /// `not-installed`: OpenBot Desktop has not set up an OpenBot on this computer.
+    /// `not-installed`: ShardsOpenBot Desktop has not set up an ShardsOpenBot on this computer.
     NotInstalled,
-    /// `not-running`: this computer's OpenBot is not running, its app does not answer, or a process that is not this
-    /// OpenBot's holds its port.
+    /// `not-running`: this computer's ShardsOpenBot is not running, its app does not answer, or a process that is not this
+    /// ShardsOpenBot's holds its port.
     NotRunning,
     /// `not-signed-in`: organization mode, and Desktop holds no sign-in for the organization, or the organization or
-    /// the local OpenBot refused the one it holds. Signing in again in OpenBot Desktop fixes it.
+    /// the local ShardsOpenBot refused the one it holds. Signing in again in ShardsOpenBot Desktop fixes it.
     NotSignedIn,
     /// `organization-unavailable`: organization mode, and the sign-in Desktop holds could not be handed over now: the
-    /// organization's OpenBot did not answer, or answered with an error, or the saved sign-in could not be read. Trying
+    /// organization's ShardsOpenBot did not answer, or answered with an error, or the saved sign-in could not be read. Trying
     /// again later may work.
     OrganizationUnavailable,
-    /// `handoff-failed`: the local OpenBot answered the request for a connect code without one.
+    /// `handoff-failed`: the local ShardsOpenBot answered the request for a connect code without one.
     HandoffFailed,
     /// `timed-out`: the host did not finish within its deadline.
     TimedOut,
-    /// `host-failed`: the host stopped before it could answer. A bug in OpenBot Desktop.
+    /// `host-failed`: the host stopped before it could answer. A bug in ShardsOpenBot Desktop.
     HostFailed,
     /// `unknown-message`: a message the host does not know.
     UnknownMessage,
@@ -85,13 +85,13 @@ impl Refusal {
     }
 }
 
-/// One question main.rs answers about this computer's OpenBot. Asked from the host's worker thread.
+/// One question main.rs answers about this computer's ShardsOpenBot. Asked from the host's worker thread.
 pub type Check<T> = Box<dyn Fn() -> T + Send + Sync>;
 
 /// The local organization session cookie for the app at the given address. Ok(None) in single-user mode.
 pub type OrganizationCookie = Box<dyn Fn(&str) -> Result<Option<String>, Refusal> + Send + Sync>;
 
-/// What main.rs knows about this computer's OpenBot.
+/// What main.rs knows about this computer's ShardsOpenBot.
 pub struct HostEnvironment {
     /// A selected root exists.
     pub installed: Check<bool>,
@@ -101,7 +101,7 @@ pub struct HostEnvironment {
     pub signed_in: Check<Result<(), Refusal>>,
     /// For a handoff: the owned app's address, None when it is not running or another process holds its port.
     pub app_url: Check<Option<String>>,
-    /// For a handoff: the organization sign-in handed to the local OpenBot, as its session cookie.
+    /// For a handoff: the organization sign-in handed to the local ShardsOpenBot, as its session cookie.
     pub organization_cookie: OrganizationCookie,
 }
 
@@ -207,7 +207,7 @@ pub fn write_message(output: &mut impl Write, value: &Value) -> io::Result<()> {
     output.flush()
 }
 
-/// Tauri 2's app_config_dir for ai.copilotkit.openbot.desktop, derived without an AppHandle:
+/// Tauri 2's app_config_dir for ai.copilotkit.shardsopenbot.desktop, derived without an AppHandle:
 /// macOS ~/Library/Application Support/<id>, Linux $XDG_CONFIG_HOME/<id> or ~/.config/<id>, Windows %APPDATA%\<id>.
 ///
 /// Tauri joins its identifier to the `dirs` crate's `config_dir`, which on Linux takes
@@ -252,7 +252,7 @@ fn ping(origin_allowed: bool, env: &HostEnvironment) -> Result<(), Refusal> {
     (env.signed_in)()
 }
 
-/// The address this computer's OpenBot answers on, once its own processes are proved to hold its ports (`app_url`). It
+/// The address this computer's ShardsOpenBot answers on, once its own processes are proved to hold its ports (`app_url`). It
 /// sends nothing to the app beyond those checks, and mints nothing.
 fn address(origin_allowed: bool, env: &HostEnvironment) -> Result<String, Refusal> {
     if !origin_allowed {
@@ -287,7 +287,7 @@ fn handoff(
         request = request.header("cookie", cookie);
     }
     let response = request.send().map_err(|error| {
-        eprintln!("[recorder-host] the local OpenBot did not answer the handoff");
+        eprintln!("[recorder-host] the local ShardsOpenBot did not answer the handoff");
         if error.is_timeout() {
             Refusal::TimedOut
         } else {
@@ -296,7 +296,7 @@ fn handoff(
     })?;
     let status = response.status();
     if status != reqwest::StatusCode::CREATED {
-        eprintln!("[recorder-host] the local OpenBot answered the handoff with {status}");
+        eprintln!("[recorder-host] the local ShardsOpenBot answered the handoff with {status}");
         return Err(
             if status == reqwest::StatusCode::UNAUTHORIZED
                 || status == reqwest::StatusCode::FORBIDDEN
@@ -314,7 +314,7 @@ fn handoff(
     {
         Some(code) if !code.is_empty() => Ok((app_url, code)),
         _ => {
-            eprintln!("[recorder-host] the local OpenBot answered the handoff without a code");
+            eprintln!("[recorder-host] the local ShardsOpenBot answered the handoff without a code");
             Err(Refusal::HandoffFailed)
         }
     }
@@ -325,11 +325,11 @@ fn handle(message: &Value, origin_allowed: bool, env: &HostEnvironment, client: 
     match message.get("type").and_then(Value::as_str) {
         Some("ping") => ping_reply(ping(origin_allowed, env)),
         Some("handoff") => match handoff(origin_allowed, env, client) {
-            Ok((app_url, code)) => json!({ "ok": true, "openbotUrl": app_url, "code": code }),
+            Ok((app_url, code)) => json!({ "ok": true, "shardsopenbotUrl": app_url, "code": code }),
             Err(refusal) => refused(refusal),
         },
         Some("address") => match address(origin_allowed, env) {
-            Ok(app_url) => json!({ "ok": true, "openbotUrl": app_url }),
+            Ok(app_url) => json!({ "ok": true, "shardsopenbotUrl": app_url }),
             Err(refusal) => refused(refusal),
         },
         _ => refused(Refusal::UnknownMessage),
@@ -380,7 +380,7 @@ fn answer(
     }
 }
 
-/// The handoff's request for a connect code. The local OpenBot is on this computer; the deadline answers first if it
+/// The handoff's request for a connect code. The local ShardsOpenBot is on this computer; the deadline answers first if it
 /// is slow, and this only stops the abandoned request.
 fn client() -> reqwest::Result<Client> {
     Client::builder()
@@ -449,7 +449,7 @@ mod tests {
     use std::time::Instant;
 
     const ID: &str = "icpcnhgjghecmklnjbccdgdicklblcgd";
-    const DESKTOP: &str = "ai.copilotkit.openbot.desktop";
+    const DESKTOP: &str = "ai.copilotkit.shardsopenbot.desktop";
 
     fn args(list: &[&str]) -> Vec<OsString> {
         list.iter().map(OsString::from).collect()
@@ -581,12 +581,12 @@ mod tests {
     fn the_caller_origin_is_the_first_argument_with_or_without_the_parent_window() {
         let origin = fixed_origin();
         assert_eq!(
-            caller_origin(&args(&["openbot-desktop", &origin])),
+            caller_origin(&args(&["shardsopenbot-desktop", &origin])),
             Some(origin.clone())
         );
         assert_eq!(
             caller_origin(&args(&[
-                "openbot-desktop.exe",
+                "shardsopenbot-desktop.exe",
                 &origin,
                 "--parent-window=0"
             ])),
@@ -594,7 +594,7 @@ mod tests {
         );
         let other = format!("chrome-extension://{}/", "p".repeat(32));
         assert_eq!(
-            caller_origin(&args(&["openbot-desktop", &other])),
+            caller_origin(&args(&["shardsopenbot-desktop", &other])),
             Some(other)
         );
     }
@@ -603,36 +603,36 @@ mod tests {
     fn anything_else_first_is_not_a_native_host_launch() {
         let origin = fixed_origin();
         let refused = [
-            vec!["openbot-desktop".to_string()],
-            vec!["openbot-desktop".into(), "--install-recorder-host".into()],
+            vec!["shardsopenbot-desktop".to_string()],
+            vec!["shardsopenbot-desktop".into(), "--install-recorder-host".into()],
             vec![
-                "openbot-desktop".into(),
+                "shardsopenbot-desktop".into(),
                 "--parent-window=0".into(),
                 origin.clone(),
             ],
-            vec!["openbot-desktop".into(), format!("chrome-extension://{ID}")],
+            vec!["shardsopenbot-desktop".into(), format!("chrome-extension://{ID}")],
             vec![
-                "openbot-desktop".into(),
+                "shardsopenbot-desktop".into(),
                 format!("chrome-extension://{}/", "a".repeat(31)),
             ],
             vec![
-                "openbot-desktop".into(),
+                "shardsopenbot-desktop".into(),
                 format!("chrome-extension://{}/", "a".repeat(33)),
             ],
             vec![
-                "openbot-desktop".into(),
+                "shardsopenbot-desktop".into(),
                 format!("chrome-extension://{}/", "q".repeat(32)),
             ],
             vec![
-                "openbot-desktop".into(),
+                "shardsopenbot-desktop".into(),
                 format!("chrome-extension://{}/", ID.to_uppercase()),
             ],
             vec![
-                "openbot-desktop".into(),
+                "shardsopenbot-desktop".into(),
                 format!("chrome-extension://{ID}/path"),
             ],
-            vec!["openbot-desktop".into(), format!("moz-extension://{ID}/")],
-            vec!["openbot-desktop".into(), "https://openbot.example/".into()],
+            vec!["shardsopenbot-desktop".into(), format!("moz-extension://{ID}/")],
+            vec!["shardsopenbot-desktop".into(), "https://shardsopenbot.example/".into()],
         ];
         for list in refused {
             let list: Vec<&str> = list.iter().map(String::as_str).collect();
@@ -697,7 +697,7 @@ mod tests {
         }
     }
 
-    /// A computer's OpenBot as a test describes it.
+    /// A computer's ShardsOpenBot as a test describes it.
     struct Computer {
         installed: bool,
         app_url: Option<String>,
@@ -917,7 +917,7 @@ mod tests {
         let (environment, asked) = environment(running(&url));
         assert_eq!(
             ask(json!({ "type": "handoff" }), true, &environment),
-            json!({ "ok": true, "openbotUrl": url, "code": "obc_fixture" })
+            json!({ "ok": true, "shardsopenbotUrl": url, "code": "obc_fixture" })
         );
         let (head, body) = app.join().unwrap();
         assert!(head.starts_with("POST /api/recorder/connect-codes HTTP/1.1\r\n"));
@@ -937,17 +937,17 @@ mod tests {
         let (url, listener) = fake_app();
         let app = answer_once(listener, reply("201 Created", MINTED));
         let (environment, asked) = environment(Computer {
-            cookie: Ok(Some("openbot.organization-session=v".into())),
+            cookie: Ok(Some("shardsopenbot.organization-session=v".into())),
             ..running(&url)
         });
         assert_eq!(
             ask(json!({ "type": "handoff" }), true, &environment),
-            json!({ "ok": true, "openbotUrl": url, "code": "obc_fixture" })
+            json!({ "ok": true, "shardsopenbotUrl": url, "code": "obc_fixture" })
         );
         let (head, _) = app.join().unwrap();
         assert!(head
             .to_lowercase()
-            .contains("cookie: openbot.organization-session=v\r\n"));
+            .contains("cookie: shardsopenbot.organization-session=v\r\n"));
         assert_eq!(asked.cookies(), vec![url]);
     }
 
@@ -963,7 +963,7 @@ mod tests {
     }
 
     #[test]
-    fn handoff_says_what_the_local_openbot_answered_in_place_of_a_code() {
+    fn handoff_says_what_the_local_shardsopenbot_answered_in_place_of_a_code() {
         for (answer, code) in [
             (
                 reply("401 Unauthorized", r#"{"error":"Sign in."}"#),
@@ -1078,7 +1078,7 @@ mod tests {
         let (environment, asked) = environment(running(&url));
         assert_eq!(
             ask(json!({ "type": "address" }), true, &environment),
-            json!({ "ok": true, "openbotUrl": url })
+            json!({ "ok": true, "shardsopenbotUrl": url })
         );
         // The ownership checks behind `app_url` ran; nothing asked the app for a code or handed over a sign-in.
         assert_eq!(asked.app_url.load(Ordering::SeqCst), 1);

@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 /*
  * Which Bot each person put at the centre of the frame. Kept in this browser, and kept per signed-in
- * person: the key carries their user id, so the next person on a shared machine starts from OpenBot's
+ * person: the key carries their user id, so the next person on a shared machine starts from ShardsOpenBot's
  * own default Bot rather than the last person's choice. Choosing a Bot changes nothing on the server.
  */
 export function chosenBotKey(userId: string): string {

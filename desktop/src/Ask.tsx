@@ -102,7 +102,7 @@ export function Ask({
           </button>
         ) : (
           <button type="button" onClick={onOpen}>
-            Start using OpenBot
+            Start using ShardsOpenBot
           </button>
         )}
         {/*

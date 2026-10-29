@@ -12,10 +12,10 @@ bun install --frozen-lockfile
 bun test scripts/desktop-version.test.ts
 bun scripts/desktop-version.ts internal
 APPLE_SIGNING_IDENTITY=- bun run tauri build --config src-tauri/tauri.build-version.conf.json --bundles app
-plutil -extract NSMicrophoneUsageDescription raw src-tauri/target/release/bundle/macos/OpenBot.app/Contents/Info.plist
-codesign --verify --deep --strict src-tauri/target/release/bundle/macos/OpenBot.app
-codesign -d --entitlements - src-tauri/target/release/bundle/macos/OpenBot.app
-codesign -dv src-tauri/target/release/bundle/macos/OpenBot.app
+plutil -extract NSMicrophoneUsageDescription raw src-tauri/target/release/bundle/macos/ShardsOpenBot.app/Contents/Info.plist
+codesign --verify --deep --strict src-tauri/target/release/bundle/macos/ShardsOpenBot.app
+codesign -d --entitlements - src-tauri/target/release/bundle/macos/ShardsOpenBot.app
+codesign -dv src-tauri/target/release/bundle/macos/ShardsOpenBot.app
 ```
 
 The description must be nonempty, the signed entitlement
@@ -26,12 +26,12 @@ version test suite. These checks validate packaging, not live microphone capture
 For a live check, use a Mac with a working microphone and configured voice
 providers:
 
-1. Launch the packaged `OpenBot.app`, complete setup, and open its workspace in
+1. Launch the packaged `ShardsOpenBot.app`, complete setup, and open its workspace in
    the desktop window. Testing a browser tab or `tauri dev` does not verify the
    packaged application's permission.
-2. Start dictation and approve OpenBot's macOS microphone prompt. Speak a short
+2. Start dictation and approve ShardsOpenBot's macOS microphone prompt. Speak a short
    phrase, stop, and verify the transcription. If permission was already denied,
-   enable OpenBot under System Settings → Privacy & Security → Microphone and
+   enable ShardsOpenBot under System Settings → Privacy & Security → Microphone and
    reopen the app.
 3. Start and stop an OpenAI voice conversation, then a Grok voice conversation.
    Verify each receives spoken input and releases the microphone after stopping.

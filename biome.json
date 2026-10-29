@@ -54,8 +54,8 @@
                   {
                     "group": [
                       "./copilotkit/**",
-                      "@openbot/toolkit/copilotkit",
-                      "@openbot/toolkit/copilotkit/**"
+                      "@shardsopenbot/toolkit/copilotkit",
+                      "@shardsopenbot/toolkit/copilotkit/**"
                     ],
                     "message": "The toolkit core does not depend on CopilotKit. Code that needs @copilotkit/runtime lives in toolkit/src/copilotkit and imports the core, not the other way round."
                   },
@@ -67,7 +67,7 @@
                       "hono",
                       "hono/**"
                     ],
-                    "message": "The toolkit core depends on @ag-ui, rxjs, zod and @openbot/shared only. CopilotKit-specific code goes in toolkit/src/copilotkit."
+                    "message": "The toolkit core depends on @ag-ui, rxjs, zod and @shardsopenbot/shared only. CopilotKit-specific code goes in toolkit/src/copilotkit."
                   }
                 ]
               }
@@ -98,7 +98,7 @@
                       "@/lib/client",
                       "@/query-client"
                     ],
-                    "message": "The extension runs in the browser. It talks to OpenBot over HTTP only, and takes only OpenBot's UI primitives and layout parts from the app."
+                    "message": "The extension runs in the browser. It talks to ShardsOpenBot over HTTP only, and takes only ShardsOpenBot's UI primitives and layout parts from the app."
                   }
                 ]
               }

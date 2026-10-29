@@ -2,16 +2,16 @@ import type { LinkOptions } from "@tanstack/react-router";
 
 /*
  * The skin's own places: its tabs, the column each path gets, and its Tasks screen. Where else a
- * person can go is OpenBot's one navigation list (`lib/navigation.ts`), which the menu draws.
+ * person can go is ShardsOpenBot's one navigation list (`lib/navigation.ts`), which the menu draws.
  */
 
 /*
  * Where things are in OpenDuet's frame, as plain data, so the frame, the menu and the tests read
- * one list. Nothing here is a new route: every path is one OpenBot already serves, or the skin's own
+ * one list. Nothing here is a new route: every path is one ShardsOpenBot already serves, or the skin's own
  * screen at `/s/<key>`.
  */
 
-/** The skin's own screen, served by OpenBot's `/s/$screen`. */
+/** The skin's own screen, served by ShardsOpenBot's `/s/$screen`. */
 export const TASKS_SCREEN = "tasks";
 export const TASKS_PATH = `/s/${TASKS_SCREEN}`;
 
@@ -20,7 +20,7 @@ export type OpenDuetTab = "chat" | "tasks";
 /**
  * Which tab a path belongs to, or null for a page opened over the app.
  *
- * Chat is every conversation OpenBot draws: home, where a conversation starts, a conversation with
+ * Chat is every conversation ShardsOpenBot draws: home, where a conversation starts, a conversation with
  * one Bot or several, and the default Bot's own screen. Tasks is the skin's screen. Everything else
  * (Bots, Connections, Skills, Routines and the rest) is a page with a back disc and no tab bar, as
  * OpenDuet opens them.
@@ -35,7 +35,7 @@ export function tabForPath(pathname: string): OpenDuetTab | null {
 
 /**
  * Whether the screen under the frame is one of the skin's own, which scrolls under the floating
- * header and tab bar by itself. OpenBot's pages own their scrollers, so the frame keeps its chrome
+ * header and tab bar by itself. ShardsOpenBot's pages own their scrollers, so the frame keeps its chrome
  * clear of them instead.
  */
 export function isSkinScreen(pathname: string): boolean {
@@ -44,9 +44,9 @@ export function isSkinScreen(pathname: string): boolean {
 
 /**
  * How wide the frame's column is. `phone` holds Chat and Tasks to a phone's width. `pane` is a
- * conversation with its Bot's details or computer open: the phone column plus OpenBot's 400px pane
+ * conversation with its Bot's details or computer open: the phone column plus ShardsOpenBot's 400px pane
  * beside it (`DetailPanel` lays the pane out beside the conversation once there is room for both).
- * `page` is every other page, at the width OpenBot gave it.
+ * `page` is every other page, at the width ShardsOpenBot gave it.
  */
 export type OpenDuetColumn = "phone" | "pane" | "page";
 

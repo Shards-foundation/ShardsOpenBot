@@ -195,7 +195,7 @@ def test_a_run_reaches_the_model_the_setup_screen_chose(monkeypatch, provider, c
 
     main = importlib.reload(main)
     response = TestClient(main.app).post(
-        "/", json=RUN, headers={"x-openbot-agent-token": TOKEN}
+        "/", json=RUN, headers={"x-shardsopenbot-agent-token": TOKEN}
     )
 
     assert response.status_code == 200
@@ -252,7 +252,7 @@ def test_a_key_reaches_the_official_endpoint_when_compose_leaves_the_url_blank(m
 
     main = importlib.reload(main)
     response = TestClient(main.app).post(
-        "/", json=RUN, headers={"x-openbot-agent-token": TOKEN}
+        "/", json=RUN, headers={"x-shardsopenbot-agent-token": TOKEN}
     )
 
     assert seen == [destination]

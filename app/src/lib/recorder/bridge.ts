@@ -1,7 +1,7 @@
 import {
   RECORDER_STORE_IDS,
   recorderStorePage,
-} from "@openbot/shared/recorder-extension";
+} from "@shardsopenbot/shared/recorder-extension";
 import {
   RECORDER_CONNECT_STATUS,
   RECORDER_PAGE_MESSAGES,
@@ -9,11 +9,11 @@ import {
   type RecorderPageMessage,
   type RecorderPageResult,
   type RecorderPageState,
-} from "@openbot/shared/recorder-page";
+} from "@shardsopenbot/shared/recorder-page";
 import { z } from "zod";
 
 // The browser's extension messaging API, with no server traffic. The app has no @types/chrome, so the members used
-// are declared here. `webview` is not an extension's: it is how WebView2 (OpenBot Desktop's own app window on
+// are declared here. `webview` is not an extension's: it is how WebView2 (ShardsOpenBot Desktop's own app window on
 // Windows) gives a page its host, documented at
 // https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/javascript/webview
 type ExtensionMessaging = {
@@ -28,7 +28,7 @@ type ExtensionMessaging = {
   webview?: unknown;
 };
 
-/** `version` and `installId` come only when this copy is connected to this OpenBot; an unconnected copy answers `{ ok: true }`. */
+/** `version` and `installId` come only when this copy is connected to this ShardsOpenBot; an unconnected copy answers `{ ok: true }`. */
 export type DetectedRecorder = {
   id: string;
   version?: string;
@@ -37,9 +37,9 @@ export type DetectedRecorder = {
 
 /**
  * `awaitingConfirmation`: the Recorder opened its Connect page and waits for the person's click there. `connected`: it
- * connected at once, with no Connect page, as it does for a trusted OpenBot (shared/recorder-page.ts
+ * connected at once, with no Connect page, as it does for a trusted ShardsOpenBot (shared/recorder-page.ts
  * `TrustedConnectRule`). A `throttled` refusal carries `retryAfterMs`: how long until the Recorder takes a connect from
- * this OpenBot again.
+ * this ShardsOpenBot again.
  */
 type ConnectCodeAnswer =
   | {
@@ -99,7 +99,7 @@ export function detectRecorder(
       }
     };
     for (const id of ids) {
-      void ask(id, { type: "openbot.ping" }).then((answer) => {
+      void ask(id, { type: "shardsopenbot.ping" }).then((answer) => {
         if (!isRecord(answer) || answer.ok !== true) return settle(null);
         const found: DetectedRecorder = { id };
         if (typeof answer.version === "string") found.version = answer.version;
@@ -115,7 +115,7 @@ export async function sendConnectCode(
   id: string,
   code: string,
 ): Promise<ConnectCodeAnswer> {
-  const answer = await ask(id, { type: "openbot.connect", code });
+  const answer = await ask(id, { type: "shardsopenbot.connect", code });
   if (!isRecord(answer)) return { ok: false, error: "unreachable" };
   if (answer.ok !== true) {
     const refusal: ConnectCodeAnswer = {
@@ -149,7 +149,7 @@ const connectWaitSchema = z.object({
   connect: z.enum(["waiting", "cancelled", "closed", "none"]),
 }) satisfies z.ZodType<{ ok: true; connect: RecorderConnectWait }>;
 
-/** Asks the Recorder `id` where the connect this page asked for has got to (`openbot.connect.status`). */
+/** Asks the Recorder `id` where the connect this page asked for has got to (`shardsopenbot.connect.status`). */
 export async function askConnectWait(id: string): Promise<ConnectWait> {
   const answer = connectWaitSchema.safeParse(
     await ask(id, { type: RECORDER_CONNECT_STATUS }),
@@ -158,22 +158,23 @@ export async function askConnectWait(id: string): Promise<ConnectWait> {
 }
 
 const CONNECT_REFUSALS: Record<string, string> = {
-  "not-https": "The Recorder only connects to OpenBot over HTTPS.",
-  "pinned-elsewhere": "Your organization set the Recorder to another OpenBot.",
+  "not-https": "The Recorder only connects to ShardsOpenBot over HTTPS.",
+  "pinned-elsewhere":
+    "Your organization set the Recorder to another ShardsOpenBot.",
   "policy-invalid":
-    "Your organization's Recorder policy names an OpenBot address the Recorder can't use. Ask your IT team.",
+    "Your organization's Recorder policy names an ShardsOpenBot address the Recorder can't use. Ask your IT team.",
   busy: "The Recorder is finishing another connect request. Try again in a moment.",
-  // A trusted OpenBot's connect, which the Recorder completes itself with OpenBot, with no Connect page.
+  // A trusted ShardsOpenBot's connect, which the Recorder completes itself with ShardsOpenBot, with no Connect page.
   "exchange-refused":
-    "OpenBot didn't accept the Recorder's connect request. Try again.",
-  "openbot-unreachable":
-    "The Recorder couldn't reach OpenBot to connect. Check your connection and try again.",
+    "ShardsOpenBot didn't accept the Recorder's connect request. Try again.",
+  "shardsopenbot-unreachable":
+    "The Recorder couldn't reach ShardsOpenBot to connect. Check your connection and try again.",
 };
 /** The Recorder can also answer `unreachable` or `invalid`, which have no sentence of their own. */
 const CONNECT_REFUSAL_FALLBACK =
   "The Recorder didn't accept the request. Try again.";
 
-/** The Recorder takes only so many connects from one OpenBot in ten minutes; its refusal says how long is left. */
+/** The Recorder takes only so many connects from one ShardsOpenBot in ten minutes; its refusal says how long is left. */
 function throttledSentence(retryAfterMs: number | undefined): string {
   const lead = "Too many connect requests in a short time.";
   if (retryAfterMs === undefined) return `${lead} Try again in a few minutes.`;
@@ -181,7 +182,7 @@ function throttledSentence(retryAfterMs: number | undefined): string {
   return `${lead} Try again in ${minutes} ${minutes === 1 ? "minute" : "minutes"}.`;
 }
 
-/** What a refused `openbot.connect` says to the person, wherever they asked to connect this browser. */
+/** What a refused `shardsopenbot.connect` says to the person, wherever they asked to connect this browser. */
 export function connectRefusalSentence(
   error: string,
   retryAfterMs?: number,
@@ -190,14 +191,14 @@ export function connectRefusalSentence(
   return CONNECT_REFUSALS[error] ?? CONNECT_REFUSAL_FALLBACK;
 }
 
-/* THE RECORDER IN THE BROWSER OPENBOT IS OPEN IN (shared/recorder-page.ts). */
+/* THE RECORDER IN THE BROWSER SHARDSOPENBOT IS OPEN IN (shared/recorder-page.ts). */
 
 /**
  * Whether this page can send a message to an extension at all. Chrome and Edge give a page `chrome.runtime.sendMessage`
  * only while an extension in them lists the page in its `externally_connectable`, as the Recorder lists every site, and
  * give it to a page already open the moment such an extension is added (both proven in Chrome 156, Edge 155 and
  * Chromium 151). So in a Chrome with no such extension there is no `sendMessage`, and that is not the same as a browser
- * that cannot hold the Recorder. Never in WebView2, OpenBot Desktop's own app window on Windows.
+ * that cannot hold the Recorder. Never in WebView2, ShardsOpenBot Desktop's own app window on Windows.
  */
 export function canMessageExtensions(): boolean {
   const chrome = chromeOf();
@@ -211,7 +212,7 @@ type UserAgentData = { brands?: { brand: string }[]; mobile?: boolean };
 /**
  * The store a person adds the Recorder from in the browser this page is open in: Edge Add-ons in Microsoft Edge, the
  * Chrome Web Store in Google Chrome, from the brands the browser itself reports
- * (https://developer.mozilla.org/docs/Web/API/NavigatorUAData/brands). Null anywhere else: Safari, Firefox, OpenBot
+ * (https://developer.mozilla.org/docs/Web/API/NavigatorUAData/brands). Null anywhere else: Safari, Firefox, ShardsOpenBot
  * Desktop's own app window (a WebKit view on macOS and Linux, WebView2 on Windows, which may report Edge's brand), and
  * Chrome or Edge on a phone, which take no extensions.
  */
@@ -228,7 +229,7 @@ export function recorderStoreHere(): RecorderStore | null {
 
 type ConnectedPageState = Extract<RecorderPageState, { connected: true }>;
 
-/** The Recorder's answer to `openbot.state`, checked against the contract's type before anything reads it. */
+/** The Recorder's answer to `shardsopenbot.state`, checked against the contract's type before anything reads it. */
 const pageStateSchema = z.union([
   z.object({ connected: z.literal(false) }),
   z.object({
@@ -255,10 +256,10 @@ const pageResultSchema = z.union([
 ]) satisfies z.ZodType<RecorderPageResult>;
 
 /**
- * The Recorder in the browser OpenBot is open in, as the Browser button sees it:
- * - `connected`: it is connected to this OpenBot, and `state` is what it is doing.
- * - `unconnected`: it is here, and connected to no OpenBot or another one.
- * - `older`: a Recorder from before `openbot.state` (it refuses the message), which OpenBot cannot drive from here.
+ * The Recorder in the browser ShardsOpenBot is open in, as the Browser button sees it:
+ * - `connected`: it is connected to this ShardsOpenBot, and `state` is what it is doing.
+ * - `unconnected`: it is here, and connected to no ShardsOpenBot or another one.
+ * - `older`: a Recorder from before `shardsopenbot.state` (it refuses the message), which ShardsOpenBot cannot drive from here.
  * - `absent`: this is Chrome or Edge, the Recorder is not in it, and `page` is its store page there.
  * - `unreachable`: this page cannot reach an extension, or the Recorder has no store page yet for this browser.
  */
@@ -302,8 +303,8 @@ function absentHere(): RecorderHere {
 }
 
 /**
- * Asks each of `ids` (the Recorder ids this OpenBot trusts) what it is doing, with `openbot.state`. The Recorder
- * answers only the OpenBot it is connected to with its state, judged by the origin the browser reports for this page,
+ * Asks each of `ids` (the Recorder ids this ShardsOpenBot trusts) what it is doing, with `shardsopenbot.state`. The Recorder
+ * answers only the ShardsOpenBot it is connected to with its state, judged by the origin the browser reports for this page,
  * and every other page with `connected: false`. A copy connected here wins over one that is not.
  */
 export async function findRecorderHere(
@@ -334,7 +335,7 @@ export async function findRecorderHere(
 }
 
 /**
- * `openbot.record` or `openbot.stop` to the Recorder `id`: its answer, a refusal carrying its own sentence, or
+ * `shardsopenbot.record` or `shardsopenbot.stop` to the Recorder `id`: its answer, a refusal carrying its own sentence, or
  * `undefined` when it did not answer (it was removed or turned off since it was asked).
  */
 export async function sendRecorderPage(

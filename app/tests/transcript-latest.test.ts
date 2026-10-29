@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { frameFiring } from "@openbot/shared/routine-firing";
+import { frameFiring } from "@shardsopenbot/shared/routine-firing";
 import type { VisibleChatItem } from "../src/components/channels/chat-messages";
 import { latestFrom } from "../src/components/channels/chat-transcript";
 

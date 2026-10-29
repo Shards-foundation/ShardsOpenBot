@@ -35,7 +35,7 @@ import { Route as GroupRoute } from "@/routes/_authed/_app/group/$channelId";
 import { settleReactWork } from "./settle-react-work";
 
 /*
- * Skins dress OpenBot's own elements through `data-slot` hooks, never through Tailwind classes or
+ * Skins dress ShardsOpenBot's own elements through `data-slot` hooks, never through Tailwind classes or
  * copy, so restyling the composer or a header cannot silently undress every skin. These hold each
  * hook to the element it names, drawn by the real component or route. A hook that moves to another
  * element, or goes, fails here.

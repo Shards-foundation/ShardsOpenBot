@@ -183,8 +183,8 @@
 }
 
 /*
- * OpenBot's pages inside the frame, drawn the OpenDots way. Each rule reaches only into
- * `[data-opendots-main]`, the frame's page slot, so Settings and Admin keep OpenBot's own layout in
+ * ShardsOpenBot's pages inside the frame, drawn the OpenDots way. Each rule reaches only into
+ * `[data-opendots-main]`, the frame's page slot, so Settings and Admin keep ShardsOpenBot's own layout in
  * OpenDots' colours.
  */
 
@@ -212,7 +212,7 @@
 }
 
 /*
- * OpenBot's pages are reached through the `data-slot` hooks they publish for skins (`composer`,
+ * ShardsOpenBot's pages are reached through the `data-slot` hooks they publish for skins (`composer`,
  * `composer-send`, `conversation-header`, `composer-column`, `detail-pane*`), never through
  * their Tailwind classes, so restyling a page cannot quietly break the skin.
  */
@@ -260,7 +260,7 @@
 
 /*
  * Where the conversation column is no wider than its composer, OpenDots still keeps the composer
- * and its notices off the edges of the pane; OpenBot's runs them flush. 972px is the widest window
+ * and its notices off the edges of the pane; ShardsOpenBot's runs them flush. 972px is the widest window
  * at which the 672px column fills the pane beside the rail and sidebar.
  */
 @media (max-width: 972px) {
@@ -305,7 +305,7 @@
 /*
  * Reduced motion. The frame's own chrome (rail, sidebar, top bar, computer pane, phone drawer) and
  * the menus, tooltips, sheets and dialogs it opens stop moving: no transitions, no animations.
- * OpenBot's orb in the rail already stills itself through `useReducedMotion`. No `!important`:
+ * ShardsOpenBot's orb in the rail already stills itself through `useReducedMotion`. No `!important`:
  * this rule sits in no cascade layer, so it outranks every Tailwind utility as it is.
  */
 @media (prefers-reduced-motion: reduce) {

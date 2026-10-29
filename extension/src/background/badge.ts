@@ -1,6 +1,6 @@
 import type { RecorderState } from "../protocol/messages";
 
-/** OpenBot's destructive token. */
+/** ShardsOpenBot's destructive token. */
 const RECORDING_COLOR = "#e7000b";
 const MAX_SHOWN = 999;
 

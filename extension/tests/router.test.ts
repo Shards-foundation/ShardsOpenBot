@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import { IDBKeyRange as FakeIDBKeyRange, IDBFactory } from "fake-indexeddb";
 import * as connection from "../src/background/connection";
 import type { NetworkCaptureDeps } from "../src/background/network";
@@ -133,12 +133,12 @@ test("an ok page.connect.decide calls connected() after the connection answered"
     type: "page.connect.decide",
     approve: true,
     label: "x",
-    origin: "https://openbot.example.test",
+    origin: "https://shardsopenbot.example.test",
   });
   expect(seen.order).toEqual(["connection", "connected"]);
 });
 
-test("OpenBot Desktop's connect calls connected() once it connected this browser, as an approved Connect does, and not when it did not", async () => {
+test("ShardsOpenBot Desktop's connect calls connected() once it connected this browser, as an approved Connect does, and not when it did not", async () => {
   stubConnection({ ok: true, connected: true });
   installRouter(handlers);
   expect(await fake.sendFromPage({ type: "page.connect.desktop" })).toEqual({
@@ -166,7 +166,7 @@ test("a refused page.connect.decide does not call connected()", async () => {
       type: "page.connect.decide",
       approve: true,
       label: "x",
-      origin: "https://openbot.example.test",
+      origin: "https://shardsopenbot.example.test",
     }),
   ).toEqual({ ok: false, error: "no" });
   expect(seen.order).toEqual(["connection"]);
@@ -180,7 +180,7 @@ test("a rejected page.connect.decide (Cancel) answers ok but does not call conne
       type: "page.connect.decide",
       approve: false,
       label: "x",
-      origin: "https://openbot.example.test",
+      origin: "https://shardsopenbot.example.test",
     }),
   ).toEqual({ ok: true });
   expect(seen.order).toEqual(["connection"]);
@@ -212,7 +212,7 @@ test("a connected() that throws does not fail the page", async () => {
       type: "page.connect.decide",
       approve: true,
       label: "x",
-      origin: "https://openbot.example.test",
+      origin: "https://shardsopenbot.example.test",
     }),
   ).toEqual({ ok: true });
   expect(error).toHaveBeenCalled();
@@ -328,7 +328,7 @@ test("a handler that throws answers with an error instead of hanging", async () 
   expect(answer.ok).toBe(false);
 });
 
-test("openbot.ping and openbot.connect from a web page go to the external connect handler", async () => {
+test("shardsopenbot.ping and shardsopenbot.connect from a web page go to the external connect handler", async () => {
   const spy = spyOn(connection, "handleExternalConnect").mockImplementation(
     async (message) => {
       seen.external.push(message);
@@ -338,18 +338,21 @@ test("openbot.ping and openbot.connect from a web page go to the external connec
   restore.push(() => spy.mockRestore());
   installRouter(handlers);
   const sender = {
-    url: "https://openbot.example.test/x",
-    origin: "https://openbot.example.test",
+    url: "https://shardsopenbot.example.test/x",
+    origin: "https://shardsopenbot.example.test",
   };
-  await fake.sendExternal({ type: "openbot.ping" }, sender);
-  await fake.sendExternal({ type: "openbot.connect", code: "obc_abc" }, sender);
+  await fake.sendExternal({ type: "shardsopenbot.ping" }, sender);
+  await fake.sendExternal(
+    { type: "shardsopenbot.connect", code: "obc_abc" },
+    sender,
+  );
   expect(seen.external).toEqual([
-    { type: "openbot.ping" },
-    { type: "openbot.connect", code: "obc_abc" },
+    { type: "shardsopenbot.ping" },
+    { type: "shardsopenbot.connect", code: "obc_abc" },
   ]);
 });
 
-test("a trusted OpenBot's connect, made with no Connect page, is followed up as an approved Connect is, and one waiting on its page is not", async () => {
+test("a trusted ShardsOpenBot's connect, made with no Connect page, is followed up as an approved Connect is, and one waiting on its page is not", async () => {
   const answers = [
     {
       ok: true as const,
@@ -377,43 +380,54 @@ test("a trusted OpenBot's connect, made with no Connect page, is followed up as 
     origin: "http://127.0.0.1:3010",
   };
   expect(
-    await fake.sendExternal({ type: "openbot.connect", code: "obc_a" }, sender),
+    await fake.sendExternal(
+      { type: "shardsopenbot.connect", code: "obc_a" },
+      sender,
+    ),
   ).toMatchObject({ ok: true, connected: true });
   expect(seen.order).toEqual(["connection", "connected"]);
   expect(
-    await fake.sendExternal({ type: "openbot.connect", code: "obc_b" }, sender),
+    await fake.sendExternal(
+      { type: "shardsopenbot.connect", code: "obc_b" },
+      sender,
+    ),
   ).toMatchObject({ ok: true, awaitingConfirmation: true });
   expect(seen.order).toEqual(["connection", "connected", "connection"]);
 });
 
-test("openbot.state, openbot.record and openbot.stop are answered for OpenBot's page and never reach the connect handler or the page-network entry", async () => {
+test("shardsopenbot.state, shardsopenbot.record and shardsopenbot.stop are answered for ShardsOpenBot's page and never reach the connect handler or the page-network entry", async () => {
   const spy = spyOn(connection, "handleExternalConnect");
   restore.push(() => spy.mockRestore());
   installRouter(handlers);
   const sender = {
-    url: "https://openbot.example.test/",
-    origin: "https://openbot.example.test",
+    url: "https://shardsopenbot.example.test/",
+    origin: "https://shardsopenbot.example.test",
     tab: { id: 7 } as chrome.tabs.Tab,
     frameId: 0,
   };
   // Nothing is connected: the page is told so, and nothing records.
-  expect(await fake.sendExternal({ type: "openbot.state" }, sender)).toEqual({
+  expect(
+    await fake.sendExternal({ type: "shardsopenbot.state" }, sender),
+  ).toEqual({
     connected: false,
   });
   for (const message of [
-    { type: "openbot.record", title: "Archive order 1043" },
-    { type: "openbot.stop" },
+    { type: "shardsopenbot.record", title: "Archive order 1043" },
+    { type: "shardsopenbot.stop" },
   ])
     expect(await fake.sendExternal(message, sender)).toEqual({
       ok: false,
-      error: "Connect this browser to OpenBot first.",
+      error: "Connect this browser to ShardsOpenBot first.",
     });
   // Malformed: answered invalid before anything reads it.
   for (const message of [
-    { type: "openbot.record", title: "   " },
-    { type: "openbot.record", title: "x".repeat(201) },
-    { type: "openbot.record", title: "x", tabId: 9 },
-    { type: "openbot.state", origin: "https://openbot.example.test" },
+    { type: "shardsopenbot.record", title: "   " },
+    { type: "shardsopenbot.record", title: "x".repeat(201) },
+    { type: "shardsopenbot.record", title: "x", tabId: 9 },
+    {
+      type: "shardsopenbot.state",
+      origin: "https://shardsopenbot.example.test",
+    },
   ])
     expect(await fake.sendExternal(message, sender)).toEqual({
       ok: false,
@@ -444,8 +458,8 @@ test("a malformed external message is answered invalid without reaching a handle
   installRouter(handlers);
   expect(
     await fake.sendExternal(
-      { type: "openbot.connect", code: "not-a-code" },
-      { origin: "https://openbot.example.test" },
+      { type: "shardsopenbot.connect", code: "not-a-code" },
+      { origin: "https://shardsopenbot.example.test" },
     ),
   ).toEqual({ ok: false, error: "invalid" });
   expect(await fake.sendExternal({ nope: 1 }, {})).toEqual({
@@ -553,7 +567,7 @@ test("a recorder.page-network event the fallback accepts reaches the network cap
   let document: ReturnType<ChromeFake["connectFrom"]> | undefined;
   try {
     fake.storage.local.set("connection", {
-      openbotUrl: "http://127.0.0.1:9",
+      shardsopenbotUrl: "http://127.0.0.1:9",
       token: "obr_one",
       connectionId: "c-1",
       user: { id: "p1", name: "Ada", email: "ada@example.test" },
@@ -563,7 +577,7 @@ test("a recorder.page-network event the fallback accepts reaches the network cap
     fake.storage.local.set("activeRecording", {
       recordingId,
       title: "Update deal",
-      openbotUrl: "http://127.0.0.1:9",
+      shardsopenbotUrl: "http://127.0.0.1:9",
       userId: "p1",
       userName: "Ada",
       trajectoryIds: [trajectoryId],
@@ -586,7 +600,7 @@ test("a recorder.page-network event the fallback accepts reaches the network cap
     fake.storage.session.set("stream", {
       recordingId,
       title: "Update deal",
-      openbotUrl: "http://127.0.0.1:9",
+      shardsopenbotUrl: "http://127.0.0.1:9",
       token: "obr_one",
       trajectoryId,
       startedAt,
@@ -622,8 +636,8 @@ test("a recorder.page-network event the fallback accepts reaches the network cap
         return received;
       },
       readPolicy: async () => ({
-        openbotUrl: null,
-        openbotUrlInvalid: false,
+        shardsopenbotUrl: null,
+        shardsopenbotUrlInvalid: false,
         allowedIntelligenceUrls: null,
       }),
       hasHostPermission: async () => true,

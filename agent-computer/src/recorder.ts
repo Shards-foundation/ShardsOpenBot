@@ -1,9 +1,9 @@
 /**
- * The built OpenBot Recorder this computer puts into a person's browser.
+ * The built ShardsOpenBot Recorder this computer puts into a person's browser.
  *
- * A person's browser never opens without it: the whole point of the OpenBot Browser is that the
+ * A person's browser never opens without it: the whole point of the ShardsOpenBot Browser is that the
  * Recorder is already there and already connected. So the directory is checked before a launch, and
- * a computer whose `OPENBOT_RECORDER_DIR` is unset, relative, or points at something that is not a
+ * a computer whose `SHARDSOPENBOT_RECORDER_DIR` is unset, relative, or points at something that is not a
  * built Recorder refuses to open one, saying which of those it was. The usual mistake is pointing it
  * at `extension/` (the source) rather than `extension/dist` (what `bun run build` writes), and that
  * has no `manifest.json`.
@@ -14,7 +14,7 @@
 import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
-import { RECORDER_DIR_ENV } from "../../shared/openbot-browser";
+import { RECORDER_DIR_ENV } from "../../shared/shardsopenbot-browser";
 
 export type Recorder = {
   /** The built Recorder, absolute. */
@@ -50,7 +50,7 @@ export function extensionIdFromKey(key: string): string {
 
 const notARecorder = (dir: string, why: string): RecorderLookup => ({
   ok: false,
-  error: `${RECORDER_DIR_ENV} (${dir}) is not a built OpenBot Recorder: ${why} Point it at the Recorder's build output, extension/dist after bun run build.`,
+  error: `${RECORDER_DIR_ENV} (${dir}) is not a built ShardsOpenBot Recorder: ${why} Point it at the Recorder's build output, extension/dist after bun run build.`,
 });
 
 /**
@@ -66,7 +66,7 @@ export async function findRecorder(
   if (!dir) {
     return {
       ok: false,
-      error: `This computer has no OpenBot Recorder, so it cannot open a person's browser: set ${RECORDER_DIR_ENV} to the built Recorder (extension/dist).`,
+      error: `This computer has no ShardsOpenBot Recorder, so it cannot open a person's browser: set ${RECORDER_DIR_ENV} to the built Recorder (extension/dist).`,
     };
   }
   if (!isAbsolute(dir)) {
@@ -118,7 +118,7 @@ export function isRecorderPage(url: string, recorderId: string): boolean {
  * The Recorder's setup and connect pages.
  *
  * Both exist for a browser a person installed the Recorder into by hand: setup asks for the
- * microphone and connect asks for an OpenBot. In a browser OpenBot opened, the microphone is granted
+ * microphone and connect asks for an ShardsOpenBot. In a browser ShardsOpenBot opened, the microphone is granted
  * at launch and the connection is handed in, so neither has anything left to ask, and the browser
  * closes either one the moment it appears.
  */

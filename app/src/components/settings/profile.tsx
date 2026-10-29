@@ -83,7 +83,7 @@ export function ProfileSettings() {
   return (
     <PageSection
       title="Profile"
-      description="Choose the name OpenBot displays for you."
+      description="Choose the name ShardsOpenBot displays for you."
     >
       {user && (
         <ProfileNameForm

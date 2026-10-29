@@ -33,7 +33,7 @@ function appWith(calls: { addServer: unknown[]; addCustomServer: unknown[] }) {
   ) => {
     context.set("actor", {
       id: "user-1",
-      email: "user@openbot.test",
+      email: "user@shardsopenbot.test",
       role: "admin",
     });
     await next();
@@ -67,7 +67,7 @@ describe("POST /api/plugins/servers", () => {
   ])("refuses %s with 400 and never reaches the store", async (_n, body) => {
     const seen = calls();
     const response = await appWith(seen).request(
-      "http://openbot.test/servers",
+      "http://shardsopenbot.test/servers",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -86,7 +86,7 @@ describe("POST /api/plugins/servers", () => {
   test("trims the key and optional fields on the happy path", async () => {
     const seen = calls();
     const response = await appWith(seen).request(
-      "http://openbot.test/servers",
+      "http://shardsopenbot.test/servers",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -131,7 +131,7 @@ describe("POST /api/plugins/servers/custom", () => {
   ])("refuses %s with 400 and never reaches the store", async (_n, body) => {
     const seen = calls();
     const response = await appWith(seen).request(
-      "http://openbot.test/servers/custom",
+      "http://shardsopenbot.test/servers/custom",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -165,7 +165,7 @@ describe("POST /api/plugins/servers/:id/oauth-client", () => {
     ) => {
       context.set("actor", {
         id: "user-1",
-        email: "user@openbot.test",
+        email: "user@shardsopenbot.test",
         role: "admin",
       });
       await next();
@@ -176,7 +176,7 @@ describe("POST /api/plugins/servers/:id/oauth-client", () => {
 
   const send = (registered: unknown[], body: unknown) =>
     oauthApp(registered).request(
-      "http://openbot.test/servers/github/oauth-client",
+      "http://shardsopenbot.test/servers/github/oauth-client",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -216,7 +216,7 @@ describe("POST /api/plugins/servers/:id/oauth-client", () => {
       {
         serverId: "github",
         client: { clientId: "id", clientSecret: "secret" },
-        by: "user@openbot.test",
+        by: "user@shardsopenbot.test",
       },
     ]);
   });

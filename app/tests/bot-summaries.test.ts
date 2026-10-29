@@ -54,7 +54,7 @@ test("a public Bot nobody published is still open to everyone, not 'Not shared'"
 });
 
 test("reach names the places a Bot continues the conversation", () => {
-  expect(reachSummary([])).toBe("Only in OpenBot");
+  expect(reachSummary([])).toBe("Only in ShardsOpenBot");
   expect(reachSummary(["slack"])).toBe("Slack");
   expect(reachSummary(["sms", "slack", "slack"])).toBe("Slack, SMS");
   expect(reachSummary(["teams"])).toBe("Microsoft Teams");

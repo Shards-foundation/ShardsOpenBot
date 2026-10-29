@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   readConnectPrompt,
   SHOW_APP_ACCESS_TOOL,
-} from "@openbot/shared/connect-prompt";
+} from "@shardsopenbot/shared/connect-prompt";
 import type { AppAccess, AppAccessState } from "../src/plugins/app-access";
 import { appAccessTools } from "../src/plugins/app-access-tool";
 import type { AppInspection } from "../src/plugins/plugin-store/app-access";

@@ -24,7 +24,9 @@ function endpoint() {
     app,
     read: () =>
       app.request("/api/desktop/connection-failure", {
-        headers: { "x-openbot-desktop-host-token": "native-session-token" },
+        headers: {
+          "x-shardsopenbot-desktop-host-token": "native-session-token",
+        },
       }),
   };
 }
@@ -52,7 +54,7 @@ test("typed provider failures trigger refresh and successful model output clears
     observeModelConnection(
       of({
         type: EventType.RUN_ERROR,
-        code: "OPENBOT_MODEL_AUTH_REQUIRED",
+        code: "SHARDSOPENBOT_MODEL_AUTH_REQUIRED",
         message: "provider authentication failed",
       }),
     ),
@@ -88,7 +90,7 @@ function providerError(statusCode: number, cause?: Error) {
 
 function explicitAuthenticationError() {
   return Object.assign(new Error("provider authentication failed"), {
-    name: "OpenBotModelAuthenticationError",
+    name: "ShardsOpenBotModelAuthenticationError",
   });
 }
 

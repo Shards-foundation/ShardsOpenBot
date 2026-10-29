@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dir, "../..");
 const native = "desktop/src-tauri/";
-const packageName = "openbot-desktop";
+const packageName = "shardsopenbot-desktop";
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 const write = (path: string, text: string) =>
   writeFileSync(join(root, path), text);
@@ -71,7 +71,7 @@ function replaceVersion(text: string, releaseVersion: string, lock: boolean) {
     .map((section) => {
       const matches = lock
         ? /^[ \t]*\[\[package\]\]/.test(section) &&
-          /^[ \t]*name[ \t]*=[ \t]*["']openbot-desktop["']/m.test(section)
+          /^[ \t]*name[ \t]*=[ \t]*["']shardsopenbot-desktop["']/m.test(section)
         : /^[ \t]*\[package\]/.test(section);
       if (!matches) return section;
       return section.replace(
@@ -139,8 +139,8 @@ function main(command: string | undefined) {
   const fields = {
     CFBundleShortVersionString: releaseVersion,
     CFBundleVersion: releaseVersion,
-    OpenBotBuildVersion: buildVersion,
-    OpenBotSourceRevision: sourceSha,
+    ShardsOpenBotBuildVersion: buildVersion,
+    ShardsOpenBotSourceRevision: sourceSha,
   };
   write(
     `${native}build-version.plist`,

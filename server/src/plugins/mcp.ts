@@ -365,7 +365,7 @@ async function withClient<T>(
         }
       : undefined,
   });
-  const client = new Client({ name: "openbot", version: "1.0.0" });
+  const client = new Client({ name: "shardsopenbot", version: "1.0.0" });
 
   try {
     await client.connect(transport);

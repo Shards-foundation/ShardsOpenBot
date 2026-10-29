@@ -7,7 +7,7 @@ import {
   test,
 } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { LearningSpaceState } from "@openbot/shared/recorder-api";
+import type { LearningSpaceState } from "@shardsopenbot/shared/recorder-api";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PASS_HINTS } from "../src/offscreen/grant";
@@ -54,11 +54,11 @@ const learning = (state: LearningSpaceState["state"]): LearningSpaceState => ({
   containerId: state === "unassigned" || state === "missing" ? null : "c1",
 });
 const UNASSIGNED_SENTENCE =
-  "Learning will not see this recording: Automatic Learning is off in this OpenBot. It still goes to Intelligence.";
+  "Learning will not see this recording: Automatic Learning is off in this ShardsOpenBot. It still goes to Intelligence.";
 const MISSING_SENTENCE =
   "Learning will not see this recording: your Learning space could not be made in Intelligence. Ask an admin to check Admin, Automatic Learning. It still goes to Intelligence.";
 const UNREACHED_SENTENCE =
-  "Learning may not see this recording: OpenBot could not reach your Learning space just now. It still goes to Intelligence.";
+  "Learning may not see this recording: ShardsOpenBot could not reach your Learning space just now. It still goes to Intelligence.";
 const INTO_YOUR_SPACE =
   "It goes into your Learning space, and every Bot you use learns from it.";
 
@@ -72,7 +72,7 @@ function stateResponse(
     ok: true,
     state: { ...IDLE_STATE, ...state },
     connection: {
-      openbotUrl: "https://openbot.example.test",
+      shardsopenbotUrl: "https://shardsopenbot.example.test",
       user: { name: "Ada Lovelace", email: "ada@example.test" },
       via: "web",
     },
@@ -80,7 +80,7 @@ function stateResponse(
       user: { id: "u1", name: "Ada Lovelace", email: "ada@example.test" },
       connectionId: "k1",
     } as PageStateResponse["me"],
-    policy: { openbotUrl: null, invalid: false },
+    policy: { shardsopenbotUrl: null, invalid: false },
     notice: null,
     // A person who chose to narrate, on the setup page or here.
     narration: "on",
@@ -92,7 +92,7 @@ function stateResponse(
 function setup(
   response: PageStateResponse,
   options: {
-    /** The person's own Learning space as OpenBot answers it. */
+    /** The person's own Learning space as ShardsOpenBot answers it. */
     learning?: LearningSpaceState;
     desktop?: boolean;
     answers?: Partial<Record<PageToBackground["type"], PageResponse>>;
@@ -139,9 +139,9 @@ const NOT_CONNECTED = { connection: null, me: null } as const;
 
 test("not connected shows the connect instructions and no buttons by default", async () => {
   const { findByText, queryByRole } = setup(stateResponse(NOT_CONNECTED));
-  await findByText("Connect the Recorder to OpenBot");
+  await findByText("Connect the Recorder to ShardsOpenBot");
   await findByText(
-    "Open OpenBot, go to Settings, Browsers, and choose Connect this browser.",
+    "Open ShardsOpenBot, go to Settings, Browsers, and choose Connect this browser.",
   );
   expect(queryByRole("button")).toBeNull();
 });
@@ -150,13 +150,16 @@ test("a policy address adds an Open <host> button that opens its Browsers settin
   const { findByText } = setup(
     stateResponse({
       ...NOT_CONNECTED,
-      policy: { openbotUrl: "https://openbot.example.test", invalid: false },
+      policy: {
+        shardsopenbotUrl: "https://shardsopenbot.example.test",
+        invalid: false,
+      },
     }),
   );
-  fireEvent.click(await findByText("Open openbot.example.test"));
+  fireEvent.click(await findByText("Open shardsopenbot.example.test"));
   await waitFor(() =>
     expect(fake.opened).toContain(
-      "https://openbot.example.test/settings/browsers",
+      "https://shardsopenbot.example.test/settings/browsers",
     ),
   );
 });
@@ -165,28 +168,28 @@ test("an invalid policy address shows the IT sentence and no button", async () =
   const { findByText, queryByRole, queryByText } = setup(
     stateResponse({
       ...NOT_CONNECTED,
-      policy: { openbotUrl: "not a url", invalid: true },
+      policy: { shardsopenbotUrl: "not a url", invalid: true },
     }),
   );
   await findByText(
-    "Your organization's Recorder policy names an OpenBot address the Recorder cannot use. Ask your IT team.",
+    "Your organization's Recorder policy names an ShardsOpenBot address the Recorder cannot use. Ask your IT team.",
   );
   expect(queryByRole("button")).toBeNull();
   expect(queryByText(/Open invalid/)).toBeNull();
 });
 
-test("Connect with OpenBot Desktop is hidden unless Desktop answers available", async () => {
+test("Connect with ShardsOpenBot Desktop is hidden unless Desktop answers available", async () => {
   const hidden = setup(stateResponse(NOT_CONNECTED), { desktop: false });
-  await hidden.findByText("Connect the Recorder to OpenBot");
+  await hidden.findByText("Connect the Recorder to ShardsOpenBot");
   await waitFor(() =>
     expect(hidden.sent.some((m) => m.type === "page.desktop.available")).toBe(
       true,
     ),
   );
-  expect(hidden.queryByText("Connect with OpenBot Desktop")).toBeNull();
+  expect(hidden.queryByText("Connect with ShardsOpenBot Desktop")).toBeNull();
   cleanup();
   const shown = setup(stateResponse(NOT_CONNECTED), { desktop: true });
-  fireEvent.click(await shown.findByText("Connect with OpenBot Desktop"));
+  fireEvent.click(await shown.findByText("Connect with ShardsOpenBot Desktop"));
   await waitFor(() =>
     expect(shown.sent.some((m) => m.type === "page.connect.desktop")).toBe(
       true,
@@ -194,24 +197,24 @@ test("Connect with OpenBot Desktop is hidden unless Desktop answers available", 
   );
 });
 
-test("Connect with OpenBot Desktop connects this browser at once: no page opens, and the popup shows the Record form", async () => {
+test("Connect with ShardsOpenBot Desktop connects this browser at once: no page opens, and the popup shows the Record form", async () => {
   const response = stateResponse(NOT_CONNECTED);
   const view = setup(response, {
     desktop: true,
     answers: { "page.connect.desktop": { ok: true, connected: true } },
     onAsk: (message) => {
-      // The service worker stored the connection OpenBot Desktop made: page.state shows it from now on.
+      // The service worker stored the connection ShardsOpenBot Desktop made: page.state shows it from now on.
       if (message.type === "page.connect.desktop")
         Object.assign(response, {
           connection: {
-            openbotUrl: "http://127.0.0.1:7470",
+            shardsopenbotUrl: "http://127.0.0.1:7470",
             user: { name: "Ada Lovelace", email: "ada@example.test" },
             via: "desktop",
           },
         });
     },
   });
-  fireEvent.click(await view.findByText("Connect with OpenBot Desktop"));
+  fireEvent.click(await view.findByText("Connect with ShardsOpenBot Desktop"));
   await view.findByLabelText("What are you about to do?");
   expect(view.getByText("Ada Lovelace")).toBeTruthy();
   expect(fake.opened).toEqual([]);
@@ -229,13 +232,13 @@ test("a Desktop connect that fails after a good ping shows a plain sentence for 
       },
     },
   });
-  fireEvent.click(await findByText("Connect with OpenBot Desktop"));
+  fireEvent.click(await findByText("Connect with ShardsOpenBot Desktop"));
   expect((await findByRole("alert")).textContent).toBe(
-    "OpenBot Desktop is not signed in to your organization. Sign in again in OpenBot Desktop, then try again.",
+    "ShardsOpenBot Desktop is not signed in to your organization. Sign in again in ShardsOpenBot Desktop, then try again.",
   );
 });
 
-test("every code OpenBot Desktop or the Recorder can give has a sentence of its own", () => {
+test("every code ShardsOpenBot Desktop or the Recorder can give has a sentence of its own", () => {
   const general = desktopSentence("something-new");
   const codes = [
     "origin-not-allowed",
@@ -252,7 +255,7 @@ test("every code OpenBot Desktop or the Recorder can give has a sentence of its 
     "pinned-elsewhere",
     "invalid-address",
     "exchange-refused",
-    "openbot-unreachable",
+    "shardsopenbot-unreachable",
   ];
   const sentences = codes.map(desktopSentence);
   for (const sentence of sentences) expect(sentence).not.toBe(general);
@@ -271,15 +274,15 @@ test("a Desktop code the Recorder does not know gets the general sentence", asyn
       },
     },
   });
-  fireEvent.click(await findByText("Connect with OpenBot Desktop"));
+  fireEvent.click(await findByText("Connect with ShardsOpenBot Desktop"));
   expect((await findByRole("alert")).textContent).toBe(
-    "OpenBot Desktop could not connect this browser. Try again, or connect from OpenBot in your browser.",
+    "ShardsOpenBot Desktop could not connect this browser. Try again, or connect from ShardsOpenBot in your browser.",
   );
 });
 
-test("Connect with OpenBot Desktop is a secondary button even when it is the only action", async () => {
+test("Connect with ShardsOpenBot Desktop is a secondary button even when it is the only action", async () => {
   const { findByText } = setup(stateResponse(NOT_CONNECTED), { desktop: true });
-  const button = await findByText("Connect with OpenBot Desktop");
+  const button = await findByText("Connect with ShardsOpenBot Desktop");
   expect(button.className).toContain("bg-secondary");
   expect(button.className).not.toContain("bg-primary");
 });
@@ -287,7 +290,7 @@ test("Connect with OpenBot Desktop is a secondary button even when it is the onl
 test("connected and idle shows the person, the host, the form copy and Record disabled", async () => {
   const { findByText, getByText, getByRole } = setup(stateResponse());
   await findByText("Ada Lovelace");
-  expect(getByText("openbot.example.test")).toBeTruthy();
+  expect(getByText("shardsopenbot.example.test")).toBeTruthy();
   expect(getByText(DISCLOSURE_SHORT)).toBeTruthy();
   expect(
     (getByRole("button", { name: "Record" }) as HTMLButtonElement).disabled,
@@ -548,11 +551,11 @@ const SENTENCES: [LearningSpaceState, string | null][] = [
   [learning("assigned"), null],
   [learning("unassigned"), UNASSIGNED_SENTENCE],
   [learning("missing"), MISSING_SENTENCE],
-  // OpenBot could not check the space (Learning delivery off, or Intelligence not answering), but the capture pass still
+  // ShardsOpenBot could not check the space (Learning delivery off, or Intelligence not answering), but the capture pass still
   // joins the person's container, so the recording lands in it: no warning.
   [learning("learning-off"), null],
   [learning("unverified"), null],
-  // OpenBot could not reach the space at all (or was still making it), so the pass names none.
+  // ShardsOpenBot could not reach the space at all (or was still making it), so the pass names none.
   [{ state: "unverified", containerId: null }, UNREACHED_SENTENCE],
 ];
 for (const [space, sentence] of SENTENCES) {
@@ -629,15 +632,15 @@ test("each notice renders its sentence and dismisses", async () => {
     ],
     [
       { kind: "signed-out", at: 1 },
-      "This browser was disconnected from OpenBot. Connect it again.",
+      "This browser was disconnected from ShardsOpenBot. Connect it again.",
     ],
     [
       { kind: "signed-out", at: 1, reason: "organization" },
-      "Your organization sign-in ended. Connect this browser to OpenBot again.",
+      "Your organization sign-in ended. Connect this browser to ShardsOpenBot again.",
     ],
     [
       { kind: "policy-moved", at: 1, origin: "https://moved.example.test" },
-      "Your organization moved the Recorder to https://moved.example.test. Connect it again from OpenBot.",
+      "Your organization moved the Recorder to https://moved.example.test. Connect it again from ShardsOpenBot.",
     ],
   ] as const;
   for (const [notice, sentence] of notices) {
@@ -1103,7 +1106,9 @@ test("outside a Learning space the Learning capture row still says its status an
   expect(queryByText(/^Retrying\./)).toBeNull();
   expect(getByText("Learning capture")).toBeTruthy();
   expect(getByText("Not into a Learning space")).toBeTruthy();
-  expect(getByText(/Automatic Learning is off in this OpenBot/)).toBeTruthy();
+  expect(
+    getByText(/Automatic Learning is off in this ShardsOpenBot/),
+  ).toBeTruthy();
 });
 
 test("a retrying status whose reason does not say so keeps the status word", async () => {
@@ -1142,11 +1147,13 @@ test("a held recording outside a Learning space keeps the pause, its reason and 
   );
   await findByText("Learning capture is paused");
   expect(
-    getByText("OpenBot could not tell Intelligence who you are."),
+    getByText("ShardsOpenBot could not tell Intelligence who you are."),
   ).toBeTruthy();
   expect(getByText(HELD_LINE)).toBeTruthy();
   expect(getByText("Not into a Learning space")).toBeTruthy();
-  expect(getByText(/Automatic Learning is off in this OpenBot/)).toBeTruthy();
+  expect(
+    getByText(/Automatic Learning is off in this ShardsOpenBot/),
+  ).toBeTruthy();
 });
 
 test("a parked recording outside a Learning space says Not into a Learning space too", async () => {
@@ -1162,7 +1169,7 @@ test("a parked recording outside a Learning space says Not into a Learning space
   );
   await findByText("Learning capture is off");
   expect(
-    getByText("OpenBot says this recording belongs to another person."),
+    getByText("ShardsOpenBot says this recording belongs to another person."),
   ).toBeTruthy();
   expect(getByText(PARKED_LINE)).toBeTruthy();
   expect(getByText("Not into a Learning space")).toBeTruthy();
@@ -1178,7 +1185,7 @@ test("a reason that goes on in lower case after its status reads as a sentence o
       },
     }),
   );
-  await findByText("This OpenBot is not connected to Intelligence.");
+  await findByText("This ShardsOpenBot is not connected to Intelligence.");
 });
 
 test("every pass sentence loses its status phrase and starts with a capital", () => {
@@ -1189,11 +1196,11 @@ test("every pass sentence loses its status phrase and starts with a capital", ()
     expect(hint.endsWith(line.slice(1))).toBe(true);
   }
   expect(
-    stripCaptureStatus("This browser was disconnected from OpenBot."),
-  ).toBe("This browser was disconnected from OpenBot.");
+    stripCaptureStatus("This browser was disconnected from ShardsOpenBot."),
+  ).toBe("This browser was disconnected from ShardsOpenBot.");
 });
 
-test("while streaming, a space OpenBot could not check warns nothing, since the pass joined the person's container", async () => {
+test("while streaming, a space ShardsOpenBot could not check warns nothing, since the pass joined the person's container", async () => {
   for (const state of ["learning-off", "unverified"] as const) {
     const view = setup(recording({ learning: { state, containerId: "c1" } }));
     await view.findByText("Streaming to Intelligence");
@@ -1234,8 +1241,8 @@ test("after stop with nothing still sending, the popup says the recording went t
   expect(getByText(INTO_YOUR_SPACE)).toBeTruthy();
   expect(queryByText(/Recorded for/)).toBeNull();
   expect(queryByText(SENDING)).toBeNull();
-  // Nothing about OpenBot keeping it or drafting from it, and nothing to open there.
-  expect(queryByText(/Review it in OpenBot|Saved|draft/)).toBeNull();
+  // Nothing about ShardsOpenBot keeping it or drafting from it, and nothing to open there.
+  expect(queryByText(/Review it in ShardsOpenBot|Saved|draft/)).toBeNull();
   expect(queryByRole("link")).toBeNull();
 });
 
@@ -1270,7 +1277,9 @@ test("after stop with nothing kept, what is still sending says it is sending to 
   );
   await findByText("Sending to Intelligence");
   expect(getByText(SENDING)).toBeTruthy();
-  expect(getByText(/Automatic Learning is off in this OpenBot/)).toBeTruthy();
+  expect(
+    getByText(/Automatic Learning is off in this ShardsOpenBot/),
+  ).toBeTruthy();
   expect(queryByText("Sent to Intelligence")).toBeNull();
   expect(queryByText("Off")).toBeNull();
   expect(queryByText(/Learning capture is (off|paused)/)).toBeNull();
@@ -1295,10 +1304,12 @@ test("after stop, a parked recording still to send says Learning capture is off,
   );
   await findByText("Learning capture is off");
   expect(
-    getByText("This OpenBot is not connected to Intelligence."),
+    getByText("This ShardsOpenBot is not connected to Intelligence."),
   ).toBeTruthy();
   expect(getByText(PARKED_LINE)).toBeTruthy();
-  expect(getByText(/Automatic Learning is off in this OpenBot/)).toBeTruthy();
+  expect(
+    getByText(/Automatic Learning is off in this ShardsOpenBot/),
+  ).toBeTruthy();
   expect(queryByText("Off")).toBeNull();
   // Every drain is kept: nothing is streaming right now.
   expect(queryByText(SENDING)).toBeNull();
@@ -1376,14 +1387,14 @@ test("the kept sentence leaves out the status phrase and starts its reason with 
     }),
   );
   await findByText(
-    "1 event from 1 recording is kept in this browser: This OpenBot is not connected to Intelligence.",
+    "1 event from 1 recording is kept in this browser: This ShardsOpenBot is not connected to Intelligence.",
   );
 });
 
 const WAITING = (recordings: number, events: number) => ({
   recordings,
   events,
-  reason: "This browser was disconnected from OpenBot.",
+  reason: "This browser was disconnected from ShardsOpenBot.",
   parked: true,
   waitingFor: { name: "Ada Lovelace", recordings },
 });
@@ -1393,7 +1404,7 @@ test("kept events waiting on a sign-out name the person and how to send them", a
     stateResponse({ state: { kept: WAITING(2, 40), draining: 2 } }),
   );
   await findByText(
-    "40 events from 2 recordings by Ada Lovelace are kept in this browser for up to 7 days. Connect this browser to OpenBot again as Ada Lovelace to send them.",
+    "40 events from 2 recordings by Ada Lovelace are kept in this browser for up to 7 days. Connect this browser to ShardsOpenBot again as Ada Lovelace to send them.",
   );
 });
 
@@ -1401,15 +1412,15 @@ test("the waiting sentence agrees with one event, and leaves out an event count 
   const cases = [
     [
       WAITING(1, 1),
-      "1 event from 1 recording by Ada Lovelace is kept in this browser for up to 7 days. Connect this browser to OpenBot again as Ada Lovelace to send them.",
+      "1 event from 1 recording by Ada Lovelace is kept in this browser for up to 7 days. Connect this browser to ShardsOpenBot again as Ada Lovelace to send them.",
     ],
     [
       WAITING(1, 0),
-      "1 recording by Ada Lovelace is kept in this browser for up to 7 days. Connect this browser to OpenBot again as Ada Lovelace to send them.",
+      "1 recording by Ada Lovelace is kept in this browser for up to 7 days. Connect this browser to ShardsOpenBot again as Ada Lovelace to send them.",
     ],
     [
       WAITING(2, 0),
-      "2 recordings by Ada Lovelace are kept in this browser for up to 7 days. Connect this browser to OpenBot again as Ada Lovelace to send them.",
+      "2 recordings by Ada Lovelace are kept in this browser for up to 7 days. Connect this browser to ShardsOpenBot again as Ada Lovelace to send them.",
     ],
   ] as const;
   for (const [kept, sentence] of cases) {
@@ -1430,15 +1441,15 @@ test("signed out with recordings kept, the popup says how to send them and Disca
       state: {
         ...STOPPED,
         error:
-          "This browser was disconnected from OpenBot. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.",
+          "This browser was disconnected from ShardsOpenBot. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.",
         kept: WAITING(1, 12),
         draining: 1,
       },
     }),
   );
-  await findByText("Connect the Recorder to OpenBot");
+  await findByText("Connect the Recorder to ShardsOpenBot");
   await findByText(
-    "12 events from 1 recording by Ada Lovelace are kept in this browser for up to 7 days. Connect this browser to OpenBot again as Ada Lovelace to send them.",
+    "12 events from 1 recording by Ada Lovelace are kept in this browser for up to 7 days. Connect this browser to ShardsOpenBot again as Ada Lovelace to send them.",
   );
   // Nothing can send while signed out: no sent row, no sending row.
   expect(queryByText("Sent to Intelligence")).toBeNull();
@@ -1467,7 +1478,7 @@ test("signed out, a Start-over drain that is not kept shows only the kept row: n
     }),
   );
   await findByText(
-    "12 events from 1 recording by Ada Lovelace are kept in this browser for up to 7 days. Connect this browser to OpenBot again as Ada Lovelace to send them.",
+    "12 events from 1 recording by Ada Lovelace are kept in this browser for up to 7 days. Connect this browser to ShardsOpenBot again as Ada Lovelace to send them.",
   );
   expect(queryByText(SENDING)).toBeNull();
   expect(queryByText("Learning capture")).toBeNull();

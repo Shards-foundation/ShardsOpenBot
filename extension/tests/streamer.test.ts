@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import {
   RECORDER_SIGNED_OUT,
   type TrajectoryGrant,
-} from "@openbot/shared/recorder-api";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+} from "@shardsopenbot/shared/recorder-api";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import type {
   CapturedEvent,
   JsonValue,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { IDBKeyRange as FakeIDBKeyRange, IDBFactory } from "fake-indexeddb";
 import {
   classifyGrantError,
@@ -493,7 +493,7 @@ describe("streamer", () => {
     ]);
     expect(payloadOf(stored[0])).toMatchObject({
       recordingId: "rec-1",
-      source: "openbot-recorder",
+      source: "shardsopenbot-recorder",
       version: "0.1.0",
     });
     expect(payloadOf(stored[1])).toMatchObject({
@@ -1431,7 +1431,7 @@ describe("streamer", () => {
     expect(h.closed).toEqual([h.trajectoryId, second, third]);
   });
 
-  test("a rollover never pushes a trajectory past Intelligence's cap, and asks OpenBot for nothing but passes", async () => {
+  test("a rollover never pushes a trajectory past Intelligence's cap, and asks ShardsOpenBot for nothing but passes", async () => {
     const h = await setup({ eventCap: 40 });
     const s = await h.start({}, { rolloverAt: 30 });
     for (let i = 0; i < 98; i++) s.push(click(i));
@@ -1444,7 +1444,7 @@ describe("streamer", () => {
     expect(clicks(chain.flatMap((id) => h.stored(id)))).toEqual(range(98));
     for (const id of chain) expect(h.stored(id).length).toBeLessThanOrEqual(31);
     expect(h.last().events.rejected).toBe(0);
-    // Every rolled-over trajectory streams on its own pass, at once: nothing waits on OpenBot.
+    // Every rolled-over trajectory streams on its own pass, at once: nothing waits on ShardsOpenBot.
     expect([...new Set(h.grants)].sort()).toEqual([...chain].sort());
   });
 

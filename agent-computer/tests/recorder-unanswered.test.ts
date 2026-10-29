@@ -17,9 +17,9 @@ import { join } from "node:path";
  * the moment the launcher hands the worker a message: for three seconds, longer than the two a
  * readiness check allows, and then for good.
  *
- *   OPENBOT_COMPUTER_BROWSER=1 bun test tests/recorder-unanswered.test.ts
+ *   SHARDSOPENBOT_COMPUTER_BROWSER=1 bun test tests/recorder-unanswered.test.ts
  */
-const asked = process.env.OPENBOT_COMPUTER_BROWSER === "1";
+const asked = process.env.SHARDSOPENBOT_COMPUTER_BROWSER === "1";
 
 type Stalled = {
   child: ReturnType<typeof Bun.spawn>;
@@ -29,7 +29,7 @@ type Stalled = {
 const running: Stalled[] = [];
 
 async function stalled(stallMs?: number): Promise<Stalled> {
-  const root = await mkdtemp(join(tmpdir(), "openbot-recorder-stall-"));
+  const root = await mkdtemp(join(tmpdir(), "shardsopenbot-recorder-stall-"));
   const child = Bun.spawn(
     [
       process.execPath,

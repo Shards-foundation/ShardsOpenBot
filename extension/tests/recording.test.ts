@@ -14,8 +14,8 @@ import {
   RECORDER_AUTHORITY_UNAVAILABLE,
   RECORDER_SIGNED_OUT,
   recorderActivitySchema,
-} from "@openbot/shared/recorder-api";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-api";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import type {
   NetworkCaptureDeps,
   NetworkMode,
@@ -61,13 +61,13 @@ const bea = { id: "p2", name: "Bea", email: "bea@example.test" };
 const DEAL = "https://crm.example.test/deals/42";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const SIGNED_OUT =
-  "This browser was disconnected from OpenBot. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.";
+  "This browser was disconnected from ShardsOpenBot. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.";
 const ORGANIZATION_SIGNED_OUT =
   "Your organization sign-in ended. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.";
 const POLICY_MOVED =
-  "Your organization moved the Recorder to another OpenBot. Your recording stopped, and everything in it is kept in this browser for 7 days.";
+  "Your organization moved the Recorder to another ShardsOpenBot. Your recording stopped, and everything in it is kept in this browser for 7 days.";
 const REPLACED =
-  "This browser was connected to another OpenBot or person. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.";
+  "This browser was connected to another ShardsOpenBot or person. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.";
 
 const event = (name: string, value: unknown): CapturedEvent => ({
   type: "CUSTOM",
@@ -78,26 +78,26 @@ const event = (name: string, value: unknown): CapturedEvent => ({
 /** A step the person took in the page, as a content script sends it. */
 const contentEvent = (value: unknown) => event("click", value);
 
-// ---- The fake OpenBot -------------------------------------------------------------------------
+// ---- The fake ShardsOpenBot -------------------------------------------------------------------------
 //
-// The extension asks OpenBot only to connect: who is connected (`me`), the person's Learning space, and Disconnect; and
+// The extension asks ShardsOpenBot only to connect: who is connected (`me`), the person's Learning space, and Disconnect; and
 // tells it what it is doing (activity.ts), which holds nothing recorded. Every other request is recorded, so a test can
-// say OpenBot heard nothing of a recording.
+// say ShardsOpenBot heard nothing of a recording.
 
 type Call = { method: string; path: string; auth: string | null };
 type HeldRoute = "me" | "disconnect";
 
-const openbot = {
+const shardsopenbot = {
   calls: [] as Call[],
-  /** Tokens OpenBot no longer takes: `me` and the Learning space answer signed out for them. */
+  /** Tokens ShardsOpenBot no longer takes: `me` and the Learning space answer signed out for them. */
   revoked: new Set<string>(),
   /** While set, that route's answers wait for it. */
   holds: {} as Partial<Record<HeldRoute, Promise<void>>>,
   me: { status: 200, body: {} as object },
   learning: { state: "assigned", containerId: "space-1" } as LearningSpaceState,
-  /** While set, OpenBot refuses the Learning space with this answer. */
+  /** While set, ShardsOpenBot refuses the Learning space with this answer. */
   learningRefusal: null as { status: number; body: object } | null,
-  /** Every report of what the Recorder is doing, as OpenBot received it. */
+  /** Every report of what the Recorder is doing, as ShardsOpenBot received it. */
   activity: [] as unknown[],
 };
 const meBody = {
@@ -112,13 +112,13 @@ const CONNECTING = new Set([
   "POST /api/recorder/activity",
 ]);
 
-function resetOpenBot() {
-  openbot.calls = [];
-  openbot.revoked = new Set();
-  openbot.holds = {};
-  openbot.me = { status: 200, body: meBody };
-  openbot.learningRefusal = null;
-  openbot.activity = [];
+function resetShardsOpenBot() {
+  shardsopenbot.calls = [];
+  shardsopenbot.revoked = new Set();
+  shardsopenbot.holds = {};
+  shardsopenbot.me = { status: 200, body: meBody };
+  shardsopenbot.learningRefusal = null;
+  shardsopenbot.activity = [];
 }
 
 let server: ReturnType<typeof Bun.serve>;
@@ -132,9 +132,13 @@ beforeAll(() => {
       const url = new URL(request.url);
       const route = `${request.method} ${url.pathname}`;
       const auth = request.headers.get("authorization");
-      openbot.calls.push({ method: request.method, path: url.pathname, auth });
+      shardsopenbot.calls.push({
+        method: request.method,
+        path: url.pathname,
+        auth,
+      });
       const signedOut = () =>
-        auth && openbot.revoked.has(auth.slice(7))
+        auth && shardsopenbot.revoked.has(auth.slice(7))
           ? Response.json(
               {
                 error: "Connect this browser again.",
@@ -145,27 +149,30 @@ beforeAll(() => {
             )
           : null;
       if (route === "GET /api/recorder/me") {
-        if (openbot.holds.me) await openbot.holds.me;
+        if (shardsopenbot.holds.me) await shardsopenbot.holds.me;
         return (
           signedOut() ??
-          Response.json(openbot.me.body, { status: openbot.me.status })
+          Response.json(shardsopenbot.me.body, {
+            status: shardsopenbot.me.status,
+          })
         );
       }
       if (route === "GET /api/recorder/learning")
         return (
           signedOut() ??
-          (openbot.learningRefusal
-            ? Response.json(openbot.learningRefusal.body, {
-                status: openbot.learningRefusal.status,
+          (shardsopenbot.learningRefusal
+            ? Response.json(shardsopenbot.learningRefusal.body, {
+                status: shardsopenbot.learningRefusal.status,
               })
-            : Response.json({ learning: openbot.learning }))
+            : Response.json({ learning: shardsopenbot.learning }))
         );
       if (route === "POST /api/recorder/activity") {
-        openbot.activity.push(await request.json());
+        shardsopenbot.activity.push(await request.json());
         return signedOut() ?? new Response(null, { status: 204 });
       }
       if (route === "DELETE /api/recorder/connections/current") {
-        if (openbot.holds.disconnect) await openbot.holds.disconnect;
+        if (shardsopenbot.holds.disconnect)
+          await shardsopenbot.holds.disconnect;
         return new Response(null, { status: 204 });
       }
       // A connect code is always Bea's here: the person who connects this browser in place of whoever it was connected as.
@@ -181,11 +188,11 @@ beforeAll(() => {
 });
 afterAll(() => server.stop(true));
 
-const requests = () => openbot.calls.map((c) => `${c.method} ${c.path}`);
-/** OpenBot's calls other than the reports of what the Recorder is doing (activity.ts), which hold nothing recorded. */
+const requests = () => shardsopenbot.calls.map((c) => `${c.method} ${c.path}`);
+/** ShardsOpenBot's calls other than the reports of what the Recorder is doing (activity.ts), which hold nothing recorded. */
 const callsBeyondActivity = () =>
-  openbot.calls.filter((call) => call.path !== "/api/recorder/activity");
-/** What OpenBot heard beyond connecting: nothing, ever, about a recording. */
+  shardsopenbot.calls.filter((call) => call.path !== "/api/recorder/activity");
+/** What ShardsOpenBot heard beyond connecting: nothing, ever, about a recording. */
 const recordingRequests = () =>
   requests().filter((request) => !CONNECTING.has(request));
 
@@ -357,7 +364,7 @@ let hostAccess = true;
 let handlers: ReturnType<typeof installRecording>;
 let restoreVariant: (() => void) | null = null;
 
-/** The waits outside the fake OpenBot a test can hold: a double's answer, or the document saying ready. */
+/** The waits outside the fake ShardsOpenBot a test can hold: a double's answer, or the document saying ready. */
 type GateName = "host" | "policy" | "document" | "networkStart" | "networkStop";
 let gates: Partial<Record<GateName, Promise<void>>> = {};
 /** The gates something has reached while they were held. */
@@ -403,15 +410,16 @@ function holdStorage(
   };
   return { hit: () => seen === nth, open: held.open };
 }
-/** Holds a route of the fake OpenBot from now on; reached once a request to it arrives. */
+/** Holds a route of the fake ShardsOpenBot from now on; reached once a request to it arrives. */
 function holdRoute(route: HeldRoute, path: string) {
   const held = gate();
-  const from = openbot.calls.length;
-  openbot.holds[route] = held.promise;
+  const from = shardsopenbot.calls.length;
+  shardsopenbot.holds[route] = held.promise;
   return {
-    hit: () => openbot.calls.slice(from).some((call) => call.path === path),
+    hit: () =>
+      shardsopenbot.calls.slice(from).some((call) => call.path === path),
     open: () => {
-      delete openbot.holds[route];
+      delete shardsopenbot.holds[route];
       held.open();
     },
   };
@@ -521,7 +529,7 @@ function doubles(): Partial<RecordingDeps> {
 
 function connect(user = ada, token = "obr_one") {
   fake.storage.local.set("connection", {
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token,
     connectionId: `c-${token}`,
     user,
@@ -615,7 +623,7 @@ beforeEach(() => {
   docPoll = setInterval(answerAsDocument, 1);
   timers = [];
   now = 1_800_000_000_000;
-  resetOpenBot();
+  resetShardsOpenBot();
   network = {
     calls: [],
     recorded: [],
@@ -650,8 +658,8 @@ beforeEach(() => {
   acceptAnswer = null;
   accepted = [];
   policy = {
-    openbotUrl: null,
-    openbotUrlInvalid: false,
+    shardsopenbotUrl: null,
+    shardsopenbotUrlInvalid: false,
     allowedIntelligenceUrls: null,
   };
   hostAccess = true;
@@ -680,7 +688,7 @@ function useVariant(value: string) {
 
 // ---- Record ------------------------------------------------------------------------------------
 
-test("Record opens the document and starts a new trajectory for the picked Bot, telling OpenBot nothing", async () => {
+test("Record opens the document and starts a new trajectory for the picked Bot, telling ShardsOpenBot nothing", async () => {
   // The person chose to narrate (the setup page, or the Record form).
   fake.storage.local.set("narration", "on");
   const id = await startRecording({
@@ -701,7 +709,7 @@ test("Record opens the document and starts a new trajectory for the picked Bot, 
   expect(start.session).toEqual({
     recordingId: id,
     title: "Update deal",
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token: "obr_one",
     trajectoryId: expect.stringMatching(UUID),
     startedAt: now,
@@ -733,7 +741,7 @@ test("Record opens the document and starts a new trajectory for the picked Bot, 
   expect(active()).toEqual({
     recordingId: id,
     title: "Update deal",
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     userId: "p1",
     userName: "Ada",
     trajectoryIds: [start.session.trajectoryId],
@@ -753,7 +761,7 @@ test("Record opens the document and starts a new trajectory for the picked Bot, 
   expect(fake.badge).toEqual({ text: "REC", color: "#e7000b" });
 });
 
-test("the microphone stays closed until the person chooses to narrate, and OpenBot's own Record can ask for it", async () => {
+test("the microphone stays closed until the person chooses to narrate, and ShardsOpenBot's own Record can ask for it", async () => {
   // Nobody chose yet: the recording starts muted, and its Voice row says so.
   const first = await startRecording({ title: "T", tabId: 7 });
   const start = (recordingId: string) =>
@@ -781,7 +789,7 @@ test("the microphone stays closed until the person chooses to narrate, and OpenB
   await page({ type: "page.stop" });
   await until(async () => (await state()).phase === "idle", "idle");
 
-  // OpenBot's own Record form asked the person, and they said yes: that recording narrates.
+  // ShardsOpenBot's own Record form asked the person, and they said yes: that recording narrates.
   const third = await startRecording({ title: "T", tabId: 7, narrate: true });
   const asked = start(third);
   if (asked?.type !== "offscreen.start") throw new Error("No start");
@@ -790,7 +798,7 @@ test("the microphone stays closed until the person chooses to narrate, and OpenB
   expect(fake.storage.local.get("narration")).toBe("off");
 });
 
-test("Record copies the person's own Learning space, as OpenBot last described it", async () => {
+test("Record copies the person's own Learning space, as ShardsOpenBot last described it", async () => {
   await page({ type: "page.learning" });
   await record();
   expect((await state()).learning).toEqual({
@@ -861,13 +869,13 @@ test("Record after the person took website access away in the browser's settings
   expect(await page({ type: "page.record", title: "T", tabId: 7 })).toEqual({
     ok: false,
     error:
-      "Site access is off for OpenBot Recorder. Open your browser's Extensions page, choose Details on OpenBot Recorder and set Site access to On all sites.",
+      "Site access is off for ShardsOpenBot Recorder. Open your browser's Extensions page, choose Details on ShardsOpenBot Recorder and set Site access to On all sites.",
   });
   expect(fake.offscreen.created).toEqual([]);
   expect(await state()).toMatchObject({
     phase: "idle",
     error:
-      "Site access is off for OpenBot Recorder. Open your browser's Extensions page, choose Details on OpenBot Recorder and set Site access to On all sites.",
+      "Site access is off for ShardsOpenBot Recorder. Open your browser's Extensions page, choose Details on ShardsOpenBot Recorder and set Site access to On all sites.",
   });
 });
 
@@ -881,7 +889,7 @@ test("Record without a connection is refused", async () => {
   });
   expect(answer).toEqual({
     ok: false,
-    error: "Connect this browser to OpenBot first.",
+    error: "Connect this browser to ShardsOpenBot first.",
   });
   expect(fake.offscreen.created).toEqual([]);
   expect((await state()).phase).toBe("idle");
@@ -1080,7 +1088,7 @@ test("the popup keeps the person's Learning space after Stop when Chrome stopped
     lastStopped: { recordingId: id },
     learning: { state: "assigned", containerId: "space-1" },
   });
-  // Nothing more was asked of OpenBot for it: Record still tells OpenBot nothing.
+  // Nothing more was asked of ShardsOpenBot for it: Record still tells ShardsOpenBot nothing.
   expect(
     requests().filter((request) => request === "GET /api/recorder/learning"),
   ).toHaveLength(1);
@@ -1955,9 +1963,9 @@ test("a signed-out pass names its reason and keeps everything for the person", a
   ]);
 });
 
-test("a signed-out answer the popup gets from OpenBot forgets the connection and stops the recording that used it, keeping everything", async () => {
+test("a signed-out answer the popup gets from ShardsOpenBot forgets the connection and stops the recording that used it, keeping everything", async () => {
   const id = await record();
-  openbot.revoked.add("obr_one");
+  shardsopenbot.revoked.add("obr_one");
   const answer = (await page({ type: "page.state" })) as PageStateResponse;
   expect(answer).toMatchObject({ ok: true, connection: null, me: null });
   expect(storedConnection()).toBeUndefined();
@@ -1975,7 +1983,7 @@ test("a signed-out answer the popup gets from OpenBot forgets the connection and
 
 test("a signed-out answer to the Learning space does the same", async () => {
   await record();
-  openbot.revoked.add("obr_one");
+  shardsopenbot.revoked.add("obr_one");
   const answer = await page({ type: "page.learning" });
   expect(answer.ok).toBe(false);
   expect(storedConnection()).toBeUndefined();
@@ -2008,7 +2016,7 @@ test("connecting again as the same person sends what was kept; another person do
   );
   expect(sentToDocument("offscreen.recover")[0]).toMatchObject({
     type: "offscreen.recover",
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token: "obr_two",
     allowedIntelligenceUrls: null,
     drains: [{ recordingId: id, userId: "p1" }],
@@ -2118,7 +2126,7 @@ test("a sign-out the document reports for the stored connection forgets it, tell
   expect(await page({ type: "page.stop" })).toEqual({ ok: true });
   const own = drains()[0] as DrainRecord;
   expect(own).toMatchObject({ recordingId: id, userId: "p1" });
-  // Drains no connection of Ada's here sends: Bea's, and Ada's own on another OpenBot.
+  // Drains no connection of Ada's here sends: Bea's, and Ada's own on another ShardsOpenBot.
   const beas: DrainRecord = {
     ...own,
     recordingId: "rec-bea",
@@ -2128,7 +2136,7 @@ test("a sign-out the document reports for the stored connection forgets it, tell
   const elsewhere: DrainRecord = {
     ...own,
     recordingId: "rec-elsewhere",
-    openbotUrl: "https://other-openbot.example.test",
+    shardsopenbotUrl: "https://other-shardsopenbot.example.test",
   };
   fake.storage.local.set("drains", [own, beas, elsewhere]);
   doc?.postMessage({
@@ -2152,7 +2160,7 @@ test("a sign-out the document reports for the stored connection forgets it, tell
   expect(drains().slice(1)).toEqual([beas, elsewhere]);
 });
 
-test("a sign-out that stops the running recording keeps waiting only the person's drains on this OpenBot", async () => {
+test("a sign-out that stops the running recording keeps waiting only the person's drains on this ShardsOpenBot", async () => {
   fake.tabs.set(7, { id: 7, url: "chrome://newtab/" } as chrome.tabs.Tab);
   await record();
   expect(await page({ type: "page.stop" })).toEqual({ ok: true });
@@ -2160,7 +2168,7 @@ test("a sign-out that stops the running recording keeps waiting only the person'
   const elsewhere: DrainRecord = {
     ...own,
     recordingId: "rec-elsewhere",
-    openbotUrl: "https://other-openbot.example.test",
+    shardsopenbotUrl: "https://other-shardsopenbot.example.test",
   };
   fake.storage.local.set("drains", [own, elsewhere]);
   const second = await record();
@@ -2464,7 +2472,7 @@ test("Disconnect clears a sentence that says everything is kept until you connec
 
 test("connecting again clears the sentence that the stopped recording waits for a connection, so the popup no longer says both sent and kept", async () => {
   // Run 6: after the person connected the browser again, the popup said "Sent to Intelligence" above "This browser was
-  // disconnected from OpenBot ... kept in this browser for 7 days, until you connect again".
+  // disconnected from ShardsOpenBot ... kept in this browser for 7 days, until you connect again".
   fake.tabs.set(7, { id: 7, url: "chrome://newtab/" } as chrome.tabs.Tab);
   const id = await record();
   doc?.postMessage({
@@ -2497,9 +2505,9 @@ test("connecting again clears the sentence that the stopped recording waits for 
 // ---- A connection lost without a Disconnect ---------------------------------------------------
 
 const meChecks = () =>
-  openbot.calls.filter((call) => call.path === "/api/recorder/me");
+  shardsopenbot.calls.filter((call) => call.path === "/api/recorder/me");
 
-test("while a recording runs OpenBot is asked every 30 s whether its connection stands, and a browser revoked in OpenBot ends the recording as signed out", async () => {
+test("while a recording runs ShardsOpenBot is asked every 30 s whether its connection stands, and a browser revoked in ShardsOpenBot ends the recording as signed out", async () => {
   const id = await record();
   const document = doc;
   await advance(29_999);
@@ -2511,8 +2519,8 @@ test("while a recording runs OpenBot is asked every 30 s whether its connection 
   await until(() => meChecks().length === 2, "the second check");
   expect((await state()).phase).toBe("recording");
 
-  // The person revokes this browser in OpenBot's Settings: the next check ends the recording through the sign-out path.
-  openbot.revoked.add("obr_one");
+  // The person revokes this browser in ShardsOpenBot's Settings: the next check ends the recording through the sign-out path.
+  shardsopenbot.revoked.add("obr_one");
   await advance(30_000);
   await until(async () => (await state()).phase === "idle", "the stop");
   expect(storedConnection()).toBeUndefined();
@@ -2538,7 +2546,7 @@ test("while a recording runs OpenBot is asked every 30 s whether its connection 
   expect(meChecks()).toHaveLength(checks);
 });
 
-test("a connection check that cannot reach OpenBot, or gets an error page, is no sign-out: the recording goes on and the next check asks again", async () => {
+test("a connection check that cannot reach ShardsOpenBot, or gets an error page, is no sign-out: the recording goes on and the next check asks again", async () => {
   await record();
   const realFetch = globalThis.fetch;
   const refused: string[] = [];
@@ -2562,9 +2570,15 @@ test("a connection check that cannot reach OpenBot, or gets an error page, is no
   expect((await state()).phase).toBe("recording");
   expect(storedConnection()?.token).toBe("obr_one");
 
-  openbot.me = { status: 503, body: { error: "OpenBot is restarting." } };
+  shardsopenbot.me = {
+    status: 503,
+    body: { error: "ShardsOpenBot is restarting." },
+  };
   await advance(30_000);
-  await until(() => meChecks().length === 1, "the check OpenBot answers 503");
+  await until(
+    () => meChecks().length === 1,
+    "the check ShardsOpenBot answers 503",
+  );
   await settle();
   expect((await state()).phase).toBe("recording");
   expect(storedConnection()?.token).toBe("obr_one");
@@ -2642,7 +2656,8 @@ test("a policy that moves the Recorder away stops the recording, halts the docum
       recordingId: first,
       kept: {
         waitingForReconnect: true,
-        reason: "Your organization moved the Recorder to another OpenBot.",
+        reason:
+          "Your organization moved the Recorder to another ShardsOpenBot.",
       },
     },
     { recordingId: second, kept: { waitingForReconnect: true } },
@@ -2661,10 +2676,10 @@ test("a Connect approved as another person stops the live recording, halts the o
     const recorder = changes.recorder?.newValue as RecorderState | undefined;
     if (area === "session" && recorder?.error) stoppedWith.push(recorder.error);
   });
-  // OpenBot's page asks to connect this browser; this browser is connected already, so the person is asked.
+  // ShardsOpenBot's page asks to connect this browser; this browser is connected already, so the person is asked.
   expect(
     await fake.sendExternal(
-      { type: "openbot.connect", code: "obc_bea" },
+      { type: "shardsopenbot.connect", code: "obc_bea" },
       { origin },
     ),
   ).toEqual({ ok: true, awaitingConfirmation: true });
@@ -2697,7 +2712,7 @@ test("a Connect approved as another person stops the live recording, halts the o
     phase: "idle",
     kept: {
       recordings: 2,
-      reason: "This browser was connected to another OpenBot or person.",
+      reason: "This browser was connected to another ShardsOpenBot or person.",
       waitingFor: { name: "Ada", recordings: 2 },
     },
   });
@@ -2710,7 +2725,8 @@ test("a Connect approved as another person stops the live recording, halts the o
       userId: ada.id,
       kept: {
         waitingForReconnect: true,
-        reason: "This browser was connected to another OpenBot or person.",
+        reason:
+          "This browser was connected to another ShardsOpenBot or person.",
       },
     },
     {
@@ -2719,8 +2735,8 @@ test("a Connect approved as another person stops the live recording, halts the o
       kept: { waitingForReconnect: true },
     },
   ]);
-  // Ada's token is revoked at her OpenBot once nothing uses it, so no live token is left that this browser lost.
-  const revokes = openbot.calls.filter(
+  // Ada's token is revoked at her ShardsOpenBot once nothing uses it, so no live token is left that this browser lost.
+  const revokes = shardsopenbot.calls.filter(
     (call) =>
       call.method === "DELETE" &&
       call.path === "/api/recorder/connections/current",
@@ -2728,8 +2744,8 @@ test("a Connect approved as another person stops the live recording, halts the o
   expect(revokes.map((call) => call.auth)).toEqual(["Bearer obr_one"]);
 });
 
-test("Record refuses a connection whose OpenBot the policy no longer allows, and starts nothing", async () => {
-  policy = { ...policy, openbotUrl: "https://moved.example.test" };
+test("Record refuses a connection whose ShardsOpenBot the policy no longer allows, and starts nothing", async () => {
+  policy = { ...policy, shardsopenbotUrl: "https://moved.example.test" };
   fake.tabs.set(7, { id: 7, url: DEAL } as chrome.tabs.Tab);
   const answer = await page({
     type: "page.record",
@@ -2739,7 +2755,7 @@ test("Record refuses a connection whose OpenBot the policy no longer allows, and
   expect(answer).toEqual({
     ok: false,
     error:
-      "Your organization's Recorder policy does not allow this OpenBot. Ask your IT team.",
+      "Your organization's Recorder policy does not allow this ShardsOpenBot. Ask your IT team.",
   });
   expect(sentToDocument("offscreen.start")).toEqual([]);
   expect(active()).toBeUndefined();
@@ -2813,7 +2829,7 @@ test("the network capture is handed the fallback and the controller never calls 
   await record();
   expect(fallback.created).toBe(1);
   expect(network.options?.fallback).toBe(fallback.value);
-  expect(network.deps?.openbotUrl()).toBe(origin);
+  expect(network.deps?.shardsopenbotUrl()).toBe(origin);
   network.deps?.status("page", "Chrome refused the debugger here.");
   fake.webNavigation.createdTarget({
     sourceTabId: 7,
@@ -2839,7 +2855,7 @@ test("the network capture is handed the fallback and the controller never calls 
   });
   await page({ type: "page.stop" });
   expect(fallback.calls).toEqual([]);
-  expect(network.deps?.openbotUrl()).toBeNull();
+  expect(network.deps?.shardsopenbotUrl()).toBeNull();
 });
 
 test("a step goes out once its save is known, carrying it; a call after the recording stopped changes nothing", async () => {
@@ -3718,7 +3734,7 @@ test("steps leave in the order they came, from every frame and followed tab", as
   expect((await state()).actions).toBe(4);
 });
 
-test("a whole recording, Start over included, asks OpenBot for nothing, and tells it only what the Recorder is doing", async () => {
+test("a whole recording, Start over included, asks ShardsOpenBot for nothing, and tells it only what the Recorder is doing", async () => {
   await page({ type: "page.learning" });
   const content = contentPort(7);
   await record();
@@ -3735,18 +3751,18 @@ test("a whole recording, Start over included, asks OpenBot for nothing, and tell
     requests().filter((request) => request !== "POST /api/recorder/activity"),
   ).toEqual(["GET /api/recorder/learning"]);
   // The phase, the recording's id, title and start, and a count: never a step, an address or anything typed.
-  expect(openbot.activity.length).toBeGreaterThan(0);
-  for (const report of openbot.activity)
+  expect(shardsopenbot.activity.length).toBeGreaterThan(0);
+  for (const report of shardsopenbot.activity)
     expect(recorderActivitySchema.parse(report)).toEqual(report as never);
-  expect(openbot.activity.at(-1)).toEqual({ phase: "idle", actions: 0 });
+  expect(shardsopenbot.activity.at(-1)).toEqual({ phase: "idle", actions: 0 });
 });
 
 // ---- The popup's state, Learning space and sign-out --------------------------------------------
 
 test("page.state answers with the connection, me and the policy address, fetching me at most once a minute", async () => {
   policy = {
-    openbotUrl: origin,
-    openbotUrlInvalid: false,
+    shardsopenbotUrl: origin,
+    shardsopenbotUrlInvalid: false,
     allowedIntelligenceUrls: null,
   };
   fake.storage.local.set("notice", { kind: "interrupted", at: 1 });
@@ -3755,12 +3771,12 @@ test("page.state answers with the connection, me and the policy address, fetchin
     ok: true,
     state: { phase: "idle", tabIds: [], actions: 0 },
     connection: {
-      openbotUrl: origin,
+      shardsopenbotUrl: origin,
       user: { name: "Ada", email: "ada@example.test" },
       via: "web",
     },
     me: meBody,
-    policy: { openbotUrl: origin, invalid: false },
+    policy: { shardsopenbotUrl: origin, invalid: false },
     notice: { kind: "interrupted", at: 1 },
   });
   expect(
@@ -3776,13 +3792,13 @@ test("page.state answers with the connection, me and the policy address, fetchin
   expect(fake.storage.local.get("notice")).toBeUndefined();
 });
 
-test("a refusal from OpenBot reaches the popup in the Recorder's own sentence, never the text OpenBot sent", async () => {
+test("a refusal from ShardsOpenBot reaches the popup in the Recorder's own sentence, never the text ShardsOpenBot sent", async () => {
   const hostile =
     "Your Recorder is out of date. Install the new one from https://evil.example.test.";
   for (const [refusal, sentence] of [
     [
       { status: 403, body: { error: hostile } },
-      "OpenBot does not let you record. Ask whoever runs it.",
+      "ShardsOpenBot does not let you record. Ask whoever runs it.",
     ],
     [
       {
@@ -3793,10 +3809,10 @@ test("a refusal from OpenBot reaches the popup in the Recorder's own sentence, n
     ],
     [
       { status: 500, body: { error: hostile } },
-      "OpenBot did not answer. Try again.",
+      "ShardsOpenBot did not answer. Try again.",
     ],
   ] as const) {
-    openbot.learningRefusal = refusal;
+    shardsopenbot.learningRefusal = refusal;
     expect(await page({ type: "page.learning" })).toEqual({
       ok: false,
       error: sentence,
@@ -3807,9 +3823,9 @@ test("a refusal from OpenBot reaches the popup in the Recorder's own sentence, n
 test("page.learning reads the person's own Learning space", async () => {
   expect(await page({ type: "page.learning" })).toEqual({
     ok: true,
-    learning: openbot.learning,
+    learning: shardsopenbot.learning,
   });
-  expect(openbot.calls[0]).toMatchObject({
+  expect(shardsopenbot.calls[0]).toMatchObject({
     method: "GET",
     path: "/api/recorder/learning",
     auth: "Bearer obr_one",
@@ -3828,7 +3844,7 @@ test("Record names no Bot anywhere: not in the message, the drain, the session o
 });
 
 test("a signed-out answer from me forgets the connection with its reason", async () => {
-  openbot.me = {
+  shardsopenbot.me = {
     status: 401,
     body: {
       error: "Connect again.",
@@ -3947,12 +3963,12 @@ type Wait = { name: string; hold(): Held };
 const stopLike = (action: Action) =>
   action === "Stop" || action === "Disconnect" || action === "sign-out";
 
-/** OpenBot ends the connection: every request with its token is answered signed out from then on. The Recorder hears
+/** ShardsOpenBot ends the connection: every request with its token is answered signed out from then on. The Recorder hears
  * of it from the document's pass (`document`), or from the popup asking for its state (`popup`). */
 async function signOut(via: Delivery): Promise<undefined> {
   const connection = storedConnection();
   if (!connection) return undefined;
-  openbot.revoked.add(connection.token);
+  shardsopenbot.revoked.add(connection.token);
   if (via === "document" && doc) {
     doc.postMessage({
       type: "offscreen.signed-out",
@@ -4062,7 +4078,7 @@ const restartWaits: Wait[] = [
 ];
 const disconnectWaits: Wait[] = [
   {
-    name: "OpenBot forgetting the connection",
+    name: "ShardsOpenBot forgetting the connection",
     hold: () => holdRoute("disconnect", "/api/recorder/connections/current"),
   },
   {
@@ -4100,7 +4116,7 @@ const documentSignOutWaits: Wait[] = [
 ];
 const popupSignOutWaits: Wait[] = [
   {
-    name: "OpenBot's signed-out answer",
+    name: "ShardsOpenBot's signed-out answer",
     hold: () => holdRoute("me", "/api/recorder/me"),
   },
   {
@@ -4188,7 +4204,7 @@ async function settleAll(
     let before = "";
     for (let round = 0; round < 40; round++) {
       await settle();
-      const after = `${openbot.calls.length} ${fake.calls.length} ${timers.length}`;
+      const after = `${shardsopenbot.calls.length} ${fake.calls.length} ${timers.length}`;
       if (after === before) return;
       before = after;
     }
@@ -4220,7 +4236,7 @@ async function interleavingViolations(run: {
   const stream = fake.storage.session.get("stream") as
     | StreamSession
     | undefined;
-  const live = network.deps?.openbotUrl() ?? null;
+  const live = network.deps?.shardsopenbotUrl() ?? null;
   const toDoc = everyDocumentMessage();
   const captures = captureMessages(run.content) as {
     active: boolean;
@@ -4346,7 +4362,7 @@ async function interleavingViolations(run: {
       problems.push(`(iii) Disconnect left the error "${s.error}"`);
   }
   if (recordingRequests().length > 0)
-    problems.push(`OpenBot heard ${recordingRequests().join(", ")}`);
+    problems.push(`ShardsOpenBot heard ${recordingRequests().join(", ")}`);
   return problems;
 }
 

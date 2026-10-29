@@ -12,7 +12,7 @@ import { DEFAULT_SKIN, SKIN_IDS, type SkinId } from "./types";
  * the account always wins. Signing out clears the cache, so the next person on a shared machine
  * starts from the default.
  */
-export const SKIN_STORAGE_KEY = "openbot-skin";
+export const SKIN_STORAGE_KEY = "shardsopenbot-skin";
 
 export { DEFAULT_SKIN };
 

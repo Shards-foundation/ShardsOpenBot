@@ -1,8 +1,8 @@
-import { SHOW_APP_ACCESS_TOOL } from "@openbot/shared/connect-prompt";
+import { SHOW_APP_ACCESS_TOOL } from "@shardsopenbot/shared/connect-prompt";
 import {
   RESEARCH_ROLE_LABELS,
   researchRoleOfTool,
-} from "@openbot/shared/research";
+} from "@shardsopenbot/shared/research";
 
 /**
  * A tool call, named the way the person watching would name it.

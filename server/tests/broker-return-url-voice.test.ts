@@ -11,7 +11,7 @@ import {
  * The sentences used to spell `Composio` as a literal, on a function that took no provider at all
  * — so an Arcade deployment, which is the only kind that reaches the authorize route this refusal
  * guards, told a person a failure involving a vendor it does not use. They also handed that person
- * `OPENBOT_APP_URL`, which is an environment variable nobody but an operator can set.
+ * `SHARDSOPENBOT_APP_URL`, which is an environment variable nobody but an operator can set.
  *
  * So these pin both halves, exactly as `broker-unconfigured-voice.test.ts` pins them for the
  * unconfigured sentence: what reaches the person names no vendor and no setting (spec D11), and
@@ -26,7 +26,10 @@ import {
 /** Every way a return address can be refused, with the address that provokes it. */
 const REFUSALS = [
   { kind: "never built", address: "   " },
-  { kind: "not a web address", address: "openbot.example.com/settings/x" },
+  {
+    kind: "not a web address",
+    address: "shardsopenbot.example.com/settings/x",
+  },
 ] as const;
 
 function refusalOf(address: string, provider: "composio" | "arcade") {
@@ -45,7 +48,7 @@ describe("brokerReturnUrl, as a person reads it", () => {
       for (const provider of ["composio", "arcade"] as const) {
         const error = refusalOf(address, provider);
         expect(error.message).not.toMatch(/composio|arcade/i);
-        expect(error.message).not.toMatch(/OPENBOT_APP_URL|API_KEY/);
+        expect(error.message).not.toMatch(/SHARDSOPENBOT_APP_URL|API_KEY/);
         // The route answers with this one, so it is the one that must be safe.
         expect(brokerSentence(error)).toBe(error.message);
       }
@@ -60,7 +63,7 @@ describe("brokerReturnUrl, as a person reads it", () => {
 
   test("the two mistakes stay two sentences", () => {
     expect(refusalOf("   ", "arcade").message).not.toBe(
-      refusalOf("openbot.example.com/settings/x", "arcade").message,
+      refusalOf("shardsopenbot.example.com/settings/x", "arcade").message,
     );
   });
 });
@@ -85,18 +88,18 @@ describe("brokerReturnUrl, as an operator reads it", () => {
   test("the remedy is named to the only reader who can apply it", () => {
     for (const { address } of REFUSALS) {
       expect(refusalOf(address, "arcade").operatorMessage).toContain(
-        "OPENBOT_APP_URL",
+        "SHARDSOPENBOT_APP_URL",
       );
     }
   });
 
   test("neither sentence quotes the address it refused", () => {
-    const address = "openbot-tenant-42.internal.corp/connections/9f3c";
+    const address = "shardsopenbot-tenant-42.internal.corp/connections/9f3c";
     const error = refusalOf(address, "arcade");
 
     for (const sentence of [error.message, error.operatorMessage]) {
       expect(sentence).not.toContain(address);
-      expect(sentence).not.toContain("openbot-tenant-42.internal.corp");
+      expect(sentence).not.toContain("shardsopenbot-tenant-42.internal.corp");
       expect(sentence).not.toContain("/connections/9f3c");
     }
   });

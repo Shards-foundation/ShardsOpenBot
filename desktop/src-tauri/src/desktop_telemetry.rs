@@ -2,7 +2,7 @@
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 
-use openbot_desktop_lib::{engine, quiet, telemetry};
+use shardsopenbot_desktop_lib::{engine, quiet, telemetry};
 use tauri::Manager;
 
 pub struct DesktopTelemetry {
@@ -120,7 +120,7 @@ pub fn record<R: tauri::Runtime>(app: &tauri::AppHandle<R>, event: telemetry::Ev
     }
     let emitter = Arc::clone(&state.emitter);
     if std::thread::Builder::new()
-        .name("openbot-telemetry".into())
+        .name("shardsopenbot-telemetry".into())
         .spawn(move || {
             if emitter.flush().is_err() {
                 eprintln!("[telemetry] delivery deferred until the next flush");
@@ -143,7 +143,7 @@ pub fn observe_engine<R: tauri::Runtime>(app: &tauri::AppHandle<R>, status: &eng
         let _ = state.emitter.update_engine(kind);
         if let Ok(mut env) = state.runtime_env.lock() {
             env.insert(
-                "OPENBOT_ENGINE".into(),
+                "SHARDSOPENBOT_ENGINE".into(),
                 engine.map(|value| value.binary()).unwrap_or("none").into(),
             );
         }
@@ -181,7 +181,7 @@ pub fn failure<R: tauri::Runtime>(
 
 pub fn pull_completed<R: tauri::Runtime>(
     app: &tauri::AppHandle<R>,
-    metrics: openbot_desktop_lib::pull_metrics::PullMetrics,
+    metrics: shardsopenbot_desktop_lib::pull_metrics::PullMetrics,
 ) {
     record(
         app,

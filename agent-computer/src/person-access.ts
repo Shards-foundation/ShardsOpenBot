@@ -20,7 +20,7 @@ import {
   isPersonBrowserId,
   PEOPLE_ONLY_ENV,
   realBrowserComputerPaths,
-} from "../../shared/openbot-browser";
+} from "../../shared/shardsopenbot-browser";
 
 /** Why a Bot route is refused for a person's browser id. */
 export const PERSONS_OWN_BROWSER =
@@ -39,7 +39,7 @@ export class BrowserNotOpenError extends Error {
 
 const PERSON_PATHS = new Set<string>([
   ...Object.values(browserComputerPaths),
-  // The person's own everyday browser, on OpenBot Desktop: brought forward, or shown the
+  // The person's own everyday browser, on ShardsOpenBot Desktop: brought forward, or shown the
   // Recorder's store page. Nothing in it is read or driven (see real-browser.ts).
   ...Object.values(realBrowserComputerPaths),
   // The live screen, and the person's own input through it.
@@ -84,7 +84,7 @@ export function personHoldsTheWheel(since: string): ComputerControlState {
  * prompt-injected Bot could read `/profiles/person-<hex>/Default/Cookies` straight off the disk. So the computer
  * decides this for itself, from what it was started with, as well as the server deciding where to send the person:
  *
- *   - `people`: OpenBot Desktop's host-side computer (`COMPUTER_PEOPLE_ONLY=on`), which runs people's own browsers and
+ *   - `people`: ShardsOpenBot Desktop's host-side computer (`COMPUTER_PEOPLE_ONLY=on`), which runs people's own browsers and
  *     no Bot.
  *   - `one`: a computer started for one id (`COMPUTER_BOT_ID`), which is how a supervisor starts each container and a
  *     Sandbox each pod. Started for a person's browser, it runs that browser and nothing else.
@@ -104,10 +104,10 @@ export function computerOwner(
   return id ? { kind: "one", id } : { kind: "shared" };
 }
 
-/** Why a person's browser is refused on a computer Bots run on. Said to whoever runs OpenBot: the server tells the
+/** Why a person's browser is refused on a computer Bots run on. Said to whoever runs ShardsOpenBot: the server tells the
  * person their browser cannot open and who can see to it. */
 export const NOT_ITS_OWN_COMPUTER =
-  "A person's own browser runs only on a computer of its own, and Bots run on this one. Give people's browsers their own computers (COMPUTER_SUPERVISOR_URL or a Sandbox), or OpenBot Desktop's.";
+  "A person's own browser runs only on a computer of its own, and Bots run on this one. Give people's browsers their own computers (COMPUTER_SUPERVISOR_URL or a Sandbox), or ShardsOpenBot Desktop's.";
 
 /** Why anything but its own browser is refused on a person's computer. */
 export const ONLY_THE_PERSONS =

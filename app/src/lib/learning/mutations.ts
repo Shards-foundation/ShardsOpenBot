@@ -1,4 +1,4 @@
-import type { LearningSharingMode } from "@openbot/shared/learning";
+import type { LearningSharingMode } from "@shardsopenbot/shared/learning";
 import { mutationOptions, type QueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { learningKeys } from "./queries";

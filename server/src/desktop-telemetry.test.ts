@@ -5,31 +5,31 @@ describe("desktop runtime metadata", () => {
   test("leaves ordinary server deployments untagged", () => {
     expect(desktopTelemetryProperties({})).toEqual({});
     expect(
-      desktopTelemetryProperties({ OPENBOT_DISTRIBUTION: "server" }),
+      desktopTelemetryProperties({ SHARDSOPENBOT_DISTRIBUTION: "server" }),
     ).toEqual({});
   });
 
   test("carries only the shell's bounded metadata", () => {
     expect(
       desktopTelemetryProperties({
-        OPENBOT_DISTRIBUTION: "desktop",
-        OPENBOT_VERSION: "0.0.9",
-        OPENBOT_PLATFORM: "macos",
-        OPENBOT_ARCH: "aarch64",
-        OPENBOT_OS_VERSION: "15.6.1",
-        OPENBOT_ENGINE: "podman",
+        SHARDSOPENBOT_DISTRIBUTION: "desktop",
+        SHARDSOPENBOT_VERSION: "0.0.9",
+        SHARDSOPENBOT_PLATFORM: "macos",
+        SHARDSOPENBOT_ARCH: "aarch64",
+        SHARDSOPENBOT_OS_VERSION: "15.6.1",
+        SHARDSOPENBOT_ENGINE: "podman",
         OPENAI_API_KEY: "synthetic-secret",
         CPK_TELEMETRY_ID: "identity-belongs-in-the-transport",
         HOME: "/Users/private-name",
-        OPENBOT_BASE_URL: "https://private.example",
+        SHARDSOPENBOT_BASE_URL: "https://private.example",
       }),
     ).toEqual({
-      openbot_distribution: "desktop",
-      openbot_version: "0.0.9",
-      openbot_platform: "macos",
-      openbot_arch: "aarch64",
-      openbot_os_version: "15.6.1",
-      openbot_engine: "podman",
+      shardsopenbot_distribution: "desktop",
+      shardsopenbot_version: "0.0.9",
+      shardsopenbot_platform: "macos",
+      shardsopenbot_arch: "aarch64",
+      shardsopenbot_os_version: "15.6.1",
+      shardsopenbot_engine: "podman",
     });
   });
 
@@ -44,13 +44,13 @@ describe("desktop runtime metadata", () => {
   ])("rejects arbitrary text in every metadata field: %s", (value) => {
     expect(
       desktopTelemetryProperties({
-        OPENBOT_DISTRIBUTION: "desktop",
-        OPENBOT_VERSION: value,
-        OPENBOT_OS_VERSION: value,
-        OPENBOT_PLATFORM: value,
-        OPENBOT_ARCH: value,
-        OPENBOT_ENGINE: value,
+        SHARDSOPENBOT_DISTRIBUTION: "desktop",
+        SHARDSOPENBOT_VERSION: value,
+        SHARDSOPENBOT_OS_VERSION: value,
+        SHARDSOPENBOT_PLATFORM: value,
+        SHARDSOPENBOT_ARCH: value,
+        SHARDSOPENBOT_ENGINE: value,
       }),
-    ).toEqual({ openbot_distribution: "desktop" });
+    ).toEqual({ shardsopenbot_distribution: "desktop" });
   });
 });

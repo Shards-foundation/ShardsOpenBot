@@ -85,8 +85,8 @@ export type MemoryRecord = MemoryInput & {
   reviewState: "unreviewed" | "confirmed" | "edited";
   /**
    * Who formed it. `intelligence` is a memory CopilotKit Intelligence holds for this person that no
-   * OpenBot row describes, formed by another app on the same project or by Intelligence itself. It
-   * is never stored in OpenBot's table, only read back from Intelligence.
+   * ShardsOpenBot row describes, formed by another app on the same project or by Intelligence itself. It
+   * is never stored in ShardsOpenBot's table, only read back from Intelligence.
    */
   formedBy: "person" | "import" | "bot" | "intelligence";
   formedByAgentId: string | null;

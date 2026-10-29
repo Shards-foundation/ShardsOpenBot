@@ -1,10 +1,10 @@
-import type { ConnectCodeResponse } from "@openbot/shared/recorder-api";
-import { recorderPaths } from "@openbot/shared/recorder-api";
+import type { ConnectCodeResponse } from "@shardsopenbot/shared/recorder-api";
+import { recorderPaths } from "@shardsopenbot/shared/recorder-api";
 import {
   RECORDER_PAGE_MESSAGES,
   type RecorderPageMessage,
   type RecorderPageState,
-} from "@openbot/shared/recorder-page";
+} from "@shardsopenbot/shared/recorder-page";
 import { mutationOptions, type QueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import {
@@ -41,9 +41,9 @@ export async function mintRecorderConnectCode(): Promise<ConnectCodeResponse> {
 }
 
 /**
- * Connects the Recorder `id` in this browser to this OpenBot as the signed-in person, as Settings, Browsers does: a code
- * minted here, handed to the Recorder with `openbot.connect`. A trusted OpenBot (the one the organization's policy pins,
- * or OpenBot Desktop's own address) is connected at once; any other shows the Recorder's Connect page, where the person
+ * Connects the Recorder `id` in this browser to this ShardsOpenBot as the signed-in person, as Settings, Browsers does: a code
+ * minted here, handed to the Recorder with `shardsopenbot.connect`. A trusted ShardsOpenBot (the one the organization's policy pins,
+ * or ShardsOpenBot Desktop's own address) is connected at once; any other shows the Recorder's Connect page, where the person
  * confirms it (`awaitingConfirmation`). A refusal is thrown in its sentence, which the Browser button says.
  */
 export function connectRecorderHereMutationOptions(queryClient: QueryClient) {
@@ -57,7 +57,7 @@ export function connectRecorderHereMutationOptions(queryClient: QueryClient) {
         throw new Error(
           connectRefusalSentence(answer.error, answer.retryAfterMs),
         );
-      // Connected at once (a trusted OpenBot), or waiting on the Recorder's Connect page.
+      // Connected at once (a trusted ShardsOpenBot), or waiting on the Recorder's Connect page.
       return {
         awaitingConfirmation:
           answer.connected !== true && answer.awaitingConfirmation === true,
@@ -70,9 +70,9 @@ export function connectRecorderHereMutationOptions(queryClient: QueryClient) {
 }
 
 /** What the Browser button says when the Recorder it asked did not answer at all. */
-const UNANSWERED = "The OpenBot Recorder didn't answer. Try again.";
+const UNANSWERED = "The ShardsOpenBot Recorder didn't answer. Try again.";
 
-/** `openbot.record` or `openbot.stop`, with the Recorder's refusal thrown in its own sentence. */
+/** `shardsopenbot.record` or `shardsopenbot.stop`, with the Recorder's refusal thrown in its own sentence. */
 async function askRecorderHere(
   id: string,
   message: RecorderPageMessage,
@@ -83,7 +83,7 @@ async function askRecorderHere(
   return answer.state;
 }
 
-/** Record, from OpenBot, in the browser it is open in: the Recorder starts on this tab and follows every tab the person
+/** Record, from ShardsOpenBot, in the browser it is open in: the Recorder starts on this tab and follows every tab the person
  * uses. Then the Recorder is asked again, so the red dot and the popover read what it is doing now. */
 export function recordHereMutationOptions(queryClient: QueryClient) {
   return mutationOptions({

@@ -50,7 +50,7 @@ function serve() {
   ) => {
     context.set("actor", {
       id: "u1",
-      email: "person@openbot.test",
+      email: "person@shardsopenbot.test",
       role: "user",
     });
     await next();
@@ -103,7 +103,7 @@ function serve() {
       init?: Parameters<typeof fetch>[1],
     ) => {
       if (path !== "/api/route") throw new Error(`unexpected ${String(path)}`);
-      return routes.request("http://openbot.test/", init);
+      return routes.request("http://shardsopenbot.test/", init);
     },
     { preconnect: originalFetch.preconnect },
   );

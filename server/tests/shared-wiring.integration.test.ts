@@ -114,7 +114,7 @@ afterEach(async () => {
 describe("a deployment built with shared apps", () => {
   test("serves the administrators' request inbox", async () => {
     const response = await build({ shared: true }).request(
-      "http://openbot.test/api/approvals/shared-use",
+      "http://shardsopenbot.test/api/approvals/shared-use",
     );
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ requests: [] });
@@ -122,7 +122,7 @@ describe("a deployment built with shared apps", () => {
 
   test("serves the Personal or Shared switch", async () => {
     const response = await build({ shared: true }).request(
-      `http://openbot.test/api/plugins/servers/${app}/account-mode`,
+      `http://shardsopenbot.test/api/plugins/servers/${app}/account-mode`,
       {
         method: "PUT",
         headers: { "content-type": "application/json" },
@@ -140,7 +140,7 @@ describe("a deployment built with shared apps", () => {
 describe("a deployment built without them", () => {
   test("says the switch is unavailable rather than pretending to switch", async () => {
     const response = await build({ shared: false }).request(
-      `http://openbot.test/api/plugins/servers/${app}/account-mode`,
+      `http://shardsopenbot.test/api/plugins/servers/${app}/account-mode`,
       {
         method: "PUT",
         headers: { "content-type": "application/json" },

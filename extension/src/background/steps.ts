@@ -52,7 +52,7 @@ import {
   type JsonValue,
   REDACTED,
   trimEvent,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { siteOf } from "../shared/sites";
 
 export const STEP_TIMING = {
@@ -494,7 +494,7 @@ export function createStepAssembler(options: {
   }
 
   /** How long after a step the page may still start what the step did: a Send whose page makes a call of its own before
-   * it runs the message (OpenBot's composer routes it first: 2.06 s in the end-to-end run, its run 2.18 s after the
+   * it runs the message (ShardsOpenBot's composer routes it first: 2.06 s in the end-to-end run, its run 2.18 s after the
    * click). No longer than the steps already hold a step nothing follows (`horizonMs` + `settleMs`), so waiting for it
    * never holds the recording longer than that. */
   const joinMs = tune.horizonMs + tune.settleMs;

@@ -139,8 +139,8 @@ export type AgentCapture = ReturnType<typeof createAgentCapture>;
 
 /**
  * Follows the AG-UI traffic per debuggee from the Network domain's events, and hands each observation to `observe`.
- * `ignore` names URLs never followed (OpenBot's own); `infoOnly` names URLs followed only when the request is
- * CopilotKit's runtime `info` call, and then only for its answer (OpenBot's own runtime); `onRun` says a request whose
+ * `ignore` names URLs never followed (ShardsOpenBot's own); `infoOnly` names URLs followed only when the request is
+ * CopilotKit's runtime `info` call, and then only for its answer (ShardsOpenBot's own runtime); `onRun` says a request whose
  * body was read late is a run, so the tracker stops holding steps for it.
  */
 export function createAgentCapture(options: {

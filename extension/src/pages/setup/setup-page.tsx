@@ -2,7 +2,7 @@ import {
   installOnDeviceSpeech,
   type OnDeviceSpeech,
   onDeviceSpeech,
-} from "@openbot/shared/on-device-speech";
+} from "@shardsopenbot/shared/on-device-speech";
 import {
   IconMicrophone,
   IconMicrophoneOff,
@@ -121,7 +121,7 @@ function sentence(status: Status, browser: Browser): string {
     case "dismissed":
       return "Not allowed yet. Choose Allow microphone and answer the browser's prompt.";
     case "denied":
-      return `Blocked. Open ${browser.settings}, allow OpenBot Recorder, then choose Allow microphone.`;
+      return `Blocked. Open ${browser.settings}, allow ShardsOpenBot Recorder, then choose Allow microphone.`;
     case "no-microphone":
       return "No microphone was found, or another app is using it. Connect one, then choose Allow microphone.";
   }
@@ -171,7 +171,7 @@ function speechSentence(
  * origin (the Recorder listens from its hidden offscreen document, which cannot show a prompt and can use only a lasting
  * grant, Chrome's "Allow while visiting the site", Edge's "Allow"; a one-time grant ends with this page and reads
  * `prompt` afterwards, which is how the page tells the two apart), and the browser's speech recognition for the
- * person's language on their own computer (@openbot/shared/on-device-speech), which the browser downloads or unmasks
+ * person's language on their own computer (@shardsopenbot/shared/on-device-speech), which the browser downloads or unmasks
  * only on a click. Where the browser cannot keep speech on the computer, the page says so: the Recorder never sends a
  * voice anywhere. Website access needs nothing here: the install granted it.
  */

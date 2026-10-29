@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
-import { listenPort } from "@openbot/shared/listen-port";
+import { listenPort } from "@shardsopenbot/shared/listen-port";
 
 /*
  * Announce the server's port to the two runtimes that serve the app through Vite, and to no other.
@@ -21,13 +21,13 @@ import { listenPort } from "@openbot/shared/listen-port";
  * own middleware below.
  */
 function announceServerPort(port: number): Plugin {
-  const tag = `<script>window.__OPENBOT_WS_PORT__=${JSON.stringify(String(port))};</script>`;
+  const tag = `<script>window.__SHARDSOPENBOT_WS_PORT__=${JSON.stringify(String(port))};</script>`;
   const inject = (html: string) =>
-    html.includes("__OPENBOT_WS_PORT__")
+    html.includes("__SHARDSOPENBOT_WS_PORT__")
       ? html
       : html.replace("</head>", `    ${tag}\n  </head>`);
   return {
-    name: "openbot-announce-server-port",
+    name: "shardsopenbot-announce-server-port",
     transformIndexHtml(html, ctx) {
       return ctx.server ? inject(html) : html;
     },
@@ -133,7 +133,7 @@ function routeComponentSplitPath(id: string): string | undefined {
   return filePath.slice(routesIndex + routesMarker.length);
 }
 
-export function selectOpenBotManualChunk(id: string): string | undefined {
+export function selectShardsOpenBotManualChunk(id: string): string | undefined {
   const routePath = routeComponentSplitPath(id);
   if (!routePath) {
     return undefined;
@@ -165,7 +165,7 @@ export function selectOpenBotManualChunk(id: string): string | undefined {
 
 export const routeBuildRollupOutputOptions = {
   onlyExplicitManualChunks: true,
-  manualChunks: selectOpenBotManualChunk,
+  manualChunks: selectShardsOpenBotManualChunk,
 };
 
 export default defineConfig({

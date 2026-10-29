@@ -111,11 +111,11 @@ const AUTH_PROVIDER = "google";
  *
  * A tool listing's `provider_id` is the provider TYPE (`google`); a user-connection row's
  * `provider_id` is the provider INSTANCE — an operator's configuration of that type, which is what
- * the live project answers (`google-openbot`, `arcade-google`, `cpk-poc`). Spelled differently
+ * the live project answers (`google-shardsopenbot`, `arcade-google`, `cpk-poc`). Spelled differently
  * here on purpose: a journey whose vendor used one spelling on both sides would be green against
  * an adapter that compares the two raw strings and finds nothing on every real deployment.
  */
-const AUTH_PROVIDER_INSTANCE = `${AUTH_PROVIDER}-openbot`;
+const AUTH_PROVIDER_INSTANCE = `${AUTH_PROVIDER}-shardsopenbot`;
 
 const ADMIN = `arcade-journey-${suite}`;
 const BOT = `bot-${suite}`;
@@ -490,7 +490,7 @@ function build() {
   const args = new Array(createApp.length) as unknown as Parameters<
     typeof createApp
   >;
-  args[0] = loadConfig(testEnvironment({ OPENBOT_APP_URL: APP_URL }));
+  args[0] = loadConfig(testEnvironment({ SHARDSOPENBOT_APP_URL: APP_URL }));
   args[1] = {
     handler: () => new Response(null, { status: 204 }),
     api: {
@@ -508,7 +508,7 @@ function build() {
 }
 
 const api = (path: string, init?: RequestInit) =>
-  build().request(`http://openbot.test/api/plugins${path}`, init);
+  build().request(`http://shardsopenbot.test/api/plugins${path}`, init);
 
 const send = (method: string, path: string, body: unknown) =>
   api(path, {
@@ -1017,8 +1017,10 @@ describe("two separately-shared apps", () => {
     mailIdentity = (await serverRow(MAIL_ROW))?.sharedVendorUserId ?? "";
     diaryIdentity = (await serverRow(DIARY_ROW))?.sharedVendorUserId ?? "";
 
-    expect(mailIdentity).toStartWith(`openbot-deployment:acme-${suite}:`);
-    expect(diaryIdentity).toStartWith(`openbot-deployment:acme-${suite}:`);
+    expect(mailIdentity).toStartWith(`shardsopenbot-deployment:acme-${suite}:`);
+    expect(diaryIdentity).toStartWith(
+      `shardsopenbot-deployment:acme-${suite}:`,
+    );
     // SEPARATE. A shared identity here is the defect this whole describe exists to catch.
     expect(mailIdentity).not.toBe(diaryIdentity);
 

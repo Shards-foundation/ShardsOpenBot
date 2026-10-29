@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import {
   RECORDER_SIGNED_OUT,
   TRAJECTORY_GATE_REFUSALS,
-} from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/recorder-api";
 import {
   classifyGrantError,
   fetchGrant,
@@ -53,11 +53,11 @@ describe("classifyGrantError, one assertion per pass row of the table", () => {
     const r = TRAJECTORY_GATE_REFUSALS.forbidden;
     const v = park(classifyGrantError(r.status, r));
     expect(v.hint).toBe(
-      "Learning capture is off: your OpenBot account has no role that may record.",
+      "Learning capture is off: your ShardsOpenBot account has no role that may record.",
     );
   });
 
-  test("row 4: OpenBot's not found is parked: the recording belongs to another person", () => {
+  test("row 4: ShardsOpenBot's not found is parked: the recording belongs to another person", () => {
     const b = body(
       404,
       "NOT_FOUND",
@@ -65,7 +65,7 @@ describe("classifyGrantError, one assertion per pass row of the table", () => {
     );
     const v = park(classifyGrantError(b.status, b.body));
     expect(v.hint).toBe(
-      "Learning capture is off: OpenBot says this recording belongs to another person.",
+      "Learning capture is off: ShardsOpenBot says this recording belongs to another person.",
     );
   });
 
@@ -73,7 +73,7 @@ describe("classifyGrantError, one assertion per pass row of the table", () => {
     const r = TRAJECTORY_GATE_REFUSALS.authorityUnavailable;
     const v = retry(classifyGrantError(r.status, r));
     expect(v.reason).toBe(
-      "OpenBot could not reach your organization's sign-in. Retrying; nothing is lost.",
+      "ShardsOpenBot could not reach your organization's sign-in. Retrying; nothing is lost.",
     );
     expect(v.retryAfterMs).toBeUndefined();
     expect(
@@ -94,7 +94,7 @@ describe("classifyGrantError, one assertion per pass row of the table", () => {
   test("row 6: IDENTITY_REQUIRED 401 is held, never signed-out", () => {
     const v = hold(classifyGrantError(401, { code: "IDENTITY_REQUIRED" }));
     expect(v.hint).toBe(
-      "Learning capture is paused: OpenBot could not tell Intelligence who you are.",
+      "Learning capture is paused: ShardsOpenBot could not tell Intelligence who you are.",
     );
   });
 
@@ -103,7 +103,7 @@ describe("classifyGrantError, one assertion per pass row of the table", () => {
       classifyGrantError(503, { code: "INTELLIGENCE_RUNTIME_REQUIRED" }),
     );
     expect(v.hint).toBe(
-      "Learning capture is off: this OpenBot is not connected to Intelligence.",
+      "Learning capture is off: this ShardsOpenBot is not connected to Intelligence.",
     );
   });
 
@@ -251,14 +251,14 @@ describe("classifyGrantError, one assertion per pass row of the table", () => {
     expect(retry(classifyGrantError(500, null)).reason).toBe(BUSY);
   });
 
-  test("row 21: a network failure, an OpenBot 5xx and a body that is not JSON retry", () => {
+  test("row 21: a network failure, an ShardsOpenBot 5xx and a body that is not JSON retry", () => {
     expect(retry(classifyGrantError(null, null)).reason).toBe(BUSY);
     expect(retry(classifyGrantError(502, null)).reason).toBe(BUSY);
   });
 
   test("row 22: any other 401 is held", () => {
     expect(hold(classifyGrantError(401, null)).hint).toBe(
-      "Learning capture is paused: OpenBot refused the capture pass.",
+      "Learning capture is paused: ShardsOpenBot refused the capture pass.",
     );
   });
 
@@ -315,7 +315,7 @@ describe("classifyGrantError, one assertion per pass row of the table", () => {
 
 describe("fetchGrant", () => {
   let server: ReturnType<typeof Bun.serve>;
-  let openbotUrl = "";
+  let shardsopenbotUrl = "";
   let seen: {
     auth: string | null;
     bot: string | null;
@@ -331,18 +331,18 @@ describe("fetchGrant", () => {
       async fetch(request) {
         seen = {
           auth: request.headers.get("authorization"),
-          bot: request.headers.get("x-openbot-recorder-bot"),
+          bot: request.headers.get("x-shardsopenbot-recorder-bot"),
           body: await request.text(),
           path: new URL(request.url).pathname,
         };
         return respond();
       },
     });
-    openbotUrl = `http://127.0.0.1:${server.port}`;
+    shardsopenbotUrl = `http://127.0.0.1:${server.port}`;
   });
   afterAll(() => server.stop(true));
 
-  const target = () => ({ openbotUrl, token: "tok" });
+  const target = () => ({ shardsopenbotUrl, token: "tok" });
   const id = "0b8b3c34-7c0e-4f7b-8f0a-9d7e4a2f1c11";
 
   async function failure(): Promise<GrantVerdict> {
@@ -409,7 +409,7 @@ describe("fetchGrant", () => {
     expect((await failure()).kind).toBe("retry");
   });
 
-  test("an unreachable OpenBot retries (row 21)", async () => {
+  test("an unreachable ShardsOpenBot retries (row 21)", async () => {
     const dead = Bun.serve({
       hostname: "127.0.0.1",
       port: 0,
@@ -418,7 +418,7 @@ describe("fetchGrant", () => {
     const url = `http://127.0.0.1:${dead.port}`;
     dead.stop(true);
     try {
-      await fetchGrant({ openbotUrl: url, token: "t" }, id);
+      await fetchGrant({ shardsopenbotUrl: url, token: "t" }, id);
       throw new Error("did not fail");
     } catch (error) {
       expect(error).toBeInstanceOf(GrantError);

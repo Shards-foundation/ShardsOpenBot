@@ -12,12 +12,12 @@ import { join, resolve } from "node:path";
 
 const directories: string[] = [];
 const cargo =
-  '[package]\nname = "openbot-desktop"\nversion = "0.0.10"\n\n[dependencies]\nexample = "0.0.10"\n';
+  '[package]\nname = "shardsopenbot-desktop"\nversion = "0.0.10"\n\n[dependencies]\nexample = "0.0.10"\n';
 const lock =
-  'version = 4\n\n[[package]]\nname = "example"\nversion = "0.0.10"\n\n[[package]]\nname = "openbot-desktop"\nversion = "0.0.10"\ndependencies = ["example"]\n';
+  'version = 4\n\n[[package]]\nname = "example"\nversion = "0.0.10"\n\n[[package]]\nname = "shardsopenbot-desktop"\nversion = "0.0.10"\ndependencies = ["example"]\n';
 
 function fixture() {
-  const root = mkdtempSync(join(tmpdir(), "openbot-desktop-version-"));
+  const root = mkdtempSync(join(tmpdir(), "shardsopenbot-desktop-version-"));
   directories.push(root);
   mkdirSync(join(root, "desktop/src-tauri"), { recursive: true });
   mkdirSync(join(root, "desktop/scripts"));
@@ -104,8 +104,8 @@ test("sync changes only the desktop package versions and check rejects drift", (
   );
   expect(f.read("desktop/src-tauri/Cargo.lock")).toBe(
     lock.replace(
-      'name = "openbot-desktop"\nversion = "0.0.10"',
-      'name = "openbot-desktop"\nversion = "0.0.11"',
+      'name = "shardsopenbot-desktop"\nversion = "0.0.10"',
+      'name = "shardsopenbot-desktop"\nversion = "0.0.11"',
     ),
   );
   expect(f.run("check").code).toBe(0);
@@ -144,11 +144,14 @@ test.each([
   [
     "desktop/src-tauri/Cargo.lock",
     lock.replace(
-      'name = "openbot-desktop"\nversion = "0.0.10"',
-      'name = "openbot-desktop"\nversion = "0.0.9"',
+      'name = "shardsopenbot-desktop"\nversion = "0.0.10"',
+      'name = "shardsopenbot-desktop"\nversion = "0.0.9"',
     ),
   ],
-  ["desktop/src-tauri/Cargo.toml", '[package]\nname = "openbot-desktop"\n'],
+  [
+    "desktop/src-tauri/Cargo.toml",
+    '[package]\nname = "shardsopenbot-desktop"\n',
+  ],
   [
     "desktop/src-tauri/Cargo.lock",
     '[[package]]\nname = "example"\nversion = "0.0.10"\n',
@@ -207,8 +210,8 @@ test.each(["internal", "release"])(
     for (const [key, value] of Object.entries({
       CFBundleShortVersionString: "0.0.10",
       CFBundleVersion: "0.0.10",
-      OpenBotBuildVersion: version,
-      OpenBotSourceRevision: sourceSha,
+      ShardsOpenBotBuildVersion: version,
+      ShardsOpenBotSourceRevision: sourceSha,
     })) {
       expect(plist).toContain(`<key>${key}</key><string>${value}</string>`);
     }

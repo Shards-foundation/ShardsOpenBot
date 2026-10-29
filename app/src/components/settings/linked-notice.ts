@@ -17,7 +17,7 @@ export function linkedNotice(value: string | undefined): LinkedNotice | null {
   if (value === "github-taken") {
     return {
       tone: "error",
-      text: "That GitHub account is linked to someone else in OpenBot. Sign in to GitHub with another account and try again, or ask an admin.",
+      text: "That GitHub account is linked to someone else in ShardsOpenBot. Sign in to GitHub with another account and try again, or ask an admin.",
     };
   }
   return null;

@@ -24,8 +24,8 @@
  * Removal waits for the lock; adoption only tries it and steps aside when it is held, so it never
  * parks a pooled connection behind another transaction.
  *
- * Off for the whole deployment with OPENBOT_MEMORY_SOURCE_DEFAULTS=false and
- * OPENBOT_PROACTIVE_DEFAULTS=false. Either switch stops new defaults; neither touches existing rows.
+ * Off for the whole deployment with SHARDSOPENBOT_MEMORY_SOURCE_DEFAULTS=false and
+ * SHARDSOPENBOT_PROACTIVE_DEFAULTS=false. Either switch stops new defaults; neither touches existing rows.
  */
 import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
@@ -35,7 +35,7 @@ import { memorySources } from "../db/schema/memory";
 import { proactiveSettings } from "../db/schema/proactive";
 import type { MemoryIngestion } from "./ingestion";
 
-/** How often background research runs when OpenBot switched it on, in minutes. */
+/** How often background research runs when ShardsOpenBot switched it on, in minutes. */
 export const DEFAULT_RESEARCH_INTERVAL_MINUTES = 240;
 /** The shortest gap between two adoption passes for one person and Bot in this process. */
 const MIN_INTERVAL_MS = 5 * 60_000;
@@ -44,7 +44,7 @@ const MIN_INTERVAL_MS = 5 * 60_000;
 type Executor = Pick<Database, "execute" | "select" | "insert" | "delete">;
 
 const lockKey = (ownerUserId: string, agentId: string) =>
-  `openbot:defaults:${ownerUserId}:${agentId}`;
+  `shardsopenbot:defaults:${ownerUserId}:${agentId}`;
 
 /**
  * Take the per-person, per-Bot lock adoption and removal share, waiting for it. Removal uses this: a
@@ -121,9 +121,9 @@ export type MemoryDefaults = ReturnType<typeof createMemoryDefaults>;
 export function createMemoryDefaults(options: {
   database: Database;
   ingestion: Pick<MemoryIngestion, "defaultSourceCandidates" | "sync">;
-  /** OPENBOT_MEMORY_SOURCE_DEFAULTS, on unless switched off. */
+  /** SHARDSOPENBOT_MEMORY_SOURCE_DEFAULTS, on unless switched off. */
   sources: boolean;
-  /** OPENBOT_PROACTIVE_DEFAULTS, on unless switched off. */
+  /** SHARDSOPENBOT_PROACTIVE_DEFAULTS, on unless switched off. */
   research: boolean;
   /** The Bots in this person's conversation, or null when it is not theirs. */
   channelBots(ownerUserId: string, channelId: string): Promise<string[] | null>;

@@ -113,14 +113,14 @@ describe("durable Learning settings", () => {
     expect(await replicas[0]?.saved()).toBe(false);
     const won = await Promise.all(
       replicas.map((store, index) =>
-        store.adoptDefault({ containerId: `openbot-${index}` }),
+        store.adoptDefault({ containerId: `shardsopenbot-${index}` }),
       ),
     );
     expect(won.filter(Boolean)).toHaveLength(1);
     const winner = won.indexOf(true);
     const assigned = {
       enabled: true,
-      defaultTarget: { containerId: `openbot-${winner}` },
+      defaultTarget: { containerId: `shardsopenbot-${winner}` },
       agents: {},
     };
     for (const store of replicas) {
@@ -131,9 +131,9 @@ describe("durable Learning settings", () => {
     // A saved Admin choice, including off, is never replaced.
     const off = { enabled: false, defaultTarget: null, agents: {} };
     await replicas[0]?.write(off);
-    expect(await replicas[1]?.adoptDefault({ containerId: "openbot" })).toBe(
-      false,
-    );
+    expect(
+      await replicas[1]?.adoptDefault({ containerId: "shardsopenbot" }),
+    ).toBe(false);
     expect(await replicas[2]?.read()).toEqual(off);
     await database
       .delete(learningSettings)

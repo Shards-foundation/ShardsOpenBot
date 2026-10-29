@@ -3,7 +3,7 @@
  * "Which provider" has THREE ways of having no answer, and none of them is "Composio is active".
  *
  * `activeProvider` answers null when no key is set, when both keys are set and
- * `OPENBOT_BROKER_PROVIDER` names neither, and when the variable names a provider whose key is
+ * `SHARDSOPENBOT_BROKER_PROVIDER` names neither, and when the variable names a provider whose key is
  * unset. The entrypoint and the plugins routes both used to flatten all three with `?? "composio"`,
  * so a deployment part-way through a migration — both keys set, variable not yet set, which
  * `docs/plugins/arcade.md` calls legal — read its live Arcade rows through Composio's filter and
@@ -74,7 +74,7 @@ describe("a deployment that cannot name a provider takes the name from its rows"
       arcadeApiKey: "a",
     });
     expect(() => storedProvider(decision, ["composio", "arcade"])).toThrow(
-      /OPENBOT_BROKER_PROVIDER/,
+      /SHARDSOPENBOT_BROKER_PROVIDER/,
     );
     // It names the way out that exists — by hand, at a vendor — and never an unbuilt flow.
     let message = "";
@@ -150,7 +150,7 @@ describe("the plugins routes read one name, not a second answer", () => {
   test("an Arcade row is read with Arcade's parser though no broker is wired", async () => {
     const it = arcadeDeploymentWithNoBroker();
     const response = await it.app.request(
-      "http://openbot.test/api/plugins/servers/brokered-gmail/account-mode",
+      "http://shardsopenbot.test/api/plugins/servers/brokered-gmail/account-mode",
       {
         method: "PUT",
         headers: { "content-type": "application/json" },
@@ -165,7 +165,9 @@ describe("the plugins routes read one name, not a second answer", () => {
 
   test("and the page names Arcade rather than Composio", async () => {
     const it = arcadeDeploymentWithNoBroker();
-    const response = await it.app.request("http://openbot.test/api/plugins");
+    const response = await it.app.request(
+      "http://shardsopenbot.test/api/plugins",
+    );
     expect(response.status).toBe(200);
     expect(((await response.json()) as { provider: string }).provider).toBe(
       "arcade",

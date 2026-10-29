@@ -1,5 +1,5 @@
 /*
- * OpenBot Desktop: the setup window.
+ * ShardsOpenBot Desktop: the setup window.
  *
  * The world is the one the product sits next to: warm off-white ground, near-black text, almost no
  * chrome, and one rounded focal element per screen. Measured from Grok rather than guessed — the
@@ -46,7 +46,7 @@
 /*
  * NO DARK VARIANT, DELIBERATELY, and this is the one place in the product where that is right.
  *
- * This window exists for about five minutes, once, before it becomes OpenBot and hands over to the
+ * This window exists for about five minutes, once, before it becomes ShardsOpenBot and hands over to the
  * app — which does follow the system. A first-run screen is the product's handshake, and the look
  * committed here is the warm light one measured from the interface this is meant to sit beside.
  * Following the system instead would mean the first thing half of all installers ever see is a
@@ -616,7 +616,7 @@ details > summary:hover {
 }
 
 /*
- * OpenBot's own mark, and it is the real one.
+ * ShardsOpenBot's own mark, and it is the real one.
  *
  * An earlier version of this screen shipped a mark I drew: two overlapping squares. That was
  * invented, which is the same thing this file refuses to do for other people's brands, and there

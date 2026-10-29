@@ -1,8 +1,8 @@
 import {
   connectAppRefusal,
   SHOW_APP_ACCESS_TOOL,
-} from "@openbot/shared/connect-prompt";
-import type { GrantedTool } from "@openbot/toolkit/granted-tool";
+} from "@shardsopenbot/shared/connect-prompt";
+import type { GrantedTool } from "@shardsopenbot/toolkit/granted-tool";
 import { z } from "zod";
 import type { AppAccess, AppAccessState } from "./app-access";
 import { ownerAppsAllowed } from "./owner-grants";
@@ -19,7 +19,7 @@ import type { PluginStore } from "./store";
  * administrator can grant it", and did — correctly, and uselessly: the person was handed the name of
  * a role and no way to reach it, about an app the Bot could have had all along. The other ways an
  * app is out of reach already drew a card, because each of them is a refused call and the refusal
- * carries one (`@openbot/shared/connect-prompt`). An app the Bot holds nothing for is never called,
+ * carries one (`@shardsopenbot/shared/connect-prompt`). An app the Bot holds nothing for is never called,
  * so nothing was refused and there was nothing to draw. This is the call.
  *
  * THE ANSWER IS THE SAME MARKER A REFUSAL CARRIES, with `reason: "access"`, so the transcript draws

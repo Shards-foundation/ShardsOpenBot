@@ -8,7 +8,7 @@ import { testEnvironment } from "./support/environment";
 const SESSION = {
   user: {
     id: "person",
-    email: "person@openbot.test",
+    email: "person@shardsopenbot.test",
     name: "Person",
     image: null,
   },
@@ -17,8 +17,8 @@ const SESSION = {
 const GITHUB_ENVIRONMENT = {
   GITHUB_APP_CLIENT_ID: "Iv1.x",
   GITHUB_APP_CLIENT_SECRET: "s",
-  OPENBOT_PUBLIC_URL: "https://api.test",
-  OPENBOT_APP_URL: "https://app.test",
+  SHARDSOPENBOT_PUBLIC_URL: "https://api.test",
+  SHARDSOPENBOT_APP_URL: "https://app.test",
 };
 
 /** Builds the app with only what the identity routes need; later tests can extend the options. */
@@ -89,14 +89,14 @@ function callbackFor(environment: Record<string, string | undefined>) {
 test("identity routes require a session", async () => {
   const response = await appFor(GITHUB_ENVIRONMENT, {
     session: null,
-  }).request("http://openbot.test/api/identity/providers");
+  }).request("http://shardsopenbot.test/api/identity/providers");
   expect(response.status).toBe(401);
 });
 
 test("GitHub is offered when the app and a public URL are configured", async () => {
   const response = await appFor(GITHUB_ENVIRONMENT, {
     githubCallback: callbackFor(GITHUB_ENVIRONMENT).router,
-  }).request("http://openbot.test/api/identity/providers");
+  }).request("http://shardsopenbot.test/api/identity/providers");
   expect(response.status).toBe(200);
   expect(await response.json()).toEqual({
     providers: { slack: false, github: true },
@@ -106,7 +106,7 @@ test("GitHub is offered when the app and a public URL are configured", async () 
 test("connecting GitHub redirects back to this deployment's callback", async () => {
   const response = await appFor(GITHUB_ENVIRONMENT, {
     githubCallback: callbackFor(GITHUB_ENVIRONMENT).router,
-  }).request("http://openbot.test/api/identity/github/connect", {
+  }).request("http://shardsopenbot.test/api/identity/github/connect", {
     method: "POST",
   });
   expect(response.status).toBe(200);
@@ -122,13 +122,13 @@ test("connecting GitHub redirects back to this deployment's callback", async () 
 test("configured GitHub is not offered while its callback is not mounted", async () => {
   const app = appFor(GITHUB_ENVIRONMENT);
   const providers = await app.request(
-    "http://openbot.test/api/identity/providers",
+    "http://shardsopenbot.test/api/identity/providers",
   );
   expect(await providers.json()).toEqual({
     providers: { slack: false, github: false },
   });
   const connect = await app.request(
-    "http://openbot.test/api/identity/github/connect",
+    "http://shardsopenbot.test/api/identity/github/connect",
     { method: "POST" },
   );
   expect(connect.status).toBe(404);
@@ -138,7 +138,7 @@ async function slackOffered(webhooks: Record<string, unknown>) {
   const response = await appFor(
     {},
     { coworker: { delivery: { webhooks } } },
-  ).request("http://openbot.test/api/identity/providers");
+  ).request("http://shardsopenbot.test/api/identity/providers");
   const body = (await response.json()) as { providers: { slack: boolean } };
   return body.providers.slack;
 }
@@ -153,13 +153,13 @@ test("Slack linking needs both the Slack webhook and the identity redeemer", asy
 test("without a GitHub app, GitHub is not offered and cannot be connected", async () => {
   const app = appFor({});
   const providers = await app.request(
-    "http://openbot.test/api/identity/providers",
+    "http://shardsopenbot.test/api/identity/providers",
   );
   expect(await providers.json()).toEqual({
     providers: { slack: false, github: false },
   });
   const connect = await app.request(
-    "http://openbot.test/api/identity/github/connect",
+    "http://shardsopenbot.test/api/identity/github/connect",
     { method: "POST" },
   );
   expect(connect.status).toBe(404);
@@ -172,7 +172,7 @@ test("the GitHub callback without a session answers 401 and never reaches GitHub
     session: null,
     githubCallback: router,
   }).request(
-    `http://openbot.test/api/identity/github/callback?code=c&state=${encodeURIComponent(state)}`,
+    `http://shardsopenbot.test/api/identity/github/callback?code=c&state=${encodeURIComponent(state)}`,
   );
   expect(response.status).toBe(401);
   expect(fetchImpl).not.toHaveBeenCalled();
@@ -184,7 +184,7 @@ test("the GitHub callback is reachable with a session and redirects to the app",
   const response = await appFor(GITHUB_ENVIRONMENT, {
     githubCallback: router,
   }).request(
-    `http://openbot.test/api/identity/github/callback?error=access_denied&state=${encodeURIComponent(state)}`,
+    `http://shardsopenbot.test/api/identity/github/callback?error=access_denied&state=${encodeURIComponent(state)}`,
   );
   expect(response.status).toBe(302);
   expect(response.headers.get("location")).toBe(
@@ -235,7 +235,7 @@ test("the signed-in person's session reaches the callback and completes the link
   const response = await appFor(GITHUB_ENVIRONMENT, {
     githubCallback: router,
   }).request(
-    `http://openbot.test/api/identity/github/callback?code=c&state=${encodeURIComponent(state)}`,
+    `http://shardsopenbot.test/api/identity/github/callback?code=c&state=${encodeURIComponent(state)}`,
   );
   expect(response.status).toBe(302);
   expect(response.headers.get("location")).toBe(
@@ -254,7 +254,7 @@ test("a session for a different person than the state's fails and never reaches 
   const response = await appFor(GITHUB_ENVIRONMENT, {
     githubCallback: router,
   }).request(
-    `http://openbot.test/api/identity/github/callback?code=c&state=${encodeURIComponent(state)}`,
+    `http://shardsopenbot.test/api/identity/github/callback?code=c&state=${encodeURIComponent(state)}`,
   );
   expect(response.status).toBe(302);
   expect(response.headers.get("location")).toBe(

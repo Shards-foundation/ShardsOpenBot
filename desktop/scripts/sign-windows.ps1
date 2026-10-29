@@ -30,7 +30,7 @@ try {
     Write-Host "::add-mask::$env:AZURE_ACCESS_TOKEN"
     & AzureSignTool.exe sign -fd sha256 -tr http://timestamp.digicert.com -td sha256 `
         -kvu $env:AZURE_KEY_VAULT_URL -kvc $env:CODE_SIGNING_CERT_NAME `
-        -kva $env:AZURE_ACCESS_TOKEN -d OpenBot $file
+        -kva $env:AZURE_ACCESS_TOKEN -d ShardsOpenBot $file
     if ($LASTEXITCODE -ne 0) {
         throw "AzureSignTool failed for $file (exit $LASTEXITCODE)."
     }

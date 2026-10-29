@@ -50,7 +50,7 @@ const account: AccountRef = {
  *
  * That is the live shape, and it is the whole subject of this file: on a tool listing
  * `provider_id` is the TYPE (`google`), on a connection row it is the operator's CONFIGURATION of
- * that type (`google-openbot`, `arcade-google`, `cpk-poc`). A fixture spelling both sides alike —
+ * that type (`google-shardsopenbot`, `arcade-google`, `cpk-poc`). A fixture spelling both sides alike —
  * which every fixture here once did — makes the two meanings coincide and hides a comparison that
  * matches nothing on any real deployment.
  */
@@ -102,7 +102,7 @@ function providers(byToolkit: Record<string, string>) {
 const CONFIGS = [
   { id: "cpk-poc", provider_id: "github", type: "oauth2", status: "active" },
   {
-    id: "google-openbot",
+    id: "google-shardsopenbot",
     provider_id: "google",
     type: "oauth2",
     status: "active",
@@ -220,7 +220,7 @@ describe("arcade adapter connection lifecycle", () => {
   });
 
   test("isConnected ignores another app's connection", async () => {
-    listing([row(1, "google-openbot")]);
+    listing([row(1, "google-shardsopenbot")]);
     const { broker } = createArcadeClient("never-dialled");
     expect(await broker.isConnected({ account, toolkit: "Github" })).toBe(
       false,
@@ -292,7 +292,7 @@ describe("arcade adapter connection lifecycle", () => {
   });
 
   test("revoke answers false on nothing-found and deletes nothing", async () => {
-    listing([row(1, "google-openbot")]);
+    listing([row(1, "google-shardsopenbot")]);
     const deleted: unknown[] = [];
     stub("delete", (id) => {
       deleted.push(id);
@@ -327,7 +327,7 @@ describe("arcade adapter connection lifecycle", () => {
   test("accountName never answers another app's name", async () => {
     listing([
       row(1, "cpk-poc", {}),
-      row(2, "google-openbot", { name: "Grace" }),
+      row(2, "google-shardsopenbot", { name: "Grace" }),
       row(3, "cpk-poc", { name: "Ada" }),
     ]);
     const { broker } = createArcadeClient("never-dialled");
@@ -342,7 +342,7 @@ describe("arcade adapter connection lifecycle", () => {
   test("accountName is null, not the second app's name, when the first carries none", async () => {
     listing([
       row(1, "cpk-poc", {}),
-      row(2, "google-openbot", { name: "Grace" }),
+      row(2, "google-shardsopenbot", { name: "Grace" }),
     ]);
     const { broker } = createArcadeClient("never-dialled");
     expect(await broker.accountName({ account, toolkit: "Github" })).toBeNull();
@@ -350,12 +350,12 @@ describe("arcade adapter connection lifecycle", () => {
 
   /*
    * THE DEFECT THIS FILE EXISTS FOR, AT ITS THREE MEMBERS. `Gmail` names the TYPE `google`; the
-   * connection is held under the INSTANCE `google-openbot`. A comparison of the two raw strings
+   * connection is held under the INSTANCE `google-shardsopenbot`. A comparison of the two raw strings
    * finds nothing — and `revoke` then answers false WITHOUT SPENDING A DELETE, so the vendor
    * connection outlives the Disconnect that was supposed to end it.
    */
-  test("a Gmail connection under the custom instance `google-openbot` is FOUND by all three members", async () => {
-    listing([row(4, "google-openbot", { name: "Grace" })]);
+  test("a Gmail connection under the custom instance `google-shardsopenbot` is FOUND by all three members", async () => {
+    listing([row(4, "google-shardsopenbot", { name: "Grace" })]);
     const deleted: unknown[] = [];
     stub("delete", (id) => {
       deleted.push(id);
@@ -386,7 +386,7 @@ describe("arcade adapter connection lifecycle", () => {
   });
 
   test("BOTH instances of one type are matched; neither is dropped for the other", async () => {
-    listing([row(4, "google-openbot"), row(5, "arcade-google")]);
+    listing([row(4, "google-shardsopenbot"), row(5, "arcade-google")]);
     const deleted: unknown[] = [];
     stub("delete", (id) => {
       deleted.push(id);
@@ -434,14 +434,17 @@ describe("arcade adapter connection lifecycle", () => {
 
   test("both the type and the instance are compared case-insensitively", async () => {
     providers({ Gmail: "GOOGLE" });
-    configs([{ id: "Google-OpenBot", provider_id: "Google" }]);
-    listing([row(4, "google-openbot", { name: "Grace" })]);
+    configs([{ id: "Google-ShardsOpenBot", provider_id: "Google" }]);
+    listing([row(4, "google-shardsopenbot", { name: "Grace" })]);
     const { broker } = createArcadeClient("never-dialled");
     expect(await broker.isConnected({ account, toolkit: "Gmail" })).toBe(true);
   });
 
   test("a different provider on the same identity is still excluded", async () => {
-    listing([row(1, "cpk-poc", { name: "Ada" }), row(2, "google-openbot", {})]);
+    listing([
+      row(1, "cpk-poc", { name: "Ada" }),
+      row(2, "google-shardsopenbot", {}),
+    ]);
     const deleted: unknown[] = [];
     stub("delete", (id) => {
       deleted.push(id);
@@ -531,7 +534,7 @@ describe("arcade adapter connection lifecycle", () => {
     // Connect routes read, and a bare error would have them say "the vendor said nothing about
     // why, check the key" about a sentence this deployment wrote itself.
     providers({});
-    listing([row(1, "google-openbot")]);
+    listing([row(1, "google-shardsopenbot")]);
     const { broker } = createArcadeClient("never-dialled");
     const error = await broker
       .revoke({ account, toolkit: "Gmail" })
@@ -542,7 +545,7 @@ describe("arcade adapter connection lifecycle", () => {
 
   test("a malformed listing THROWS out of the lifecycle members rather than answering no rows", async () => {
     stub("list", () => Promise.resolve({ items: "nope" }), toolsProto());
-    listing([row(1, "google-openbot")]);
+    listing([row(1, "google-shardsopenbot")]);
     const { broker } = createArcadeClient("never-dialled");
     await expect(broker.revoke({ account, toolkit: "Gmail" })).rejects.toThrow(
       /action list/,
@@ -555,7 +558,7 @@ describe("arcade adapter connection lifecycle", () => {
       () => Promise.resolve({ items: "nope" }),
       authProvidersProto(),
     );
-    listing([row(1, "google-openbot")]);
+    listing([row(1, "google-shardsopenbot")]);
     const { broker } = createArcadeClient("never-dialled");
     await expect(broker.revoke({ account, toolkit: "Gmail" })).rejects.toThrow(
       /auth-provider list/,
@@ -610,7 +613,7 @@ describe("arcade adapter connection lifecycle", () => {
     "an action carrying %s REFUSES, rather than resolving off the readable one",
     async (_, unreadable, refusal) => {
       beside(unreadable);
-      listing([row(1, "google-openbot", { name: "Grace" })]);
+      listing([row(1, "google-shardsopenbot", { name: "Grace" })]);
       const deleted: unknown[] = [];
       stub("delete", (id) => {
         deleted.push(id);
@@ -636,7 +639,7 @@ describe("arcade adapter connection lifecycle", () => {
 
   test("an action with NO authorization block beside a readable one still resolves — absence is not unreadability", async () => {
     beside({ requirements: { authorization: null } });
-    listing([row(1, "google-openbot", { name: "Grace" })]);
+    listing([row(1, "google-shardsopenbot", { name: "Grace" })]);
     const { broker } = createArcadeClient("never-dialled");
     expect(await broker.isConnected({ account, toolkit: "Gmail" })).toBe(true);
   });
@@ -645,8 +648,8 @@ describe("arcade adapter connection lifecycle", () => {
     const asked = providers({ Gmail: "google" });
     const read = configs();
     listing([
-      row(1, "google-openbot"),
-      row(2, "google-openbot"),
+      row(1, "google-shardsopenbot"),
+      row(2, "google-shardsopenbot"),
       row(3, "arcade-google"),
     ]);
     stub("delete", () => Promise.resolve());
@@ -669,9 +672,9 @@ describe("arcade adapter connection lifecycle", () => {
     }));
     const read = configs([
       ...filler,
-      { id: "google-openbot", provider_id: "google" },
+      { id: "google-shardsopenbot", provider_id: "google" },
     ]);
-    listing([row(1, "google-openbot", { name: "Grace" })]);
+    listing([row(1, "google-shardsopenbot", { name: "Grace" })]);
     const { broker } = createArcadeClient("never-dialled");
     expect(await broker.isConnected({ account, toolkit: "Gmail" })).toBe(true);
     expect(read).toEqual([
@@ -714,7 +717,7 @@ const statusRow = (
  * vendor that nothing this deployment holds any longer names. That is the exact signature of the
  * live defect this seam has already shipped once.
  *
- * Every fixture here is under `cpk-poc`/`google-openbot`, INSTANCE ids this project's
+ * Every fixture here is under `cpk-poc`/`google-shardsopenbot`, INSTANCE ids this project's
  * configuration names, so nothing below can pass or fail for the instance-vs-type reason the rest
  * of this file is about: the only variable is the status.
  */
@@ -769,7 +772,7 @@ describe("a connection the vendor reports as dead", () => {
   test("a status the vendor did not send is SILENCE and still reads as live; a blank one does not", async () => {
     listing([
       statusRow(1, "cpk-poc", null, { name: "Ada" }),
-      statusRow(2, "google-openbot", "", { name: "Grace" }),
+      statusRow(2, "google-shardsopenbot", "", { name: "Grace" }),
     ]);
     const { broker } = createArcadeClient("never-dialled");
     expect(await broker.isConnected({ account, toolkit: "Github" })).toBe(true);

@@ -8,7 +8,7 @@
  * tab says it is visible and focused whether it is in front or not. That is right for a test browser,
  * where several pages are driven at once, and wrong for a person's own: in the fifth end-to-end run
  * two background tabs of the Desktop window reported `visible` and `hasFocus()` every second, so sites
- * behind the tab in front behaved as if they were in front, and OpenBot, which asks the pages which
+ * behind the tab in front behaved as if they were in front, and ShardsOpenBot, which asks the pages which
  * one the window shows, could not tell and named the wrong tab as the one the person was on.
  *
  * It cannot be turned off from beside Playwright. The browser keeps the emulation per DevTools

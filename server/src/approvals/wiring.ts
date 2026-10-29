@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
-import type { HeadlessTool } from "@openbot/toolkit/headless-tools";
-import type { IntelligenceLike } from "@openbot/toolkit/run-turn";
+import type { HeadlessTool } from "@shardsopenbot/toolkit/headless-tools";
+import type { IntelligenceLike } from "@shardsopenbot/toolkit/run-turn";
 import { type RunAssertion, readRunAssertion } from "../agents/callback-token";
 import type { AgentProfileStore } from "../agents/profile-store";
 import type { AgentActor } from "../agents/profile-types";
@@ -110,8 +110,11 @@ export function createServerApprovalService(deps: {
           const signed =
             forwarded &&
             typeof forwarded === "object" &&
-            "openbotRun" in forwarded
-              ? readRunAssertion(forwarded.openbotRun, config.keyEncryptionKey)
+            "shardsopenbotRun" in forwarded
+              ? readRunAssertion(
+                  forwarded.shardsopenbotRun,
+                  config.keyEncryptionKey,
+                )
               : null;
           const run =
             signed &&
@@ -145,7 +148,7 @@ export function createServerApprovalService(deps: {
                 id: request.id,
                 kind: "approval",
                 requestId: request.id,
-                text: `${botName} asks for approval to use ${action.toolRef}. Open the Bot's page in OpenBot to review this action.`,
+                text: `${botName} asks for approval to use ${action.toolRef}. Open the Bot's page in ShardsOpenBot to review this action.`,
               },
             );
         }

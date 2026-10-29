@@ -1,4 +1,4 @@
-import type { TrajectoryGrant } from "@openbot/shared/recorder-api";
+import type { TrajectoryGrant } from "@shardsopenbot/shared/recorder-api";
 import {
   type CapturedEvent,
   EVENT_BUDGET_BYTES,
@@ -7,7 +7,7 @@ import {
   MAX_TIMESTAMP_MS,
   sanitiseForIntelligence,
   trimEvent,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import type { CaptureStatus } from "../protocol/messages";
 import { TRAJECTORY_ROLLOVER_AT } from "../shared/limits";
 import { isAllowedGatewayUrl } from "../shared/origin";
@@ -1211,7 +1211,7 @@ export async function createStreamer(
         "recording.started",
         {
           recordingId: lane.meta.recordingId,
-          source: "openbot-recorder",
+          source: "shardsopenbot-recorder",
           version: session.version,
           ...(previousTrajectoryId === undefined
             ? {}

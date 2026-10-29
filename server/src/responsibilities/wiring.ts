@@ -1,10 +1,10 @@
-import { buildResponsibilityTurn } from "@openbot/shared/responsibility-turn";
-import type { ComponentCatalog } from "@openbot/toolkit/ports";
+import { buildResponsibilityTurn } from "@shardsopenbot/shared/responsibility-turn";
+import type { ComponentCatalog } from "@shardsopenbot/toolkit/ports";
 import {
   createTurnRunner,
   type IntelligenceLike,
   type RunnerLike,
-} from "@openbot/toolkit/run-turn";
+} from "@shardsopenbot/toolkit/run-turn";
 import { z } from "zod";
 import { canUseComputer } from "../agents/computer-access";
 import type { AgentProfileStore } from "../agents/profile-store";

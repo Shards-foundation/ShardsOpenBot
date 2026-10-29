@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { connectAppRefusal } from "@openbot/shared/connect-prompt";
+import { connectAppRefusal } from "@shardsopenbot/shared/connect-prompt";
 import { and, eq, inArray } from "drizzle-orm";
 import { createAuditStore } from "../src/audit";
 import { createCredentialStore } from "../src/credentials";

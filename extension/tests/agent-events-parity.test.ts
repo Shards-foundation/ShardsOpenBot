@@ -7,7 +7,7 @@
 // cut to one Intelligence event): for every conversation but the one that hands the agent secrets and the one whose
 // answer is over 16 KiB, that changes nothing.
 import { describe, expect, test } from "bun:test";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import { finishAgentEvent } from "../src/background/agent/mask";
 import {
   agentEventsFor,

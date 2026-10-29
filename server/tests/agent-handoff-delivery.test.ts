@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { AbstractAgent, BaseEvent, Message } from "@ag-ui/client";
-import { LockLapsedError } from "@openbot/toolkit/lease";
+import { LockLapsedError } from "@shardsopenbot/toolkit/lease";
 import { Observable } from "rxjs";
 import { createHandoffDelivery } from "../src/agents/handoff-delivery";
 import type { HandoffWork } from "../src/agents/handoff-runner";
@@ -138,7 +138,7 @@ describe("turning a hop into a turn", () => {
     });
 
     expect(requests[0]?.input.forwardedProps).toEqual({
-      openbotRun: "signed-assertion",
+      shardsopenbotRun: "signed-assertion",
     });
     // The addressed Bot's own conversation, because a thread has exactly one agent.
     expect(requests[0]?.threadId).toBe("scratch-thread");

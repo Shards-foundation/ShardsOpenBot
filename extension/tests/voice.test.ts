@@ -5,7 +5,7 @@ import {
   type CapturedEvent,
   REDACTED,
   scrubTranscript,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import {
   browserName,
   DOWNLOAD_POLL_MS,

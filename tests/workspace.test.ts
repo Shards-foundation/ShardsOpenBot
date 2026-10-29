@@ -27,16 +27,16 @@ function packagesStartedBy(script: string, workspaces: string[]): string[] {
   );
 }
 
-describe("OpenBot workspace", () => {
+describe("ShardsOpenBot workspace", () => {
   test("defines the app, server, worker, shared, toolkit and extension packages", () => {
     const manifest = rootManifest();
     const names: Record<string, string> = {
       app: "app",
       server: "server",
       worker: "worker",
-      shared: "@openbot/shared",
-      toolkit: "@openbot/toolkit",
-      extension: "@openbot/recorder-extension",
+      shared: "@shardsopenbot/shared",
+      toolkit: "@shardsopenbot/toolkit",
+      extension: "@shardsopenbot/recorder-extension",
     };
 
     expect(manifest.workspaces).toEqual(Object.keys(names));

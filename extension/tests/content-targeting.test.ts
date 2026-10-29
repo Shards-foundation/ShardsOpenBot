@@ -8,7 +8,7 @@ import {
   test,
 } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import { startEventCapture } from "../src/content/collector";
 import { createSensitivityTracker } from "../src/content/masking-context";
 import {
@@ -218,12 +218,12 @@ test("Wikipedia's generated ids are never a selector: run 2's click on Charles B
   expect(JSON.stringify(targeting.selectors)).not.toContain("mwEw");
 });
 
-test("OpenBot's new-chat link, an icon with no name, is found by its address before its position; a volatile address never is", () => {
-  // The sidebar header as OpenBot renders it (app-sidebar.tsx: a Base UI Button rendered as the router's Link to
+test("ShardsOpenBot's new-chat link, an icon with no name, is found by its address before its position; a volatile address never is", () => {
+  // The sidebar header as ShardsOpenBot renders it (app-sidebar.tsx: a Base UI Button rendered as the router's Link to
   // /channel/new, holding Tabler's IconPlus with no title), clicked in the CopilotKit-site end-to-end run 3, row 044:
   // its one selector was its position.
   document.body.innerHTML = `
-    <div data-slot="sidebar-wrapper"><div data-slot="sidebar"><div data-slot="sidebar-container"><div data-slot="sidebar-inner"><div data-slot="sidebar-header" class="h-12 p-2"><ul data-slot="sidebar-menu"><li data-slot="sidebar-menu-item" class="flex flex-row gap-1.5"><a data-slot="sidebar-menu-button" href="/">OpenBot</a><a href="/channel/new" role="button" class="group/button inline-flex shrink-0 items-center size-8" tabindex="0" data-slot="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-plus "><path d="M12 5l0 14"></path><path d="M5 12l14 0"></path></svg></a></li></ul></div><div data-slot="sidebar-content"></div><div data-slot="sidebar-footer"></div></div></div></div></div>
+    <div data-slot="sidebar-wrapper"><div data-slot="sidebar"><div data-slot="sidebar-container"><div data-slot="sidebar-inner"><div data-slot="sidebar-header" class="h-12 p-2"><ul data-slot="sidebar-menu"><li data-slot="sidebar-menu-item" class="flex flex-row gap-1.5"><a data-slot="sidebar-menu-button" href="/">ShardsOpenBot</a><a href="/channel/new" role="button" class="group/button inline-flex shrink-0 items-center size-8" tabindex="0" data-slot="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-plus "><path d="M12 5l0 14"></path><path d="M5 12l14 0"></path></svg></a></li></ul></div><div data-slot="sidebar-content"></div><div data-slot="sidebar-footer"></div></div></div></div></div>
     <a id="invite" href="/join/2f9c41d07a1b4e6f8c3d5a7b9e1f0c2d?token=a8f3k2l9q">Join</a>
     <p><a id="refund" href="/checkout?order=1043">Refund this order</a></p>`;
   const plus = $('a[href="/channel/new"]');

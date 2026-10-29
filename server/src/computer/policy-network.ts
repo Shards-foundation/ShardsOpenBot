@@ -125,8 +125,10 @@ export async function pushEgressPolicy(
       method: "PUT",
       headers: {
         "content-type": "application/json",
-        "x-openbot-bot-id": botId,
-        ...(options.token ? { "x-openbot-computer-token": options.token } : {}),
+        "x-shardsopenbot-bot-id": botId,
+        ...(options.token
+          ? { "x-shardsopenbot-computer-token": options.token }
+          : {}),
       },
       body: JSON.stringify({
         policy: { mode: policy.mode, rules: policy.rules },

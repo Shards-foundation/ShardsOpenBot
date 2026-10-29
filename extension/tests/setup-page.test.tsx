@@ -8,7 +8,7 @@ import {
 } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
-import { RECORDER_COLLECTS } from "@openbot/shared/recorder-disclosure";
+import { RECORDER_COLLECTS } from "@shardsopenbot/shared/recorder-disclosure";
 import { SetupPage, type SetupPageDeps } from "../src/pages/setup/setup-page";
 import { DISCLOSURE } from "../src/pages/ui/disclosure";
 import {
@@ -96,9 +96,9 @@ test("says what the Recorder collects and where it goes, first, whatever the bro
     const title = getByText("What the Recorder collects");
     const disclosure = getByText(DISCLOSURE);
     expect(disclosure.textContent).toContain("When you press Record");
-    // Where it goes: straight to the organization's own Intelligence, with OpenBot's pass, never through OpenBot.
+    // Where it goes: straight to the organization's own Intelligence, with ShardsOpenBot's pass, never through ShardsOpenBot.
     expect(disclosure.textContent).toContain(
-      "What you record goes straight from your browser to your organization's own Intelligence, with a pass from your organization's OpenBot. OpenBot is told that you are recording, the task's name, when it started and how many steps it has, and when you record in a browser shown inside OpenBot, your narration passes through it to the Recorder without being stored. Your recordings are used only for your organization's Skills, evaluations and insights.",
+      "What you record goes straight from your browser to your organization's own Intelligence, with a pass from your organization's ShardsOpenBot. ShardsOpenBot is told that you are recording, the task's name, when it started and how many steps it has, and when you record in a browser shown inside ShardsOpenBot, your narration passes through it to the Recorder without being stored. Your recordings are used only for your organization's Skills, evaluations and insights.",
     );
     // Then everything a recording holds, the saves and AI assistant conversations among them, before the microphone.
     for (const { title: held, description } of RECORDER_COLLECTS) {
@@ -297,7 +297,7 @@ test("blocked: names the browser's own settings page, Chrome's or Edge's", async
       edge,
     });
     await findByText(
-      `Blocked. Open ${scheme}://settings/content/microphone, allow OpenBot Recorder, then choose Allow microphone.`,
+      `Blocked. Open ${scheme}://settings/content/microphone, allow ShardsOpenBot Recorder, then choose Allow microphone.`,
     );
     // A blocked microphone shows no prompt, so the page does not ask on its own, nor says how to answer one.
     expect(calls).toEqual([]);

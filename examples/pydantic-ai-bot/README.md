@@ -2,11 +2,11 @@
 
 A Bot written in [Pydantic AI](https://ai.pydantic.dev), served over AG-UI. It sits beside the
 [LangGraph](../langgraph-bot) and [Mastra](../mastra-bot) examples and proves the same point in a
-third language: OpenBot knows a Bot only as an AG-UI endpoint URL, so a Python agent arrives exactly
+third language: ShardsOpenBot knows a Bot only as an AG-UI endpoint URL, so a Python agent arrives exactly
 the way a TypeScript one does.
 
 The browser and file tools arrive in each run's `tools` from the surface. Pydantic AI exposes them
-to the model as external tools whose calls stream back to OpenBot to run through the governed gateway
+to the model as external tools whose calls stream back to ShardsOpenBot to run through the governed gateway
 — so this process drives a real browser it has no direct access to, and the tool loop stays on the
 client, the same as the Bot in the box.
 

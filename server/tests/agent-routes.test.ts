@@ -20,7 +20,7 @@ import { testEnvironment } from "./support/environment";
 
 const actor = {
   id: "user-1",
-  email: "member@openbot.test",
+  email: "member@shardsopenbot.test",
   role: "user",
 } as const;
 
@@ -236,7 +236,10 @@ describe("agent lifecycle routes", () => {
     ];
 
     for (const [path, init] of requests) {
-      const response = await app.request(`http://openbot.test${path}`, init);
+      const response = await app.request(
+        `http://shardsopenbot.test${path}`,
+        init,
+      );
       expect(response.status).toBe(401);
     }
     expect(store.calls).toEqual([]);
@@ -253,9 +256,9 @@ describe("agent lifecycle routes", () => {
       "?hidden=1",
       "?hidden=true",
     ]) {
-      expect((await app.request(`http://openbot.test/${query}`)).status).toBe(
-        200,
-      );
+      expect(
+        (await app.request(`http://shardsopenbot.test/${query}`)).status,
+      ).toBe(200);
     }
 
     expect(store.calls).toEqual([
@@ -271,37 +274,43 @@ describe("agent lifecycle routes", () => {
     const store = fakeStore();
     const app = appFor(store);
 
-    const list = await app.request("http://openbot.test/");
-    const detail = await app.request("http://openbot.test/agent-1");
-    const created = await app.request("http://openbot.test/", {
+    const list = await app.request("http://shardsopenbot.test/");
+    const detail = await app.request("http://shardsopenbot.test/agent-1");
+    const created = await app.request("http://shardsopenbot.test/", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(validInput),
     });
-    const updated = await app.request("http://openbot.test/agent-1", {
+    const updated = await app.request("http://shardsopenbot.test/agent-1", {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(validInput),
     });
     const duplicated = await app.request(
-      "http://openbot.test/agent-1/duplicate",
+      "http://shardsopenbot.test/agent-1/duplicate",
       {
         method: "POST",
       },
     );
-    const hidden = await app.request("http://openbot.test/agent-1/hide", {
+    const hidden = await app.request("http://shardsopenbot.test/agent-1/hide", {
       method: "POST",
     });
-    const unhidden = await app.request("http://openbot.test/agent-1/unhide", {
+    const unhidden = await app.request(
+      "http://shardsopenbot.test/agent-1/unhide",
+      {
+        method: "POST",
+      },
+    );
+    const pinned = await app.request("http://shardsopenbot.test/agent-1/pin", {
       method: "POST",
     });
-    const pinned = await app.request("http://openbot.test/agent-1/pin", {
-      method: "POST",
-    });
-    const unpinned = await app.request("http://openbot.test/agent-1/unpin", {
-      method: "POST",
-    });
-    const deleted = await app.request("http://openbot.test/agent-1", {
+    const unpinned = await app.request(
+      "http://shardsopenbot.test/agent-1/unpin",
+      {
+        method: "POST",
+      },
+    );
+    const deleted = await app.request("http://shardsopenbot.test/agent-1", {
       method: "DELETE",
     });
 
@@ -358,7 +367,7 @@ describe("agent lifecycle routes", () => {
       },
     });
 
-    const response = await appFor(store).request("http://openbot.test/");
+    const response = await appFor(store).request("http://shardsopenbot.test/");
 
     expect(await json(response)).toEqual({
       agents: [
@@ -414,7 +423,7 @@ describe("agent lifecycle routes", () => {
   test("separates ownership from permission for an administrator", async () => {
     const administrator: AuthenticatedActor = {
       id: "admin-1",
-      email: "admin@openbot.test",
+      email: "admin@shardsopenbot.test",
       role: "admin",
     };
     const requireAdministrator: MiddlewareHandler<{
@@ -433,7 +442,9 @@ describe("agent lifecycle routes", () => {
     });
 
     const body = (await json(
-      await appFor(store, requireAdministrator).request("http://openbot.test/"),
+      await appFor(store, requireAdministrator).request(
+        "http://shardsopenbot.test/",
+      ),
     )) as { agents: { id: string; canManage: boolean; mine: boolean }[] };
 
     // An administrator may manage everybody's coworkers but only created their own. A roster that
@@ -453,7 +464,7 @@ describe("agent lifecycle routes", () => {
         ["/", "POST"],
         ["/agent-1", "PATCH"],
       ] as const) {
-        const response = await app.request(`http://openbot.test${path}`, {
+        const response = await app.request(`http://shardsopenbot.test${path}`, {
           method,
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ ...validInput, title }),
@@ -498,7 +509,7 @@ describe("agent lifecycle routes", () => {
       ["/", "POST"],
       ["/agent-1", "PATCH"],
     ] as const) {
-      const response = await app.request(`http://openbot.test${path}`, {
+      const response = await app.request(`http://shardsopenbot.test${path}`, {
         method,
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
@@ -523,12 +534,12 @@ describe("agent lifecycle routes", () => {
   ])("requires a valid full JSON object for %s %s", async (method, path) => {
     const store = fakeStore();
     const app = appFor(store);
-    const malformed = await app.request(`http://openbot.test${path}`, {
+    const malformed = await app.request(`http://shardsopenbot.test${path}`, {
       method,
       headers: { "content-type": "application/json" },
       body: "{",
     });
-    const partial = await app.request(`http://openbot.test${path}`, {
+    const partial = await app.request(`http://shardsopenbot.test${path}`, {
       method,
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ name: "Only a name" }),
@@ -548,7 +559,9 @@ describe("agent lifecycle routes", () => {
   test("returns 404 when get returns null", async () => {
     const store = fakeStore({ get: async () => null });
 
-    const response = await appFor(store).request("http://openbot.test/missing");
+    const response = await appFor(store).request(
+      "http://shardsopenbot.test/missing",
+    );
 
     expect(response.status).toBe(404);
     expect(await json(response)).toEqual({ error: "Couldn't find that Bot." });
@@ -570,7 +583,7 @@ describe("agent lifecycle routes", () => {
     });
 
     const response = await appFor(store).request(
-      "http://openbot.test/agent-1",
+      "http://shardsopenbot.test/agent-1",
       {
         method: "PATCH",
         headers: { "content-type": "application/json" },
@@ -594,7 +607,7 @@ describe("agent lifecycle routes", () => {
     );
 
     const response = await app.request(
-      "http://openbot.test/agent-1/duplicate",
+      "http://shardsopenbot.test/agent-1/duplicate",
       {
         method: "POST",
       },
@@ -638,7 +651,9 @@ describe("agent route composition", () => {
       store,
     );
 
-    const unauthenticated = await app.request("http://openbot.test/api/agents");
+    const unauthenticated = await app.request(
+      "http://shardsopenbot.test/api/agents",
+    );
     expect(unauthenticated.status).toBe(401);
     expect(store.calls).toEqual([]);
 
@@ -646,11 +661,13 @@ describe("agent route composition", () => {
       user: {
         id: actor.id,
         email: actor.email,
-        name: "OpenBot Member",
+        name: "ShardsOpenBot Member",
         image: "https://example.test/member.png",
       },
     };
-    const authenticated = await app.request("http://openbot.test/api/agents");
+    const authenticated = await app.request(
+      "http://shardsopenbot.test/api/agents",
+    );
 
     expect(authenticated.status).toBe(200);
     expect(store.calls).toEqual([
@@ -658,7 +675,7 @@ describe("agent route composition", () => {
         "list",
         {
           ...actor,
-          name: "OpenBot Member",
+          name: "ShardsOpenBot Member",
           image: "https://example.test/member.png",
         },
         false,
@@ -669,7 +686,7 @@ describe("agent route composition", () => {
   test("leaves agent routes unmounted when createApp has no store", async () => {
     const app = createApp(loadConfig(testEnvironment()));
 
-    const response = await app.request("http://openbot.test/api/agents");
+    const response = await app.request("http://shardsopenbot.test/api/agents");
 
     expect(response.status).toBe(404);
   });
@@ -683,7 +700,7 @@ describe("agent route composition", () => {
 describe("which Bots a Bot may hand work to", () => {
   const admin = {
     id: "admin-1",
-    email: "a@openbot.test",
+    email: "a@shardsopenbot.test",
     role: "admin",
   } as const;
 
@@ -818,7 +835,7 @@ test("agents: making a Bot public that uses a shared app says what needs approva
     ),
   );
 
-  const response = await app.request("http://openbot.test/agent-1", {
+  const response = await app.request("http://shardsopenbot.test/agent-1", {
     method: "PATCH",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ ...validInput, visibility: "public" }),

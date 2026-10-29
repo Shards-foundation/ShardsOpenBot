@@ -13,13 +13,13 @@ import { createThreadRoutes } from "../src/channels/thread-routes";
  * names itself is one nothing can later attribute to this deployment.
  */
 
-const identity = createThreadIdentity("openbot-test");
+const identity = createThreadIdentity("shardsopenbot-test");
 
 const asSignedIn: MiddlewareHandler<{ Variables: AppVariables }> = async (
   context,
   next,
 ) => {
-  context.set("actor", { id: "u1", email: "someone@openbot.test" });
+  context.set("actor", { id: "u1", email: "someone@shardsopenbot.test" });
   return next();
 };
 
@@ -31,9 +31,12 @@ function app(reader?: ThreadReader) {
 }
 
 async function mint() {
-  const response = await app().request("http://openbot.local/threads/mint", {
-    method: "POST",
-  });
+  const response = await app().request(
+    "http://shardsopenbot.local/threads/mint",
+    {
+      method: "POST",
+    },
+  );
   return (await response.json()) as { threadId: string };
 }
 
@@ -55,7 +58,7 @@ describe("minting a thread", () => {
     ) => context.json({ error: "Unauthorized." }, 401);
     const response = await new Hono()
       .route("/threads", createThreadRoutes(identity, refusing))
-      .request("http://openbot.local/threads/mint", { method: "POST" });
+      .request("http://shardsopenbot.local/threads/mint", { method: "POST" });
     expect(response.status).toBe(401);
   });
 });
@@ -64,7 +67,7 @@ describe("checking whether a remembered thread is still known upstream", () => {
   test("answers known when the reader can produce the thread", async () => {
     const threadId = identity.mint();
     const response = await app(async () => "known").request(
-      `http://openbot.local/threads/${threadId}`,
+      `http://shardsopenbot.local/threads/${threadId}`,
     );
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ known: true });
@@ -73,7 +76,7 @@ describe("checking whether a remembered thread is still known upstream", () => {
   test("answers unknown when the reader reports Intelligence has never heard of it", async () => {
     const threadId = identity.mint();
     const response = await app(async () => "unknown").request(
-      `http://openbot.local/threads/${threadId}`,
+      `http://shardsopenbot.local/threads/${threadId}`,
     );
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ known: false });
@@ -88,7 +91,7 @@ describe("checking whether a remembered thread is still known upstream", () => {
       );
     };
     const response = await app(reader).request(
-      `http://openbot.local/threads/${identity.mint()}`,
+      `http://shardsopenbot.local/threads/${identity.mint()}`,
     );
     expect(response.status).toBe(502);
     const body = (await response.json()) as { error?: unknown };
@@ -102,13 +105,16 @@ describe("checking whether a remembered thread is still known upstream", () => {
     // route that was never wired up.
     const bare = app();
     const status = await bare.request(
-      `http://openbot.local/threads/${identity.mint()}`,
+      `http://shardsopenbot.local/threads/${identity.mint()}`,
     );
     expect(status.status).toBe(404);
 
-    const minted = await bare.request("http://openbot.local/threads/mint", {
-      method: "POST",
-    });
+    const minted = await bare.request(
+      "http://shardsopenbot.local/threads/mint",
+      {
+        method: "POST",
+      },
+    );
     expect(minted.status).toBe(200);
   });
 
@@ -120,7 +126,7 @@ describe("checking whether a remembered thread is still known upstream", () => {
       return "known" as const;
     };
     await app(reader).request(
-      `http://openbot.local/threads/${threadId}?userId=someone-else`,
+      `http://shardsopenbot.local/threads/${threadId}?userId=someone-else`,
     );
     expect(calls).toEqual([{ threadId, userId: "u1" }]);
   });

@@ -54,7 +54,7 @@ const SECTIONS: {
 }[] = [
   {
     title: "What Bots can reach",
-    description: "Control what Bots can access outside OpenBot.",
+    description: "Control what Bots can access outside ShardsOpenBot.",
     items: [
       {
         title: "Credentials",
@@ -153,7 +153,7 @@ const SECTIONS: {
     items: [
       {
         title: "Audit",
-        description: "Review actions taken in OpenBot and who took them.",
+        description: "Review actions taken in ShardsOpenBot and who took them.",
         icon: IconListDetails,
         linkOptions: { to: "/admin/audit" },
       },

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { HeadlessWaiting } from "@openbot/toolkit/headless-tools";
+import type { HeadlessWaiting } from "@shardsopenbot/toolkit/headless-tools";
 
 export const responsibilitySources = [
   "manual",

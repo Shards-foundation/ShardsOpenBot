@@ -38,8 +38,8 @@ describe("what Intelligence's entitlement answer means for this deployment", () 
   });
 
   test("an unlicensed self-hosted Intelligence names where the licence goes", () => {
-    // The state a self-hosted deployment reaches when OpenBot has the licence and Intelligence does
-    // not: memory is refused with nothing in OpenBot's log saying why.
+    // The state a self-hosted deployment reaches when ShardsOpenBot has the licence and Intelligence does
+    // not: memory is refused with nothing in ShardsOpenBot's log saying why.
     const warning = entitlementWarning(
       notReady(
         "misconfigured",

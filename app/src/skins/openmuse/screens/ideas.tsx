@@ -11,7 +11,7 @@ import { NoBot } from "./activity";
 
 /**
  * Ideas: the next steps the centre Bot's background research suggested, and the research itself.
- * Both are OpenBot's own sections, so starting, dismissing and running research behave as on the
+ * Both are ShardsOpenBot's own sections, so starting, dismissing and running research behave as on the
  * Bot's page.
  */
 export function IdeasScreen() {

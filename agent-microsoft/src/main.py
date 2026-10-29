@@ -16,7 +16,7 @@ from agent_framework_ag_ui import add_agent_framework_fastapi_endpoint
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-TOKEN_HEADER = "x-openbot-agent-token"
+TOKEN_HEADER = "x-shardsopenbot-agent-token"
 
 
 def _client() -> AnthropicClient | OpenAIChatClient:

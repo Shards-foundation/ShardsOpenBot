@@ -1,4 +1,4 @@
-import { WEB_HARNESSES } from "@openbot/shared/harnesses";
+import { WEB_HARNESSES } from "@shardsopenbot/shared/harnesses";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import Avatar from "boring-avatars";
@@ -170,7 +170,7 @@ function RosterStep() {
 }
 
 /*
- * These local-evaluation scenes are for somebody trying OpenBot on their own machine
+ * These local-evaluation scenes are for somebody trying ShardsOpenBot on their own machine
  * (see `localEvaluation` in RouteComponent). They answer what that person is deciding: where their
  * data is, whether their own agents fit, and what taking it to their organization involves (OB-02 in
  * the product backlog). None of it is said to an organization's own people, who are past all three.
@@ -324,7 +324,7 @@ function RouteComponent() {
    * Local-evaluation content is never shown to an organization's people:
    * the server says single-user mode, which an organization's deployment, always behind sign-in,
    * cannot be in. Until the answer arrives they are left out, so a slow or failed request never
-   * shows an organization's employees a page about deploying OpenBot themselves.
+   * shows an organization's employees a page about deploying ShardsOpenBot themselves.
    *
    * NOT GATED ON `selfHostBanner` AS WELL. That flag is off for any deployment with a paid
    * Intelligence entitlement, and the stack `copilotkit local` installs runs on an enterprise

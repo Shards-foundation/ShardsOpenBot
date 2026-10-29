@@ -8,7 +8,7 @@ export const RECORDER_SIGNED_OUT = "RECORDER_SIGNED_OUT";
 /** The `code` on the 503 the recorder guard and the trajectory gate answer when the organization's sign-in server could not
  * answer for now (Decision 19): transient, never a sign-out; the caller retries. */
 export const RECORDER_AUTHORITY_UNAVAILABLE = "RECORDER_AUTHORITY_UNAVAILABLE";
-/** The refusals OpenBot's trajectory gate shares with the Recorder's pass table (rows 1, 3 and 4a). */
+/** The refusals ShardsOpenBot's trajectory gate shares with the Recorder's pass table (rows 1, 3 and 4a). */
 export const TRAJECTORY_GATE_REFUSALS = {
   invalidId: {
     status: 400,
@@ -27,16 +27,16 @@ export const TRAJECTORY_GATE_REFUSALS = {
   },
 } as const;
 
-/** How a browser was connected: Connect this browser in OpenBot (`web`), OpenBot Desktop's handoff (`desktop`), or OpenBot
- * itself when it opened the person's own OpenBot browser, with no Connect step (`openbot-browser`). */
-export type RecorderConnectVia = "web" | "desktop" | "openbot-browser";
+/** How a browser was connected: Connect this browser in ShardsOpenBot (`web`), ShardsOpenBot Desktop's handoff (`desktop`), or ShardsOpenBot
+ * itself when it opened the person's own ShardsOpenBot browser, with no Connect step (`shardsopenbot-browser`). */
+export type RecorderConnectVia = "web" | "desktop" | "shardsopenbot-browser";
 export type RecorderUser = { id: string; name: string; email: string };
 export type RecorderConnection = {
   id: string;
   label: string;
   via: RecorderConnectVia;
   extensionId: string;
-  /** The connecting copy's install id for this OpenBot origin (Decision 18): 32 lowercase hex digits. */
+  /** The connecting copy's install id for this ShardsOpenBot origin (Decision 18): 32 lowercase hex digits. */
   installId: string;
   createdAt: string;
   lastUsedAt: string | null;
@@ -99,7 +99,7 @@ export type RecorderErrorBody = {
   reason?: "revoked" | "removed" | "organization";
 };
 
-/** Only `web` and `desktop` are asked for: OpenBot mints an OpenBot browser's connection itself, with no code anybody
+/** Only `web` and `desktop` are asked for: ShardsOpenBot mints an ShardsOpenBot browser's connection itself, with no code anybody
  * could ask for. */
 export const connectCodeRequestSchema = z
   .object({ via: z.enum(["web", "desktop"]) })
@@ -116,10 +116,10 @@ type OriginCheck = { ok: true; origin: string } | { ok: false; reason: string };
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "[::1]"]);
 
-/** https:// any host; http:// only for a loopback address with a port, 127.0.0.1 or [::1] (OpenBot Desktop's local stack,
+/** https:// any host; http:// only for a loopback address with a port, 127.0.0.1 or [::1] (ShardsOpenBot Desktop's local stack,
  * Decision 21; never a name such as localhost); no userinfo, path other than "/", query or fragment. The Recorder's rule
- * for every OpenBot it connects to, here so the server never hands the Recorder an address it would refuse. */
-export function normaliseOpenBotOrigin(raw: string): OriginCheck {
+ * for every ShardsOpenBot it connects to, here so the server never hands the Recorder an address it would refuse. */
+export function normaliseShardsOpenBotOrigin(raw: string): OriginCheck {
   let url: URL;
   try {
     url = new URL(raw);
@@ -127,7 +127,10 @@ export function normaliseOpenBotOrigin(raw: string): OriginCheck {
     return { ok: false, reason: "That is not a web address." };
   }
   if (url.protocol !== "https:" && url.protocol !== "http:") {
-    return { ok: false, reason: "OpenBot's address must start with https://." };
+    return {
+      ok: false,
+      reason: "ShardsOpenBot's address must start with https://.",
+    };
   }
   if (url.username || url.password)
     return {
@@ -137,14 +140,15 @@ export function normaliseOpenBotOrigin(raw: string): OriginCheck {
   if (url.pathname !== "/" || url.search || url.hash) {
     return {
       ok: false,
-      reason: "Use only the address, such as https://openbot.example.com.",
+      reason:
+        "Use only the address, such as https://shardsopenbot.example.com.",
     };
   }
   if (
     url.protocol === "http:" &&
     !(LOOPBACK_HOSTS.has(url.hostname) && url.port)
   ) {
-    return { ok: false, reason: "OpenBot's address must use HTTPS." };
+    return { ok: false, reason: "ShardsOpenBot's address must use HTTPS." };
   }
   return { ok: true, origin: url.origin };
 }
@@ -165,9 +169,9 @@ export const recorderPaths = {
 } as const;
 
 /**
- * What a connected Recorder is doing, as it tells OpenBot whenever its recording phase changes and every 30 s while a
- * recording runs, so OpenBot can show it (the Browser button's red dot) wherever the person recorded: their own
- * everyday browser or the OpenBot browser. Best effort on the Recorder's side; OpenBot treats one older than 90 s as
+ * What a connected Recorder is doing, as it tells ShardsOpenBot whenever its recording phase changes and every 30 s while a
+ * recording runs, so ShardsOpenBot can show it (the Browser button's red dot) wherever the person recorded: their own
+ * everyday browser or the ShardsOpenBot browser. Best effort on the Recorder's side; ShardsOpenBot treats one older than 90 s as
  * stale.
  */
 export const recorderActivitySchema = z

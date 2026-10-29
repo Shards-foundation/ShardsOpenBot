@@ -3,13 +3,13 @@
  *
  * Mastra brings its own HTTP server, so unlike the Python harnesses this one is not a FastAPI app
  * with a route bolted on: it is a plain Mastra server, and that is the whole point. Mastra already
- * serves its agents over its own API, and OpenBot dials that API through `@ag-ui/mastra`, the bridge
+ * serves its agents over its own API, and ShardsOpenBot dials that API through `@ag-ui/mastra`, the bridge
  * Mastra and AG-UI maintain between them. See `remoteTransport` in server/src/copilot.ts.
  *
  * SO THERE IS NO AG-UI ROUTE HERE, deliberately. An earlier version mounted `registerCopilotKit`
  * from `@ag-ui/mastra/copilotkit`, which serves the CopilotKit Runtime protocol rather than AG-UI:
  * a different wire format that answers a run with a complaint about a missing `method` field. The
- * translation belongs on OpenBot's side, in one place, where every remote Bot is governed the same
+ * translation belongs on ShardsOpenBot's side, in one place, where every remote Bot is governed the same
  * way — not in each harness.
  */
 import { Agent } from "@mastra/core/agent";
@@ -80,23 +80,23 @@ async function buildModel() {
 const port = listenPort(process.env.PORT, 4213);
 if (!port.ok) throw new Error(port.reason);
 
-export const openbotBaseInstructions =
+export const shardsopenbotBaseInstructions =
   "Answer the question you are asked, briefly and correctly.";
 
-const OPENBOT_CONTEXT_DESCRIPTIONS = [
-  "OpenBot standing role",
-  "OpenBot granted tools guidance",
-  "OpenBot learned skills",
+const SHARDSOPENBOT_CONTEXT_DESCRIPTIONS = [
+  "ShardsOpenBot standing role",
+  "ShardsOpenBot granted tools guidance",
+  "ShardsOpenBot learned skills",
 ] as const;
 
-type OpenBotInstructionArgs = {
+type ShardsOpenBotInstructionArgs = {
   requestContext?: {
     get(key: string): unknown;
   };
 };
 
 function agUiContextEntries(
-  requestContext?: OpenBotInstructionArgs["requestContext"],
+  requestContext?: ShardsOpenBotInstructionArgs["requestContext"],
 ) {
   const agUi = requestContext?.get("ag-ui");
   if (
@@ -110,11 +110,11 @@ function agUiContextEntries(
   return agUi.context;
 }
 
-export function buildOpenBotInstructions({
+export function buildShardsOpenBotInstructions({
   requestContext,
-}: OpenBotInstructionArgs = {}) {
+}: ShardsOpenBotInstructionArgs = {}) {
   const contextEntries = agUiContextEntries(requestContext);
-  const openbotInstructions = OPENBOT_CONTEXT_DESCRIPTIONS.flatMap(
+  const shardsopenbotInstructions = SHARDSOPENBOT_CONTEXT_DESCRIPTIONS.flatMap(
     (description) =>
       contextEntries
         .filter(
@@ -130,21 +130,26 @@ export function buildOpenBotInstructions({
         .map((entry) => entry.value.trim()),
   );
 
-  if (openbotInstructions.length === 0) return openbotBaseInstructions;
-  return [openbotBaseInstructions, ...openbotInstructions].join("\n\n");
+  if (shardsopenbotInstructions.length === 0)
+    return shardsopenbotBaseInstructions;
+  return [shardsopenbotBaseInstructions, ...shardsopenbotInstructions].join(
+    "\n\n",
+  );
 }
 
-const openbot = new Agent({
-  id: "openbot",
-  name: "openbot",
-  instructions: buildOpenBotInstructions,
+const shardsopenbot = new Agent({
+  id: "shardsopenbot",
+  name: "shardsopenbot",
+  instructions: buildShardsOpenBotInstructions,
   model: await buildModel(),
 });
 
-/** The one header OpenBot's server sends, compared without leaking length through timing. */
+/** The one header ShardsOpenBot's server sends, compared without leaking length through timing. */
 function carriesTheServerToken(request: Request): boolean {
   const expected = (process.env.MANAGED_AGENT_TOKEN ?? "").trim();
-  const offered = (request.headers.get("x-openbot-agent-token") ?? "").trim();
+  const offered = (
+    request.headers.get("x-shardsopenbot-agent-token") ?? ""
+  ).trim();
   // Unset means unconfigured, not open.
   if (!expected || offered.length !== expected.length) return false;
   let difference = 0;
@@ -155,7 +160,7 @@ function carriesTheServerToken(request: Request): boolean {
 }
 
 export const mastra = new Mastra({
-  agents: { openbot },
+  agents: { shardsopenbot },
   server: {
     port: port.port,
     host: "0.0.0.0",

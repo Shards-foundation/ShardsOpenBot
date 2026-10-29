@@ -1,7 +1,7 @@
 import type {
   BrowserApiState,
   BrowserTab,
-} from "@openbot/shared/openbot-browser";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -82,7 +82,7 @@ function shownAddress(tab: BrowserTab | undefined): string {
 }
 
 /**
- * THE PERSON'S BROWSER, SHOWN IN THE PAGE (hosted OpenBot). A cloud browser has no window of its own, so the page is
+ * THE PERSON'S BROWSER, SHOWN IN THE PAGE (hosted ShardsOpenBot). A cloud browser has no window of its own, so the page is
  * the window: a bar with the recording controls, the tabs, the address bar with back, forward and reload, and the live
  * screen, which the person already drives (it is their browser, so there is no wheel to take).
  *
@@ -151,7 +151,7 @@ export function ScreenBrowser({
           />
         </RecordingBar>
       </div>
-      {/* On OpenBot Desktop, why this is a browser in the page rather than the person's own Chrome or Edge. */}
+      {/* On ShardsOpenBot Desktop, why this is a browser in the page rather than the person's own Chrome or Edge. */}
       {state.note ? (
         <p className="border-b border-border px-3 py-2 text-muted-foreground text-sm">
           {state.note}

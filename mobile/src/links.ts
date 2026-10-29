@@ -16,7 +16,7 @@ export function notificationDestination(value: unknown): {
     return null;
   }
   if (
-    url.protocol !== "openbotmobile:" ||
+    url.protocol !== "shardsopenbotmobile:" ||
     url.username ||
     url.password ||
     url.hash ||

@@ -69,7 +69,7 @@ function RailTip({
   );
 }
 
-/** Who is signed in, and the way out, at the foot of the rail as OpenBot keeps it in its sidebar. */
+/** Who is signed in, and the way out, at the foot of the rail as ShardsOpenBot keeps it in its sidebar. */
 function RailUserMenu() {
   const user = useQuery(currentUserQueryOptions());
   const navigate = useNavigate();
@@ -113,7 +113,7 @@ function RailUserMenu() {
 }
 
 /** The 48px strip at the far left: the brand, the sidebar toggle, and the few places used most. */
-/** One of OpenBot's destinations as a rail button, with the Bots badge on Bots. */
+/** One of ShardsOpenBot's destinations as a rail button, with the Bots badge on Bots. */
 function RailDestination({
   item,
   showBadge,
@@ -131,7 +131,7 @@ function RailDestination({
       >
         <Icon />
         {item.id === "bots" && showBadge ? (
-          // What waits on you across every Bot. OpenBot's own badge, which also sends the
+          // What waits on you across every Bot. ShardsOpenBot's own badge, which also sends the
           // browser notification, so exactly one is ever mounted.
           <span className="pointer-events-none absolute -top-1 -right-1 flex">
             <BotsNavBadge />
@@ -161,7 +161,7 @@ function Rail({
       data-opendots-chrome
       className="flex w-12 shrink-0 flex-col items-center gap-3 border-r border-(--opendots-line) bg-(--opendots-rail) px-[5px] py-4 max-md:hidden"
     >
-      {/* OpenBot's own mark where OpenDots puts its monogram; the deployment owns the identity. */}
+      {/* ShardsOpenBot's own mark where OpenDots puts its monogram; the deployment owns the identity. */}
       <Link
         aria-label={`${appConfig.brand.productName} home`}
         className="mb-3 grid size-9 shrink-0 place-items-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -196,7 +196,7 @@ function Rail({
           <IconClockHour3 />
         </Link>
       </RailTip>
-      {/* OpenBot's own destinations, from the one list every frame reads. */}
+      {/* ShardsOpenBot's own destinations, from the one list every frame reads. */}
       {navigation
         .filter((item) => item.section === "primary")
         .map((item) => (
@@ -215,7 +215,7 @@ function Rail({
 }
 
 /**
- * Pause and resume for the one Bot the page is about. OpenDots pauses every Dot at once; OpenBot
+ * Pause and resume for the one Bot the page is about. OpenDots pauses every Dot at once; ShardsOpenBot
  * pauses each Bot on its own, so this is that Bot's switch and only appears where there is one.
  */
 function PauseControl({ botId, name }: { botId: string; name: string }) {
@@ -318,12 +318,12 @@ function Topbar({
 }
 
 /**
- * OpenDots' frame around every OpenBot page: the icon rail, the Dots sidebar, a top bar with
+ * OpenDots' frame around every ShardsOpenBot page: the icon rail, the Dots sidebar, a top bar with
  * breadcrumbs and the computer toggle, and the computer pane on the right. The page itself, chat
- * included, is OpenBot's own and renders as `children`.
+ * included, is ShardsOpenBot's own and renders as `children`.
  */
 export function OpenDotsFrame({ children }: { children: ReactNode }) {
-  // One socket for the app, opened where the roster is kept live, as OpenBot's own sidebar does.
+  // One socket for the app, opened where the roster is kept live, as ShardsOpenBot's own sidebar does.
   useChannelEvents();
   const place = usePlace();
   const navigate = useNavigate();
@@ -332,7 +332,7 @@ export function OpenDotsFrame({ children }: { children: ReactNode }) {
   const [paneOpen, setPaneOpen] = useState(false);
   const href = useRouterState({ select: (state) => state.location.href });
 
-  // OpenBot's own breakpoint, so the drawer and OpenBot's pages agree about what a phone is.
+  // ShardsOpenBot's own breakpoint, so the drawer and ShardsOpenBot's pages agree about what a phone is.
   const isMobile = useIsMobile();
 
   // A page chosen from the drawer replaces it, as tapping a row in OpenDots' drawer does.
@@ -348,7 +348,7 @@ export function OpenDotsFrame({ children }: { children: ReactNode }) {
       : { to: "/channel/new" };
 
   /*
-   * A conversation draws OpenBot's own Computer pane, opened by its `?watch` flag, and opens it by
+   * A conversation draws ShardsOpenBot's own Computer pane, opened by its `?watch` flag, and opens it by
    * itself when the Bot starts using the browser. The toggle drives that pane there rather than
    * opening a second screen beside it; everywhere else it opens the frame's own.
    */
@@ -395,7 +395,7 @@ export function OpenDotsFrame({ children }: { children: ReactNode }) {
               <BotsNavBadge />
             </span>
           </button>
-          {/* OpenBot's own sheet: it traps focus, closes on Escape and on the scrim. */}
+          {/* ShardsOpenBot's own sheet: it traps focus, closes on Escape and on the scrim. */}
           <Sheet onOpenChange={setMobileOpen} open={mobileOpen}>
             <SheetContent
               className="w-[252px] max-w-[85vw] gap-0 border-(--opendots-line) bg-(--opendots-sidebar) p-0 text-foreground"

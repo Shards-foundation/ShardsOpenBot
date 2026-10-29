@@ -16,12 +16,12 @@ function Assert-Throws([scriptblock]$Operation, [string]$Message) {
     throw "Expected failure containing: $Message"
 }
 
-$directory = Join-Path ([System.IO.Path]::GetTempPath()) "openbot signing $([Guid]::NewGuid())"
+$directory = Join-Path ([System.IO.Path]::GetTempPath()) "shardsopenbot signing $([Guid]::NewGuid())"
 $installerDirectory = Join-Path $directory 'installers'
 $evidenceDirectory = Join-Path $directory 'evidence'
 New-Item -ItemType Directory -Path $installerDirectory -Force | Out-Null
-$app = Join-Path $directory 'OpenBot app.exe'
-$installer = Join-Path $installerDirectory 'OpenBot test-setup.exe'
+$app = Join-Path $directory 'ShardsOpenBot app.exe'
+$installer = Join-Path $installerDirectory 'ShardsOpenBot test-setup.exe'
 Set-Content -LiteralPath $app -Value 'unsigned app fixture'
 Set-Content -LiteralPath $installer -Value 'unsigned installer fixture'
 $environmentNames = @('WINDOWS_SIGNING', 'AZURE_KEY_VAULT_URL', 'CODE_SIGNING_CERT_NAME', 'AZURE_ACCESS_TOKEN')
@@ -177,11 +177,11 @@ try {
         New-Item -ItemType Directory -Path (Join-Path $layout $relative) -Force | Out-Null
     }
     Copy-Item -LiteralPath $verify -Destination (Join-Path $layout 'scripts/verify-windows-signatures.ps1')
-    $restored = Join-Path $release 'openbot-desktop.exe'
-    $payload = Join-Path $layout 'signed-app/openbot-desktop.exe'
+    $restored = Join-Path $release 'shardsopenbot-desktop.exe'
+    $payload = Join-Path $layout 'signed-app/shardsopenbot-desktop.exe'
     Set-Content -LiteralPath $restored -Value 'unsigned restored build output'
     Set-Content -LiteralPath $payload -Value 'signed installer payload'
-    Set-Content -LiteralPath (Join-Path $release 'bundle/nsis/OpenBot test-setup.exe') -Value 'signed installer'
+    Set-Content -LiteralPath (Join-Path $release 'bundle/nsis/ShardsOpenBot test-setup.exe') -Value 'signed installer'
     $global:SigningTestState.invalidFile = $restored
     $global:SigningTestState.status = 'NotSigned'
     & (Join-Path $layout 'scripts/verify-windows-signatures.ps1') -SignToolPath Test-SignTool -SourceSha test-source-sha | Out-Null

@@ -119,7 +119,7 @@ function startEngine(options: EngineOptions): Engine {
                   id: "at_1",
                   connection_id: "ac_1",
                   connection_status: "active",
-                  provider_id: "github-openbot",
+                  provider_id: "github-shardsopenbot",
                   provider_type: "oauth2",
                   provider_user_info: { name: "person one" },
                   scopes: [],
@@ -139,7 +139,13 @@ function startEngine(options: EngineOptions): Engine {
         await sleep(latency.small);
         const items =
           offset === 0
-            ? [{ id: "github-openbot", provider_id: "github", type: "oauth2" }]
+            ? [
+                {
+                  id: "github-shardsopenbot",
+                  provider_id: "github",
+                  type: "oauth2",
+                },
+              ]
             : [];
         return Response.json({
           items,

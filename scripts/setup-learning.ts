@@ -30,8 +30,8 @@ const CONTAINER = "CPK_INTELLIGENCE_LEARNING_CONTAINER_ID";
 /**
  * - `configured`: fresh setup wrote a runtime key and the container to `.env`.
  * - `preserved`: the environment already names a container.
- * - `present`: the runtime key's project already has `openbot`; the server assigns it.
- * - `created`: `openbot` was created in the runtime key's project; the server assigns it.
+ * - `present`: the runtime key's project already has `shardsopenbot`; the server assigns it.
+ * - `created`: `shardsopenbot` was created in the runtime key's project; the server assigns it.
  * - `skipped`: run without a person (`--non-interactive`) and nothing can be done without one.
  */
 export type SetupLearningResult =
@@ -130,7 +130,7 @@ export async function setupLearning(
   const envPath = resolve(directory, ".env");
   const original = await readFile(envPath, "utf8").catch(() => {
     throw new Error(
-      "Run this helper from the OpenBot root after copying .env.example to .env.",
+      "Run this helper from the ShardsOpenBot root after copying .env.example to .env.",
     );
   });
   const values = parseEnv(original);
@@ -169,7 +169,7 @@ export async function setupLearning(
         const connection = await setupSelfHosted(apiUrl, existingKey);
         if (
           connection.apiKey !== existingKey ||
-          connection.learningContainerId !== "openbot"
+          connection.learningContainerId !== "shardsopenbot"
         ) {
           throw new Error(
             "Intelligence returned an invalid setup connection. Nothing was saved.",
@@ -187,7 +187,7 @@ export async function setupLearning(
     );
     if (
       connection.apiUrl !== apiUrl ||
-      connection.learningContainerId !== "openbot" ||
+      connection.learningContainerId !== "shardsopenbot" ||
       !connection.apiKey.startsWith("cpk-")
     ) {
       throw new Error(
@@ -218,7 +218,7 @@ export async function setupLearning(
   const selected = json(
     await readFile(projectPath, "utf8").catch(() => {
       throw new Error(
-        "Run npx --yes copilotkit@latest login and project select from the OpenBot root first.",
+        "Run npx --yes copilotkit@latest login and project select from the ShardsOpenBot root first.",
       );
     }),
   );
@@ -247,7 +247,7 @@ export async function setupLearning(
     );
   }
   const get = await run(
-    ["learning", "containers", "get", "openbot", "--json"],
+    ["learning", "containers", "get", "shardsopenbot", "--json"],
     directory,
   );
   if (containerMissing(json(get.stdout))) {
@@ -257,9 +257,9 @@ export async function setupLearning(
         "containers",
         "create",
         "--id",
-        "openbot",
+        "shardsopenbot",
         "--name",
-        "OpenBot",
+        "ShardsOpenBot",
         "--json",
       ],
       directory,
@@ -285,7 +285,7 @@ export async function setupLearning(
       "The CLI did not write a runtime key. Run project select and this helper again.",
     );
   }
-  const content = upsert(current, CONTAINER, "openbot");
+  const content = upsert(current, CONTAINER, "shardsopenbot");
   await saveEnvironment(envPath, content);
   return "configured";
 }
@@ -295,12 +295,12 @@ const RESULT_MESSAGES: Record<
   string
 > = {
   configured:
-    "Configured the selected project's openbot Learning container and OpenBot runtime key in .env. Saved Admin settings still take precedence.",
+    "Configured the selected project's shardsopenbot Learning container and ShardsOpenBot runtime key in .env. Saved Admin settings still take precedence.",
   preserved: "Preserved the existing Learning container assignment.",
   present:
-    "This runtime key's project has the openbot Learning container. OpenBot assigns it as the default on start unless Admin → Automatic Learning has a saved setting.",
+    "This runtime key's project has the shardsopenbot Learning container. ShardsOpenBot assigns it as the default on start unless Admin → Automatic Learning has a saved setting.",
   created:
-    "Created the openbot Learning container in this runtime key's project. OpenBot assigns it as the default on start unless Admin → Automatic Learning has a saved setting.",
+    "Created the shardsopenbot Learning container in this runtime key's project. ShardsOpenBot assigns it as the default on start unless Admin → Automatic Learning has a saved setting.",
 };
 
 /** What to run instead, for the Intelligence this checkout points at. */
@@ -318,7 +318,7 @@ async function skippedMessage(directory: string) {
       ).trim(),
     );
   } catch {}
-  return `Automatic Learning: no openbot container was created, because nothing here can create one without a person. ${learningSetupInstructions(apiUrl)}`;
+  return `Automatic Learning: no shardsopenbot container was created, because nothing here can create one without a person. ${learningSetupInstructions(apiUrl)}`;
 }
 
 if (import.meta.main) {
@@ -339,7 +339,7 @@ if (import.meta.main) {
       error instanceof Error
         ? error.message
         : "Learning setup failed; no assignment was saved.";
-    // Run by scripts/start.sh, a failure here must not stop OpenBot starting: say it and move on.
+    // Run by scripts/start.sh, a failure here must not stop ShardsOpenBot starting: say it and move on.
     if (nonInteractive) console.log(`Automatic Learning: ${message}`);
     else {
       console.error(message);

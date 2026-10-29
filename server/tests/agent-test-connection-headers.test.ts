@@ -119,7 +119,7 @@ describe("POST /test-connection header validation", () => {
     ) => {
       context.set("actor", {
         id: "user-1",
-        email: "user@openbot.test",
+        email: "user@shardsopenbot.test",
         role: "user",
       });
       await next();
@@ -129,14 +129,17 @@ describe("POST /test-connection header validation", () => {
 
   test("invalid headers answer 400 without probing", async () => {
     const app = appFor();
-    const response = await app.request("http://openbot.test/test-connection", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        endpoint: "https://agent.example/ag-ui",
-        headers: { Authorization: ["Bearer x"] },
-      }),
-    });
+    const response = await app.request(
+      "http://shardsopenbot.test/test-connection",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          endpoint: "https://agent.example/ag-ui",
+          headers: { Authorization: ["Bearer x"] },
+        }),
+      },
+    );
 
     expect(response.status).toBe(400);
     const body = (await response.json()) as { error: string };
@@ -150,11 +153,14 @@ describe("POST /test-connection header validation", () => {
     const rawBody = JSON.stringify({
       endpoint: "https://agent.example/ag-ui",
     }).replace(/}$/, ',"headers":{"__proto__":"polluted"}}');
-    const response = await app.request("http://openbot.test/test-connection", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: rawBody,
-    });
+    const response = await app.request(
+      "http://shardsopenbot.test/test-connection",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: rawBody,
+      },
+    );
 
     expect(response.status).toBe(400);
   });
@@ -184,7 +190,7 @@ describe("a header value that cannot be sent", () => {
       }> = async (context, next) => {
         context.set("actor", {
           id: "user-1",
-          email: "user@openbot.test",
+          email: "user@shardsopenbot.test",
           role: "user",
         });
         await next();
@@ -192,7 +198,7 @@ describe("a header value that cannot be sent", () => {
       const app = createAgentRoutes({} as never, requireUser, true);
 
       const response = await app.request(
-        "http://openbot.test/test-connection",
+        "http://shardsopenbot.test/test-connection",
         {
           method: "POST",
           headers: { "content-type": "application/json" },

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@openbot/supervisor",
+      "name": "@shardsopenbot/supervisor",
       "dependencies": {
         "dockerode": "5.0.1",
         "hono": "^4.10.0",

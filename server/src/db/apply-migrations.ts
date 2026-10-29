@@ -87,7 +87,7 @@ export class MigrationsOutOfReachError extends Error {
  * precisely the ones whose folders differ. Advisory locks are scoped to the database, so two
  * databases on one server never wait on each other.
  */
-const MIGRATION_LOCK = "openbot:apply-migrations";
+const MIGRATION_LOCK = "shardsopenbot:apply-migrations";
 
 /**
  * Check, then migrate, with nothing able to commit in between.

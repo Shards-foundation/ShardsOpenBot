@@ -1,5 +1,5 @@
 #!/bin/sh
-# OpenBot Desktop's package removal on Linux: the .deb's postrm and the .rpm's %postun
+# ShardsOpenBot Desktop's package removal on Linux: the .deb's postrm and the .rpm's %postun
 # (bundle.linux.deb.postRemoveScript and bundle.linux.rpm.postRemoveScript in tauri.conf.json).
 #
 # Uninstalling takes away what Desktop left in each person's home for the browser it opened for them
@@ -31,10 +31,10 @@ getent passwd | while IFS=: read -r name _ uid _ _ home _; do
   [ "$uid" -lt 65534 ] || continue
   [ -d "$home" ] || continue
   runuser -u "$name" -- rm -rf -- \
-    "$home/.local/share/openbot/local-computer" \
-    "$home/.config/google-chrome/NativeMessagingHosts/ai.copilotkit.openbot.recorder.json" \
-    "$home/.config/microsoft-edge/NativeMessagingHosts/ai.copilotkit.openbot.recorder.json" \
-    "$home/.config/chromium/NativeMessagingHosts/ai.copilotkit.openbot.recorder.json" \
+    "$home/.local/share/shardsopenbot/local-computer" \
+    "$home/.config/google-chrome/NativeMessagingHosts/ai.copilotkit.shardsopenbot.recorder.json" \
+    "$home/.config/microsoft-edge/NativeMessagingHosts/ai.copilotkit.shardsopenbot.recorder.json" \
+    "$home/.config/chromium/NativeMessagingHosts/ai.copilotkit.shardsopenbot.recorder.json" \
     </dev/null >/dev/null 2>&1 || true
 done
 exit 0

@@ -1,6 +1,6 @@
 # Configuration
 
-OpenBot is configured with environment variables and a tenant package. The API server validates both at startup.
+ShardsOpenBot is configured with environment variables and a tenant package. The API server validates both at startup.
 
 ## Environment setup
 
@@ -32,7 +32,7 @@ unconfigured.
 `COPILOTKIT_LICENSE_TOKEN` is optional: managed Intelligence issues no licence token, and a
 self-hosted Intelligence that has one sets this and has it forwarded to the runtime. That
 Intelligence needs the same licence on its own deployment as well, or it refuses memory and the
-other licensed features while conversations carry on. OpenBot asks Intelligence once at boot and
+other licensed features while conversations carry on. ShardsOpenBot asks Intelligence once at boot and
 logs `intelligence-entitlement-not-ready`, naming the fix, when the answer is not ready.
 
 `MANAGED_AGENT_AG_UI_URL` names the Bot in the box: the default endpoint for coworkers created in
@@ -47,7 +47,7 @@ at `agent-langgraph` on a laptop.
 | Variable             | Default                            | Meaning                                                             |
 | -------------------- | ---------------------------------- | ------------------------------------------------------------------- |
 | `PORT`               | `3001`                             | API server port. `SERVER_PORT` names the same port; set either, or both to the same value, or the server refuses to start. |
-| `NODE_ENV`           | unset                              | `production` refuses the example `KEY_ENCRYPTION_KEY`. It does not decide whether sign-in is required; see `OPENBOT_SINGLE_USER`. |
+| `NODE_ENV`           | unset                              | `production` refuses the example `KEY_ENCRYPTION_KEY`. It does not decide whether sign-in is required; see `SHARDSOPENBOT_SINGLE_USER`. |
 | `TENANT_PACKAGE_DIR` | `../examples/fintech`              | Tenant package directory, resolved from `server/`.                  |
 | `DEPLOYMENT_ID`      | the tenant package's id            | Names this deployment inside a shared Intelligence project, and prefixes the identity a Shared app's account is held under at the vendor. That identity is fixed when the app is made Shared, so changing this later does not move it. |
 | `OPENAI_API_KEY`     | unset                              | Default model key for built-in agents and both shipped Bots.        |
@@ -66,23 +66,23 @@ at `agent-langgraph` on a laptop.
 | `APP_DIST_DIR`       | unset                              | Where the built app is, when this process serves it. Set inside the container image; unset in development, where Vite serves the app. |
 | `AUDIT_RETENTION_DAYS` | unset                            | Whole number of days to keep audit rows; older ones are removed. Unset keeps the trail forever. |
 | `WORKER_SHARED_SECRET` | unset; `start.sh` uses a fixed local default | The secret the routines worker presents to fire a due routine. Without it the server refuses every handoff, whether or not a worker exists to send one. |
-| `OPENBOT_GENERATIVE_UI` | unset (capability on)               | Set `false` or `0` to stop Bots from answering with generated interfaces. |
-| `OPENBOT_SELF_HOST_BANNER` | unset (banner on)               | Set `false` or `0` to hide the bar offering help self-hosting OpenBot, for everybody. It never shows on a paid Intelligence plan, and each person can also close it for themselves. |
-| `OPENBOT_ACCESSIBILITY_DISABLED` | unset | `true` or `1` stops naming OpenBot on the analytics the runtime already sends. |
+| `SHARDSOPENBOT_GENERATIVE_UI` | unset (capability on)               | Set `false` or `0` to stop Bots from answering with generated interfaces. |
+| `SHARDSOPENBOT_SELF_HOST_BANNER` | unset (banner on)               | Set `false` or `0` to hide the bar offering help self-hosting ShardsOpenBot, for everybody. It never shows on a paid Intelligence plan, and each person can also close it for themselves. |
+| `SHARDSOPENBOT_ACCESSIBILITY_DISABLED` | unset | `true` or `1` stops naming ShardsOpenBot on the analytics the runtime already sends. |
 | `COMPOSIO_API_KEY`   | unset                              | One key for the whole deployment, for the broker that holds people's accounts for a few hundred apps. Unset, there is nothing to connect, nothing to grant and no Composio tool for a Bot to call; what remains is one row that goes nowhere, under **More apps** on the admin Plugins page, naming this variable. See [Composio](plugins/composio.md). |
 
-**`OPENBOT_GENERATIVE_UI`** enables generated interfaces by default: streamed HTML/CSS/JavaScript
+**`SHARDSOPENBOT_GENERATIVE_UI`** enables generated interfaces by default: streamed HTML/CSS/JavaScript
 in a sandboxed iframe, and A2UI 1.0 interfaces built from its 18 basic components. Their buttons send
 their named action and the values entered back to the current conversation's Bot.
-Set `OPENBOT_GENERATIVE_UI=false` or `0` to disable both. `true`, `1`, an empty value, or an unset
+Set `SHARDSOPENBOT_GENERATIVE_UI=false` or `0` to disable both. `true`, `1`, an empty value, or an unset
 value leave the capability on. The server configures both runtime renderers and reports the same
 setting through `/api/capabilities` to the browser.
 
-**`OPENBOT_SELF_HOST_BANNER`** shows a slim bar at the top of the signed-in app offering
-CopilotKit's help self-hosting OpenBot, linking to `https://copilotkit.ai/talk-to-an-engineer` with
-`ref=openbot_app`. Closing it is saved to that person's preferences, so it stays closed on every
+**`SHARDSOPENBOT_SELF_HOST_BANNER`** shows a slim bar at the top of the signed-in app offering
+CopilotKit's help self-hosting ShardsOpenBot, linking to `https://copilotkit.ai/talk-to-an-engineer` with
+`ref=shardsopenbot_app`. Closing it is saved to that person's preferences, so it stays closed on every
 device they sign in from. Set `false` or `0` to hide it for everybody, which suits a fork running
-OpenBot for its own organization. Any other value, or none, leaves it on.
+ShardsOpenBot for its own organization. Any other value, or none, leaves it on.
 
 Left on, it still never shows on a deployment that pays for Intelligence. The server reads the
 deployment's Intelligence entitlement and hides the bar when it is active on a paid plan (`pro`,
@@ -130,7 +130,7 @@ all. See [routines.md](routines.md) for what a deployment with no worker at all 
 Routines page says so when nothing has swept.
 
 Unlike `AGENT_TOOL_TOKEN`, `start.sh` does not generate and persist this one. It supplies a fixed
-local default, `openbot-dev-worker-secret`, the same value every clone of this repository gets. That
+local default, `shardsopenbot-dev-worker-secret`, the same value every clone of this repository gets. That
 is fine here not because of where the server listens — it binds no hostname, so the port itself is
 reachable like any other — but because this is a dev-only default on a machine's own dev stack, and
 the endpoint it guards accepts nothing but an unguessable `routine_run_<uuid>` id: the server
@@ -270,7 +270,7 @@ The browser stops recording at two minutes. Uploads are limited to 10 MiB, and p
 time out after 60 seconds. There is at most one active transcription per user and eight per server
 process. These are concurrency limits, not a distributed usage quota; deployments requiring spend
 quotas should also enforce them at their audio gateway. Provider failures never switch to another
-service. OpenBot keeps audio in memory only, retaining a failed recording in the browser for retry
+service. ShardsOpenBot keeps audio in memory only, retaining a failed recording in the browser for retry
 until cancellation or navigation. Your configured provider's retention policy still applies.
 
 Dictation is separate from live voice calls and does not enable them automatically.
@@ -297,7 +297,7 @@ separately from AG-UI messages; ordinary voice conversation does not trigger an 
 
 The browser temporarily keeps unconfirmed transcripts in a local outbox scoped to the signed-in
 user, so a failed save or closing the tab can be recovered on returning to the channel. Confirmed
-saves are removed from that outbox. No call audio is recorded by OpenBot.
+saves are removed from that outbox. No call audio is recorded by ShardsOpenBot.
 
 | Variable | Meaning |
 | --- | --- |
@@ -306,8 +306,8 @@ saves are removed from that outbox. No call audio is recorded by OpenBot.
 | `VOICE_API_KEY` | Required server credential. Set explicitly; no chat or dictation credential is inherited. Bun `.env` files can explicitly reference `$OPENAI_API_KEY` or `$XAI_API_KEY`. |
 | `VOICE_NAME` | Provider voice name; defaults to `marin` for OpenAI or `ara` for Grok. |
 
-OpenAI uses WebRTC, with an authenticated OpenBot endpoint exchanging the browser's SDP offer
-using server-owned session configuration. Grok uses WebSocket PCM audio at 24 kHz; OpenBot mints
+OpenAI uses WebRTC, with an authenticated ShardsOpenBot endpoint exchanging the browser's SDP offer
+using server-owned session configuration. Grok uses WebSocket PCM audio at 24 kHz; ShardsOpenBot mints
 a short-lived client credential and returns the configured session. Permanent keys stay on the
 server. Microphone audio travels directly between the browser and the chosen voice provider.
 These are separate transports behind one call interface; an OpenAI-compatible transcription API
@@ -325,7 +325,7 @@ calls after fifteen minutes; this is a UX limit, not an enforceable provider spe
 
 Configuration enables the voice call button but does not prove provider/model availability. Connection
 failures appear in the widget while text chat remains available. The call endpoint verifies channel
-membership and limits connection attempts. OpenBot does not record call audio; provider retention
+membership and limits connection attempts. ShardsOpenBot does not record call audio; provider retention
 policies apply. See [OpenAI WebRTC](https://developers.openai.com/api/docs/guides/voice-webrtc) and
 [Grok Voice](https://docs.x.ai/developers/model-capabilities/audio/speech-to-speech).
 
@@ -333,7 +333,7 @@ policies apply. See [OpenAI WebRTC](https://developers.openai.com/api/docs/guide
 
 | Variable                     | Meaning                                                                                |
 | ---------------------------- | -------------------------------------------------------------------------------------- |
-| `OPENBOT_SINGLE_USER`        | One fixed administrator and no sign-in. **Required** when no identity provider is configured, or the deployment refuses to start. Refused on a public address. Ignored when a provider is configured. |
+| `SHARDSOPENBOT_SINGLE_USER`        | One fixed administrator and no sign-in. **Required** when no identity provider is configured, or the deployment refuses to start. Refused on a public address. Ignored when a provider is configured. |
 | `GOOGLE_OAUTH_CLIENT_ID`     | Google OAuth client id.                                                                |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth client secret.                                                            |
 | `MICROSOFT_OAUTH_CLIENT_ID`  | Microsoft Entra ID application id.                                                     |
@@ -346,32 +346,32 @@ policies apply. See [OpenAI WebRTC](https://developers.openai.com/api/docs/guide
 | `BETTER_AUTH_URL`            | Public API server base URL, where OAuth callbacks return. Required with any provider.  |
 | `TRUSTED_ORIGINS`            | Comma-separated app origins accepted by the API, plus every host in a registered OIDC provider's discovery document. |
 | `INITIAL_ADMIN_EMAILS`       | Comma-separated administrators. **Required** with any provider.                        |
-| `OPENBOT_PUBLIC_URL`         | Public address of this API. Defaults to `BETTER_AUTH_URL`.                              |
-| `OPENBOT_APP_URL`            | Where the browser app is served. Defaults to the first `TRUSTED_ORIGINS` entry.          |
+| `SHARDSOPENBOT_PUBLIC_URL`         | Public address of this API. Defaults to `BETTER_AUTH_URL`.                              |
+| `SHARDSOPENBOT_APP_URL`            | Where the browser app is served. Defaults to the first `TRUSTED_ORIGINS` entry.          |
 | `SIGNIN_ALLOWED_EMAIL_DOMAINS` | Comma-separated email domains admitted at sign-in. Empty means no opinion. Exact, no wildcards. |
-| `OPENBOT_ORGANIZATION_AUTH_URL` | An OpenBot deployment that verifies employee identity and roles. Decides sign-in ahead of `OPENBOT_SINGLE_USER`. |
-| `OPENBOT_RECORDER_EXTRA_EXTENSION_IDS` | Extra extension ids OpenBot trusts besides the Recorder's own, for a fork or a build signed with another key. Comma separated, each 32 letters from a to p, or the server refuses to start. Unset trusts only the Recorder's own id. |
+| `SHARDSOPENBOT_ORGANIZATION_AUTH_URL` | An ShardsOpenBot deployment that verifies employee identity and roles. Decides sign-in ahead of `SHARDSOPENBOT_SINGLE_USER`. |
+| `SHARDSOPENBOT_RECORDER_EXTRA_EXTENSION_IDS` | Extra extension ids ShardsOpenBot trusts besides the Recorder's own, for a fork or a build signed with another key. Comma separated, each 32 letters from a to p, or the server refuses to start. Unset trusts only the Recorder's own id. |
 
 **Some variables belong to the desktop app, not to you.** A desktop installation writes these into
-its own deployment's `.env` and owns their values: `OPENBOT_MODEL_OAUTH_FILE`, `CHATGPT_AUTH_FILE`,
-`CLAUDE_CODE_OAUTH_TOKEN`, `OPENBOT_BROWSER_URL` and `BROWSER_PORT` (the person's own browser, see
-[OpenBot Desktop runs it for the person](#openbot-desktop-runs-it-for-the-person)), and the
+its own deployment's `.env` and owns their values: `SHARDSOPENBOT_MODEL_OAUTH_FILE`, `CHATGPT_AUTH_FILE`,
+`CLAUDE_CODE_OAUTH_TOKEN`, `SHARDSOPENBOT_BROWSER_URL` and `BROWSER_PORT` (the person's own browser, see
+[ShardsOpenBot Desktop runs it for the person](#shardsopenbot-desktop-runs-it-for-the-person)), and the
 `PICKED_HARNESS_*` names that describe the Bot picked during setup
 (`PICKED_HARNESS_IMAGE`, `PICKED_HARNESS_URL`, `PICKED_HARNESS_PORT` and the rest). The server reads
 `PICKED_HARNESS_IMAGE` and `PICKED_HARNESS_URL` to hand that Bot `MANAGED_AGENT_TOKEN`, and refuses to
 start when they are set without it. When a model provider is connected by OAuth rather than by key, the
-desktop also points `OPENAI_BASE_URL` at OpenBot's own loopback route and sets `OPENAI_API_KEY` to a
+desktop also points `OPENAI_BASE_URL` at ShardsOpenBot's own loopback route and sets `OPENAI_API_KEY` to a
 local proxy credential rather than a provider key, so those two do not mean what the table above says
 in that mode. A server you configure yourself is unaffected by all of this.
 
-**With no provider at all, `OPENBOT_SINGLE_USER=true` is required.** A deployment that configures
+**With no provider at all, `SHARDSOPENBOT_SINGLE_USER=true` is required.** A deployment that configures
 nothing to sign anybody in and does not say that was deliberate refuses to start, naming what to
 configure, because a public URL where every visitor is an administrator fails silently. `NODE_ENV`
 does not enter into it. `.env.example` ships the line switched on, so a clone runs with no
-configuration at all. `OPENBOT_DEV_NO_AUTH=true`, the flag's former name, is still honoured.
+configuration at all. `SHARDSOPENBOT_DEV_NO_AUTH=true`, the flag's former name, is still honoured.
 
 **But not on a public address.** The flag says you meant an open deployment; it does not say who can
-reach it. If `OPENBOT_PUBLIC_URL`, `OPENBOT_APP_URL` or any `TRUSTED_ORIGINS` entry is an address
+reach it. If `SHARDSOPENBOT_PUBLIC_URL`, `SHARDSOPENBOT_APP_URL` or any `TRUSTED_ORIGINS` entry is an address
 the public internet routes to, the deployment refuses to start and names it. Loopback is silent. A
 private address is allowed and warned about once at boot, because a home server, a Tailnet, a VPN
 address and a `.local` name are what this flag is mostly used for, and anybody on that network is
@@ -389,25 +389,25 @@ or `consumers`), because there the address the list is checked against is one th
 writes for itself. A production deployment that names no domains and leaves the tenant multi-tenant
 is warned rather than refused.
 
-**`OPENBOT_ORGANIZATION_AUTH_URL` names an authority, not a provider.** It must be an HTTPS OpenBot
+**`SHARDSOPENBOT_ORGANIZATION_AUTH_URL` names an authority, not a provider.** It must be an HTTPS ShardsOpenBot
 origin, or HTTP on loopback, and a bare origin: a username, password, query, fragment or any path
 other than `/` is refused at start-up. Naming one settles sign-in by itself, ahead of
-`OPENBOT_SINGLE_USER`.
+`SHARDSOPENBOT_SINGLE_USER`.
 
-**A browser connected with the OpenBot Recorder is signed in as its person, and only while they
+**A browser connected with the ShardsOpenBot Recorder is signed in as its person, and only while they
 are.** Its connection ends after a week unused, as a session does, or, with
-`OPENBOT_ORGANIZATION_AUTH_URL`, when the organization session cookie it was connected with expires.
+`SHARDSOPENBOT_ORGANIZATION_AUTH_URL`, when the organization session cookie it was connected with expires.
 It ends at once when the person signs out, when their sessions are ended any other way (signing out
 everywhere, the directory deactivating them, SSO-required being turned on, or their organization
 ending the session), and when they are removed. A sign-out that cannot end their Recorder connections
 does not happen: the person is told to try again, still signed in, and a `recorder.sign_out_failed`
 row goes on the audit trail.
 
-**Recordings cannot be deleted from OpenBot yet.** A recording goes from the person's browser to
+**Recordings cannot be deleted from ShardsOpenBot yet.** A recording goes from the person's browser to
 Intelligence, into their own Learning space (see [Automatic Learning](automatic-learning.md));
-OpenBot keeps only which recordings are whose. Intelligence has no API a server credential can call
+ShardsOpenBot keeps only which recordings are whose. Intelligence has no API a server credential can call
 to delete a recording, or a Learning space that still holds one, so nobody can delete a recording
-from OpenBot, and a person's recordings stay in Intelligence after they are removed from OpenBot.
+from ShardsOpenBot, and a person's recordings stay in Intelligence after they are removed from ShardsOpenBot.
 
 **Any one provider turns sign-in on**, and several may be configured at once. Each provider's id and
 secret must be set together, Okta additionally needs its issuer, and any of them requires
@@ -436,13 +436,13 @@ added it. The client secret and any SAML signing material are encrypted at rest 
 The redirect URI to register with each provider is `<BETTER_AUTH_URL>/api/auth/callback/<provider>`,
 where `<provider>` is `google`, `microsoft` or `okta`.
 
-`OPENBOT_PUBLIC_URL` and `OPENBOT_APP_URL` matter only for a connector each person connects their own account to, such as Google Drive.
+`SHARDSOPENBOT_PUBLIC_URL` and `SHARDSOPENBOT_APP_URL` matter only for a connector each person connects their own account to, such as Google Drive.
 
-`OPENBOT_PUBLIC_URL` builds the redirect URI the vendor sends somebody back to after they consent, which has to match what an administrator registered with that vendor character for character — so it comes from configuration rather than from the incoming request. Most deployments never set it, because `BETTER_AUTH_URL` is already the same public address. With neither, the Plugins page says the deployment cannot complete a consent flow, and no account can be connected.
+`SHARDSOPENBOT_PUBLIC_URL` builds the redirect URI the vendor sends somebody back to after they consent, which has to match what an administrator registered with that vendor character for character — so it comes from configuration rather than from the incoming request. Most deployments never set it, because `BETTER_AUTH_URL` is already the same public address. With neither, the Plugins page says the deployment cannot complete a consent flow, and no account can be connected.
 
-`OPENBOT_APP_URL` is where the callback sends the person afterwards. It is a separate setting because the app and the API are separate addresses: locally the app is Vite on `3010` and the API is `3001`, so a relative redirect would land on the API, which serves no pages. A deployment serving both from one origin can leave it unset.
+`SHARDSOPENBOT_APP_URL` is where the callback sends the person afterwards. It is a separate setting because the app and the API are separate addresses: locally the app is Vite on `3010` and the API is `3001`, so a relative redirect would land on the API, which serves no pages. A deployment serving both from one origin can leave it unset.
 
-A [Composio](plugins/composio.md) app needs `OPENBOT_APP_URL` and nothing else of the two: the consent lives at the broker, so no redirect URI of ours is registered anywhere, but the address Composio returns somebody to has to be absolute and this is where it comes from. Connecting a brokered account refuses where it resolves to nothing, rather than sending somebody to a consent screen with no way back.
+A [Composio](plugins/composio.md) app needs `SHARDSOPENBOT_APP_URL` and nothing else of the two: the consent lives at the broker, so no redirect URI of ours is registered anywhere, but the address Composio returns somebody to has to be absolute and this is where it comes from. Connecting a brokered account refuses where it resolves to nothing, rather than sending somebody to a consent screen with no way back.
 
 ### SCIM provisioning
 
@@ -457,7 +457,7 @@ A directory such as Okta or Entra ID can create, update and remove people throug
 
 A person the directory creates gets the `user` role, or `admin` when their address is in
 `INITIAL_ADMIN_EMAILS`, and still signs in through the company's identity provider: SCIM creates no
-password. Their directory groups become their OpenBot groups, which per-group capability switches
+password. Their directory groups become their ShardsOpenBot groups, which per-group capability switches
 and network policies read. Deactivating or deleting someone in the directory ends their sessions,
 deny-lists the address, retires the connector credentials they granted and their linked accounts
 (see Linked accounts), and stops their Bots' computers. Reactivating them lifts a deny-list entry
@@ -485,20 +485,20 @@ then is a row nothing will read.
 
 ## Slack and Microsoft Teams (OpenTag pairing)
 
-OpenBot reaches people in Slack and Teams through [OpenTag](https://github.com/CopilotKit/OpenTag),
-the open-source Channels SDK front. OpenTag calls OpenBot as its AG-UI agent; OpenBot does not hold a
+ShardsOpenBot reaches people in Slack and Teams through [OpenTag](https://github.com/CopilotKit/OpenTag),
+the open-source Channels SDK front. OpenTag calls ShardsOpenBot as its AG-UI agent; ShardsOpenBot does not hold a
 Slack app of its own.
 
 | Variable                        | Meaning                                                                                                                                                                           |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENTAG_SHARED_SECRET`         | Enables the pairing. At least 32 characters. OpenTag must send `Authorization: Bearer <secret>` (its `AGENT_AUTH_HEADER`), and OpenBot sends the same header on proactive posts. |
+| `OPENTAG_SHARED_SECRET`         | Enables the pairing. At least 32 characters. OpenTag must send `Authorization: Bearer <secret>` (its `AGENT_AUTH_HEADER`), and ShardsOpenBot sends the same header on proactive posts. |
 | `OPENTAG_URL`                   | OpenTag's base URL, for messages sent when no Slack turn is open (replies after an approval, responsibility progress, questions). Without it those sends fail visibly in the outbox, and Slack triggers are refused because channel membership cannot be checked. |
 | `OPENTAG_BOT_ICON_URL_TEMPLATE` | Optional `https` PNG URL with `{seed}` (the Bot's avatar seed) or `{agentId}`, used as the Bot's Slack icon on proactive posts.                                                    |
 
 Point OpenTag's `AGENT_URL` at `<public URL>/api/delivery/webhooks/opentag/agent`. A person links
-their Slack or Teams identity from a Bot's page, under **Reaching you**: OpenBot shows a one-time `link <code>` message,
+their Slack or Teams identity from a Bot's page, under **Reaching you**: ShardsOpenBot shows a one-time `link <code>` message,
 valid for ten minutes, which they send to the OpenTag app. After that, only that person's messages
-reach their chosen Bot, in their own OpenBot conversation, with learning, governance, approvals and
+reach their chosen Bot, in their own ShardsOpenBot conversation, with learning, governance, approvals and
 audit on every turn. Anyone unlinked is told how to link and nothing runs. Approval requests appear
 as OpenTag approval cards (allow once, always allow, cancel) and are decided through the approvals
 service as the linked owner; a reply to a Bot's question answers that question.
@@ -508,26 +508,26 @@ The former direct Slack settings (`SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET`, `SLA
 
 SMS through Twilio honours Advanced Opt-Out: `STOP` (and Twilio's other opt-out keywords) marks the
 number opted out, later messages show `opted_out` in the delivery history instead of being sent, and
-`START` resumes. Twilio sends the confirmation reply itself, so OpenBot does not.
+`START` resumes. Twilio sends the confirmation reply itself, so ShardsOpenBot does not.
 
 ## Linked accounts
 
-OpenBot keeps a record of a person's accounts at outside providers, such as their GitHub account
+ShardsOpenBot keeps a record of a person's accounts at outside providers, such as their GitHub account
 or their Slack user. Each provider is a row on `/connections`, beside the apps, listed when the
 person has linked it or this deployment can link it. The row opens the provider's own page
 (`/connections/github`, `/connections/slack`), whose **Your account** section shows the link with a
 **Disconnect** button, or **Connect** where it can be linked. GitHub's page also lists the
 repositories whose events can start a responsibility, and links to a Composio GitHub app where one is
 enabled, which is then left out of the list so GitHub appears once. Disconnecting removes the link and revokes
-OpenBot's stored copy of any token kept with it, and is audited. For GitHub, the grant itself stays
+ShardsOpenBot's stored copy of any token kept with it, and is audited. For GitHub, the grant itself stays
 at GitHub until the person revokes it under GitHub, Settings, Applications.
 
 See "Linking Slack and GitHub accounts" below for setting up each provider. An integration proves an
-account in one of two ways: by the provider's own sign-in, or by a one-time code that OpenBot issues
+account in one of two ways: by the provider's own sign-in, or by a one-time code that ShardsOpenBot issues
 to the signed-in person and that they send from their chat account. Whoever sends the code gets that
 chat account linked to the person it was issued to, so treat it like a password and do not share it.
 It is valid for ten minutes and works once, and issuing a new code for the same provider invalidates
-the earlier one. An outside account links to one OpenBot user at most. Linking a new account at a
+the earlier one. An outside account links to one ShardsOpenBot user at most. Linking a new account at a
 provider and workspace replaces the person's earlier link there and revokes its token.
 
 Removing a person, whether an administrator does it or a SCIM deactivation does, retires their
@@ -541,23 +541,23 @@ link is recorded in the audit trail.
 Slack is offered only where the OpenTag Slack webhook is set up (the pairing above, so
 `OPENTAG_SHARED_SECRET` must be set) and the server can redeem identity codes. The person clicks
 **Connect** on Slack's page, which shows a message of the form `link <code>`, and sends it to the
-OpenBot app in a direct message within ten minutes. A code sent in a channel is refused and stays
+ShardsOpenBot app in a direct message within ten minutes. A code sent in a channel is refused and stays
 valid until it expires. Teams cannot be linked this way.
 
 GitHub uses a GitHub App. Create one under GitHub Settings, Developer settings, GitHub Apps, and set:
 
 - The callback URL to `<public URL>/api/identity/github/callback`, where the public URL is
-  `OPENBOT_PUBLIC_URL` or, if that is unset, `BETTER_AUTH_URL`. With neither set, the server
+  `SHARDSOPENBOT_PUBLIC_URL` or, if that is unset, `BETTER_AUTH_URL`. With neither set, the server
   refuses to start when `GITHUB_APP_CLIENT_ID` is present.
 - "Expire user authorization tokens" on. A webhook is not required for linking.
 - A client secret, generated on the App's page.
 
 Then set `GITHUB_APP_CLIENT_ID` and `GITHUB_APP_CLIENT_SECRET`; set both or neither. People
-then use **Connect** on GitHub's page while signed in to OpenBot in the same browser. The GitHub
+then use **Connect** on GitHub's page while signed in to ShardsOpenBot in the same browser. The GitHub
 user token is stored encrypted with the link.
 
-After GitHub, the browser is sent back to GitHub's page under Connections, at `OPENBOT_APP_URL`, else the first `TRUSTED_ORIGINS` entry,
-else the public URL. Set `OPENBOT_APP_URL` when the app and the server are on different origins, as
+After GitHub, the browser is sent back to GitHub's page under Connections, at `SHARDSOPENBOT_APP_URL`, else the first `TRUSTED_ORIGINS` entry,
+else the public URL. Set `SHARDSOPENBOT_APP_URL` when the app and the server are on different origins, as
 in local development (app on `3010`, server on `3001`); one origin needs nothing.
 
 Reachability codes and account-link codes look alike, and Reachability's are checked first. A
@@ -572,16 +572,16 @@ some of a provider's variables and not all of them stops the server at start-up 
 
 | Variable                    | Meaning                                                                                                                                                                                                                                            |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DELIVERY_PUBLIC_URL`       | The public origin providers call back on, such as a tunnel or an ingress. Twilio signs each request over the URL it was given, so this has to be the address Twilio was configured with. Unset, OpenBot uses `OPENBOT_PUBLIC_URL`, then `BETTER_AUTH_URL`. It must be an `http(s)` URL or the server does not start. |
+| `DELIVERY_PUBLIC_URL`       | The public origin providers call back on, such as a tunnel or an ingress. Twilio signs each request over the URL it was given, so this has to be the address Twilio was configured with. Unset, ShardsOpenBot uses `SHARDSOPENBOT_PUBLIC_URL`, then `BETTER_AUTH_URL`. It must be an `http(s)` URL or the server does not start. |
 | `TWILIO_ACCOUNT_SID`        | Twilio account SID. One of the four SMS settings, which are set together.                                                                                                                                                                          |
 | `TWILIO_AUTH_TOKEN`         | Twilio auth token. Used to send and to check the signature on every request Twilio makes.                                                                                                                                                         |
 | `TWILIO_VERIFY_SERVICE_SID` | The Twilio Verify service that texts the code a person enters under a Bot's **Reaching you** to confirm their number.                                                                                                                            |
-| `TWILIO_FROM_NUMBER`        | The Twilio number OpenBot sends from.                                                                                                                                                                                                              |
-| `EXPO_PROJECT_ID`           | The native app's EAS project id, a UUID. Switches on push notifications and sign-in from the native app (without it, the server does not trust the app's `openbotmobile://` sign-in redirect). A device registers only when the app reports this same project id; any other value is refused. A value that is not a UUID stops the server at start-up.                  |
+| `TWILIO_FROM_NUMBER`        | The Twilio number ShardsOpenBot sends from.                                                                                                                                                                                                              |
+| `EXPO_PROJECT_ID`           | The native app's EAS project id, a UUID. Switches on push notifications and sign-in from the native app (without it, the server does not trust the app's `shardsopenbotmobile://` sign-in redirect). A device registers only when the app reports this same project id; any other value is refused. A value that is not a UUID stops the server at start-up.                  |
 | `EXPO_ACCESS_TOKEN`         | Optional. Sent as `Authorization: Bearer` on every request to Expo's push service; without it those requests carry no token.                                                                                                                       |
 
 With SMS on, point the Twilio number's incoming-message webhook at
-`<DELIVERY_PUBLIC_URL>/api/delivery/webhooks/sms`. OpenBot passes
+`<DELIVERY_PUBLIC_URL>/api/delivery/webhooks/sms`. ShardsOpenBot passes
 `<DELIVERY_PUBLIC_URL>/api/delivery/webhooks/sms/status` to Twilio as the status callback on each
 message it sends.
 
@@ -592,17 +592,17 @@ credentials or query string), and `EXPO_PUBLIC_EAS_PROJECT_ID`, the same project
 
 ## Inbound email triggers
 
-An email trigger gets its own address, `trigger-<triggerId>@<OPENBOT_INBOUND_EMAIL_DOMAIN>`. Mail
-reaches OpenBot through Amazon SES receiving: a receipt rule for the whole domain publishes to an
-SNS topic, and that topic has an HTTPS subscription to `<public URL>/api/events/email/sns`. OpenBot
+An email trigger gets its own address, `trigger-<triggerId>@<SHARDSOPENBOT_INBOUND_EMAIL_DOMAIN>`. Mail
+reaches ShardsOpenBot through Amazon SES receiving: a receipt rule for the whole domain publishes to an
+SNS topic, and that topic has an HTTPS subscription to `<public URL>/api/events/email/sns`. ShardsOpenBot
 checks each SNS message's AWS signature and refuses any topic not listed, because a valid signature
 proves AWS sent the message, not that the topic is yours. It confirms the subscription itself when
 SNS asks.
 
 | Variable                               | Meaning                                                                                       |
 | -------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `OPENBOT_INBOUND_EMAIL_DOMAIN`         | The domain the receipt rule covers, such as `in.example.com`.                                 |
-| `OPENBOT_INBOUND_EMAIL_SNS_TOPIC_ARNS` | Comma-separated ARNs of the SNS topics allowed to deliver mail.                               |
+| `SHARDSOPENBOT_INBOUND_EMAIL_DOMAIN`         | The domain the receipt rule covers, such as `in.example.com`.                                 |
+| `SHARDSOPENBOT_INBOUND_EMAIL_SNS_TOPIC_ARNS` | Comma-separated ARNs of the SNS topics allowed to deliver mail.                               |
 
 Both are needed. With either missing, the email route is not mounted, and an email trigger has no
 address: its page and the Bot both say inbound email is not configured on this deployment.
@@ -611,7 +611,7 @@ address: its page and the Bot both say inbound email is not configured on this d
 
 Learning is on by default; with no container assigned, nothing is collected or delivered and the
 deployment still starts and chats. Until something is saved, the server assigns its Intelligence
-project's `openbot` container as the default by itself once that container exists. The variables
+project's `shardsopenbot` container as the default by itself once that container exists. The variables
 below are optional; an administrator's saved settings under **Admin → Automatic Learning** override
 them, including a saved off. See [automatic-learning.md](automatic-learning.md).
 
@@ -619,28 +619,28 @@ them, including a saved off. See [automatic-learning.md](automatic-learning.md).
 | ---------------------------------------- | --------------------------------------------------------------------------------------------- |
 | `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID` | Default Learning container for this deployment's Bots. 1 to 64 lowercase letters, digits and single hyphens, or the server refuses to start. |
 | `CPK_INTELLIGENCE_SKILLS_REVISION`       | An exact published skills revision to pin. Read only beside a container id. Unset follows the latest. |
-| `OPENBOT_LEARNING_AUTO_ASSIGN`           | `false` or `0` stops the server assigning the project's `openbot` container automatically. On otherwise, and off whenever `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID` is set. |
-| `INTELLIGENCE_SERVICE_TOKEN`             | An Intelligence service token that creates the `openbot` Learning container (local evaluation installs only; see [Creating the container](automatic-learning.md#creating-the-container)). Requires `INTELLIGENCE_PROJECT_ID`. |
+| `SHARDSOPENBOT_LEARNING_AUTO_ASSIGN`           | `false` or `0` stops the server assigning the project's `shardsopenbot` container automatically. On otherwise, and off whenever `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID` is set. |
+| `INTELLIGENCE_SERVICE_TOKEN`             | An Intelligence service token that creates the `shardsopenbot` Learning container (local evaluation installs only; see [Creating the container](automatic-learning.md#creating-the-container)). Requires `INTELLIGENCE_PROJECT_ID`. |
 | `INTELLIGENCE_PROJECT_ID`                | The numeric ID of the runtime key's Intelligence project, where the service token creates the container. Set both or neither, or the server refuses to start. |
-| `OPENBOT_MEMORY_SOURCE_DEFAULTS`         | `false` or `0` stops OpenBot making each app a person connected into a memory source for the Bots they talk to. On otherwise. Existing sources are left as they are. |
-| `OPENBOT_PROACTIVE_DEFAULTS`             | `false` or `0` stops OpenBot switching on background research for the Bots a person talks to. On otherwise. Existing settings are left as they are. |
+| `SHARDSOPENBOT_MEMORY_SOURCE_DEFAULTS`         | `false` or `0` stops ShardsOpenBot making each app a person connected into a memory source for the Bots they talk to. On otherwise. Existing sources are left as they are. |
+| `SHARDSOPENBOT_PROACTIVE_DEFAULTS`             | `false` or `0` stops ShardsOpenBot switching on background research for the Bots a person talks to. On otherwise. Existing settings are left as they are. |
 
 ## OpenTelemetry export
 
 Every audit row is also sent as an OTLP log record over HTTP, so a SIEM or an OpenTelemetry
 Collector receives the same events the **Audit** page shows, as they happen. Each record carries
-`openbot.surface`: `bot`, `identity` or `control_plane`. Export never stops a request: when the
+`shardsopenbot.surface`: `bot`, `identity` or `control_plane`. Export never stops a request: when the
 collector cannot be reached, records are dropped after the SDK's retries, and the row in PostgreSQL
 is still the record.
 
 | Variable                           | Meaning                                                                                                |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` | Where log records go, used exactly as written. Takes precedence over the next one.                    |
-| `OTEL_EXPORTER_OTLP_ENDPOINT`      | Collector base URL; OpenBot appends `/v1/logs`. Setting either endpoint switches export on.           |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`      | Collector base URL; ShardsOpenBot appends `/v1/logs`. Setting either endpoint switches export on.           |
 | `OTEL_EXPORTER_OTLP_LOGS_HEADERS`  | Headers for the logs endpoint, as `key=value` pairs separated by commas (for a collector's API key).  |
 | `OTEL_EXPORTER_OTLP_HEADERS`       | The same, used when `OTEL_EXPORTER_OTLP_LOGS_HEADERS` is unset.                                        |
-| `OTEL_SERVICE_NAME`                | The `service.name` on every record. Defaults to `openbot`.                                             |
-| `OPENBOT_OTEL_EXPORT`              | `off` turns export off while an endpoint is still set.                                                 |
+| `OTEL_SERVICE_NAME`                | The `service.name` on every record. Defaults to `shardsopenbot`.                                             |
+| `SHARDSOPENBOT_OTEL_EXPORT`              | `off` turns export off while an endpoint is still set.                                                 |
 
 ## Computer and supervisor
 
@@ -648,16 +648,16 @@ is still the record.
 | ------------------------------------ | ----------------------------------------------------------------------------------------- |
 | `AGENT_COMPUTER_URL`                 | Shared computer URL. If absent, computer routes are not mounted.                          |
 | `COMPUTER_TOKEN`                     | Secret every computer request must present. The computer refuses to start without it.     |
-| `COMPUTER_MAX_BROWSERS`              | How many Bots may hold a running browser at once. `8` by default; the least recently used is closed past it. A person's browser in a native window (OpenBot Desktop) counts toward it and is closed only when no Bot's browser is left to close; a person's cloud browser is ranked by use like a Bot's. |
+| `COMPUTER_MAX_BROWSERS`              | How many Bots may hold a running browser at once. `8` by default; the least recently used is closed past it. A person's browser in a native window (ShardsOpenBot Desktop) counts toward it and is closed only when no Bot's browser is left to close; a person's cloud browser is ranked by use like a Bot's. |
 | `COMPUTER_SEPARATE_WORKSPACES`       | `on` gives each Bot its own folder of files on a computer many Bots share, with its shell starting there. On for Helm's `shared` computer and the docker-compose `agent-computer`; off elsewhere. Files saved before it was on stay at the root of the volume. Commands can still read other folders: use `computers.mode: sandbox` to keep people apart. |
-| `COMPUTER_BROWSER_IDLE_MS`           | How long an untouched browser is kept. 30 minutes by default; `0` keeps them resident. A person's cloud browser takes the same rule: the Browser page touches it every second while it is open, so it closes once nobody is on that page. A person's native window (OpenBot Desktop) is never closed for being idle. |
-| `OPENBOT_RECORDER_DIR`               | The built OpenBot Recorder (`extension/dist` after `bun run build`), absolute. Every person's browser the computer opens has it loaded and connected; without it, or pointed at anything that is not a built Recorder, the computer still serves Bots and refuses to open a person's browser, saying why. The computer image sets it to the Recorder it carries. |
-| `COMPUTER_PEOPLE_ONLY`               | `on` for a computer that runs people's own browsers and no Bot (OpenBot Desktop sets it on its host-side computer); it refuses every Bot. A person's browser runs only on a computer of its own: this one, or one started for it alone (`COMPUTER_BOT_ID`, as the supervisor and a Sandbox start each computer). The shared computer refuses it, and so does the server, whose Browser page says why, because a Bot's shell there could read the person's logins off the disk. |
+| `COMPUTER_BROWSER_IDLE_MS`           | How long an untouched browser is kept. 30 minutes by default; `0` keeps them resident. A person's cloud browser takes the same rule: the Browser page touches it every second while it is open, so it closes once nobody is on that page. A person's native window (ShardsOpenBot Desktop) is never closed for being idle. |
+| `SHARDSOPENBOT_RECORDER_DIR`               | The built ShardsOpenBot Recorder (`extension/dist` after `bun run build`), absolute. Every person's browser the computer opens has it loaded and connected; without it, or pointed at anything that is not a built Recorder, the computer still serves Bots and refuses to open a person's browser, saying why. The computer image sets it to the Recorder it carries. |
+| `COMPUTER_PEOPLE_ONLY`               | `on` for a computer that runs people's own browsers and no Bot (ShardsOpenBot Desktop sets it on its host-side computer); it refuses every Bot. A person's browser runs only on a computer of its own: this one, or one started for it alone (`COMPUTER_BOT_ID`, as the supervisor and a Sandbox start each computer). The shared computer refuses it, and so does the server, whose Browser page says why, because a Bot's shell there could read the person's logins off the disk. |
 | `COMPUTER_BROWSER_BACKEND`           | `managed` by default (full bundled Chromium); `local-chrome` opts into installed Chrome with dedicated profiles and a loopback API. |
 | `COMPUTER_BROWSER_MODE`              | Managed defaults to `headed` on Linux, which is every hosted computer (a container, a pod, the desktop app's engine): full Chromium on the computer's own Xvfb display. A computer run directly on macOS or Windows defaults to `headless`, where headed would open windows on the desktop. `headless` is full Chromium's new headless mode. Local Chrome requires `headed`. See [Getting past bot checks](#getting-past-bot-checks). |
 | `WEB_BOT_AUTH`                       | `on` or `off`. Unset means off. `on` needs an https public URL. See [Web Bot Auth](#web-bot-auth). |
 | `WEB_BOT_AUTH_KEY`                   | The Web Bot Auth signing key, an Ed25519 private JWK. Unset derives one from `KEY_ENCRYPTION_KEY`. Never logged. |
-| `OPENBOT_LOCAL_COMPUTER_DIR`         | Local startup helper's absolute data root. Defaults to the platform's OpenBot user-data directory; contains `profiles/` and `workspace/`. |
+| `SHARDSOPENBOT_LOCAL_COMPUTER_DIR`         | Local startup helper's absolute data root. Defaults to the platform's ShardsOpenBot user-data directory; contains `profiles/` and `workspace/`. |
 | `COMPUTER_SUPERVISOR_URL`            | Supervisor URL for per-Bot computers. If absent, Bots share `AGENT_COMPUTER_URL`.         |
 | `SUPERVISOR_TOKEN`                   | Bearer token required by the supervisor.                                                  |
 | `AGENT_COMPUTER_ALLOW_PRIVATE_HOSTS` | Local-only private-host browsing when `true`. A deployment running with `NODE_ENV=production` refuses to start while it is set. Cloud metadata addresses are refused either way. |
@@ -669,7 +669,7 @@ is still the record.
 `COMPUTER_SANDBOX` is not the cluster sandbox provider. A Kubernetes deployment can instead run each
 computer as a sandboxed pod, selected by `COMPUTER_SANDBOX_NAMESPACE` with `COMPUTER_SANDBOX_IDLE_AFTER`
 and `COMPUTER_SANDBOX_TEMPLATE_FILE` beside it; those are set by the Helm chart, not by Compose, and
-are covered in [charts/openbot/README.md](../charts/openbot/README.md). The similarly named
+are covered in [charts/shardsopenbot/README.md](../charts/shardsopenbot/README.md). The similarly named
 `COMPUTER_SANDBOX` above only toggles Chromium's own process sandbox on a Docker computer.
 
 Changing `COMPUTER_BROWSER_MODE` affects new supervised computers. A computer that already exists is
@@ -678,7 +678,7 @@ all computers while preserving their browser profiles and workspaces, apply the 
 environment and remove only the owned containers (do not remove their volumes):
 
 ```sh
-docker ps -aq --filter "label=openbot.namespace=openbot" | xargs -r docker rm -f
+docker ps -aq --filter "label=shardsopenbot.namespace=shardsopenbot" | xargs -r docker rm -f
 ```
 
 The supervisor recreates each computer with the same named volumes on its next request.
@@ -757,15 +757,15 @@ needs Chrome. Ctrl-C shuts down its computer process and browsers.
 
 The helper ignores inherited `PROFILES_DIR` and `WORKSPACE_DIR`. Its defaults are:
 
-- macOS: `~/Library/Application Support/OpenBot/local-computer`
-- Windows: `%LOCALAPPDATA%\OpenBot\local-computer`
-- Linux: `${XDG_DATA_HOME:-~/.local/share}/openbot/local-computer`
+- macOS: `~/Library/Application Support/ShardsOpenBot/local-computer`
+- Windows: `%LOCALAPPDATA%\ShardsOpenBot\local-computer`
+- Linux: `${XDG_DATA_HOME:-~/.local/share}/shardsopenbot/local-computer`
 
-Set `OPENBOT_LOCAL_COMPUTER_DIR` to an absolute, dedicated app-owned directory to change that root.
+Set `SHARDSOPENBOT_LOCAL_COMPUTER_DIR` to an absolute, dedicated app-owned directory to change that root.
 Do not point it at your personal Chrome data. Each Bot uses a separate persistent subdirectory under
 `profiles/`; no existing Chrome session is attached, and no TCP debugging endpoint is exposed.
 Native Chrome retains its process sandbox and OS credential store. File tools remain confined to
-the helper's `workspace/`, and shell execution is refused: use OpenBot's separately approved host
+the helper's `workspace/`, and shell execution is refused: use ShardsOpenBot's separately approved host
 access tools for host commands. Native Chrome runs with your OS account's network access; this mode
 is not a container or an OS network sandbox. Keep the API's private-host browsing opt-in off unless
 you intentionally need it for your local deployment.
@@ -775,17 +775,17 @@ selectors, and restart the API. Unset `COMPUTER_BROWSER_BACKEND` (or set `manage
 computer process; choose `headless` or `headed` as before. Local Chrome profiles remain in the local
 data root, separate from managed computer volumes.
 
-#### OpenBot Desktop runs it for the person
+#### ShardsOpenBot Desktop runs it for the person
 
-OpenBot Desktop starts this computer itself, as a fourth process beside the server, the app and the
+ShardsOpenBot Desktop starts this computer itself, as a fourth process beside the server, the app and the
 worker, to run the person's own browser: their installed Google Chrome, or Microsoft Edge where
-Chrome is missing, as a window on their desktop with the OpenBot Recorder already in it. Nothing
+Chrome is missing, as a window on their desktop with the ShardsOpenBot Recorder already in it. Nothing
 above needs doing. Desktop gives it a loopback port of its own (`BROWSER_PORT`, 4101 when free), the
-computer token the stack already shares, the default data root above, and `OPENBOT_RECORDER_DIR`
+computer token the stack already shares, the default data root above, and `SHARDSOPENBOT_RECORDER_DIR`
 pointing at the Recorder that installation copies into the deployment (`extension/dist`) out of the
 release's own computer image, prebuilt, and `COMPUTER_PEOPLE_ONLY=on`. It points
-the server at it with `OPENBOT_BROWSER_URL=http://127.0.0.1:<port>`. Bots' own computers stay with
-the supervisor; only the person's browser runs here. It starts and stops with the rest of OpenBot,
+the server at it with `SHARDSOPENBOT_BROWSER_URL=http://127.0.0.1:<port>`. Bots' own computers stay with
+the supervisor; only the person's browser runs here. It starts and stops with the rest of ShardsOpenBot,
 is restarted the way the other processes are, and its browser is asked to close before Stop or Quit
 takes the rest down (SIGTERM to the computer on macOS and Linux, `taskkill` without `/F` to the
 browser's windows on Windows), and ended only if it has not closed within ten seconds.
@@ -794,13 +794,13 @@ It runs only when Chrome or Edge is installed where it looks (`/Applications` on
 `Program Files` or the user's `AppData\Local` on Windows; on Linux `/opt/google/chrome` or
 `/opt/microsoft/msedge`, where Google's and Microsoft's own packages put them on every distribution,
 then `google-chrome-stable`, `google-chrome`, `microsoft-edge-stable` or `microsoft-edge` on the
-`PATH`, as NixOS has them) and the deployment's release includes the OpenBot Browser. The Flatpak
+`PATH`, as NixOS has them) and the deployment's release includes the ShardsOpenBot Browser. The Flatpak
 builds of Chrome and Edge run sandboxed away from the profile and the Recorder and cannot be used,
-and neither browser is published as a Snap. Otherwise `OPENBOT_BROWSER_URL` is not set, Desktop
-sets `OPENBOT_BROWSER_ABSENT` to the reason, and the app says it to the person in one sentence.
+and neither browser is published as a Snap. Otherwise `SHARDSOPENBOT_BROWSER_URL` is not set, Desktop
+sets `SHARDSOPENBOT_BROWSER_ABSENT` to the reason, and the app says it to the person in one sentence.
 Desktop checks again at every Start, so a browser installed later is found.
 
-Uninstalling OpenBot Desktop removes the browser's data root (the profile the person signed in to)
+Uninstalling ShardsOpenBot Desktop removes the browser's data root (the profile the person signed in to)
 and the Recorder's native messaging host manifests: the Windows uninstaller does, and so do the
 .deb and .rpm packages' removal scripts, for each person and as that person. An app removed by
 dragging it to the Trash on macOS, or an AppImage deleted, runs nothing on the way out, so there
@@ -872,7 +872,7 @@ symlinks that path to the rootless socket. Rootless Podman on Linux needs
 symlink to the rootful socket, which is not the one running, and the supervisor reports that it
 cannot reach Docker.
 
-`COMPUTER_NAMESPACE` defaults to `openbot` and names the deployment a computer belongs to. It is part
+`COMPUTER_NAMESPACE` defaults to `shardsopenbot` and names the deployment a computer belongs to. It is part
 of every container and volume name the supervisor derives, and the supervisor acts only on computers
 carrying it, so two deployments on one Docker host never adopt each other's.
 
@@ -881,8 +881,8 @@ not remove them: their containers keep running and their profile volumes, which 
 Bots are signed in to, survive. Remove them by the label the supervisor sets:
 
 ```sh
-docker ps -aq --filter "label=openbot.namespace=openbot" | xargs -r docker rm -f
-docker volume ls -q --filter "label=openbot.namespace=openbot" | xargs -r docker volume rm
+docker ps -aq --filter "label=shardsopenbot.namespace=shardsopenbot" | xargs -r docker rm -f
+docker volume ls -q --filter "label=shardsopenbot.namespace=shardsopenbot" | xargs -r docker volume rm
 ```
 
 Proxy credentials may appear in proxy URLs, but the computer strips them before reporting proxy status.
@@ -904,7 +904,7 @@ for when none of them is enough.
    residential or ISP proxy changes it. See [Residential or ISP proxy](#residential-or-isp-proxy).
 4. **The handoff, which is the designed fallback.** When a site still challenges (a "Verify you are
    human" check, a CAPTCHA, a sign-in), the Bot asks for help, the person takes control in the live
-   screen, solves it, and hands back. OpenBot never solves a challenge on anyone's behalf. The page
+   screen, solves it, and hands back. ShardsOpenBot never solves a challenge on anyone's behalf. The page
    survives a computer restart: the handoff reopens it rather than showing a blank browser.
 
 #### Web Bot Auth
@@ -922,10 +922,10 @@ Cloudflare's signed-agent scheme, built on HTTP Message Signatures (RFC 9421). W
   still Chromium's own, cookies are unchanged, and no CORS preflight is added.
 
 **When it is on.** Only when `WEB_BOT_AUTH=on` (on Helm, `config.webBotAuth: "on"`). Unset or `off`
-means off, whatever the address. An OpenBot deployment is private by design, and signing announces
+means off, whatever the address. An ShardsOpenBot deployment is private by design, and signing announces
 it: every site a Bot visits sees the deployment's URL, and Cloudflare will only register a key
 directory it can fetch from the internet. So it is a deliberate choice, made by an operator whose
-public URL is reachable and who wants sites to know their Bots. `on` needs `OPENBOT_PUBLIC_URL` (or
+public URL is reachable and who wants sites to know their Bots. `on` needs `SHARDSOPENBOT_PUBLIC_URL` (or
 `BETTER_AUTH_URL`) to be https and not this machine, and is refused at start-up otherwise. A private
 https address (`10.x`, `192.168.x`, `*.internal`, a single-label name) is accepted, because only the
 operator knows whether their verifier reaches it.
@@ -940,7 +940,7 @@ it. Rotate by setting a new `WEB_BOT_AUTH_KEY` and registering again.
 **Registering with Cloudflare (manual, once).** Signing earns nothing until Cloudflare knows the key:
 
 1. Check the directory answers from the internet:
-   `curl -i https://openbot.example.com/.well-known/http-message-signatures-directory` shows `200`,
+   `curl -i https://shardsopenbot.example.com/.well-known/http-message-signatures-directory` shows `200`,
    the content type above, `Signature` and `Signature-Input` headers, and one key.
 2. In the [Cloudflare dashboard](https://dash.cloudflare.com/), choose your account, then
    **Manage Account** > **Configurations** > **Bot Submission Form**.
@@ -1009,11 +1009,11 @@ stack without a toolchain and without waiting for Chromium to build.
 
 | Service           | Setting             | Published image                            |
 | ----------------- | ------------------- | ------------------------------------------ |
-| `agent-computer`  | `COMPUTER_IMAGE`    | `ghcr.io/copilotkit/openbot-agent-computer` |
-| `supervisor`      | `SUPERVISOR_IMAGE`  | `ghcr.io/copilotkit/openbot-supervisor`     |
-| `agent-bot`       | `BOT_IMAGE`         | `ghcr.io/copilotkit/openbot-agent-bot`      |
-| `agent-langgraph` | `LANGGRAPH_IMAGE`   | `ghcr.io/copilotkit/openbot-agent-langgraph`|
-| `migrate`         | `SERVER_IMAGE`      | `ghcr.io/copilotkit/openbot-server`         |
+| `agent-computer`  | `COMPUTER_IMAGE`    | `ghcr.io/copilotkit/shardsopenbot-agent-computer` |
+| `supervisor`      | `SUPERVISOR_IMAGE`  | `ghcr.io/copilotkit/shardsopenbot-supervisor`     |
+| `agent-bot`       | `BOT_IMAGE`         | `ghcr.io/copilotkit/shardsopenbot-agent-bot`      |
+| `agent-langgraph` | `LANGGRAPH_IMAGE`   | `ghcr.io/copilotkit/shardsopenbot-agent-langgraph`|
+| `migrate`         | `SERVER_IMAGE`      | `ghcr.io/copilotkit/shardsopenbot-server`         |
 
 Unset, each names a local tag and Compose builds it, which is what a checkout of this repository
 does. Set to a published reference, pinned by digest, together with `IMAGE_PULL_POLICY=missing`,
@@ -1054,7 +1054,7 @@ from the same `.env` does. Threads are listed per Bot and carry nothing else tha
 conversation came from, so the name goes into every thread id a deployment mints and is how its own
 conversations stay tellable from the other's.
 
-Set `OPENBOT_ONE_COMPUTER_EACH=false` when using `start.sh` to run all Bots against one shared computer.
+Set `SHARDSOPENBOT_ONE_COMPUTER_EACH=false` when using `start.sh` to run all Bots against one shared computer.
 
 ## Tenant package
 
@@ -1077,8 +1077,8 @@ examples/fintech/
 
 ```yaml
 tenant:
-  id: openbot
-  product_name: OpenBot
+  id: shardsopenbot
+  product_name: ShardsOpenBot
 ```
 
 Optional theme:

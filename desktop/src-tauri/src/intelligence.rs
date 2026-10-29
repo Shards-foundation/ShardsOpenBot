@@ -27,7 +27,7 @@ const PRODUCT_API: &str = "https://api.intelligence.copilotkit.ai";
 /// How long somebody gets to finish signing in.
 const PATIENCE: Duration = Duration::from_secs(600);
 
-/// A project somebody can put OpenBot in.
+/// A project somebody can put ShardsOpenBot in.
 #[derive(Clone, Debug, serde::Serialize, Deserialize, PartialEq, Eq)]
 pub struct Project {
     pub id: String,
@@ -185,7 +185,7 @@ impl SigningInToIntelligence {
         }
         reply(
             &mut stream,
-            "Signed in. You can close this tab and go back to OpenBot.",
+            "Signed in. You can close this tab and go back to ShardsOpenBot.",
         );
         Ok(Some(token))
     }
@@ -194,7 +194,7 @@ impl SigningInToIntelligence {
 /// A small page, so the browser does not sit on a blank tab.
 fn reply(stream: &mut TcpStream, said: &str) {
     let body = format!(
-        "<!doctype html><meta charset=utf-8><title>OpenBot</title>\
+        "<!doctype html><meta charset=utf-8><title>ShardsOpenBot</title>\
          <body style=\"font-family:system-ui;display:grid;place-items:center;height:100vh;margin:0\">\
          <p>{said}</p>"
     );
@@ -281,7 +281,7 @@ fn read_json(
         let mut shown = without_credentials(body.trim());
         shown.truncate(2000);
         crate::problem::Problem::with(
-            format!("CopilotKit's {what} came back in a shape OpenBot does not understand."),
+            format!("CopilotKit's {what} came back in a shape ShardsOpenBot does not understand."),
             format!("HTTP {status}\n{error}\n\n{shown}"),
         )
     })
@@ -320,7 +320,7 @@ fn exchange(clerk_token: &str) -> Result<String, crate::problem::Problem> {
         .map(|session| session.cli_token)
         .map_err(|error| {
             crate::problem::Problem::with(
-                "CopilotKit's sign-in came back without the session OpenBot needs.",
+                "CopilotKit's sign-in came back without the session ShardsOpenBot needs.",
                 format!("{error}\n\n{raw}"),
             )
         })
@@ -357,7 +357,7 @@ fn product_credential(session: &str) -> Result<String, crate::problem::Problem> 
         .map(|payload| payload.product_credential.token)
         .map_err(|error| {
             crate::problem::Problem::with(
-                "CopilotKit's credential came back in a shape OpenBot does not understand.",
+                "CopilotKit's credential came back in a shape ShardsOpenBot does not understand.",
                 format!("{error}\n\n{raw}"),
             )
         })
@@ -389,7 +389,7 @@ fn list_projects(product: &str) -> Result<Vec<Project>, crate::problem::Problem>
      */
     if found.is_empty() && !looks_genuinely_empty(&raw) {
         return Err(crate::problem::Problem::with(
-            "CopilotKit's project list came back in a shape OpenBot does not understand.",
+            "CopilotKit's project list came back in a shape ShardsOpenBot does not understand.",
             without_credentials(&raw.to_string()),
         ));
     }
@@ -494,7 +494,7 @@ fn provision_key_at(
          */
         .json(&serde_json::json!({
             "project_id": as_number(project_id),
-            "name": "OpenBot Desktop",
+            "name": "ShardsOpenBot Desktop",
         }))
         .send()
         .map_err(|error| {
@@ -575,10 +575,10 @@ fn verified_learning_container(
     project_id: u64,
 ) -> Result<String, crate::problem::Problem> {
     let container = &raw["container"];
-    if container["id"].as_str() == Some("openbot")
+    if container["id"].as_str() == Some("shardsopenbot")
         && container["projectId"].as_u64() == Some(project_id)
     {
-        return Ok("openbot".into());
+        return Ok("shardsopenbot".into());
     }
     Err(crate::problem::Problem::plain(
         "CopilotKit did not confirm the Learning container for this project. Try connecting again.",
@@ -598,7 +598,7 @@ fn ensure_learning_container_at(
         .ok_or_else(|| crate::problem::Problem::plain("Choose a valid CopilotKit project."))?;
     let client = client()?;
     let collection = format!("{api}/api/learning/projects/{project_id}/containers");
-    let item = format!("{collection}/openbot");
+    let item = format!("{collection}/shardsopenbot");
     let (status, raw) = learning_response(client.get(&item).bearer_auth(product))?;
     learning_status(status)?;
     // The control API represents absence as 200 {container: null}; a generic 404 is not evidence.
@@ -609,7 +609,7 @@ fn ensure_learning_container_at(
         client
             .post(&collection)
             .bearer_auth(product)
-            .json(&serde_json::json!({"id":"openbot","name":"OpenBot"})),
+            .json(&serde_json::json!({"id":"shardsopenbot","name":"ShardsOpenBot"})),
     )?;
     if status == reqwest::StatusCode::CONFLICT
         && raw["error"]["code"].as_str() == Some("LEARNING_CONTAINER_ALREADY_EXISTS")
@@ -694,7 +694,7 @@ pub fn projects_in(raw: &serde_json::Value) -> Vec<Project> {
 #[cfg(test)]
 mod tests {
     const LEARNING_CONTAINER: &str =
-        r#"{"container":{"id":"openbot","projectId":42,"name":"OpenBot"}}"#;
+        r#"{"container":{"id":"shardsopenbot","projectId":42,"name":"ShardsOpenBot"}}"#;
     const NO_LEARNING_CONTAINER: &str = r#"{"container":null}"#;
 
     #[test]
@@ -702,13 +702,13 @@ mod tests {
         let (url, requests) = response_server(vec![("200 OK", LEARNING_CONTAINER)]);
         assert_eq!(
             super::ensure_learning_container_at(&url, "product-session", "42").unwrap(),
-            "openbot"
+            "shardsopenbot"
         );
         let requests = requests.join().unwrap();
         assert_eq!(requests.len(), 1);
         assert!(requests[0]
             .0
-            .starts_with("GET /api/learning/projects/42/containers/openbot HTTP/1.1\r\n"));
+            .starts_with("GET /api/learning/projects/42/containers/shardsopenbot HTTP/1.1\r\n"));
         assert!(requests[0]
             .0
             .to_lowercase()
@@ -723,7 +723,7 @@ mod tests {
         ]);
         assert_eq!(
             super::ensure_learning_container_at(&url, "product-session", "42").unwrap(),
-            "openbot"
+            "shardsopenbot"
         );
         let requests = requests.join().unwrap();
         assert_eq!(requests.len(), 2);
@@ -736,7 +736,7 @@ mod tests {
             .contains("authorization: bearer product-session\r\n"));
         assert_eq!(
             serde_json::from_slice::<serde_json::Value>(&requests[1].1).unwrap(),
-            serde_json::json!({"id":"openbot","name":"OpenBot"})
+            serde_json::json!({"id":"shardsopenbot","name":"ShardsOpenBot"})
         );
     }
 
@@ -752,13 +752,13 @@ mod tests {
         ]);
         assert_eq!(
             super::ensure_learning_container_at(&url, "product-session", "42").unwrap(),
-            "openbot"
+            "shardsopenbot"
         );
         let requests = requests.join().unwrap();
         assert_eq!(requests.len(), 3);
         assert!(requests[2]
             .0
-            .starts_with("GET /api/learning/projects/42/containers/openbot HTTP/1.1\r\n"));
+            .starts_with("GET /api/learning/projects/42/containers/shardsopenbot HTTP/1.1\r\n"));
     }
 
     #[test]
@@ -772,7 +772,7 @@ mod tests {
             ),
             ("200 OK", r#"{}"#),
             ("200 OK", r#"{"container":{"id":"other","projectId":42}}"#),
-            ("200 OK", r#"{"container":{"id":"openbot","projectId":43}}"#),
+            ("200 OK", r#"{"container":{"id":"shardsopenbot","projectId":43}}"#),
             ("200 OK", "not json"),
         ] {
             let (url, requests) = response_server(vec![(status, body)]);
@@ -797,7 +797,7 @@ mod tests {
             ("201 Created", NO_LEARNING_CONTAINER),
             (
                 "201 Created",
-                r#"{"container":{"id":"openbot","projectId":43}}"#,
+                r#"{"container":{"id":"shardsopenbot","projectId":43}}"#,
             ),
         ] {
             let (url, requests) =
@@ -855,7 +855,7 @@ mod tests {
         let proof = super::provision_connection_at(&url, "product-session", "42").unwrap();
         assert_eq!(proof.api_key, "runtime-key");
         assert_eq!(proof.api_url, url);
-        assert_eq!(proof.learning_container_id, "openbot");
+        assert_eq!(proof.learning_container_id, "shardsopenbot");
         let requests = requests.join().unwrap();
         assert!(requests[1].0.starts_with("POST /api/keys HTTP/1.1\r\n"));
         assert!(requests.iter().all(|(headers, _)| headers
@@ -866,17 +866,17 @@ mod tests {
     #[test]
     #[ignore = "requires an authorized isolated Intelligence project and product credential"]
     fn live_learning_container_create_and_reuse() {
-        let product = std::env::var("OPENBOT_LIVE_INTELLIGENCE_PRODUCT_CREDENTIAL")
+        let product = std::env::var("SHARDSOPENBOT_LIVE_INTELLIGENCE_PRODUCT_CREDENTIAL")
             .expect("provide a product credential through the environment");
-        let project = std::env::var("OPENBOT_LIVE_INTELLIGENCE_PROJECT_ID")
+        let project = std::env::var("SHARDSOPENBOT_LIVE_INTELLIGENCE_PROJECT_ID")
             .expect("provide an isolated test project ID");
         let first =
             super::ensure_learning_container_at(super::PRODUCT_API, &product, &project).unwrap();
         let second =
             super::ensure_learning_container_at(super::PRODUCT_API, &product, &project).unwrap();
-        assert_eq!(first, "openbot");
+        assert_eq!(first, "shardsopenbot");
         assert_eq!(first, second);
-        println!("verified Learning container openbot in the isolated project; repeated provisioning reused it");
+        println!("verified Learning container shardsopenbot in the isolated project; repeated provisioning reused it");
     }
 
     #[test]

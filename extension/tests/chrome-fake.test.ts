@@ -108,10 +108,14 @@ test("storage get and set round-trip, copy their values and notify onChanged", a
   await chrome.storage.local.remove("b");
   expect(fake.storage.local.has("b")).toBe(false);
   expect(changes.length).toBe(2);
-  fake.storage.setManaged({ openbotOrigin: "https://openbot.example.test" });
+  fake.storage.setManaged({
+    shardsopenbotOrigin: "https://shardsopenbot.example.test",
+  });
   expect(
-    await chrome.storage.managed.get<Record<string, unknown>>("openbotOrigin"),
-  ).toEqual({ openbotOrigin: "https://openbot.example.test" });
+    await chrome.storage.managed.get<Record<string, unknown>>(
+      "shardsopenbotOrigin",
+    ),
+  ).toEqual({ shardsopenbotOrigin: "https://shardsopenbot.example.test" });
 });
 
 test("setManaged fires storage.onChanged and storage.managed.onChanged with the managed area name", () => {
@@ -314,11 +318,11 @@ test("sendFromPage and sendExternal reach their listeners and resolve the respon
   });
   expect(
     await fake.sendExternal(
-      { type: "openbot.ping" },
-      { origin: "https://openbot.example.test" },
+      { type: "shardsopenbot.ping" },
+      { origin: "https://shardsopenbot.example.test" },
     ),
   ).toEqual({
-    origin: "https://openbot.example.test",
+    origin: "https://shardsopenbot.example.test",
   });
 });
 

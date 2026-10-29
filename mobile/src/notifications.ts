@@ -6,7 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { api } from "./api";
 
-const key = "openbot-device-id";
+const key = "shardsopenbot-device-id";
 export async function registerPush() {
   if (!Device.isDevice)
     throw new Error(
@@ -22,8 +22,8 @@ export async function registerPush() {
       "Configure the EAS project and APNs/FCM credentials before enabling push.",
     );
   if (Platform.OS === "android")
-    await Notifications.setNotificationChannelAsync("openbot", {
-      name: "OpenBot",
+    await Notifications.setNotificationChannelAsync("shardsopenbot", {
+      name: "ShardsOpenBot",
       importance: Notifications.AndroidImportance.HIGH,
     });
   let permission = await Notifications.getPermissionsAsync();

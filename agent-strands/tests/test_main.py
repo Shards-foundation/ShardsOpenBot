@@ -159,7 +159,7 @@ def test_a_run_sends_a_namespaced_model_name_verbatim(monkeypatch, provider, cho
 
     main = importlib.reload(main)
     response = TestClient(main.app).post(
-        "/", json=RUN, headers={"x-openbot-agent-token": TOKEN}
+        "/", json=RUN, headers={"x-shardsopenbot-agent-token": TOKEN}
     )
 
     assert response.status_code == 200

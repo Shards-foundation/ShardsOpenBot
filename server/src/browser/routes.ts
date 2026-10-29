@@ -20,16 +20,16 @@ import {
   type RealBrowserOpenResponse,
   type RealBrowserRequest,
   realBrowserComputerPaths,
-} from "@openbot/shared/openbot-browser";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
 import type {
   RecorderActivity,
   RecorderConnection,
-} from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/recorder-api";
 import {
   RECORDER_EXTENSION_ID,
   RECORDER_STORE_IDS,
   recorderStorePage,
-} from "@openbot/shared/recorder-extension";
+} from "@shardsopenbot/shared/recorder-extension";
 import { Hono, type MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { z } from "zod";
@@ -42,8 +42,8 @@ import type { ReportingConnection } from "../recorder/connections";
 import type { RecorderExtensionDeps } from "../recorder/wiring";
 import { personBrowserId, personBrowserInstallId } from "./person";
 
-/** What the person sees their OpenBot browser called in Settings, Browsers, and what its connection's trail names. */
-export const OPENBOT_BROWSER_LABEL = "OpenBot browser";
+/** What the person sees their ShardsOpenBot browser called in Settings, Browsers, and what its connection's trail names. */
+export const SHARDSOPENBOT_BROWSER_LABEL = "ShardsOpenBot browser";
 
 /** Where people's browsers run here: the computers carry them as they carry Bots' (browser/host.ts). */
 export type BrowserComputers = {
@@ -55,18 +55,18 @@ export type BrowserComputers = {
   /** The browser's computer, started when it must be. Throws when it cannot be reached. */
   locate(computerId: string): Promise<string>;
   /** Whether its computer is up, never starting it: the Browser page asks every few seconds, and asking must not start
-   * a computer for everybody who opens OpenBot. */
+   * a computer for everybody who opens ShardsOpenBot. */
   running(computerId: string): Promise<boolean>;
 };
 
 export type BrowserRouteDeps = {
   requireUser: MiddlewareHandler<{ Variables: AppVariables }>;
-  /** Absent when this OpenBot has no way to run a person's browser: the state says so and the app hides the button. */
+  /** Absent when this ShardsOpenBot has no way to run a person's browser: the state says so and the app hides the button. */
   computers?: BrowserComputers;
   /**
    * What the person is told about where their browser runs (`BrowserApiState.note`), in one plain sentence: why there
-   * are no `computers` for it here (its Bots share one computer, browser/host.ts), or, on OpenBot Desktop, why it is not
-   * their own installed Chrome or Edge (`OPENBOT_BROWSER_ABSENT`). Absent when there is nothing to explain.
+   * are no `computers` for it here (its Bots share one computer, browser/host.ts), or, on ShardsOpenBot Desktop, why it is not
+   * their own installed Chrome or Edge (`SHARDSOPENBOT_BROWSER_ABSENT`). Absent when there is nothing to explain.
    */
   note?: string;
   /** The computer token, the same one every computer requires. */
@@ -76,17 +76,17 @@ export type BrowserRouteDeps = {
     RecorderExtensionDeps,
     "connections" | "user" | "sealOrganizationSession" | "onConnected"
   >;
-  /** The address the person's browser reaches this OpenBot at (browser/address.ts), from the request's Origin; null
+  /** The address the person's browser reaches this ShardsOpenBot at (browser/address.ts), from the request's Origin; null
    * when there is none the Recorder would accept. */
-  openbotUrl: (requestOrigin: string | undefined) => string | null;
+  shardsopenbotUrl: (requestOrigin: string | undefined) => string | null;
   auditStore?: AuditStore;
   fetchImpl?: typeof fetch;
-  /** How long a call to the computer may take before OpenBot stops waiting, other than open's. A test's own, shorter;
+  /** How long a call to the computer may take before ShardsOpenBot stops waiting, other than open's. A test's own, shorter;
    * otherwise {@link CALL_TIMEOUT_MS}. */
   callTimeoutMs?: number;
   /** Each route's budget (`OPEN_BUDGET_MS`, `CALL_BUDGET_MS`): a test's own, shorter. */
   budgetMs?: { open?: number; call?: number };
-  /** A single-user OpenBot (`config.singleUser`, OpenBot Desktop among them): the one person is its admin, so a setup
+  /** A single-user ShardsOpenBot (`config.singleUser`, ShardsOpenBot Desktop among them): the one person is its admin, so a setup
    * failure is told to them as theirs to see to, not as something to ask an admin about. */
   singleUser?: boolean;
   /** The Recorder's ids in the browsers' stores, where a person adds it to their own browser: `RECORDER_STORE_IDS`
@@ -116,14 +116,14 @@ const BODY_LIMIT_BYTES = 16 * 1024;
 /** Launching a browser, loading the Recorder and handing it its connection takes seconds; a cold computer more. */
 const OPEN_TIMEOUT_MS = 90_000;
 /**
- * How long OpenBot waits for the computer to answer. Longer than the computer's own navigation timeout
+ * How long ShardsOpenBot waits for the computer to answer. Longer than the computer's own navigation timeout
  * (agent-computer's NAVIGATION_TIMEOUT_MS, 30 s by default), so a page that does not load is answered by the computer,
- * which can say which page and why, rather than by OpenBot giving up at the same moment and blaming the browser. The
+ * which can say which page and why, rather than by ShardsOpenBot giving up at the same moment and blaming the browser. The
  * deadline the Bots' computer transport gives a browser action (computer/client.ts).
  */
 export const CALL_TIMEOUT_MS = 45_000;
 /**
- * How long OpenBot waits for the browser's state: under the 10 s after which `Bun.serve` closes a request that has sent
+ * How long ShardsOpenBot waits for the browser's state: under the 10 s after which `Bun.serve` closes a request that has sent
  * nothing (its default `idleTimeout`), and over the 5 s the computer gives the browser before it answers that the
  * browser is not answering (agent-computer's STATE_ANSWER_MS). A browser that answers at all answers in milliseconds.
  *
@@ -133,13 +133,13 @@ export const CALL_TIMEOUT_MS = 45_000;
  */
 export const STATE_TIMEOUT_MS = 8_000;
 /**
- * HOW LONG EACH OF THESE ROUTES HAS TO ANSWER THE PERSON, from the moment their request arrives, and how long OpenBot's
+ * HOW LONG EACH OF THESE ROUTES HAS TO ANSWER THE PERSON, from the moment their request arrives, and how long ShardsOpenBot's
  * server keeps their request open for it (`browserRequestSeconds`, which http-server.ts applies with Bun's
  * `server.timeout(request, seconds)`).
  *
  * `Bun.serve` closes a request that has sent nothing for 10 s, its default `idleTimeout`, while a handler is still at
  * work. These routes wait on the person's computer for up to {@link CALL_TIMEOUT_MS}, and an open for
- * {@link OPEN_TIMEOUT_MS}, so a cold open or a slow page ended in an empty reply: the computer's answer, or OpenBot's own
+ * {@link OPEN_TIMEOUT_MS}, so a cold open or a slow page ended in an empty reply: the computer's answer, or ShardsOpenBot's own
  * sentence, arrived after the person's request was gone, and the app said only its own fallback.
  *
  * So each route has a budget, which every wait inside it shares: finding the computer (a supervisor's `/ensure` waits up
@@ -156,7 +156,7 @@ export const CALL_BUDGET_MS = CALL_TIMEOUT_MS + 15_000;
 const ANSWER_MARGIN_MS = 7_000;
 
 /**
- * How long OpenBot's server keeps a person's request to one of these routes open, in seconds, or undefined for the state
+ * How long ShardsOpenBot's server keeps a person's request to one of these routes open, in seconds, or undefined for the state
  * route, which answers within {@link STATE_TIMEOUT_MS} and keeps Bun's own 10 s.
  */
 export function browserRequestSeconds(pathname: string): number | undefined {
@@ -206,7 +206,7 @@ async function inBudget<T>(work: Promise<T>, path: string): Promise<T> {
 
 /**
  * How long a revoke waits for the person's browser to hear of it. The revoke has happened either way: a browser that
- * did not hear in time hears on its next call to OpenBot, and the state route reports it signed out meanwhile.
+ * did not hear in time hears on its next call to ShardsOpenBot, and the state route reports it signed out meanwhile.
  */
 const DISCONNECT_TIMEOUT_MS = 5_000;
 
@@ -220,14 +220,14 @@ const NARRATION_AHEAD_MS = 2 * 60_000;
 const NARRATION_BEHIND_MS = 10 * 60_000;
 
 const SENTENCES = {
-  unavailable: "This OpenBot cannot open a browser for you.",
+  unavailable: "This ShardsOpenBot cannot open a browser for you.",
   notSetUp:
-    "Your browser can't open right now. Ask an admin to check OpenBot's setup.",
-  /** `notSetUp` where the person is the admin: nobody else to ask, and something they can do (OpenBot Desktop checks
+    "Your browser can't open right now. Ask an admin to check ShardsOpenBot's setup.",
+  /** `notSetUp` where the person is the admin: nobody else to ask, and something they can do (ShardsOpenBot Desktop checks
    * its setup again as it starts, the Recorder included). Never "read the logs": every sentence is for the
    * person, as Desktop's own are. */
   notSetUpSingleUser:
-    "Your browser can't open right now. Quit OpenBot, open it again, and try once more.",
+    "Your browser can't open right now. Quit ShardsOpenBot, open it again, and try once more.",
   tooMany:
     "Too many connection codes were asked for at once. Wait a few minutes and try again.",
   notConnected: "Your browser could not be connected. Try again.",
@@ -237,24 +237,24 @@ const SENTENCES = {
   unclear: "Your browser opened but did not say how. Try again.",
   notAnswering:
     "Your browser isn't answering. If it doesn't come back soon, ask an admin for help.",
-  /** `notAnswering` where the person runs OpenBot themselves: quitting OpenBot stops its computer, and the browser on
+  /** `notAnswering` where the person runs ShardsOpenBot themselves: quitting ShardsOpenBot stops its computer, and the browser on
    * it, and opening it again starts both afresh. */
   notAnsweringSingleUser:
-    "Your browser isn't answering. If it doesn't come back soon, quit OpenBot and open it again.",
+    "Your browser isn't answering. If it doesn't come back soon, quit ShardsOpenBot and open it again.",
   notWeb: "Only web addresses open here.",
   phraseTimes:
     "That phrase's times do not fit the recording, so it was not added.",
 } as const;
 
 /**
- * Why a person's browser cannot be connected when this OpenBot has no address the Recorder would take, for whoever runs
- * OpenBot: it goes to the log, and the person is told their browser cannot open and who can see to it (`notSetUp`), as
+ * Why a person's browser cannot be connected when this ShardsOpenBot has no address the Recorder would take, for whoever runs
+ * ShardsOpenBot: it goes to the log, and the person is told their browser cannot open and who can see to it (`notSetUp`), as
  * for the computer's own setup failures. The fourth end-to-end run showed sentences like this one on the Browser page.
  */
 const NO_ADDRESS =
-  "This OpenBot has no address a person's browser can reach it at, so the Recorder in it cannot be connected. Set OPENBOT_PUBLIC_URL to this OpenBot's https address.";
+  "This ShardsOpenBot has no address a person's browser can reach it at, so the Recorder in it cannot be connected. Set SHARDSOPENBOT_PUBLIC_URL to this ShardsOpenBot's https address.";
 
-/** OpenBot did not get the computer's answer: 502 when nothing answered, 504 when it took too long to. */
+/** ShardsOpenBot did not get the computer's answer: 502 when nothing answered, 504 when it took too long to. */
 class BrowserCallError extends Error {
   readonly status: 502 | 504;
   constructor(message: string, status: 502 | 504 = 502) {
@@ -341,13 +341,13 @@ function asNarrated(
   };
 }
 
-/** The Recorder's report once its connection is gone: signed out, as it reports itself after OpenBot signs it out. */
+/** The Recorder's report once its connection is gone: signed out, as it reports itself after ShardsOpenBot signs it out. */
 function signedOut(recorder: LauncherState): LauncherState {
   const { userId: _revoked, ...rest } = recorder;
   return { ...rest, connected: false };
 }
 
-/** One computer route for a person's browser, under the computer token with the browser in `x-openbot-bot-id`: a GET,
+/** One computer route for a person's browser, under the computer token with the browser in `x-shardsopenbot-bot-id`: a GET,
  * or a POST of `body` (a POST with no body when `method` says so). */
 function computerCaller(
   deps: Pick<BrowserRouteDeps, "token" | "fetchImpl" | "callTimeoutMs">,
@@ -387,8 +387,10 @@ function computerCaller(
       response = await doFetch(`${base.replace(/\/$/, "")}${path}`, {
         method: options.method ?? (body === undefined ? "GET" : "POST"),
         headers: {
-          "x-openbot-bot-id": computerId,
-          ...(deps.token ? { "x-openbot-computer-token": deps.token } : {}),
+          "x-shardsopenbot-bot-id": computerId,
+          ...(deps.token
+            ? { "x-shardsopenbot-computer-token": deps.token }
+            : {}),
           ...(body === undefined ? {} : { "content-type": "application/json" }),
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
@@ -434,7 +436,7 @@ function computerCaller(
   };
 }
 
-/** Whether these, a person's live connections, hold one for their OpenBot browser: the one stored under the browser's
+/** Whether these, a person's live connections, hold one for their ShardsOpenBot browser: the one stored under the browser's
  * install id, which an open keeps while the Recorder holds it and replaces when it does not. */
 function holdsBrowserConnectionIn(
   live: readonly RecorderConnection[],
@@ -444,7 +446,7 @@ function holdsBrowserConnectionIn(
   return live.some((connection) => connection.installId === installId);
 }
 
-/** Whether OpenBot holds a live Recorder connection for this person's OpenBot browser. */
+/** Whether ShardsOpenBot holds a live Recorder connection for this person's ShardsOpenBot browser. */
 async function holdsBrowserConnection(
   connections: BrowserRouteDeps["recorder"]["connections"],
   userId: string,
@@ -486,16 +488,16 @@ function activityOf(recorder: LauncherState): RecorderActivity {
  * What the person's Recorders are doing, for the Browser button's red dot (`BrowserApiState.activity`): the newest
  * report from any of their live connections, whatever way it was connected, that is no older than
  * {@link ACTIVITY_STALE_MS} and is of a recording (a Recorder that last said it was idle is not recording); or the
- * OpenBot browser's own Recorder, as its computer reported it just now, whichever is newer. Undefined while nothing
+ * ShardsOpenBot browser's own Recorder, as its computer reported it just now, whichever is newer. Undefined while nothing
  * records.
  *
- * What the OpenBot browser's computer says now is newer than anything its Recorder reported, so when the computer was
+ * What the ShardsOpenBot browser's computer says now is newer than anything its Recorder reported, so when the computer was
  * asked (`browser`), that Recorder's last report gives way to it: a Stop whose report did not arrive does not keep the
  * dot on for a minute and a half.
  */
 export function newestActivity(input: {
   reports: readonly ReportingConnection[];
-  /** The OpenBot browser's install id, and its Recorder as its computer reported it just now (none: it is closed). */
+  /** The ShardsOpenBot browser's install id, and its Recorder as its computer reported it just now (none: it is closed). */
   browser?: { installId: string; recorder?: LauncherState };
   now: number;
 }): RecorderActivity | undefined {
@@ -514,7 +516,7 @@ export function newestActivity(input: {
 }
 
 /**
- * Which of the person's own browsers a Recorder connected through OpenBot Desktop is in, from the name it connected
+ * Which of the person's own browsers a Recorder connected through ShardsOpenBot Desktop is in, from the name it connected
  * under. The Recorder names itself for its browser's brand and the computer ("Microsoft Edge on macOS", "Google Chrome
  * on Windows": extension/src/pages/connect/connect-page.tsx), so a name that says Edge is Edge. Anything else is
  * Chrome, which a name that does not say is far more likely to be, and which Desktop tries first besides.
@@ -539,10 +541,10 @@ function lastHeardFrom<T extends ReportingConnection>(
 }
 
 /**
- * Tells a person's own OpenBot browser that OpenBot revoked its Recorder connection: what a Disconnect in Settings,
+ * Tells a person's own ShardsOpenBot browser that ShardsOpenBot revoked its Recorder connection: what a Disconnect in Settings,
  * Browsers does next (recorder/routes.ts, wired in app.ts). On its own the Recorder hears of a revoke only on its next
- * call to OpenBot, which on a quiet browser is its keep-alive, hours away, and says it is connected until then. So the
- * browser's computer has it forget the connection now (`POST /browser/disconnect`), as it would on hearing OpenBot say
+ * call to ShardsOpenBot, which on a quiet browser is its keep-alive, hours away, and says it is connected until then. So the
+ * browser's computer has it forget the connection now (`POST /browser/disconnect`), as it would on hearing ShardsOpenBot say
  * its token is gone.
  *
  * Best effort, and never a reason the revoke fails: the token is revoked already. A browser that is closed, one whose
@@ -563,7 +565,7 @@ export function browserConnectionRevoked(
     const computerId = personBrowserId(userId);
     if (
       !computers ||
-      connection.via !== "openbot-browser" ||
+      connection.via !== "shardsopenbot-browser" ||
       connection.installId !== personBrowserInstallId(computerId)
     )
       return;
@@ -619,11 +621,11 @@ export function isWebAddress(input: string): boolean {
 }
 
 /**
- * The person's own OpenBot browser: open it, see it, record in it, narrate, move between its tabs and close it. Every
+ * The person's own ShardsOpenBot browser: open it, see it, record in it, narrate, move between its tabs and close it. Every
  * route is the signed-in person's own browser, named from who is asking (browser/person.ts), so there is no id in the
  * path to ask for anybody else's.
  *
- * Opening it connects the Recorder in it as this person with no Connect step: OpenBot mints the connection itself, as
+ * Opening it connects the Recorder in it as this person with no Connect step: ShardsOpenBot mints the connection itself, as
  * the exchange would (recorder/connections.ts), sealing the person's organization session from this request as the
  * connect-code route does, and hands it to the computer, which hands it to the Recorder over the DevTools pipe only the
  * launcher holds. It is one more connected browser, in Settings, Browsers like any other, and can be disconnected there.
@@ -642,7 +644,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
   const ask = computerCaller(deps);
   /** When each narration request reached this server, read before signing the person in can take any time. */
   const arrivals = new WeakMap<Request, number>();
-  /** What the person is told when OpenBot's own setup stops their browser opening: ask an admin, unless they are it. */
+  /** What the person is told when ShardsOpenBot's own setup stops their browser opening: ask an admin, unless they are it. */
   const notSetUp = deps.singleUser
     ? SENTENCES.notSetUpSingleUser
     : SENTENCES.notSetUp;
@@ -653,14 +655,14 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
 
   /**
    * The computer's refusal, for the person. What is about their request keeps its status and the computer's sentence: a
-   * bad request (400), a browser that is not open or a Recorder that refused (409). What is about how OpenBot reaches
+   * bad request (400), a browser that is not open or a Recorder that refused (409). What is about how ShardsOpenBot reaches
    * its computer (the token, a route an older computer lacks) is never passed on as the person's own 401 or 404: it is
    * the computer failing, 502, as a Recorder or a page that failed is, with the computer's sentence where it said one
    * for the person.
    *
-   * A browser this computer cannot run at all (503: no built Recorder on it, or no Chrome or Edge) is OpenBot's setup,
-   * not anything the person did or can do. The computer's sentence for it is written for whoever runs OpenBot: it names
-   * `OPENBOT_RECORDER_DIR` and a build command, and the fourth end-to-end run showed it on the Browser page. So the
+   * A browser this computer cannot run at all (503: no built Recorder on it, or no Chrome or Edge) is ShardsOpenBot's setup,
+   * not anything the person did or can do. The computer's sentence for it is written for whoever runs ShardsOpenBot: it names
+   * `SHARDSOPENBOT_RECORDER_DIR` and a build command, and the fourth end-to-end run showed it on the Browser page. So the
    * person is told their browser cannot open and who can see to it, and the computer's own sentence stays in both logs
    * (`browser-computer-failed` here, `computer-browser-open-failed` on the computer).
    */
@@ -689,7 +691,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
       : Response.json({ error: SENTENCES.unreachable }, { status: 502 });
   }
 
-  /** Whether this OpenBot can run the person's browser, where it shows when it can, and why not when that wants
+  /** Whether this ShardsOpenBot can run the person's browser, where it shows when it can, and why not when that wants
    * saying: the same answer open or closed, decided by where people's browsers run here rather than by asking the
    * browser. */
   const where = (): Pick<BrowserApiState, "available" | "shows" | "note"> => ({
@@ -698,7 +700,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
       : { available: false }),
     ...(deps.note ? { note: deps.note } : {}),
   });
-  /** What a request that needs a browser is told where this OpenBot cannot run one. */
+  /** What a request that needs a browser is told where this ShardsOpenBot cannot run one. */
   const unavailable = deps.note ?? SENTENCES.unavailable;
 
   const closed = (computerId: string): BrowserApiState => ({
@@ -710,8 +712,8 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
 
   /**
    * The person's browser as they see it. The Recorder's report is taken as it says, except that a Recorder holding a
-   * connection OpenBot revoked is signed out whatever it says: OpenBot tells it of a revoke at once
-   * (`browserConnectionRevoked`), and when that did not reach it, it hears only on its next call to OpenBot. And its
+   * connection ShardsOpenBot revoked is signed out whatever it says: ShardsOpenBot tells it of a revoke at once
+   * (`browserConnectionRevoked`), and when that did not reach it, it hears only on its next call to ShardsOpenBot. And its
    * narration is the window's, signed in or out (`asNarrated`). `live` is the person's live connections, when they were
    * read already.
    */
@@ -742,7 +744,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
   };
 
   /**
-   * The person's own browsers installed on OpenBot Desktop's computer, as it lists them (`GET /browser/real`), which
+   * The person's own browsers installed on ShardsOpenBot Desktop's computer, as it lists them (`GET /browser/real`), which
    * launches nothing. Never fails: a computer that cannot be asked, or an answer of another shape, has none.
    */
   async function installedBrowsers(
@@ -797,9 +799,9 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
   });
 
   /**
-   * What the computer the person's browser runs on says, when it is running: asking never starts one. The OpenBot
+   * What the computer the person's browser runs on says, when it is running: asking never starts one. The ShardsOpenBot
    * browser's state (null: it could not be asked, which reads as closed), whether it is `silent` (open and not
-   * answering), and, when `real` asks for them (OpenBot Desktop), the person's own browsers installed there. Never fails
+   * answering), and, when `real` asks for them (ShardsOpenBot Desktop), the person's own browsers installed there. Never fails
    * for the computer.
    */
   async function askComputer(
@@ -842,7 +844,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
 
   /**
    * The state the app reads (`GET /api/browser`): the browser as it is now, what any of the person's Recorders is
-   * recording (`activity`, the Browser button's red dot), and on OpenBot Desktop the person's own browsers and whether
+   * recording (`activity`, the Browser button's red dot), and on ShardsOpenBot Desktop the person's own browsers and whether
    * a Recorder in one is connected through Desktop (`real`). One query for every Recorder connection the person has,
    * beside the computer it already asked; nothing is started or reached that the state did not reach before.
    */
@@ -890,14 +892,14 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
   }
 
   /**
-   * On OpenBot Desktop, the Browser button works with the person's own everyday Chrome or Edge rather than the OpenBot
-   * browser, once the Recorder can be in it. Answers what it did, or null to open the OpenBot browser as before.
+   * On ShardsOpenBot Desktop, the Browser button works with the person's own everyday Chrome or Edge rather than the ShardsOpenBot
+   * browser, once the Recorder can be in it. Answers what it did, or null to open the ShardsOpenBot browser as before.
    *
    * - A Recorder connected through Desktop (`via: "desktop"`): its browser is brought forward. Which browser is read
    *   from the name the connection was made under (`realBrowserOf`), on the connection the person was heard from last.
    * - None, and the Recorder is published for one of the person's installed browsers: its store page opens in that
    *   browser, Chrome first, for the person to add it.
-   * - Neither: null, and the OpenBot browser opens, so the button keeps working until the Recorder is published. Before
+   * - Neither: null, and the ShardsOpenBot browser opens, so the button keeps working until the Recorder is published. Before
    *   then the computer is not even asked which browsers are installed.
    */
   async function openReal(userId: string): Promise<Response | null> {
@@ -941,7 +943,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
     try {
       base = await inBudget(computers.locate(computerId), "locate");
     } catch {
-      // The OpenBot browser's open locates the same computer, and says why it could not.
+      // The ShardsOpenBot browser's open locates the same computer, and says why it could not.
       return null;
     }
     const installed = await installedBrowsers(base, computerId);
@@ -1027,11 +1029,11 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
    * Record does first when the Recorder's connection has gone. Answers the browser's state, or what the person is told.
    *
    * One at a time for each person. An open that mints the browser a connection revokes the one before it, and the
-   * Recorder asks OpenBot whether its connection stands before it takes it. Two opens side by side (the Browser
+   * Recorder asks ShardsOpenBot whether its connection stands before it takes it. Two opens side by side (the Browser
    * page loaded again while it was opening) handed the Recorder a connection the second had revoked already: it refused
    * it, the computer closed the browser it had just launched, and both opens failed (agent-computer's browser-host.ts
    * has the measurement). Waiting here, a connection is never revoked before the open that minted it has its answer. The
-   * computer takes turns as well, for opens that reach it through another of OpenBot's servers.
+   * computer takes turns as well, for opens that reach it through another of ShardsOpenBot's servers.
    */
   async function connect(
     asker: Asker,
@@ -1085,14 +1087,14 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
   /**
    * One open, `connect`'s turn.
    *
-   * A connection that stands is kept. When OpenBot holds a live connection for this browser (its install id, within its
+   * A connection that stands is kept. When ShardsOpenBot holds a live connection for this browser (its install id, within its
    * lifetime) and the Recorder in it holds that same one, for this person and with the narration the window wants, the
    * browser is opened, or brought forward, with no new connection: the Recorder keeps it. That includes a browser that
    * was closed, whose Recorder kept its connection in its profile. Minting at every open revoked the last connection
    * each time, and wrote a `recorder.revoked` and a `recorder.connected` row for every visit to the Browser page and
    * many a Record.
    *
-   * Otherwise (OpenBot holds none, or the Recorder turned out to hold another or none) the connection is minted here and
+   * Otherwise (ShardsOpenBot holds none, or the Recorder turned out to hold another or none) the connection is minted here and
    * exchanged at once, as the Recorder's own exchange would: the same store, the same checks, the sealed organization
    * session carried from this request, and handed to the browser that is now open. Its install id is the browser's, so
    * this revokes the token the last one made, in the same transaction, rather than adding another.
@@ -1110,8 +1112,8 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
     const computerId = personBrowserId(actor.id);
     const computers = deps.computers;
     if (!computers) return refuse(unavailable, 503);
-    const openbotUrl = deps.openbotUrl(asker.origin);
-    if (!openbotUrl) {
+    const shardsopenbotUrl = deps.shardsopenbotUrl(asker.origin);
+    if (!shardsopenbotUrl) {
       console.warn(
         JSON.stringify({ type: "browser-open-no-address", error: NO_ADDRESS }),
       );
@@ -1136,7 +1138,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
 
     const minted = await deps.recorder.connections.mintCode(
       actor.id,
-      "openbot-browser",
+      "shardsopenbot-browser",
       await deps.recorder.sealOrganizationSession(asker.cookie),
     );
     if (!minted) {
@@ -1145,7 +1147,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
         eventType: "recorder.connect_refused",
         targetType: "recorder_connection",
         actorUserId: actor.id,
-        payload: { reason: "too_many_codes", via: "openbot-browser" },
+        payload: { reason: "too_many_codes", via: "shardsopenbot-browser" },
       });
       return refuse(SENTENCES.tooMany, 429);
     }
@@ -1155,7 +1157,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
     try {
       made = await deps.recorder.connections.exchange({
         code: minted.code,
-        label: OPENBOT_BROWSER_LABEL,
+        label: SHARDSOPENBOT_BROWSER_LABEL,
         extensionId: RECORDER_EXTENSION_ID,
         installId: personBrowserInstallId(computerId),
       });
@@ -1179,7 +1181,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
 
     const request = browserOpenRequestSchema.safeParse({
       connection: {
-        openbotUrl,
+        shardsopenbotUrl,
         token: made.token,
         connectionId: made.connection.id,
         user: {
@@ -1197,8 +1199,8 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
    * Before Record: when the Recorder in the person's open browser has lost its connection, it is connected again as Open
    * does, so the recording starts under a connection that stands. Disconnect in Settings, Browsers revokes it at once and
    * tells the Recorder (`browserConnectionRevoked`), but a Recorder that was not told (its computer could not be reached
-   * in time) hears only on its next call to OpenBot, which on a quiet browser is its keep-alive, hours away: until then
-   * it starts a recording that its first capture pass ends, and the person is told nothing. So this asks OpenBot's own
+   * in time) hears only on its next call to ShardsOpenBot, which on a quiet browser is its keep-alive, hours away: until then
+   * it starts a recording that its first capture pass ends, and the person is told nothing. So this asks ShardsOpenBot's own
    * record of the connection as well as the Recorder. Null to go on and record; otherwise what the person is told
    * instead. A browser that is not open is left to the computer, which refuses Record for it.
    */
@@ -1222,7 +1224,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
       deps.recorder.connections,
       asker.actor.id,
     );
-    // A Recorder that has not answered yet is taken at OpenBot's word.
+    // A Recorder that has not answered yet is taken at ShardsOpenBot's word.
     const recorder = state.recorder;
     const holdsIt =
       recorder === undefined ||
@@ -1237,7 +1239,7 @@ export function createBrowserRoutes(deps: BrowserRouteDeps) {
   );
 
   routes.post("/open", openBudget, deps.requireUser, async (context) => {
-    // Hosted OpenBot shows the person a cloud browser, and there is no everyday browser of theirs to bring forward.
+    // Hosted ShardsOpenBot shows the person a cloud browser, and there is no everyday browser of theirs to bring forward.
     if (deps.computers?.shows === "native") {
       const real = await openReal(context.var.actor.id);
       if (real) return real;

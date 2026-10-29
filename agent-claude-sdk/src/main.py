@@ -5,7 +5,7 @@ This is the row where a plan can stand in for a key. `claude setup-token` mints 
 this harness is the one the model screen offers a subscription on.
 
 The precedence trap is the thing to get right: `ANTHROPIC_API_KEY` wins over the OAuth token, so a
-deployment that sets both silently bills the key and the plan goes unused. OpenBot sets one.
+deployment that sets both silently bills the key and the plan goes unused. ShardsOpenBot sets one.
 """
 
 import hmac
@@ -16,9 +16,9 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from .adapter import OpenBotClaudeAgentAdapter
+from .adapter import ShardsOpenBotClaudeAgentAdapter
 
-TOKEN_HEADER = "x-openbot-agent-token"
+TOKEN_HEADER = "x-shardsopenbot-agent-token"
 
 
 def _refuse_both_credentials() -> None:
@@ -63,11 +63,11 @@ async def health():
 
 add_claude_fastapi_endpoint(
     app=app,
-    adapter=OpenBotClaudeAgentAdapter(name="openbot"),
+    adapter=ShardsOpenBotClaudeAgentAdapter(name="shardsopenbot"),
     path="/",
 )
 
-model_adapter = OpenBotClaudeAgentAdapter(name="openbot-model", model_only=True)
+model_adapter = ShardsOpenBotClaudeAgentAdapter(name="shardsopenbot-model", model_only=True)
 add_claude_fastapi_endpoint(
     app=app,
     adapter=model_adapter,

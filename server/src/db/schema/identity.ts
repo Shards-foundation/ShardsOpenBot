@@ -1,5 +1,5 @@
 /**
- * Accounts at outside providers, linked to OpenBot users.
+ * Accounts at outside providers, linked to ShardsOpenBot users.
  *
  * Provider-neutral on purpose: Slack senders and GitHub users are the same question ("who is this
  * here?") asked in two places. See docs/superpowers/specs/2026-10-08-github-app-integration-design.md.
@@ -67,7 +67,7 @@ export const identityLinks = pgTable(
 );
 
 /**
- * One-time link codes OpenBot issues to a signed-in person. The link is made when the code arrives
+ * One-time link codes ShardsOpenBot issues to a signed-in person. The link is made when the code arrives
  * from that person's chat account, so the code only ever links to the user it was issued to. Only
  * the sha256 of the code is stored. `user_id` is not a foreign key, for the same reason as above.
  */

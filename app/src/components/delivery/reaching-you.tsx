@@ -62,7 +62,7 @@ import { queryClient } from "@/query-client";
  * phone a moment after they may have looked away: leaving and coming back used to drop the box to
  * type it into, with no way to confirm the code they had just been sent.
  */
-const PENDING_SMS = "openbot.reachability.pendingSms";
+const PENDING_SMS = "shardsopenbot.reachability.pendingSms";
 function readPending(): string {
   try {
     return sessionStorage.getItem(PENDING_SMS) ?? "";
@@ -297,7 +297,7 @@ export function ReachingYou({ agentId: fixedBot }: { agentId?: string }) {
 
 /**
  * Choose the conversation, then link an account or verify a phone. Linking an account answers with a
- * one-time `link <code>` message to send to the OpenBot app; a phone answers with a text carrying a
+ * one-time `link <code>` message to send to the ShardsOpenBot app; a phone answers with a text carrying a
  * code to type back here.
  */
 function ConnectDialog({
@@ -514,7 +514,7 @@ function ConnectDialog({
             <Item size="sm" variant="muted">
               <ItemContent>
                 <ItemDescription className="line-clamp-none">
-                  Send this message to the OpenBot app in{" "}
+                  Send this message to the ShardsOpenBot app in{" "}
                   {linked.platform === "teams" ? "Microsoft Teams" : "Slack"}{" "}
                   within {Math.ceil((linked.expiresAt - Date.now()) / 60_000)}{" "}
                   minutes. It links that account to this conversation and Bot.

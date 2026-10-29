@@ -5,7 +5,7 @@
 import type {
   CapturedEvent,
   JsonValue,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import {
   isReadableBody,
   type NetworkBody,
@@ -122,7 +122,7 @@ export type AgentRuns = {
  * handed over when its redirect comes. `writeStarted` and `writeEnded` bracket each write from its start until `call`
  * had it, it was screened out, or the top frame's next document is answered (which ends the page that sent it), so a
  * step waits for a save still in flight; a write the cheap screens (telemetry, a prefetch) drop never starts one.
- * `ignore` names URLs never recorded (OpenBot's own); `topFrame` answers a tab's main frame id. An AG-UI run (`agent`)
+ * `ignore` names URLs never recorded (ShardsOpenBot's own); `topFrame` answers a tab's main frame id. An AG-UI run (`agent`)
  * is none of these: the agent events have it.
  */
 export function createRequestTracker(options: {

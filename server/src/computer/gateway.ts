@@ -24,7 +24,7 @@ import {
   type AuditStore,
   recordAuditEvent,
 } from "../audit";
-import { HeadlessToolSuspension } from "@openbot/toolkit/headless-tools";
+import { HeadlessToolSuspension } from "@shardsopenbot/toolkit/headless-tools";
 import { withUntrustedNotice } from "../untrusted-content";
 import {
   ComputerStillStartingError,
@@ -294,7 +294,7 @@ export function createComputerGateway(
    * Where the snapshot a ref is resolved against lives.
    *
    * Not a `Map` in this process. It describes the live contents of a browser window, and the process
-   * that took it is rarely the one that resolves a ref from it: OpenBot is several servers behind a
+   * that took it is rarely the one that resolves a ref from it: ShardsOpenBot is several servers behind a
    * load balancer, and consecutive calls on one conversation land on different ones. Kept in memory,
    * the mapping is absent on every replica but the one that snapshotted, so the ref resolves to
    * nothing, the policy decides with no element in front of it, and the audit row cannot name what

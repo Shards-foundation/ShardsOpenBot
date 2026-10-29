@@ -685,7 +685,7 @@ export function installChromeFake(
         calls.push("runtime.getManifest");
         return {
           manifest_version: 3,
-          name: "OpenBot Recorder",
+          name: "ShardsOpenBot Recorder",
           version: manifestVersion,
         };
       },

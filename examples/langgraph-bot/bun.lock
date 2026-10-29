@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@openbot/example-langgraph-bot",
+      "name": "@shardsopenbot/example-langgraph-bot",
       "dependencies": {
         "@ag-ui/core": "0.0.57",
         "@ag-ui/encoder": "0.0.57",

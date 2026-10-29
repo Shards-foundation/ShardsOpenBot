@@ -20,7 +20,7 @@ export function IntroAnimation({ scenes }: { scenes: IntroScene[] }) {
   if (reducedMotion) {
     return (
       <section
-        aria-label="Meet OpenBot"
+        aria-label="Meet ShardsOpenBot"
         className="flex w-full flex-col gap-12 py-8"
       >
         {scenes.map((item) => (
@@ -31,7 +31,7 @@ export function IntroAnimation({ scenes }: { scenes: IntroScene[] }) {
   }
 
   return (
-    <section aria-label="Meet OpenBot" className="w-full">
+    <section aria-label="Meet ShardsOpenBot" className="w-full">
       <div className="grid min-h-[440px] items-center">
         <AnimatePresence initial={false} mode="wait">
           <motion.div

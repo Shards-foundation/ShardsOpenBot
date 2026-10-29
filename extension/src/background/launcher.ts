@@ -1,13 +1,13 @@
 // The Recorder's launcher API: what the process that launched this browser, and alone holds its DevTools pipe, calls in
-// this service worker as `globalThis[LAUNCHER_GLOBAL]` (shared/openbot-browser.ts). OpenBot opens a person's own
+// this service worker as `globalThis[LAUNCHER_GLOBAL]` (shared/shardsopenbot-browser.ts). ShardsOpenBot opens a person's own
 // browser with the Recorder in it, and hands it its connection and its Record, Stop and narration through here.
 //
 // Reachable only by code running in this service worker itself: the launcher evaluates it over the DevTools protocol
 // (Runtime.evaluate in the worker's target). There is no chrome.runtime message route to it, internal or external, so
 // no web page, content script or other extension can reach it, and none of the Recorder's own pages does either: each
-// of them is its own global scope. A connection taken here is checked as a Connect would check it (the OpenBot address
+// of them is its own global scope. A connection taken here is checked as a Connect would check it (the ShardsOpenBot address
 // rule and the organization's policy), and every command goes through the same paths the popup's own do. A revoke
-// OpenBot tells it of goes through the path a signed-out answer from OpenBot takes.
+// ShardsOpenBot tells it of goes through the path a signed-out answer from ShardsOpenBot takes.
 import {
   LAUNCHER_GLOBAL,
   type LauncherApi,
@@ -15,16 +15,19 @@ import {
   type LauncherResult,
   type LauncherState,
   type Narration,
-} from "@openbot/shared/openbot-browser";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
 import {
   joinedLearningContainer,
   type RecorderMe,
   recorderPaths,
-} from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/recorder-api";
 import type { PageResponse, RecorderState } from "../protocol/messages";
-import { OpenBotError, openbotJson } from "../shared/openbot-client";
-import { normaliseOpenBotOrigin } from "../shared/origin";
-import { allowsOpenBot, readPolicy } from "../shared/policy";
+import {
+  ShardsOpenBotError,
+  shardsopenbotJson,
+} from "../shared/shardsopenbot-client";
+import { normaliseShardsOpenBotOrigin } from "../shared/origin";
+import { allowsShardsOpenBot, readPolicy } from "../shared/policy";
 import { narrationLanguage } from "../shared/speech-language";
 import {
   type ConnectionRecord,
@@ -56,7 +59,7 @@ type LauncherDeps = {
   now: () => number;
 };
 
-/** How long a connection waits on OpenBot to say who it is for: it is stored either way, and the keep-alive asks again. */
+/** How long a connection waits on ShardsOpenBot to say who it is for: it is stored either way, and the keep-alive asks again. */
 const ME_WAIT_MS = 5_000;
 const TITLE_MAX = 200;
 const PHRASE_MAX = 4_000;
@@ -64,14 +67,14 @@ const PHRASE_MAX = 4_000;
 const SENTENCES = {
   invalid: "The Recorder could not read that request.",
   address:
-    "That OpenBot address is not one the Recorder connects to. It must be https, or http on 127.0.0.1 or [::1] with a port.",
+    "That ShardsOpenBot address is not one the Recorder connects to. It must be https, or http on 127.0.0.1 or [::1] with a port.",
   policyInvalid:
-    "Your organization's Recorder policy names an OpenBot address the Recorder cannot use. Ask your IT team.",
+    "Your organization's Recorder policy names an ShardsOpenBot address the Recorder cannot use. Ask your IT team.",
   pinnedElsewhere:
-    "Your organization's Recorder policy does not allow this OpenBot. Ask your IT team.",
+    "Your organization's Recorder policy does not allow this ShardsOpenBot. Ask your IT team.",
   refused:
-    "OpenBot did not accept this browser's connection. Open the browser from OpenBot again.",
-  notConnected: "Connect this browser to OpenBot first.",
+    "ShardsOpenBot did not accept this browser's connection. Open the browser from ShardsOpenBot again.",
+  notConnected: "Connect this browser to ShardsOpenBot first.",
   noTab: "There is no tab to record. Open one and try again.",
   failed: "The Recorder could not do that. Try again.",
 } as const;
@@ -91,9 +94,9 @@ const isTime = (value: unknown): value is number =>
 /** The launcher's connection, read as the contract types it: anything else is refused, whatever sent it. */
 function connectionFrom(value: unknown): LauncherConnection | null {
   if (!isRecord(value)) return null;
-  const { openbotUrl, token, connectionId, user } = value;
+  const { shardsopenbotUrl, token, connectionId, user } = value;
   if (
-    !isText(openbotUrl, 2000) ||
+    !isText(shardsopenbotUrl, 2000) ||
     !isText(token, 200) ||
     !token.startsWith("obr_") ||
     !isText(connectionId, 200) ||
@@ -104,7 +107,7 @@ function connectionFrom(value: unknown): LauncherConnection | null {
   )
     return null;
   return {
-    openbotUrl,
+    shardsopenbotUrl,
     token,
     connectionId,
     user: { id: user.id, name: user.name, email: user.email },
@@ -153,7 +156,7 @@ function sameConnection(
   return (
     stored !== null &&
     stored.via === next.via &&
-    stored.openbotUrl === next.openbotUrl &&
+    stored.shardsopenbotUrl === next.shardsopenbotUrl &&
     stored.token === next.token &&
     stored.connectionId === next.connectionId &&
     stored.user.id === next.user.id &&
@@ -186,9 +189,9 @@ function voiceOf(state: RecorderState): NonNullable<LauncherState["voice"]> {
 }
 
 /** The recording Stop ended last, by name and with what it held, once it went to Intelligence (a Disconnect or a
- * failed send leaves none), and not when the person's own Learning space is known not to take it: OpenBot confirms it
- * went there, or says it held nothing. One stopped by an earlier build, which did not count, is not reported: OpenBot
- * would say it held nothing. OpenBot's own page reads it the same way (openbot-page.ts). */
+ * failed send leaves none), and not when the person's own Learning space is known not to take it: ShardsOpenBot confirms it
+ * went there, or says it held nothing. One stopped by an earlier build, which did not count, is not reported: ShardsOpenBot
+ * would say it held nothing. ShardsOpenBot's own page reads it the same way (shardsopenbot-page.ts). */
 export function lastStopped(
   state: RecorderState,
 ): LauncherState["lastStopped"] {
@@ -238,8 +241,8 @@ export function createLauncher(
     };
   }
 
-  /** Who OpenBot says a connection is for, as the popup would ask when it opens, asked BEFORE the connection is taken:
-   * `signed-out` when OpenBot revoked it already, `unknown` when OpenBot cannot answer for now (the connection is taken,
+  /** Who ShardsOpenBot says a connection is for, as the popup would ask when it opens, asked BEFORE the connection is taken:
+   * `signed-out` when ShardsOpenBot revoked it already, `unknown` when ShardsOpenBot cannot answer for now (the connection is taken,
    * and the keep-alive asks again). */
   async function ask(connection: ConnectionRecord): Promise<
     | { kind: "ok"; value: RecorderMe }
@@ -250,7 +253,7 @@ export function createLauncher(
     | { kind: "unknown" }
   > {
     try {
-      const value = await openbotJson<RecorderMe>(
+      const value = await shardsopenbotJson<RecorderMe>(
         connection,
         recorderPaths.me,
         {
@@ -259,7 +262,7 @@ export function createLauncher(
       );
       return { kind: "ok", value };
     } catch (error) {
-      if (error instanceof OpenBotError && error.signedOut)
+      if (error instanceof ShardsOpenBotError && error.signedOut)
         return { kind: "signed-out", reason: error.body?.reason ?? "revoked" };
       return { kind: "unknown" };
     }
@@ -296,18 +299,21 @@ export function createLauncher(
         const narration = input.narration;
         if (!connection || !NARRATIONS.includes(narration as Narration))
           return refuse(SENTENCES.invalid);
-        const checked = normaliseOpenBotOrigin(connection.openbotUrl);
+        const checked = normaliseShardsOpenBotOrigin(
+          connection.shardsopenbotUrl,
+        );
         if (!checked.ok) return refuse(SENTENCES.address);
         const policy = await deps.readPolicy();
-        if (policy.openbotUrlInvalid) return refuse(SENTENCES.policyInvalid);
-        if (!allowsOpenBot(policy, checked.origin))
+        if (policy.shardsopenbotUrlInvalid)
+          return refuse(SENTENCES.policyInvalid);
+        if (!allowsShardsOpenBot(policy, checked.origin))
           return refuse(SENTENCES.pinnedElsewhere);
         const record: ConnectionRecord = {
-          openbotUrl: checked.origin,
+          shardsopenbotUrl: checked.origin,
           token: connection.token,
           connectionId: connection.connectionId,
           user: connection.user,
-          via: "openbot-browser",
+          via: "shardsopenbot-browser",
           connectedAt: deps.now(),
           narration: narration as Narration,
         };
@@ -317,7 +323,7 @@ export function createLauncher(
          * Asked before it is taken. Two opens of one browser can cross, and the older one's connection, revoked by the
          * newer one's, can arrive last: taking it first would sign out the connection that stands and stop its
          * recording. A revoked connection is refused and the one held stays; with none held (or this one), it ends as
-         * OpenBot's own signed-out answer does, with the notice.
+         * ShardsOpenBot's own signed-out answer does, with the notice.
          */
         const asked = await ask(record);
         if (asked.kind === "signed-out") {
@@ -389,7 +395,7 @@ export function createLauncher(
               title: input.title.trim(),
               tabId,
               language,
-              // Whether the person narrates, as OpenBot's own Record form asked them.
+              // Whether the person narrates, as ShardsOpenBot's own Record form asked them.
               ...(typeof input.narrate === "boolean"
                 ? { narrate: input.narrate }
                 : {}),
@@ -431,11 +437,11 @@ export function createLauncher(
       () => refuse(SENTENCES.failed),
     ),
 
-    // OpenBot revoked this browser's connection (the person disconnected it in Settings, Browsers) and says so now,
-    // rather than leaving the Recorder to hear it on its next call to OpenBot, which on a quiet browser is the keep-alive,
-    // hours away. It goes the way OpenBot answering that the token is gone goes: the connection is forgotten with the
+    // ShardsOpenBot revoked this browser's connection (the person disconnected it in Settings, Browsers) and says so now,
+    // rather than leaving the Recorder to hear it on its next call to ShardsOpenBot, which on a quiet browser is the keep-alive,
+    // hours away. It goes the way ShardsOpenBot answering that the token is gone goes: the connection is forgotten with the
     // signed-out notice, a recording under it stops as signed out and is kept for its person, and the next connection
-    // the launcher hands in sends it. OpenBot has revoked the token already, so it is not asked to again.
+    // the launcher hands in sends it. ShardsOpenBot has revoked the token already, so it is not asked to again.
     disconnect: guarded(
       async (): Promise<LauncherResult> => {
         const connection = await currentConnection();

@@ -1,5 +1,5 @@
 {
-  "name": "@openbot/agent-mastra",
+  "name": "@shardsopenbot/agent-mastra",
   "private": true,
   "type": "module",
   "dependencies": {

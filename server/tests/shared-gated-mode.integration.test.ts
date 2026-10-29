@@ -21,7 +21,7 @@ const app = `team-gh-${suite}`;
 const bot = `bot-${suite}`;
 const admin = `admin-${suite}`;
 const asker = `asker-${suite}`;
-const VENDOR_ID = `openbot-deployment:acme-${suite}:R`;
+const VENDOR_ID = `shardsopenbot-deployment:acme-${suite}:R`;
 
 const broker: ConnectedAppBroker = {
   // This stub stands in for Composio, whose grant is held locally; see `ConnectedAppBroker.grantIsLocal`.

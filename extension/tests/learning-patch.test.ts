@@ -14,7 +14,7 @@ import {
   type TrajectoryEvent,
 } from "@copilotkit/learning";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import { REDACTED } from "@openbot/shared/recorder-masking";
+import { REDACTED } from "@shardsopenbot/shared/recorder-masking";
 
 /**
  * A payment provider's secret key, made up, built here so the file holds no string shaped like a live key: secret

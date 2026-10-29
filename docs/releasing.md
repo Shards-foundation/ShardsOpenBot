@@ -38,7 +38,7 @@ APPLE_SIGNING_IDENTITY=- bun run tauri build --config src-tauri/tauri.build-vers
 
 Use `release` instead of `internal` to prepare the plain release version. This only builds an
 artifact; it does not publish a release. macOS keeps numeric system version fields and stores
-the full internal identifier in `OpenBotBuildVersion` inside the app's `Info.plist`. Windows
+the full internal identifier in `ShardsOpenBotBuildVersion` inside the app's `Info.plist`. Windows
 retains the full identifier in `ProductVersion` and `FileVersion`; its fixed numeric fields
 contain the release number. The protected signing job checks both embedded string versions.
 
@@ -57,10 +57,10 @@ Then, in order:
 
 - the version in the tree is checked against the branch that is publishing it, and the changelog is
   checked for a section with that number
-- one image is built and pushed to `ghcr.io/copilotkit/openbot`, tagged with the version, the commit
+- one image is built and pushed to `ghcr.io/copilotkit/shardsopenbot`, tagged with the version, the commit
   and `latest`
 - the services `docker-compose.yml` can build are published too, one image each, at
-  `ghcr.io/copilotkit/openbot-<service>`. Those are `linux/amd64` and `linux/arm64`, built on native
+  `ghcr.io/copilotkit/shardsopenbot-<service>`. Those are `linux/amd64` and `linux/arm64`, built on native
   runners of each architecture and joined into one manifest list, because the machines pulling them
   are laptops as well as servers. `.github/published-images.json` is the list, and CI fails if it
   stops matching the Dockerfiles in the tree
@@ -76,7 +76,7 @@ Then, in order:
 ```sh
 gh release download v0.1.0 --pattern container-images.json
 docker run -p 3001:3001 --env-file .env \
-  "$(jq -r .images.openbot.reference container-images.json)"
+  "$(jq -r .images.shardsopenbot.reference container-images.json)"
 ```
 
 The same file is how a machine runs the stack without building any of it. Each key under `images`
@@ -101,14 +101,14 @@ A tag can be moved to point at a different image; a digest cannot. The same dige
 tested is the one that runs, and rolling back is the same command with an earlier version.
 
 On Kubernetes the chart takes the same digest as `image.digest`; see
-[charts/openbot/README.md](../charts/openbot/README.md#pin-the-image-by-digest).
+[charts/shardsopenbot/README.md](../charts/shardsopenbot/README.md#pin-the-image-by-digest).
 
 Before deploying, you can check an image is the one this repository built. Every published image
 carries its own attestation:
 
 ```sh
-gh attestation verify oci://ghcr.io/copilotkit/openbot:v0.1.0 -R CopilotKit/OpenBot
-gh attestation verify oci://ghcr.io/copilotkit/openbot-supervisor:v0.1.0 -R CopilotKit/OpenBot
+gh attestation verify oci://ghcr.io/copilotkit/shardsopenbot:v0.1.0 -R CopilotKit/ShardsOpenBot
+gh attestation verify oci://ghcr.io/copilotkit/shardsopenbot-supervisor:v0.1.0 -R CopilotKit/ShardsOpenBot
 ```
 
 ## What has to be green
@@ -141,7 +141,7 @@ publish rather than the proposal, which is why the release PR arriving without i
 not matter: a pull request opened by a workflow does not trigger them.
 
 **No secrets are required to release.** CI and both release workflows use only the built-in
-`GITHUB_TOKEN`. The desktop build workflows also read `OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET`.
+`GITHUB_TOKEN`. The desktop build workflows also read `SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET`.
 
 ## The one thing CI cannot do
 
@@ -150,7 +150,7 @@ the server reaches the supervisor, the supervisor builds a computer, the gateway
 browser acts, and the trail records it. It cannot run in CI, and this is not a gap to be closed
 later.
 
-OpenBot only runs in Intelligence mode, and `loadConfig` refuses to start without the project's
+ShardsOpenBot only runs in Intelligence mode, and `loadConfig` refuses to start without the project's
 Intelligence values, which a hosted runner has no business holding. The `image` check gets around
 this with placeholder values, because nothing is contacted at start-up, but the journey asserts
 `licenseStatus` is `valid`, and no placeholder can make that true.
@@ -160,7 +160,7 @@ the release PR:
 
 ```sh
 bash scripts/start.sh
-export OPENBOT_SMOKE_COOKIE='better-auth.session_token=...'   # from a signed-in browser
+export SHARDSOPENBOT_SMOKE_COOKIE='better-auth.session_token=...'   # from a signed-in browser
 bun run test:smoke
 ```
 

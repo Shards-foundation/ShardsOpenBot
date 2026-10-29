@@ -10,6 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@openbot/shared": "workspace:*"
+    "@shardsopenbot/shared": "workspace:*"
   }
 }

@@ -20,7 +20,11 @@ const container = (action: string, projectId = "12") => ({
   command: `learning containers ${action}`,
   status: "success",
   projectId,
-  container: { id: "openbot", projectId: Number(projectId), name: "OpenBot" },
+  container: {
+    id: "shardsopenbot",
+    projectId: Number(projectId),
+    name: "ShardsOpenBot",
+  },
 });
 const missing = {
   schemaVersion: 1,
@@ -61,7 +65,9 @@ async function fixture(
     ? signedInTo("Team")
     : signedOut,
 ) {
-  const directory = await mkdtemp(join(tmpdir(), "openbot-learning-setup-"));
+  const directory = await mkdtemp(
+    join(tmpdir(), "shardsopenbot-learning-setup-"),
+  );
   directories.push(directory);
   await mkdir(join(directory, ".copilotkit"));
   await writeFile(
@@ -110,22 +116,22 @@ async function fixture(
   };
 }
 
-test("fresh managed setup creates and verifies the selected project's container before configuring OpenBot", async () => {
+test("fresh managed setup creates and verifies the selected project's container before configuring ShardsOpenBot", async () => {
   const f = await fixture();
   expect(await setupLearning({ ...f.options, runCli: f.runCli })).toBe(
     "configured",
   );
   expect(f.calls).toEqual([
     ["project", "select", "--project", "12", "--json"],
-    ["learning", "containers", "get", "openbot", "--json"],
+    ["learning", "containers", "get", "shardsopenbot", "--json"],
     [
       "learning",
       "containers",
       "create",
       "--id",
-      "openbot",
+      "shardsopenbot",
       "--name",
-      "OpenBot",
+      "ShardsOpenBot",
       "--json",
     ],
   ]);
@@ -134,7 +140,7 @@ test("fresh managed setup creates and verifies the selected project's container 
   expect(parseEnv(content)).toMatchObject({
     CPK_INTELLIGENCE_API_KEY: key,
     INTELLIGENCE_API_KEY: "",
-    CPK_INTELLIGENCE_LEARNING_CONTAINER_ID: "openbot",
+    CPK_INTELLIGENCE_LEARNING_CONTAINER_ID: "shardsopenbot",
     OPENAI_API_KEY: "synthetic-model",
   });
   const saved = content;
@@ -157,7 +163,7 @@ test("reuses an existing verified container without creating or editing it", asy
   expect(
     parseEnv(await readFile(f.envPath, "utf8"))
       .CPK_INTELLIGENCE_LEARNING_CONTAINER_ID,
-  ).toBe("openbot");
+  ).toBe("shardsopenbot");
   expect(f.calls).toHaveLength(1);
 });
 
@@ -173,7 +179,7 @@ test("custom configured targets are preserved before any CLI operation", async (
   expect(f.calls).toHaveLength(0);
 });
 
-/** The configured key's view of its own project: whether openbot is there, and which project. */
+/** The configured key's view of its own project: whether shardsopenbot is there, and which project. */
 function keyView(
   answers: ContainerProbe[],
   projectSlug: string | null = "chosen",
@@ -201,7 +207,7 @@ function keyView(
   return { probes, keys, keyIntelligence };
 }
 
-test("an existing key whose project has openbot is left to the server to assign", async () => {
+test("an existing key whose project has shardsopenbot is left to the server to assign", async () => {
   const f = await fixture("INTELLIGENCE_API_KEY=cpk-manual-key\n");
   const before = await readFile(f.envPath, "utf8");
   const key = keyView(["present"]);
@@ -213,12 +219,12 @@ test("an existing key whose project has openbot is left to the server to assign"
     }),
   ).toBe("present");
   expect(key.keys).toEqual(["cpk-manual-key"]);
-  expect(key.probes).toEqual(["openbot"]);
+  expect(key.probes).toEqual(["shardsopenbot"]);
   expect(await readFile(f.envPath, "utf8")).toBe(before);
   expect(f.calls).toHaveLength(0);
 });
 
-test("an existing key without openbot gets it created in the key's own project, never a new key", async () => {
+test("an existing key without shardsopenbot gets it created in the key's own project, never a new key", async () => {
   const f = await fixture(
     "INTELLIGENCE_API_KEY=cpk-manual-key\n",
     listed("chosen"),
@@ -236,20 +242,20 @@ test("an existing key without openbot gets it created in the key's own project, 
   expect(f.calls).toEqual([
     ["project", "list", "--json"],
     ["whoami"],
-    ["learning", "containers", "get", "openbot", "--json"],
+    ["learning", "containers", "get", "shardsopenbot", "--json"],
     [
       "learning",
       "containers",
       "create",
       "--id",
-      "openbot",
+      "shardsopenbot",
       "--name",
-      "OpenBot",
+      "ShardsOpenBot",
       "--json",
     ],
   ]);
   // Proved by the key itself after creation, and nothing in .env changes.
-  expect(key.probes).toEqual(["openbot", "openbot"]);
+  expect(key.probes).toEqual(["shardsopenbot", "shardsopenbot"]);
   expect(await readFile(f.envPath, "utf8")).toBe(before);
 });
 
@@ -304,15 +310,15 @@ test("a CLI login with no project selected creates the container in the key's pr
   expect(f.calls).toEqual([
     ["project", "list", "--json"],
     ["whoami"],
-    ["learning", "containers", "get", "openbot", "--json"],
+    ["learning", "containers", "get", "shardsopenbot", "--json"],
     [
       "learning",
       "containers",
       "create",
       "--id",
-      "openbot",
+      "shardsopenbot",
       "--name",
-      "OpenBot",
+      "ShardsOpenBot",
       "--json",
     ],
   ]);
@@ -332,7 +338,7 @@ test("a CLI login with no project selected creates the container in the key's pr
     ),
   ).toBeNull();
   expect(await readFile(f.envPath, "utf8")).toBe(before);
-  expect(key.probes).toEqual(["openbot", "openbot"]);
+  expect(key.probes).toEqual(["shardsopenbot", "shardsopenbot"]);
 });
 
 test("a CLI login that cannot see the key's project creates nothing", async () => {
@@ -510,7 +516,7 @@ test("non-interactive runs never sign in, prompt or provision a key", async () =
       runCli: unselected.runCli,
       keyIntelligence: keyView(["absent"]).keyIntelligence,
     }),
-  ).rejects.toThrow('ID "openbot"');
+  ).rejects.toThrow('ID "shardsopenbot"');
 
   // Self-hosted creation needs a browser sign-in.
   const selfHosted = await fixture(
@@ -546,7 +552,7 @@ test("self-hosted keys gain the container through sign-in and keep their key", a
         return {
           apiUrl,
           apiKey: existingKey ?? "cpk-minted",
-          learningContainerId: "openbot",
+          learningContainerId: "shardsopenbot",
         };
       },
     }),
@@ -564,14 +570,14 @@ test("fresh self-hosted endpoints use browser setup and save its verified connec
       setupSelfHosted: async (apiUrl) => ({
         apiUrl,
         apiKey: key,
-        learningContainerId: "openbot",
+        learningContainerId: "shardsopenbot",
       }),
     }),
   ).toBe("configured");
   expect(parseEnv(await readFile(f.envPath, "utf8"))).toMatchObject({
     INTELLIGENCE_API_URL: "https://customer.example",
     INTELLIGENCE_API_KEY: key,
-    CPK_INTELLIGENCE_LEARNING_CONTAINER_ID: "openbot",
+    CPK_INTELLIGENCE_LEARNING_CONTAINER_ID: "shardsopenbot",
   });
   expect(f.calls).toHaveLength(0);
 });
@@ -593,7 +599,7 @@ test("self-hosted setup failure or concurrent env edits do not save credentials"
       ...f.options,
       setupSelfHosted: async (apiUrl) => {
         await writeFile(f.envPath, `${original}\n# Operator edit\n`);
-        return { apiUrl, apiKey: key, learningContainerId: "openbot" };
+        return { apiUrl, apiKey: key, learningContainerId: "shardsopenbot" };
       },
     }),
   ).rejects.toThrow("configuration changed");
@@ -640,7 +646,7 @@ test("a partial key provision does not create a container", async () => {
   expect(await readFile(f.envPath, "utf8")).toBe(before);
 });
 
-test("wrong-project or failed container results leave OpenBot unassigned", async () => {
+test("wrong-project or failed container results leave ShardsOpenBot unassigned", async () => {
   for (const response of [
     container("create", "99"),
     { status: "error", error: { code: "FORBIDDEN" } },

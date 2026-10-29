@@ -34,7 +34,7 @@ export function NativeDevices() {
   const error = reach.error ?? remove.error;
   return (
     <PageSection
-      description="Sign in to the OpenBot app on your phone and turn on notifications to add it here."
+      description="Sign in to the ShardsOpenBot app on your phone and turn on notifications to add it here."
       title="Your devices"
     >
       {error ? (

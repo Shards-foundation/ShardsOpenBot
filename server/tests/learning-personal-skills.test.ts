@@ -5,7 +5,7 @@ import {
   LearnedSkillsError,
   type LearnedSkillsSnapshotResult,
 } from "@copilotkit/runtime/v2";
-import type { LearningSettings } from "@openbot/shared/learning";
+import type { LearningSettings } from "@shardsopenbot/shared/learning";
 import { personalLearningContainerId } from "../src/learning/personal-space";
 import {
   createLearningRuntime,
@@ -40,7 +40,7 @@ function runtime(
   let clock = 1_000_000;
   const settings: LearningSettings = options.settings ?? {
     enabled: true,
-    defaultTarget: { containerId: "openbot" },
+    defaultTarget: { containerId: "shardsopenbot" },
     agents: {},
   };
   const store = {
@@ -117,7 +117,7 @@ const alanSkills = skillArchive("alan-r1", [
 describe("a person's run", () => {
   test("gets the Bot's own Skills and the person's own, and the Bot's own wins a name clash", async () => {
     const { learning } = runtime({
-      published: { openbot: botSkills, [space(ADA)]: adaSkills },
+      published: { shardsopenbot: botSkills, [space(ADA)]: adaSkills },
     });
     const run = await learning.acquire("bot", undefined, ADA);
     expect(names(run?.catalog)).toEqual([
@@ -155,11 +155,11 @@ describe("a person's run", () => {
 
   test("with no person named gets the Bot's own Skills only, exactly as before", async () => {
     const { learning, requests } = runtime({
-      published: { openbot: botSkills, [space(ADA)]: adaSkills },
+      published: { shardsopenbot: botSkills, [space(ADA)]: adaSkills },
     });
     const run = await learning.acquire("bot");
     expect(names(run?.catalog)).toEqual(["bot-only", "refund-order"]);
-    expect(requests).toEqual(["openbot"]);
+    expect(requests).toEqual(["shardsopenbot"]);
   });
 
   test("Learning off, or the Bot excluded by an administrator, gets nothing and asks nothing", async () => {
@@ -167,17 +167,21 @@ describe("a person's run", () => {
     // elements, normalised so the first one's `agents: {}` reads `{ bot?: undefined }`, which a
     // `LearningSettings` does not accept.
     const switchedOff: LearningSettings[] = [
-      { enabled: false, defaultTarget: { containerId: "openbot" }, agents: {} },
+      {
+        enabled: false,
+        defaultTarget: { containerId: "shardsopenbot" },
+        agents: {},
+      },
       {
         enabled: true,
-        defaultTarget: { containerId: "openbot" },
+        defaultTarget: { containerId: "shardsopenbot" },
         agents: { bot: null },
       },
     ];
     for (const settings of switchedOff) {
       const { learning, requests } = runtime({
         settings,
-        published: { openbot: botSkills, [space(ADA)]: adaSkills },
+        published: { shardsopenbot: botSkills, [space(ADA)]: adaSkills },
       });
       expect(await learning.acquire("bot", undefined, ADA)).toBeUndefined();
       expect(requests).toEqual([]);
@@ -202,7 +206,7 @@ describe("a person's space failing", () => {
     "%s never breaks the run: it goes on with the Bot's own Skills",
     async (_label, error) => {
       const { learning } = runtime({
-        published: { openbot: botSkills, [space(ADA)]: error },
+        published: { shardsopenbot: botSkills, [space(ADA)]: error },
       });
       const run = await learning.acquire("bot", undefined, ADA);
       expect(names(run?.catalog)).toEqual(["bot-only", "refund-order"]);
@@ -212,7 +216,7 @@ describe("a person's space failing", () => {
   test("a space that never answers is left behind after the wait, and the run goes on", async () => {
     const { learning } = runtime({
       published: {
-        openbot: botSkills,
+        shardsopenbot: botSkills,
         [space(ADA)]: () => new Promise(() => {}),
       },
       personalWaitMs: 30,
@@ -226,7 +230,7 @@ describe("a person's space failing", () => {
   test("a refused space is not asked again by runs for a minute", async () => {
     const { learning, requests, advance } = runtime({
       published: {
-        openbot: botSkills,
+        shardsopenbot: botSkills,
         [space(ADA)]: new LearnedSkillsError("CONTAINER_NOT_FOUND", false),
       },
     });
@@ -240,7 +244,7 @@ describe("a person's space failing", () => {
 
   test("an open-Skill index that cannot be read leaves the person's own Skills in the run", async () => {
     const { learning } = runtime({
-      published: { openbot: botSkills, [space(ADA)]: adaSkills },
+      published: { shardsopenbot: botSkills, [space(ADA)]: adaSkills },
       open: async () => {
         throw new Error("database down");
       },
@@ -252,7 +256,7 @@ describe("a person's space failing", () => {
   test("the Bot's own refusal still fails the run, as it always has", async () => {
     const { learning } = runtime({
       published: {
-        openbot: new LearnedSkillsError("DELIVERY_DISABLED", false),
+        shardsopenbot: new LearnedSkillsError("DELIVERY_DISABLED", false),
         [space(ADA)]: adaSkills,
       },
     });
@@ -262,7 +266,7 @@ describe("a person's space failing", () => {
 
 describe("other people's opened Skills", () => {
   const published = {
-    openbot: botSkills,
+    shardsopenbot: botSkills,
     [space(ADA)]: adaSkills,
     [space(GRACE)]: graceSkills,
     [space(ALAN)]: alanSkills,

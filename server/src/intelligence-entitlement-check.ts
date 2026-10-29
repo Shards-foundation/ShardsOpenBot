@@ -5,9 +5,9 @@ import type { RuntimeEntitlementResponse } from "./self-host-banner";
  *
  * A self-hosted Intelligence without a licence answers every runtime entitlement read with
  * `RUNTIME_ENTITLEMENTS_SELF_HOSTED_MISCONFIGURED`, and the features it gates, memory first, are
- * then refused quietly: conversations still run, nothing fails loudly, and nothing in OpenBot's own
+ * then refused quietly: conversations still run, nothing fails loudly, and nothing in ShardsOpenBot's own
  * log says why recall is empty. The licence belongs to Intelligence's own deployment rather than to
- * OpenBot's, which is the part that is easy to miss, so the line says where it goes.
+ * ShardsOpenBot's, which is the part that is easy to miss, so the line says where it goes.
  *
  * Read once and never blocks start-up. The self-host banner reads the same answer on page loads,
  * but only while the banner is enabled, so it cannot be the thing that reports this.
@@ -30,7 +30,7 @@ const FIXES: ReadonlyMap<string, string> = new Map([
     "RUNTIME_ENTITLEMENTS_SELF_HOSTED_MISCONFIGURED",
     "Intelligence has no valid licence. Give Intelligence's own deployment a COPILOTKIT_LICENSE_TOKEN " +
       "(its Helm chart takes it as appApi.licenseSecret, or externalSecrets.secrets.license); setting it " +
-      "on OpenBot alone is not enough. Until then memory and other licensed features are refused.",
+      "on ShardsOpenBot alone is not enough. Until then memory and other licensed features are refused.",
   ],
   [
     "RUNTIME_ENTITLEMENTS_SELF_HOSTED_EXPIRED",

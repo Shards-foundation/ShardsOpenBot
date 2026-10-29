@@ -15,9 +15,9 @@ import {
 import { settleReactWork } from "./settle-react-work";
 
 /*
- * OpenDuet's mic orb has no dictation of its own: it presses the composer's, by the names OpenBot's
+ * OpenDuet's mic orb has no dictation of its own: it presses the composer's, by the names ShardsOpenBot's
  * dictation controls carry, so the recording, the waveform and the words landing in the draft are
- * all OpenBot's. These render OpenBot's real controls and press the orb over them, so a renamed
+ * all ShardsOpenBot's. These render ShardsOpenBot's real controls and press the orb over them, so a renamed
  * control fails here rather than leaving an orb that silently does nothing.
  */
 
@@ -146,7 +146,7 @@ test("a Stop the composer shows only for a moment does not make the orb think", 
 });
 
 /*
- * The orb finds the composer by OpenBot's `composer-input` hook, and puts the caret in its editor
+ * The orb finds the composer by ShardsOpenBot's `composer-input` hook, and puts the caret in its editor
  * where it cannot dictate. This holds that selector to the real composer's editor.
  */
 test("the orb finds the real composer's editor by its hook", () => {

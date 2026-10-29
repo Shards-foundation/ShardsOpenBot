@@ -89,7 +89,7 @@ export default function PluginsScreen() {
       <Section title="Connected tools">
         <Text style={muted}>
           Connecting an app needs its sign-in, so add and remove tools in
-          OpenBot on your computer.
+          ShardsOpenBot on your computer.
         </Text>
         {granted.data?.tools.length === 0 && (
           <Text style={muted}>No connected tools.</Text>

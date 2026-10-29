@@ -21,7 +21,7 @@
  * A second half-right copy grown next to it is the duplicated firing mechanism #235 exists to
  * prevent.
  */
-import { TURN_LIMITS } from "@openbot/toolkit/limits";
+import { TURN_LIMITS } from "@shardsopenbot/toolkit/limits";
 import { DEFAULT_MAX_ATTEMPTS, type WorkQueue } from "../work/queue";
 import { RoutineRefusedError, type RoutineStore } from "./store";
 

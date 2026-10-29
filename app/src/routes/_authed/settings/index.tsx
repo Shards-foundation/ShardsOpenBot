@@ -38,7 +38,7 @@ function RouteComponent() {
    */
   return (
     <PageShell
-      description="Customize OpenBot’s appearance and message display. Your skin and message settings apply to your account; the theme applies only to this browser."
+      description="Customize ShardsOpenBot’s appearance and message display. Your skin and message settings apply to your account; the theme applies only to this browser."
       title="Preferences"
     >
       <ProfileSettings />
@@ -48,7 +48,7 @@ function RouteComponent() {
             <ItemContent>
               <ItemTitle>Dark theme</ItemTitle>
               <ItemDescription>
-                Use the dark appearance across OpenBot.
+                Use the dark appearance across ShardsOpenBot.
               </ItemDescription>
             </ItemContent>
             <ItemActions>

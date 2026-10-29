@@ -35,7 +35,7 @@ import {
   type ConnectPrompt,
   connectAppRefusal,
   SHOW_APP_ACCESS_TOOL,
-} from "@openbot/shared/connect-prompt";
+} from "@shardsopenbot/shared/connect-prompt";
 import { appAccess } from "./app-access-fixture";
 import { settleReactWork } from "./settle-react-work";
 

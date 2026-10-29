@@ -1,4 +1,4 @@
-import type { HandoffRequest } from "@openbot/shared/computer-control";
+import type { HandoffRequest } from "@shardsopenbot/shared/computer-control";
 import type { NavigateResult } from "./schema";
 import { checkNavigationTarget } from "./target";
 
@@ -240,9 +240,9 @@ export function createComputerTransport(
         ...init,
         headers: {
           ...(init?.headers as Record<string, string> | undefined),
-          "x-openbot-bot-id": botId,
+          "x-shardsopenbot-bot-id": botId,
           ...(options.token
-            ? { "x-openbot-computer-token": options.token }
+            ? { "x-shardsopenbot-computer-token": options.token }
             : {}),
         },
         signal: caller

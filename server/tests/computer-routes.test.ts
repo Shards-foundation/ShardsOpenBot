@@ -33,7 +33,7 @@ describe("computer routes", () => {
     );
 
     const response = await routes.request(
-      "http://openbot.test/bot-17/screenshot",
+      "http://shardsopenbot.test/bot-17/screenshot",
     );
 
     expect(response.status).toBe(200);
@@ -58,7 +58,10 @@ describe("a computer that is not ready yet", () => {
       context,
       next,
     ) => {
-      context.set("actor", { id: "user-1", email: "u@openbot.test" } as never);
+      context.set("actor", {
+        id: "user-1",
+        email: "u@shardsopenbot.test",
+      } as never);
       await next();
     };
     return createComputerRoutes(
@@ -81,7 +84,9 @@ describe("a computer that is not ready yet", () => {
         },
       });
 
-      const response = await routes.request("http://openbot.test/b/screenshot");
+      const response = await routes.request(
+        "http://shardsopenbot.test/b/screenshot",
+      );
 
       expect(response.status).toBe(200);
       expect(await response.json()).toEqual({ ready: false, state });
@@ -101,7 +106,9 @@ describe("a computer that is not ready yet", () => {
       },
     });
 
-    const response = await routes.request("http://openbot.test/b/screenshot");
+    const response = await routes.request(
+      "http://shardsopenbot.test/b/screenshot",
+    );
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
@@ -118,11 +125,14 @@ describe("a computer that is not ready yet", () => {
       },
     });
 
-    const response = await routes.request("http://openbot.test/b/navigate", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ url: "https://example.com" }),
-    });
+    const response = await routes.request(
+      "http://shardsopenbot.test/b/navigate",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url: "https://example.com" }),
+      },
+    );
 
     expect(response.status).toBe(503);
     const body = (await response.json()) as Record<string, unknown>;
@@ -142,13 +152,13 @@ describe("a computer that is not ready yet", () => {
  */
 const member: AuthenticatedActor = {
   id: "user-1",
-  email: "member@openbot.test",
+  email: "member@shardsopenbot.test",
   role: "user",
 };
 
 const administrator: AuthenticatedActor = {
   id: "admin-1",
-  email: "admin@openbot.test",
+  email: "admin@shardsopenbot.test",
   role: "admin",
 };
 
@@ -192,7 +202,9 @@ describe("computer fleet listing", () => {
       ],
     }));
 
-    const response = await app.request("http://openbot.test/any-bot/computers");
+    const response = await app.request(
+      "http://shardsopenbot.test/any-bot/computers",
+    );
 
     expect(response.status).toBe(403);
     await expect(response.json()).resolves.toEqual({
@@ -217,7 +229,9 @@ describe("computer fleet listing", () => {
     };
     const { app, listed } = appFor(administrator, async () => fleet);
 
-    const response = await app.request("http://openbot.test/any-bot/computers");
+    const response = await app.request(
+      "http://shardsopenbot.test/any-bot/computers",
+    );
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual(fleet);
@@ -260,7 +274,7 @@ describe("human input", () => {
   async function send(body: unknown, kind = "click") {
     const { app, calls } = recordingGateway();
     const response = await app.request(
-      `http://openbot.test/bot-1/human/${kind}`,
+      `http://shardsopenbot.test/bot-1/human/${kind}`,
       {
         method: "POST",
         headers: { "content-type": "application/json" },

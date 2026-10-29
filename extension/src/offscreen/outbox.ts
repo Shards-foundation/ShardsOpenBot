@@ -1,7 +1,7 @@
 import type {
   CapturedEvent,
   JsonValue,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { openRecorderDatabase, requestToPromise, tx } from "../shared/database";
 
 export type OutboxEvent = {

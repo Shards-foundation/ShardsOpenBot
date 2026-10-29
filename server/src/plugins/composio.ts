@@ -648,7 +648,7 @@ function listsName(list: unknown, name: string): boolean {
  * WHY A CALL CAN CARRY ONE AT ALL. {@link listTools} removes such a parameter from the schema a
  * model is shown, and a model that follows the schema never sends it. Nothing makes it follow the
  * schema: Gmail's leaves other properties open, the built-in runtime's `parametersFor` (in
- * `@openbot/toolkit`) passes an open property straight through to the call, and a model that has
+ * `@shardsopenbot/toolkit`) passes an open property straight through to the call, and a model that has
  * seen Gmail's API elsewhere knows the parameter is called `attachment`. What it would put there is
  * the one value the parameter was removed for: a staging key it made up.
  *
@@ -1286,7 +1286,7 @@ export async function listTools(connection: {
  * and takes nothing else, because the alternative is somebody's request id in a model's context and
  * an audit row the size of a response dump.
  *
- * openbot already had this lesson from Drive, where a generic message cost a round of probing and the
+ * shardsopenbot already had this lesson from Drive, where a generic message cost a round of probing and the
  * vendor's own "The caller does not have permission" named the problem immediately.
  *
  * Null when there is no such sentence, which leaves the caller to choose a fallback rather than

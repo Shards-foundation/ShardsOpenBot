@@ -7,16 +7,16 @@ import type { EgressPolicy, EgressRule } from "../computer/policy-network";
  * A PERSON'S BROWSER IS NOT A BOT'S. The organization's network policy says where Bots may go, and a person's own browser
  * is for whatever they browse, so it is not held to it. It reaches what the person's browser on their own laptop would:
  *
- * - On their own desktop (OpenBot Desktop's host-side computer), everything: it is their machine and their network.
+ * - On their own desktop (ShardsOpenBot Desktop's host-side computer), everything: it is their machine and their network.
  * - On a computer in the cloud, the open internet and nothing inside the deployment, which a laptop could never reach
  *   either: the database, another pod, a node or a cloud metadata endpoint. The same line the chart's NetworkPolicy
- *   draws for computers (charts/openbot/templates/networkpolicy.yaml), and the one OWASP's SSRF guidance draws for a
+ *   draws for computers (charts/shardsopenbot/templates/networkpolicy.yaml), and the one OWASP's SSRF guidance draws for a
  *   service that must reach any public address: allow what is public, refuse private and reserved space. Written as
  *   the public ranges, because a policy here can only allow; the computer's filter checks every address a name
  *   resolves to and connects to the address it checked, so a name that points inside is refused too.
- * - Plus OpenBot itself and the Intelligence gateway, wherever they resolve: the Recorder reaches OpenBot for its capture
+ * - Plus ShardsOpenBot itself and the Intelligence gateway, wherever they resolve: the Recorder reaches ShardsOpenBot for its capture
  *   passes and streams to the gateway, and either can sit on a private address inside the cluster. Their origins only,
- *   host and port: OpenBot and the gateway often share an address with other services (the Intelligence UI, a
+ *   host and port: ShardsOpenBot and the gateway often share an address with other services (the Intelligence UI, a
  *   database, every other port on 127.0.0.1), and a person's browser is let in to these two, not to their neighbours.
  *
  * A deployment that lets Bots reach private addresses (AGENT_COMPUTER_ALLOW_PRIVATE_HOSTS, local development only) lets a
@@ -26,17 +26,19 @@ export function personBrowserEgressPolicy(input: {
   /** The browser is a window on the person's own desktop. */
   native: boolean;
   allowPrivateHosts: boolean;
-  /** This OpenBot's addresses (its public URL and its app's). */
-  openbotUrls: readonly (string | undefined)[];
+  /** This ShardsOpenBot's addresses (its public URL and its app's). */
+  shardsopenbotUrls: readonly (string | undefined)[];
   /** INTELLIGENCE_GATEWAY_WS_URL. */
   gatewayUrl: string;
 }): EgressPolicy {
   if (input.native || input.allowPrivateHosts)
     return { mode: "allow_all", rules: [] };
-  const named = [...input.openbotUrls, input.gatewayUrl].flatMap((raw) => {
-    const origin = originOf(raw);
-    return origin ? rulesFor(origin) : [];
-  });
+  const named = [...input.shardsopenbotUrls, input.gatewayUrl].flatMap(
+    (raw) => {
+      const origin = originOf(raw);
+      return origin ? rulesFor(origin) : [];
+    },
+  );
   return {
     mode: "allowlist_only",
     rules: [

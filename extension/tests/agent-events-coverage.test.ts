@@ -4,7 +4,7 @@
 // every event (a run's input, its outcome and usage, reasoning's bounds) somewhere in what is emitted. Intelligence's
 // routing and bookkeeping fields, and an event's own clock, are not the agent's and are left out.
 import { describe, expect, test } from "bun:test";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import {
   fixtureNames,
   loadFixture,

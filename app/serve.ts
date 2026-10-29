@@ -6,7 +6,7 @@
  * product failing: Vite's proxy calls `socket.destroySoon()` when an upstream response ends, bun's
  * sockets do not implement it, and the process dies with `TypeError: socket.destroySoon is not a
  * function` on the FIRST call the app makes. So the app served its page, died, and the shell's
- * window went on saying "OpenBot is running" with nothing on the port. Measured on a real install.
+ * window went on saying "ShardsOpenBot is running" with nothing on the port. Measured on a real install.
  *
  * A development server was never the right thing to run in an installed application, which is what
  * the shell's own comment about this process already said. This serves a directory and forwards one
@@ -14,8 +14,8 @@
  */
 
 import { join, normalize, sep } from "node:path";
-import { DICTATION_HTTP_IDLE_SECONDS } from "@openbot/shared/dictation";
-import { listenPort } from "@openbot/shared/listen-port";
+import { DICTATION_HTTP_IDLE_SECONDS } from "@shardsopenbot/shared/dictation";
+import { listenPort } from "@shardsopenbot/shared/listen-port";
 import { file, type ServerWebSocket } from "bun";
 
 const DIST = join(import.meta.dir, "dist");
@@ -273,6 +273,6 @@ if (import.meta.main) {
   });
 
   console.log(
-    `OpenBot app on http://127.0.0.1:${PORT} and http://[::1]:${PORT}`,
+    `ShardsOpenBot app on http://127.0.0.1:${PORT} and http://[::1]:${PORT}`,
   );
 }

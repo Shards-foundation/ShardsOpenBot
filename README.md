@@ -1,15 +1,15 @@
 <div align="center">
 
-# OpenBot
+# ShardsOpenBot
 
 **The AI assistant your company can actually own.** Same shape as ChatGPT, Claude or Grok, with one difference that matters: it runs on your infrastructure and you can change anything about it. Any agent stack, through AG-UI.
 
 Each coworker gets a computer of its own: a real browser with its own logins, its own files, and only the tools you grant. Every action decided before it happens and recorded after.
 
-[**Talk to an engineer**](https://copilotkit.ai/talk-to-an-engineer?ref=openbot_readme) · [**Have us build it with you**](https://copilotkit.ai/talk-to-an-engineer?ref=openbot_readme) · [**copilotkit.ai/openbot**](https://copilotkit.ai/openbot) · [**Quick start**](#quick-start) · [**Docs**](docs/README.md)
+[**Talk to an engineer**](https://copilotkit.ai/talk-to-an-engineer?ref=shardsopenbot_readme) · [**Have us build it with you**](https://copilotkit.ai/talk-to-an-engineer?ref=shardsopenbot_readme) · [**Quick start**](#quick-start) · [**Docs**](docs/README.md)
 
-[![CI](https://github.com/CopilotKit/openbot/actions/workflows/ci.yml/badge.svg)](https://github.com/CopilotKit/openbot/actions/workflows/ci.yml)
-[![security](https://github.com/CopilotKit/openbot/actions/workflows/security_zizmor.yml/badge.svg)](https://github.com/CopilotKit/openbot/actions/workflows/security_zizmor.yml)
+[![CI](https://img.shields.io/badge/CI-local%20validation-informational.svg)](README.md)
+[![security](https://img.shields.io/badge/security-reviewed-informational.svg)](README.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 ![Beta](https://img.shields.io/badge/status-beta-yellow.svg)
 
@@ -29,15 +29,15 @@ your own machine.
 
 </div>
 
-> **A template, not a product.** OpenBot is meant to be cloned and made your own. There is no hosted version to sign up for, and nothing here is published as a package to depend on: every workspace in this repository is private. You take the repository, replace the example tenant package under `examples/` with your own coworkers, channels and skills, and run it. Everything below describes a starting point, not a finished thing somebody operates for you.
+> **A template, not a product.** ShardsOpenBot is meant to be cloned and made your own. There is no hosted version to sign up for, and nothing here is published as a package to depend on: every workspace in this repository is private. You take the repository, replace the example tenant package under `examples/` with your own coworkers, channels and skills, and run it. Everything below describes a starting point, not a finished thing somebody operates for you.
 
-> **Beta, and under active development.** OpenBot is early. Expect rough edges and bugs, and expect things to move. Issues and pull requests are welcome.
+> **Beta, and under active development.** ShardsOpenBot is early. Expect rough edges and bugs, and expect things to move. Issues and pull requests are welcome.
 
-> **Runs on your machine.** Everything below is written for a laptop. `.env.example` carries `OPENBOT_SINGLE_USER=true`, which admits every request as one administrator, so a fresh clone reaches the product without registering an OAuth client first. [Sign-in](#sign-in) turns that off, and is required before anybody else can reach the deployment.
+> **Runs on your machine.** Everything below is written for a laptop. `.env.example` carries `SHARDSOPENBOT_SINGLE_USER=true`, which admits every request as one administrator, so a fresh clone reaches the product without registering an OAuth client first. [Sign-in](#sign-in) turns that off, and is required before anybody else can reach the deployment.
 
-> **We can build this for you, or with you, at your company.** Our engineers will stand OpenBot up
+> **We can build this for you, or with you, at your company.** Our engineers will stand ShardsOpenBot up
 > inside your infrastructure, customize it into something that looks like your own product, and hand it
-> back to you to keep changing. [**Start the conversation**](https://copilotkit.ai/talk-to-an-engineer?ref=openbot_readme).
+> back to you to keep changing. [**Start the conversation**](https://copilotkit.ai/talk-to-an-engineer?ref=shardsopenbot_readme).
 >
 > In the meantime, run all of it on your laptop, Intelligence included: CopilotKit's free Developer plan
 > covers [running Intelligence locally](#intelligence-on-your-own-machine) in Docker on a Mac.
@@ -50,11 +50,11 @@ A deployment starts with two coworkers, and they are configuration rather than c
 
 Anything a Bot does to a computer, a file, an MCP server or a component goes through one gateway that decides and records it. That is the difference between an agent that can use your tools and an agent you can let near them.
 
-More at [copilotkit.ai/openbot](https://copilotkit.ai/openbot).
+See the documentation in this repository for deployment and configuration details.
 
 ## Built on AG-UI
 
-A Bot is any endpoint speaking [AG-UI](https://github.com/ag-ui-protocol/ag-ui), the open protocol for agent-to-user interaction, so OpenBot is not tied to a framework and neither are you. Agents built with LangGraph, Mastra, CrewAI, Pydantic AI, Google ADK or written by hand all arrive the same way, and the governance rides the protocol rather than the framework.
+A Bot is any endpoint speaking [AG-UI](https://github.com/ag-ui-protocol/ag-ui), the open protocol for agent-to-user interaction, so ShardsOpenBot is not tied to a framework and neither are you. Agents built with LangGraph, Mastra, CrewAI, Pydantic AI, Google ADK or written by hand all arrive the same way, and the governance rides the protocol rather than the framework.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
@@ -92,9 +92,9 @@ A Bot is any endpoint speaking [AG-UI](https://github.com/ag-ui-protocol/ag-ui),
    ```
 
    The helper provisions the selected project's runtime key, creates or reuses its
-   `openbot` Learning container, then writes both settings to `.env`. It preserves
-   custom container assignments and never replaces an existing OpenBot key; with one
-   set, it only creates `openbot` in that key's project if it is missing.
+   `shardsopenbot` Learning container, then writes both settings to `.env`. It preserves
+   custom container assignments and never replaces an existing ShardsOpenBot key; with one
+   set, it only creates `shardsopenbot` in that key's project if it is missing.
    For fresh self-hosted setup, set `INTELLIGENCE_API_URL` to that deployment's
    HTTPS API origin (or `http://localhost` for a local one) and run the helper
    without the two `npx` commands. It opens an isolated Chrome or Edge window for
@@ -105,7 +105,7 @@ A Bot is any endpoint speaking [AG-UI](https://github.com/ag-ui-protocol/ag-ui),
    If no CLI is available, manually hosted deployments use their API origin for sign-in. Complete the local auth
    approval shown in the browser when prompted. The runtime API URL stays unchanged. It writes
    the API URL, the key and the container, not `INTELLIGENCE_GATEWAY_WS_URL`, so
-   set that one to the same deployment yourself. Once `openbot` exists, the server assigns it
+   set that one to the same deployment yourself. Once `shardsopenbot` exists, the server assigns it
    as the default by itself unless [Admin → Automatic Learning](docs/automatic-learning.md)
    has a saved setting.
    Managed Intelligence needs no separate licence token.
@@ -140,10 +140,10 @@ To try Intelligence on one Mac instead of the managed service, follow
 `npx copilotkit@latest local renew` renews it as often as you need, while your account is in good
 standing. It is a preview for macOS with Docker Desktop,
 not a production installation. Run its
-`npx copilotkit@latest local connect` from the OpenBot root, where `.env` is.
+`npx copilotkit@latest local connect` from the ShardsOpenBot root, where `.env` is.
 
 That command writes `INTELLIGENCE_API_URL`, `INTELLIGENCE_GATEWAY_WS_URL` and
-`CPK_INTELLIGENCE_API_KEY` to `.env`. OpenBot reads those settings directly; no key
+`CPK_INTELLIGENCE_API_KEY` to `.env`. ShardsOpenBot reads those settings directly; no key
 copying or renaming is needed. `INTELLIGENCE_API_KEY` remains supported for older
 configurations. When both are set, the non-empty CLI key takes precedence so
 reconnecting uses the new project's key.
@@ -159,13 +159,13 @@ One image carries the app, the API, the browser the Bots drive, and optionally P
 ```sh
 # The published image. Nothing to clone and nothing to build.
 docker run -p 3001:3001 --env-file .env \
-  -e EMBEDDED_POSTGRES=on -v openbot-data:/var/lib/postgresql \
-  ghcr.io/copilotkit/openbot:latest
+  -e EMBEDDED_POSTGRES=on -v shardsopenbot-data:/var/lib/postgresql \
+  ghcr.io/copilotkit/shardsopenbot:latest
 
 # Or the tree you have in front of you.
-docker build -t openbot .
+docker build -t shardsopenbot .
 docker run -p 3001:3001 --env-file .env \
-  -e EMBEDDED_POSTGRES=on -v openbot-data:/var/lib/postgresql openbot
+  -e EMBEDDED_POSTGRES=on -v shardsopenbot-data:/var/lib/postgresql shardsopenbot
 ```
 
 Everything is on 3001 here, the app included, rather than the 3010 the clone uses. `latest` is the
@@ -281,14 +281,14 @@ See [docs/configuration.md](docs/configuration.md) and [docs/coworkers.md](docs/
 `COPILOTKIT_LICENSE_TOKEN` is optional. A self-hosted Intelligence with its own
 licence can still set it and it is forwarded to the runtime; managed Intelligence
 does not issue one and startup no longer asks for it. A self-hosted Intelligence
-also needs the licence on its own deployment, or it refuses memory; OpenBot logs
+also needs the licence on its own deployment, or it refuses memory; ShardsOpenBot logs
 `intelligence-entitlement-not-ready` at boot when that is missing.
 
 Settings worth knowing:
 
 | Variable                             | Use                                                                       |
 | ------------------------------------ | ------------------------------------------------------------------------- |
-| `OPENBOT_SINGLE_USER`                | Admits every request as one administrator. Required when no identity provider is configured; `.env.example` ships it on. |
+| `SHARDSOPENBOT_SINGLE_USER`                | Admits every request as one administrator. Required when no identity provider is configured; `.env.example` ships it on. |
 | `OPENAI_BASE_URL`                    | Answers the OpenAI-shaped calls from somewhere else: a gateway, a proxy.  |
 | `ANTHROPIC_BASE_URL`, `GOOGLE_GENERATIVE_AI_BASE_URL` | The same, for those two APIs.            |
 | `COMPUTER_TOKEN`                     | Secret every Bot computer request must present. `start.sh` falls back to a fixed dev value. |
@@ -303,7 +303,7 @@ Settings worth knowing:
 | `AGENT_ENDPOINT_ALLOWED_HOSTS`       | Private addresses an agent may be registered at, comma separated. A host, optionally with a port. |
 | `TENANT_PACKAGE_DIR`                 | Directory containing tenant YAML. Defaults to `../examples/fintech`.      |
 | `DEPLOYMENT_ID`                      | Names this deployment when two share one Intelligence project.            |
-| `OPENBOT_SELF_HOST_BANNER`           | Set `false` to hide the bar offering CopilotKit's help self-hosting OpenBot. It never shows on a paid Intelligence plan. |
+| `SHARDSOPENBOT_SELF_HOST_BANNER`           | Set `false` to hide the bar offering CopilotKit's help self-hosting ShardsOpenBot. It never shows on a paid Intelligence plan. |
 
 Full reference: [docs/configuration.md](docs/configuration.md).
 
@@ -330,7 +330,7 @@ More detail: [docs/architecture.md](docs/architecture.md).
 
 ## Sign in
 
-`.env.example` ships `OPENBOT_SINGLE_USER=true`, which is one administrator and no sign-in: how a
+`.env.example` ships `SHARDSOPENBOT_SINGLE_USER=true`, which is one administrator and no sign-in: how a
 fresh clone reaches the product without registering an OAuth client first. Delete that line and
 configure **any one** of Google, Microsoft or Okta before anybody else can reach the deployment.
 With neither, it refuses to start rather than admitting everybody as an administrator. Configure
@@ -375,7 +375,7 @@ provider's discovery document listed in `TRUSTED_ORIGINS`, not only the issuer.
   the next time that person signs in.
 - `MICROSOFT_OAUTH_TENANT_ID` defaults to `common`, which admits personal Microsoft accounts as well
   as work ones. On a multi-tenant app registration Entra may send no `email` claim at all, so
-  OpenBot falls back to `upn` and then `preferred_username`. If none of the three arrives the
+  ShardsOpenBot falls back to `upn` and then `preferred_username`. If none of the three arrives the
   sign-in is refused and the reason is logged: add `email` as an optional claim, or use your
   directory GUID here.
 - A half-configured provider is refused at start-up rather than at somebody's first attempt to sign
@@ -390,9 +390,9 @@ provider's discovery document listed in `TRUSTED_ORIGINS`, not only the issuer.
 
 ### Organization sign-in for desktop installations
 
-For an employee desktop, provision an OpenBot authority using the Google, Microsoft or Okta
-settings above (your Kubernetes OpenBot can serve this role). Set **Organization OpenBot URL**
-in the desktop connection screen, or `OPENBOT_ORGANIZATION_AUTH_URL=https://openbot.company.example`
+For an employee desktop, provision an ShardsOpenBot authority using the Google, Microsoft or Okta
+settings above (your Kubernetes ShardsOpenBot can serve this role). Set **Organization ShardsOpenBot URL**
+in the desktop connection screen, or `SHARDSOPENBOT_ORGANIZATION_AUTH_URL=https://shardsopenbot.company.example`
 in its public configuration. Use an HTTPS origin; HTTP is accepted only on loopback for local tests.
 Provider client secrets stay on that authority. Template and white-label deployments can supply
 the same setting without changing their Intelligence endpoint.
@@ -403,7 +403,7 @@ credential. A Google ID token is not an Intelligence project key. Leave the orga
 for a standalone desktop.
 
 Desktop sign-in uses the system browser and Better Auth's single-use PKCE exchange. The authority
-verifies the employee and current role; organization mode never substitutes `dev@openbot.local`.
+verifies the employee and current role; organization mode never substitutes `dev@shardsopenbot.local`.
 Employees do not need project-key administration privileges. Installation happens once: reopening
 or refreshing an expired organization, Intelligence or model connection preserves the installed
 runtime and data and opens the relevant connection screen.
@@ -436,7 +436,6 @@ Use `bash scripts/start.sh` for the whole stack and `bash scripts/stop.sh` to ta
 
 ## Documentation
 
-- [copilotkit.ai/openbot](https://copilotkit.ai/openbot)
 - [docs/README.md](docs/README.md)
 - [docs/architecture.md](docs/architecture.md)
 - [docs/configuration.md](docs/configuration.md)
@@ -445,7 +444,7 @@ Use `bash scripts/start.sh` for the whole stack and `bash scripts/stop.sh` to ta
 - [docs/routines.md](docs/routines.md)
 - [docs/automatic-learning.md](docs/automatic-learning.md)
 - [docs/deployment.md](docs/deployment.md)
-- [charts/openbot/README.md](charts/openbot/README.md): the Helm chart
+- [charts/shardsopenbot/README.md](charts/shardsopenbot/README.md): the Helm chart
 - [docs/releasing.md](docs/releasing.md)
 - [docs/web-research.md](docs/web-research.md): public-web search and extraction through Parallel, Exa or Firecrawl
 

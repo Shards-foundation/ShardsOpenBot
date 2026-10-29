@@ -1,4 +1,4 @@
-import { MAX_IMAGE_BYTES } from "@openbot/shared/attachments";
+import { MAX_IMAGE_BYTES } from "@shardsopenbot/shared/attachments";
 import type { Hono as HonoApp, MiddlewareHandler } from "hono";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
@@ -414,7 +414,7 @@ export function createApp(
     approvals?: ApprovalService;
     /** The Recorder extension's routes and guards (recorder/wiring.ts). Absent, nothing about it is mounted. */
     recorder?: RecorderExtensionDeps;
-    /** A person's own OpenBot browser, with the Recorder in it already connected (browser/routes.ts). Absent, nothing
+    /** A person's own ShardsOpenBot browser, with the Recorder in it already connected (browser/routes.ts). Absent, nothing
      * about it is mounted and the app shows no Browser button. */
     browser?: Omit<BrowserRouteDeps, "requireUser" | "auditStore">;
     /** Settings, Learning: who else's Bots use a person's own learned Skills. Absent, the screen has nothing to read. */
@@ -500,14 +500,14 @@ export function createApp(
        * both halves, so off means off.
        */
       generativeUi: config.generativeUi,
-      // Whether to offer help self-hosting OpenBot. A fork running it for its own people turns it off,
+      // Whether to offer help self-hosting ShardsOpenBot. A fork running it for its own people turns it off,
       // and a deployment that pays for Intelligence never sees it. See self-host-banner.ts.
       selfHostBanner: selfHostBanner
         ? await selfHostBanner.shown()
         : config.selfHostBanner,
       /*
-       * Whether this is somebody trying OpenBot on their own machine, not an organization's
-       * deployment. Onboarding reads it to explain where OpenBot can run, which only the person
+       * Whether this is somebody trying ShardsOpenBot on their own machine, not an organization's
+       * deployment. Onboarding reads it to explain where ShardsOpenBot can run, which only the person
        * evaluating it needs and an organization's employees should never be pitched.
        *
        * Single-user mode, not a new switch: it is already true only with no identity provider and
@@ -1380,7 +1380,7 @@ export function createApp(
     });
   }
   // The CopilotKit runtime, behind the same session guard as every other API route. Mounted last so
-  // its own routing under /api/copilotkit cannot shadow an OpenBot route declared above.
+  // its own routing under /api/copilotkit cannot shadow an ShardsOpenBot route declared above.
   if (copilotHandler) {
     // Mounted at the ROOT with the handler carrying its own basePath. Mounting it at
     // "/api/copilotkit" as well double-prefixes it: Hono strips the prefix before the handler sees
@@ -1623,7 +1623,7 @@ export function createApp(
       "/api/recorder",
       createRecorderRoutes({
         ...coworker.recorder,
-        // A Disconnect in Settings, Browsers reaches the person's own OpenBot browser at once.
+        // A Disconnect in Settings, Browsers reaches the person's own ShardsOpenBot browser at once.
         ...(coworker.browser
           ? { onRevoked: browserConnectionRevoked(coworker.browser) }
           : {}),
@@ -1837,7 +1837,7 @@ export function createApp(
       } | null;
 
       const verdict = await authoriseAgentCall({
-        presented: context.req.header("x-openbot-agent-token") ?? "",
+        presented: context.req.header("x-shardsopenbot-agent-token") ?? "",
         run: body?.run,
         encryptionKey: config.keyEncryptionKey,
         legacyToken,

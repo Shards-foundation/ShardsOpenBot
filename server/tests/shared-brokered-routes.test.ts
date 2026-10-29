@@ -23,7 +23,7 @@ import { TEST_POOL, testDatabaseUrl } from "./support/database";
 const database = createDatabase(testDatabaseUrl(), TEST_POOL);
 const suite = randomUUID().slice(0, 8);
 const app = `team-gh-${suite}`;
-const VENDOR_ID = `openbot-deployment:acme-${suite}:R`;
+const VENDOR_ID = `shardsopenbot-deployment:acme-${suite}:R`;
 const authorizedFor: string[] = [];
 const returnUrlsSeen: string[] = [];
 let connectWithFieldsCalls = 0;
@@ -121,7 +121,7 @@ function appAs(role: "admin" | "user", id = `${role}-${suite}`) {
       signedIn,
       async () => true,
       {
-        publicUrl: "https://openbot.example",
+        publicUrl: "https://shardsopenbot.example",
         appUrl: "https://app.example",
         encryptionKey: `${"A".repeat(43)}=`,
         personHasAccess: async () => true,
@@ -261,7 +261,7 @@ describe("connecting a shared app", () => {
       provenance: "composio",
       authScheme: "API_KEY",
       accountMode: "shared",
-      sharedVendorUserId: `openbot-deployment:acme-${suite}:K`,
+      sharedVendorUserId: `shardsopenbot-deployment:acme-${suite}:K`,
     });
     try {
       const response = await appAs("user").request(

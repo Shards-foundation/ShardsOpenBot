@@ -124,7 +124,7 @@ pub fn record_location(os: Os, dirs: UserDirs) -> PathBuf {
             .local_app_data
             .map(Path::to_path_buf)
             .unwrap_or_else(|| dirs.home.join("AppData").join("Local"))
-            .join("OpenBot")
+            .join("ShardsOpenBot")
             .join("recorder")
             .join(RECORD_FILE),
         Os::Mac | Os::Linux => {
@@ -182,7 +182,7 @@ fn record_text(pairs: &[(Browser, String)]) -> String {
 
 fn failed(detail: String) -> Problem {
     Problem::with(
-        "OpenBot Desktop could not add the Recorder to your browser.",
+        "ShardsOpenBot Desktop could not add the Recorder to your browser.",
         detail,
     )
 }
@@ -530,7 +530,7 @@ mod tests {
         let record = record_location(Os::Mac, dirs);
         assert_eq!(
             record,
-            mac_folder("ai.copilotkit.openbot.desktop").join("recorder-store-extensions.json")
+            mac_folder("ai.copilotkit.shardsopenbot.desktop").join("recorder-store-extensions.json")
         );
         assert_eq!(
             serde_json::from_str::<Value>(&computer.files[&record]).unwrap(),
@@ -589,7 +589,7 @@ mod tests {
         assert_eq!(
             record_location(Os::Linux, dirs),
             h.join(".config")
-                .join("ai.copilotkit.openbot.desktop")
+                .join("ai.copilotkit.shardsopenbot.desktop")
                 .join("recorder-store-extensions.json")
         );
     }
@@ -626,7 +626,7 @@ mod tests {
         assert_eq!(
             record_location(Os::Windows, dirs),
             local
-                .join("OpenBot")
+                .join("ShardsOpenBot")
                 .join("recorder")
                 .join("recorder-store-extensions.json")
         );
@@ -740,7 +740,7 @@ mod tests {
         .unwrap_err();
         assert_eq!(
             problem.said,
-            "OpenBot Desktop could not add the Recorder to your browser."
+            "ShardsOpenBot Desktop could not add the Recorder to your browser."
         );
         assert!(problem
             .detail
@@ -797,7 +797,7 @@ mod tests {
             .collect()
     }
 
-    // Uninstalling OpenBot Desktop takes back what it registered: each store id's key, so the browser removes the
+    // Uninstalling ShardsOpenBot Desktop takes back what it registered: each store id's key, so the browser removes the
     // Recorder it installed from it, and the note. A store id set in the shared file without its line here fails.
     #[test]
     fn the_uninstaller_takes_out_each_store_ids_key_and_the_note() {

@@ -7,7 +7,7 @@ import { testEnvironment } from "./support/environment";
 
 const ADMIN = {
   id: "admin-1",
-  email: "admin@openbot.test",
+  email: "admin@shardsopenbot.test",
   name: "An Administrator",
   image: null,
 };
@@ -63,7 +63,7 @@ describe("GET /api/admin/people search", () => {
   test("refuses an oversized search with 400 and never reaches the store", async () => {
     const { app, calls } = appWith({});
     const response = await app.request(
-      `http://openbot.test/api/admin/people?search=${"x".repeat(201)}`,
+      `http://shardsopenbot.test/api/admin/people?search=${"x".repeat(201)}`,
       { method: "GET" },
     );
     expect(response.status).toBe(400);
@@ -76,7 +76,7 @@ describe("GET /api/admin/people search", () => {
   test("passes a normal search to the store", async () => {
     const { app, calls } = appWith({});
     const response = await app.request(
-      "http://openbot.test/api/admin/people?search=ada",
+      "http://shardsopenbot.test/api/admin/people?search=ada",
       { method: "GET" },
     );
     expect(response.status).toBe(200);
@@ -107,7 +107,7 @@ describe("POST /api/admin/credentials input", () => {
   ])("refuses %s with 400 and never reaches the vault", async (_n, body) => {
     const { app, calls } = appWith({});
     const response = await app.request(
-      "http://openbot.test/api/admin/credentials",
+      "http://shardsopenbot.test/api/admin/credentials",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -121,7 +121,7 @@ describe("POST /api/admin/credentials input", () => {
   test("trims provider and keyId on the happy path", async () => {
     const { app, calls } = appWith({});
     const response = await app.request(
-      "http://openbot.test/api/admin/credentials",
+      "http://shardsopenbot.test/api/admin/credentials",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -148,7 +148,7 @@ describe("POST /api/admin/credentials/:id refusals", () => {
     metadata: {},
   };
   const post = (app: ReturnType<typeof appWith>["app"], path: string) =>
-    app.request(`http://openbot.test/api/admin/credentials/${path}`, {
+    app.request(`http://shardsopenbot.test/api/admin/credentials/${path}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(rotation),

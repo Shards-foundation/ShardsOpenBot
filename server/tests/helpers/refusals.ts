@@ -131,7 +131,7 @@ const TABLE = {
    * Personal-mode guard: the person asking has not connected their own account for this app.
    *
    * No longer "in Settings": this refusal carries a connect prompt (see
-   * `@openbot/shared/connect-prompt`), so the transcript draws the button rather than naming a
+   * `@shardsopenbot/shared/connect-prompt`), so the transcript draws the button rather than naming a
    * screen somewhere else. The sentence is still the whole of what the model is told.
    */
   personalNotConnected: (app: string = "[^.]+") =>

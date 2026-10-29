@@ -66,7 +66,7 @@ async def test_atomic_first_chunk_includes_arguments(boundary):
 @pytest.mark.asyncio
 async def test_abandoned_run_does_not_leave_parallel_tool_slots(boundary):
     boundary["shape"] = "batched"
-    agent = ToolAwareAgent(name="openbot", graph=main.graph)
+    agent = ToolAwareAgent(name="shardsopenbot", graph=main.graph)
     stream = agent.run(
         RunAgentInput.model_validate(
             run_input(["computer_navigate", "computer_run_command"])
@@ -91,7 +91,7 @@ async def test_abandoned_run_does_not_leave_parallel_tool_slots(boundary):
 
 @pytest.mark.asyncio
 async def test_cancelled_consumer_closes_graph_and_resets_call_state(boundary):
-    agent = ToolAwareAgent(name="openbot", graph=main.graph)
+    agent = ToolAwareAgent(name="shardsopenbot", graph=main.graph)
     started = asyncio.Event()
     hold = asyncio.Event()
 

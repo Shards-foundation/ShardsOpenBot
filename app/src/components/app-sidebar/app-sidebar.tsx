@@ -347,7 +347,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
-          {/* Your own browser, with the Recorder in it. Drawn only where OpenBot can run one for you. */}
+          {/* Your own browser, with the Recorder in it. Drawn only where ShardsOpenBot can run one for you. */}
           <BrowserNavItem />
           <SidebarMenuItem>
             <DropdownMenu>

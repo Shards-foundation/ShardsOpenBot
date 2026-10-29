@@ -7,7 +7,7 @@ import { addressFrom } from "@/lib/browser/address";
 
 test("an address with its scheme goes as typed", () => {
   for (const typed of [
-    "https://github.com/CopilotKit/openbot/pulls?q=is%3Aopen",
+    "https://github.com/CopilotKit/shardsopenbot/pulls?q=is%3Aopen",
     "http://127.0.0.1:3010/browser",
     "about:blank",
     "  https://example.com/  ",
@@ -16,7 +16,7 @@ test("an address with its scheme goes as typed", () => {
 });
 
 test("a bare host, with or without a port and a path, goes as https", () => {
-  expect(addressFrom("openbot.ai")).toBe("https://openbot.ai");
+  expect(addressFrom("shardsopenbot.ai")).toBe("https://shardsopenbot.ai");
   expect(addressFrom("news.ycombinator.com/item?id=1")).toBe(
     "https://news.ycombinator.com/item?id=1",
   );

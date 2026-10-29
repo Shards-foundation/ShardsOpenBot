@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import {
   type CapturedEvent,
   EVENT_BUDGET_BYTES,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { navigationEvent } from "../src/background/navigation";
 import {
   carriesValues,

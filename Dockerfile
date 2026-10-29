@@ -1,4 +1,4 @@
-# OpenBot, whole, in one container.
+# ShardsOpenBot, whole, in one container.
 #
 # WHAT THIS IS FOR. Everything a laptop runs, minus the database, in one image on one port. Deploy it
 # anywhere that runs a container and you get what `scripts/start.sh` gives you locally: the app, the
@@ -252,7 +252,7 @@ RUN mkdir -p /workspace /profiles \
 # Where the embedded database answers, when there is one. Overridden by whatever you set, so an
 # external database needs no special case: set DATABASE_URL and EMBEDDED_POSTGRES stays off.
 ENV EMBEDDED_POSTGRES=off
-ENV DATABASE_URL=postgres://openbot@127.0.0.1:5432/openbot
+ENV DATABASE_URL=postgres://shardsopenbot@127.0.0.1:5432/shardsopenbot
 
 ENV NODE_ENV=production
 ENV PORT=3001

@@ -7,7 +7,7 @@ import {
   type RecorderActivity,
   type RecorderConnection,
   type RecorderConnectVia,
-} from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/recorder-api";
 import {
   and,
   asc,
@@ -51,7 +51,7 @@ export type RecorderConnectionStore = ReturnType<
  *   copy must not outlive the cookie it was taken from. That expiry is kept with the copy
  *   (`organization_session_expires_at`). A connection made before it was kept has none, and lasts `ms` (the cookie's
  *   Max-Age) from when it was made, which no cookie it could have copied outlived.
- * - `null`: never, where there is no session to take a lifetime from. A single-user OpenBot has no sign-in: every
+ * - `null`: never, where there is no session to take a lifetime from. A single-user ShardsOpenBot has no sign-in: every
  *   request to it is already its one person.
  */
 export type RecorderConnectionLifetime =
@@ -409,7 +409,7 @@ export function createRecorderConnectionStore(
     },
 
     /**
-     * Ends every connection this person holds, as signing out of OpenBot does: each browser's Recorder is signed out
+     * Ends every connection this person holds, as signing out of ShardsOpenBot does: each browser's Recorder is signed out
      * with them. Their unused connect codes go too, with any sealed organization session in them, so none minted before
      * the sign-out makes a connection after it. Returns the connections it ended.
      *

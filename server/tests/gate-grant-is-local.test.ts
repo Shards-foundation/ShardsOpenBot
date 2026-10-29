@@ -36,7 +36,7 @@ const personal = `my-gh-${suite}`;
 const bot = `bot-${suite}`;
 const admin = `admin-${suite}`;
 const asker = `asker-${suite}`;
-const VENDOR_ID = `openbot-deployment:acme-${suite}:R`;
+const VENDOR_ID = `shardsopenbot-deployment:acme-${suite}:R`;
 
 /*
  * THE ONE VARIABLE IN THIS FILE IS A DECLARED PROPERTY, NOT A VENDOR NAME.

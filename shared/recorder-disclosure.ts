@@ -1,26 +1,26 @@
 /**
  * WHAT A RECORDING HOLDS, in the one set of sentences every place that describes it reads: the Recorder's setup page and
- * Record form, OpenBot's Settings, Browsers (before the first Connect) and its Browser page. A recording is more than the
+ * Record form, ShardsOpenBot's Settings, Browsers (before the first Connect) and its Browser page. A recording is more than the
  * person's clicks and typing: a step that saves something carries the request it sent and the answer that came back
  * (extension/src/background/steps.ts), a page whose AI assistant speaks AG-UI has its conversation recorded, the person's
  * own messages included (extension/src/background/agent/events.ts), and narration is kept as text. Saying less than
  * that would be a disclosure that understates what is collected, which the Chrome Web Store's User Data policy forbids:
  * https://developer.chrome.com/docs/webstore/program-policies/user-data-faq
  *
- * Plain strings rather than markup, so the Recorder's pages and OpenBot's draw them with their own components.
+ * Plain strings rather than markup, so the Recorder's pages and ShardsOpenBot's draw them with their own components.
  */
 
 export const RECORDER_DISCLOSURE_TITLE = "What the Recorder collects";
 
 /**
  * Where a recording goes, in the one sentence every place that says it reads. The Recorder streams it from the browser
- * straight to the organization's own Intelligence, with a pass the organization's OpenBot hands out for each recording
- * (extension/src/offscreen/grant.ts, streamer.ts); OpenBot itself only hears what the Recorder is doing, for its Browser
+ * straight to the organization's own Intelligence, with a pass the organization's ShardsOpenBot hands out for each recording
+ * (extension/src/offscreen/grant.ts, streamer.ts); ShardsOpenBot itself only hears what the Recorder is doing, for its Browser
  * button (`recorderActivitySchema` in recorder-api.ts: the phase, the recording's name, when it started and how many
- * steps). "Through OpenBot" would say the recording passes through it, which it never does.
+ * steps). "Through ShardsOpenBot" would say the recording passes through it, which it never does.
  */
 export const RECORDER_DESTINATION =
-  "What you record goes straight from your browser to your organization's own Intelligence, with a pass from your organization's OpenBot. OpenBot is told that you are recording, the task's name, when it started and how many steps it has, and when you record in a browser shown inside OpenBot, your narration passes through it to the Recorder without being stored.";
+  "What you record goes straight from your browser to your organization's own Intelligence, with a pass from your organization's ShardsOpenBot. ShardsOpenBot is told that you are recording, the task's name, when it started and how many steps it has, and when you record in a browser shown inside ShardsOpenBot, your narration passes through it to the Recorder without being stored.";
 
 /** The disclosure's lead: when it records, where it goes, and what for. */
 export const RECORDER_DISCLOSURE = `When you press Record, the Recorder records what you do in every tab you use until you stop, and each tab it records shows that it is. ${RECORDER_DESTINATION} Your recordings are used only for your organization's Skills, evaluations and insights.`;
@@ -55,7 +55,7 @@ export const RECORDER_COLLECTS: readonly {
     kind: "assistants",
     title: "AI assistant conversations",
     description:
-      "On a page whose AI assistant uses AG-UI, as OpenBot's own chat does, the conversation, including the messages you send.",
+      "On a page whose AI assistant uses AG-UI, as ShardsOpenBot's own chat does, the conversation, including the messages you send.",
   },
   {
     kind: "narration",

@@ -51,8 +51,8 @@ export function OrganizationSignIn({
     <div className="sheet">
       <h1>Sign in to your organization</h1>
       <p>
-        Your installation is ready. Sign in through your organization's OpenBot
-        to continue.
+        Your installation is ready. Sign in through your organization's
+        ShardsOpenBot to continue.
       </p>
       <p>{authorityUrl}</p>
       {(
@@ -73,7 +73,7 @@ export function OrganizationSignIn({
       ))}
       {busy && (
         <p role="status">
-          Complete sign-in in your browser, then return to OpenBot.
+          Complete sign-in in your browser, then return to ShardsOpenBot.
         </p>
       )}
       {signInUrl && (

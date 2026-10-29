@@ -9,7 +9,7 @@ import {
 } from "bun:test";
 import { createTrajectoryCollector } from "@copilotkit/learning";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import { installActionCapture } from "../src/content/actions";
 import { startEventCapture } from "../src/content/collector";
 import { createSensitivityTracker } from "../src/content/masking-context";

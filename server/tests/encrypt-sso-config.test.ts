@@ -13,7 +13,7 @@ import { decryptSecret, encryptSecret } from "../src/credentials";
 const KEY = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 
 const OIDC_CONFIG = JSON.stringify({
-  clientId: "openbot",
+  clientId: "shardsopenbot",
   clientSecret: "the-customers-directory-secret",
   discoveryEndpoint: "https://acme.okta.com/.well-known/openid-configuration",
 });
@@ -107,7 +107,10 @@ describe("the identity provider config in the database", () => {
     const fake = fakeAdapter();
     await wrap(fake.adapter).create({
       model: "user",
-      data: { email: "someone@openbot.test", oidcConfig: "not-a-secret-here" },
+      data: {
+        email: "someone@shardsopenbot.test",
+        oidcConfig: "not-a-secret-here",
+      },
     });
 
     expect(fake.stored[0]?.oidcConfig).toBe("not-a-secret-here");

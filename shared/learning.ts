@@ -35,12 +35,12 @@ export type LearningOverview = {
 };
 
 /**
- * The container OpenBot assigns on its own when nobody has chosen one.
+ * The container ShardsOpenBot assigns on its own when nobody has chosen one.
  *
  * The same ID `scripts/setup-learning.ts` creates, so a project set up by that helper, by hand in
- * Intelligence, or by `copilotkit learning containers create --id openbot` is found the same way.
+ * Intelligence, or by `copilotkit learning containers create --id shardsopenbot` is found the same way.
  */
-export const AUTOMATIC_LEARNING_CONTAINER_ID = "openbot";
+export const AUTOMATIC_LEARNING_CONTAINER_ID = "shardsopenbot";
 
 /**
  * What automatic container assignment last found, for the Admin page.
@@ -78,7 +78,7 @@ export function isLearningContainerId(value: unknown): value is string {
 
 /**
  * Who else's Bots use the Skills learned in a person's own Learning space. `closed`, the default: only their own Bots.
- * `open`: every Bot in this OpenBot. `choose`: every Bot, for the Skills the person opens one by one.
+ * `open`: every Bot in this ShardsOpenBot. `choose`: every Bot, for the Skills the person opens one by one.
  */
 export const LEARNING_SHARING_MODES = ["closed", "open", "choose"] as const;
 export type LearningSharingMode = (typeof LEARNING_SHARING_MODES)[number];
@@ -125,7 +125,7 @@ export type PersonalLearningSharing = {
   /** The Skills published in the person's own space, read the way a run reads them (none yet is an empty list), or null
    * when they could not be read, and then `unavailable` says why. */
   skills: PersonalLearnedSkill[] | null;
-  /** `off`: Automatic Learning is off in this OpenBot. `unavailable`: Intelligence did not deliver them (its Learning
+  /** `off`: Automatic Learning is off in this ShardsOpenBot. `unavailable`: Intelligence did not deliver them (its Learning
    * delivery is off, the space does not exist yet, or it could not be reached). */
   unavailable?: "off" | "unavailable";
 };

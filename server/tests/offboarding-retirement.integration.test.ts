@@ -14,11 +14,11 @@ const database = createDatabase(testDatabaseUrl(), TEST_POOL);
 const suite = randomUUID().slice(0, 8);
 const adminId = `offboarding-admin-${suite}`;
 const memberId = `offboarding-member-${suite}`;
-const memberEmail = `${memberId}@openbot.test`;
+const memberEmail = `${memberId}@shardsopenbot.test`;
 
 const ADMIN = {
   id: adminId,
-  email: `${adminId}@openbot.test`,
+  email: `${adminId}@shardsopenbot.test`,
   name: "An Administrator",
   image: null,
 };
@@ -56,11 +56,14 @@ function appFor(retire: () => Promise<{ retired: number }>) {
   return {
     events,
     remove: () =>
-      app.request(`http://openbot.test/api/admin/people/${memberId}/access`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ revoked: true }),
-      }),
+      app.request(
+        `http://shardsopenbot.test/api/admin/people/${memberId}/access`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ revoked: true }),
+        },
+      ),
   };
 }
 

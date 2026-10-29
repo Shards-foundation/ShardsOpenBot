@@ -113,7 +113,7 @@ afterAll(async () => {
 });
 
 const hookKey = (name: "configure" | "stop") =>
-  Symbol.for(`openbot.recorder.${name}`);
+  Symbol.for(`shardsopenbot.recorder.${name}`);
 const globals = globalThis as unknown as Record<symbol, unknown>;
 const configure = (id: string) =>
   (globals[hookKey("configure")] as (id: string) => void)(id);
@@ -149,10 +149,10 @@ const pathOf = (url: string) => {
   return `${parsed.pathname}${parsed.search}`;
 };
 
-/** The OpenBot a recording of OpenBot's own page is connected to: the page's origin. The page hook knows nothing of
- * OpenBot, and the debugger capture follows only OpenBot's chat and its runtime's `info`, so the two still agree. */
-const openbotOf = (fixture: Fixture): string | null =>
-  fixture === loadFixture("openbot-chat")
+/** The ShardsOpenBot a recording of ShardsOpenBot's own page is connected to: the page's origin. The page hook knows nothing of
+ * ShardsOpenBot, and the debugger capture follows only ShardsOpenBot's chat and its runtime's `info`, so the two still agree. */
+const shardsopenbotOf = (fixture: Fixture): string | null =>
+  fixture === loadFixture("shardsopenbot-chat")
     ? new URL(String(marks(fixture, "navigate")[0]?.data?.url)).origin
     : null;
 
@@ -165,7 +165,7 @@ async function debuggerObservations(
   const observations: CaptureObservation[] = [];
   const capture = createNetworkCapture(
     {
-      openbotUrl: () => openbotOf(fixture),
+      shardsopenbotUrl: () => shardsopenbotOf(fixture),
       call: () => {},
       writeStarted: () => {},
       writeEnded: () => {},
@@ -423,8 +423,8 @@ const COPILOTKIT_PAGES = new Map([
   ["single-route-sse", 1],
   ["rest-sse", 1],
   ["intelligence-websocket", 1],
-  // OpenBot's own chat asks when it loads and again after the run.
-  ["openbot-chat", 2],
+  // ShardsOpenBot's own chat asks when it loads and again after the run.
+  ["shardsopenbot-chat", 2],
 ]);
 
 for (const name of [
@@ -433,7 +433,7 @@ for (const name of [
   "intelligence-websocket",
   "generic-proto-ws-ticker",
   "late-and-aborted",
-  "openbot-chat",
+  "shardsopenbot-chat",
 ])
   test(`the page hook gives the same observations as the debugger for the same traffic: ${name}`, async () => {
     const fixture = loadFixture(name);

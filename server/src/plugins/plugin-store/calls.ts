@@ -1,4 +1,4 @@
-import { connectAppRefusal } from "@openbot/shared/connect-prompt";
+import { connectAppRefusal } from "@shardsopenbot/shared/connect-prompt";
 import { and, eq } from "drizzle-orm";
 import { currentApprovalContext } from "../../approvals/types";
 import { type AuditInitiator, recordAuditEvent } from "../../audit";
@@ -416,7 +416,7 @@ export function callMethods(context: StoreContext) {
             })
           : {
               allowed: false as const,
-              message: `${row.title} is shared, and OpenBot can't check who may use it, so it wasn't called.`,
+              message: `${row.title} is shared, and ShardsOpenBot can't check who may use it, so it wasn't called.`,
             };
         if (!verdict.allowed) {
           await recordAuditEvent(auditStore, {

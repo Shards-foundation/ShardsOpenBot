@@ -34,8 +34,8 @@ function withDocker() {
   return runtime;
 }
 
-const IMAGE = `openbot-supervisor-fixture:${namespace}-one`;
-const OTHER = `openbot-supervisor-fixture:${namespace}-two`;
+const IMAGE = `shardsopenbot-supervisor-fixture:${namespace}-one`;
+const OTHER = `shardsopenbot-supervisor-fixture:${namespace}-two`;
 const fixtureImages: string[] = [];
 
 const BOT = "supervisortestbot";
@@ -58,10 +58,10 @@ async function remove(container: string) {
     const info = await docker.getContainer(container).inspect();
     const labels = info.Config?.Labels;
     if (
-      labels?.["openbot.test-fixture"] !== namespace &&
+      labels?.["shardsopenbot.test-fixture"] !== namespace &&
       !(
-        labels?.["openbot.namespace"] === namespace &&
-        labels?.["openbot.bot-id"] === BOT
+        labels?.["shardsopenbot.namespace"] === namespace &&
+        labels?.["shardsopenbot.bot-id"] === BOT
       )
     ) {
       throw new Error("Refusing to clean a container outside this fixture.");
@@ -84,8 +84,8 @@ async function removeVolumes() {
     try {
       const info = await withDocker().docker.getVolume(volume).inspect();
       if (
-        info.Labels?.["openbot.namespace"] !== namespace ||
-        info.Labels?.["openbot.bot-id"] !== BOT
+        info.Labels?.["shardsopenbot.namespace"] !== namespace ||
+        info.Labels?.["shardsopenbot.bot-id"] !== BOT
       ) {
         throw new Error("Refusing to clean a volume outside this fixture.");
       }
@@ -139,7 +139,7 @@ afterAll(async () => {
   await removeVolumes();
   for (const image of fixtureImages) {
     const info = await withDocker().docker.getImage(image).inspect();
-    if (info.Config.Labels?.["openbot.test-fixture"] !== namespace)
+    if (info.Config.Labels?.["shardsopenbot.test-fixture"] !== namespace)
       throw new Error("Foreign fixture image");
     await withDocker().docker.getImage(image).remove();
   }
@@ -160,7 +160,7 @@ async function plant(labels: Record<string, string>, health?: boolean) {
   await withDocker().docker.createContainer({
     name: names.container,
     Image: IMAGE,
-    Labels: { ...labels, "openbot.test-fixture": namespace },
+    Labels: { ...labels, "shardsopenbot.test-fixture": namespace },
     ...(health
       ? {}
       : {
@@ -176,9 +176,9 @@ async function plant(labels: Record<string, string>, health?: boolean) {
 }
 
 const OURS = {
-  "openbot.supervisor": "true",
-  "openbot.namespace": namespace,
-  "openbot.bot-id": BOT,
+  "shardsopenbot.supervisor": "true",
+  "shardsopenbot.namespace": namespace,
+  "shardsopenbot.bot-id": BOT,
 };
 
 afterEach(async () => {

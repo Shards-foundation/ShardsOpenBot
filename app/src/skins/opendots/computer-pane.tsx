@@ -13,9 +13,9 @@ import { agentListQueryOptions } from "@/lib/agents/queries";
 import { IconAction } from "./sidebar";
 
 /**
- * OpenDots' right pane, showing OpenBot's own computer for one Bot.
+ * OpenDots' right pane, showing ShardsOpenBot's own computer for one Bot.
  *
- * OpenDots' pane has a Brief tab beside the computer; OpenBot keeps no brief, so the computer is
+ * OpenDots' pane has a Brief tab beside the computer; ShardsOpenBot keeps no brief, so the computer is
  * the pane's only tab. Which Bot's computer it shows starts as the Bot the page is about and can be
  * changed, the way OpenDots' "Computer for" picker does.
  */

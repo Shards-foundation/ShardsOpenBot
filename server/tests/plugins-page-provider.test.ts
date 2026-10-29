@@ -51,7 +51,7 @@ async function pageFor(
    * Which provider the STORE was built for, which is where the page now takes the name from.
    *
    * The two are the same value on any deployment the wiring builds — but they are not the same
-   * question, and a deployment with both keys set and `OPENBOT_BROKER_PROVIDER` unset has a store
+   * question, and a deployment with both keys set and `SHARDSOPENBOT_BROKER_PROVIDER` unset has a store
    * and no broker at all. `provider-undecided.test.ts` is that case; here it defaults to the
    * Composio deployment these cases are written about.
    */
@@ -74,7 +74,7 @@ async function pageFor(
     ...UP_TO_BROKER,
     composio as never,
   );
-  const response = await app.request("http://openbot.test/api/plugins");
+  const response = await app.request("http://shardsopenbot.test/api/plugins");
   expect(response.status).toBe(200);
   return (await response.json()) as Record<string, unknown>;
 }

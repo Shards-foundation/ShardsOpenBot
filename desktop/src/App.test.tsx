@@ -89,14 +89,18 @@ function setupEvents() {
 }
 
 async function enterInstallation(view: Awaited<ReturnType<typeof renderApp>>) {
-  await userEvent.click(view.getByRole("button", { name: "Set up OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Set up ShardsOpenBot" }),
+  );
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
 }
 
 async function completeInstallation(
   view: Awaited<ReturnType<typeof renderApp>>,
 ) {
-  await userEvent.click(view.getByRole("button", { name: "Install OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Install ShardsOpenBot" }),
+  );
   await userEvent.click(
     await view.findByRole("button", { name: "Continue to sign in" }),
   );
@@ -120,7 +124,9 @@ async function beginPendingInstallation() {
       : previous(command, args);
   const view = await renderApp();
   await enterInstallation(view);
-  await userEvent.click(view.getByRole("button", { name: "Install OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Install ShardsOpenBot" }),
+  );
   return {
     view,
     preparation,
@@ -145,7 +151,9 @@ test("installation shows its active stage immediately and advances elapsed time"
   const engine = within(
     view.getByRole("listitem", { name: "Container engine" }),
   );
-  expect(engine.getByText("Checking the software OpenBot needs.")).toBeTruthy();
+  expect(
+    engine.getByText("Checking the software ShardsOpenBot needs."),
+  ).toBeTruthy();
   expect(engine.getByText("In progress")).toBeTruthy();
   expect(engine.queryByText("✓")).toBeNull();
   await waitFor(() => expect(engine.getByText(/1s elapsed/)).toBeTruthy(), {
@@ -272,7 +280,7 @@ test.each([
     const view = await renderApp();
     if (!automatic)
       await userEvent.click(
-        view.getByRole("button", { name: "Start OpenBot" }),
+        view.getByRole("button", { name: "Start ShardsOpenBot" }),
       );
     await emitProgress({
       step: "services",
@@ -291,7 +299,7 @@ test.each([
     expect(services.getByText(succeeds ? "✓" : "✗")).toBeTruthy();
     if (!succeeds)
       expect(
-        view.getByRole("button", { name: "Start OpenBot" }),
+        view.getByRole("button", { name: "Start ShardsOpenBot" }),
       ).toHaveProperty("disabled", false);
   },
 );
@@ -308,15 +316,19 @@ test("installation completes before either sign-in is available", async () => {
   };
   const view = await renderApp();
   await enterInstallation(view);
-  expect(view.getByRole("heading", { name: "Install OpenBot" })).toBeTruthy();
-  expect(view.getByLabelText("Where OpenBot lives")).toHaveProperty(
+  expect(
+    view.getByRole("heading", { name: "Install ShardsOpenBot" }),
+  ).toBeTruthy();
+  expect(view.getByLabelText("Where ShardsOpenBot lives")).toHaveProperty(
     "value",
     "/tmp/install-before-signin",
   );
   expect(
     view.queryByRole("button", { name: /Sign in|Continue to sign in/i }),
   ).toBeNull();
-  await userEvent.click(view.getByRole("button", { name: "Install OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Install ShardsOpenBot" }),
+  );
   expect(installationCalls()).toEqual([
     {
       command: "prepare_installation",
@@ -326,7 +338,7 @@ test("installation completes before either sign-in is available", async () => {
       },
     },
   ]);
-  expect(view.getByLabelText("Where OpenBot lives")).toHaveProperty(
+  expect(view.getByLabelText("Where ShardsOpenBot lives")).toHaveProperty(
     "disabled",
     true,
   );
@@ -420,10 +432,9 @@ test("CopilotKit Back preserves the selected AI and connection settings", async 
     "value",
     "wss://intelligence.example/ws",
   );
-  expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-    "disabled",
-    false,
-  );
+  expect(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toHaveProperty("disabled", false);
   expect(
     view.queryByRole("button", { name: "Change AI connection" }) === null,
   ).toBe(true);
@@ -454,7 +465,9 @@ test("failed installation blocks sign-in and retries before reporting completion
   };
   const view = await renderApp();
   await enterInstallation(view);
-  await userEvent.click(view.getByRole("button", { name: "Install OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Install ShardsOpenBot" }),
+  );
   expect((await view.findByRole("alert")).textContent).toContain(
     "The download was interrupted.",
   );
@@ -594,12 +607,15 @@ test("changing the Bot invalidates its completed installation", async () => {
   expect(installationCalls()).toEqual([
     {
       command: "prepare_installation",
-      args: { root: "/tmp/openbot-app-test", harness: { id: "langgraph" } },
+      args: {
+        root: "/tmp/shardsopenbot-app-test",
+        harness: { id: "langgraph" },
+      },
     },
     {
       command: "prepare_installation",
       args: {
-        root: "/tmp/openbot-app-test",
+        root: "/tmp/shardsopenbot-app-test",
         harness: { id: "byo-url", agentUrl: "https://agent.example/ag-ui" },
       },
     },
@@ -623,20 +639,22 @@ test.each([false, true])(
     invokeHandler = async (command, args) => {
       if (command === "selected_root") return root;
       if (command === "start_stack") return launch.promise;
-      if (command === "show_openbot") return null;
+      if (command === "show_shardsopenbot") return null;
       return previous(command, args);
     };
     const view = await renderApp(strictMode);
     expect(
-      view.getByRole("heading", { name: "Starting OpenBot" }),
+      view.getByRole("heading", { name: "Starting ShardsOpenBot" }),
     ).toBeTruthy();
     expect(
       view.queryByRole("heading", { name: "Connect to CopilotKit" }),
     ).toBeNull();
-    expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+    expect(
+      view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+    ).toBeNull();
     await act(async () => launch.resolve());
     await waitFor(() =>
-      expect(invokeCalls).toContainEqual({ command: "show_openbot" }),
+      expect(invokeCalls).toContainEqual({ command: "show_shardsopenbot" }),
     );
     expect(getStartStackPayload()).toEqual({
       root,
@@ -656,7 +674,9 @@ test.each([false, true])(
         ),
       ),
     ).toBe(false);
-    expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+    expect(
+      view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+    ).toBeNull();
     expect(view.queryByRole("button", { name: "Ask" })).toBeNull();
   },
 );
@@ -681,14 +701,15 @@ test("a failed automatic reopen offers recovery without retrying or installing",
     invokeCalls.filter((call) => call.command === "start_stack"),
   ).toHaveLength(1);
   expect(installationCalls()).toHaveLength(0);
-  expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-    "disabled",
-    false,
-  );
+  expect(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toHaveProperty("disabled", false);
   await userEvent.click(
     view.getByRole("button", { name: "Change installation" }),
   );
-  expect(view.getByRole("button", { name: "Install OpenBot" })).toBeTruthy();
+  expect(
+    view.getByRole("button", { name: "Install ShardsOpenBot" }),
+  ).toBeTruthy();
 });
 
 test("menu Stop retains the installed root for explicit Start without the wizard", async () => {
@@ -701,22 +722,24 @@ test("menu Stop retains the installed root for explicit Start without the wizard
   }));
   const previous = invokeHandler;
   invokeHandler = async (command, args) => {
-    if (command === "show_openbot") return null;
+    if (command === "show_shardsopenbot") return null;
     return previous(command, args);
   };
   const view = await renderApp();
   expect(
-    view.getByRole("heading", { name: "OpenBot is stopped" }),
+    view.getByRole("heading", { name: "ShardsOpenBot is stopped" }),
   ).toBeTruthy();
   expect(invokeCalls.some((call) => call.command === "start_stack")).toBe(
     false,
   );
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
   expect(getStartStackPayload()).toMatchObject({
     root,
     harness: { id: "mastra" },
   });
-  expect(invokeCalls).toContainEqual({ command: "show_openbot" });
+  expect(invokeCalls).toContainEqual({ command: "show_shardsopenbot" });
   expect(installationCalls()).toHaveLength(0);
   expect(view.queryByRole("button", { name: "Ask" })).toBeNull();
 });
@@ -728,7 +751,9 @@ test("completed local installation resumes at sign-in when it has never launched
   }));
   const view = await renderApp();
   expect(view.getByRole("heading", { name: "Connect your AI" })).toBeTruthy();
-  expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+  ).toBeNull();
   expect(installationCalls()).toHaveLength(0);
   expect(invokeCalls.some((call) => call.command === "start_stack")).toBe(
     false,
@@ -757,13 +782,15 @@ test.each(["model", "intelligence"])(
     ).toBeTruthy();
     expect(
       invokeCalls.some((call) =>
-        ["start_stack", "show_openbot", "already_running"].includes(
+        ["start_stack", "show_shardsopenbot", "already_running"].includes(
           call.command,
         ),
       ),
     ).toBe(false);
     expect(installationCalls()).toHaveLength(0);
-    expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+    expect(
+      view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+    ).toBeNull();
   },
 );
 
@@ -774,7 +801,7 @@ test.each(["reopen", "runtime"])(
     const authorityUrl = "https://company.example";
     setupRootConfiguration(root, async () => ({
       ...savedOpenAiConfiguration(),
-      values: { OPENBOT_ORGANIZATION_AUTH_URL: authorityUrl },
+      values: { SHARDSOPENBOT_ORGANIZATION_AUTH_URL: authorityUrl },
       saved: { ...savedOpenAiConfiguration().saved, model: "open-ai-api-key" },
       launch: { harness: { id: "mastra" } },
     }));
@@ -786,7 +813,7 @@ test.each(["reopen", "runtime"])(
           said: "Your organization sign-in needs to be refreshed.",
           connection: "organization",
         };
-      if (command === "show_openbot") {
+      if (command === "show_shardsopenbot") {
         if (source === "reopen" && opens++ === 0)
           throw {
             said: "Sign in to your organization again.",
@@ -810,7 +837,9 @@ test.each(["reopen", "runtime"])(
     expect(
       view.getByRole("heading", { name: "Sign in to your organization" }),
     ).toBeTruthy();
-    expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+    expect(
+      view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+    ).toBeNull();
     expect(view.queryByText(/Step \d of 4/)).toBeNull();
     await userEvent.click(
       view.getByRole("button", { name: "Continue with Google" }),
@@ -824,7 +853,7 @@ test.each(["reopen", "runtime"])(
       args: { root },
     });
     expect(
-      invokeCalls.filter((call) => call.command === "show_openbot"),
+      invokeCalls.filter((call) => call.command === "show_shardsopenbot"),
     ).toHaveLength(source === "reopen" ? 2 : 1);
     expect(
       invokeCalls.filter((call) => call.command === "start_stack"),
@@ -859,7 +888,7 @@ test.each(["model", "intelligence"])(
               : "That saved CopilotKit connection is no longer available. Sign in again or enter a project key.",
           connection,
         };
-      if (command === "show_openbot") return null;
+      if (command === "show_shardsopenbot") return null;
       if (command === "begin_intelligence_sign_in")
         return "https://signin.example/fixture";
       if (command === "finish_intelligence_sign_in")
@@ -881,7 +910,9 @@ test.each(["model", "intelligence"])(
       "no longer available",
     );
     expect(view.queryByText(/Step \d of 4/)).toBeNull();
-    expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+    expect(
+      view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+    ).toBeNull();
     if (connection === "model") {
       await userEvent.type(
         view.getByLabelText("OpenAI API key"),
@@ -896,7 +927,7 @@ test.each(["model", "intelligence"])(
         await view.findByRole("button", { name: "Existing project" }),
       );
       await userEvent.click(
-        view.getByRole("button", { name: "Start OpenBot" }),
+        view.getByRole("button", { name: "Start ShardsOpenBot" }),
       );
     }
     const startsMade = invokeCalls.filter(
@@ -910,7 +941,7 @@ test.each(["model", "intelligence"])(
         ? { model: { apiKey: "refreshed-provider-key" } }
         : { apiKey: "refreshed-intelligence-key" }),
     });
-    expect(invokeCalls).toContainEqual({ command: "show_openbot" });
+    expect(invokeCalls).toContainEqual({ command: "show_shardsopenbot" });
     expect(installationCalls()).toHaveLength(0);
     expect(view.queryByRole("button", { name: "Ask" })).toBeNull();
   },
@@ -926,12 +957,16 @@ test("reopening a retained root waits for its saved setup without flashing the w
     return previous(command, args);
   };
   const view = await renderApp();
-  expect(view.getByRole("heading", { name: "Opening OpenBot" })).toBeTruthy();
-  expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+  expect(
+    view.getByRole("heading", { name: "Opening ShardsOpenBot" }),
+  ).toBeTruthy();
+  expect(
+    view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+  ).toBeNull();
   await act(async () => configuration.resolve(savedOpenAiConfiguration()));
   // A retained folder with no successful launch still needs the setup screens.
   expect(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   ).toBeTruthy();
   expect(invokeCalls.some((call) => call.command === "start_stack")).toBe(
     false,
@@ -940,7 +975,7 @@ test("reopening a retained root waits for its saved setup without flashing the w
 
 function useInterruptedShutdownSetup() {
   const root = "/tmp/interrupted-shutdown-root";
-  const notice = "OpenBot had trouble shutting down last time.";
+  const notice = "ShardsOpenBot had trouble shutting down last time.";
   setupRootConfiguration("/tmp/default-root", async () => ({
     values: {
       INTELLIGENCE_API_URL: "https://own.example/api",
@@ -953,7 +988,7 @@ function useInterruptedShutdownSetup() {
   invokeHandler = async (command, args) => {
     if (command === "selected_root") return root;
     if (command === "last_failure") return { said: notice };
-    if (command === "show_openbot") return null;
+    if (command === "show_shardsopenbot") return null;
     return previous(command, args);
   };
   return { root, notice };
@@ -963,13 +998,13 @@ test("an interrupted shutdown restores saved setup for explicit recovery", async
   const { root, notice } = useInterruptedShutdownSetup();
   const view = await renderApp();
   expect(view.getByRole("alert").textContent).toContain(notice);
-  expect(view.queryByRole("button", { name: "Set up OpenBot" }) !== null).toBe(
-    false,
-  );
   expect(
-    view.getByRole("heading", { name: "OpenBot is stopped" }),
+    view.queryByRole("button", { name: "Set up ShardsOpenBot" }) !== null,
+  ).toBe(false);
+  expect(
+    view.getByRole("heading", { name: "ShardsOpenBot is stopped" }),
   ).toBeTruthy();
-  const start = view.getByRole("button", { name: "Start OpenBot" });
+  const start = view.getByRole("button", { name: "Start ShardsOpenBot" });
   expect(start).toHaveProperty("disabled", false);
   expect(invokeCalls.some((call) => call.command === "start_stack")).toBe(
     false,
@@ -994,7 +1029,7 @@ test("an interrupted shutdown restores saved setup for explicit recovery", async
     ),
   ).toBe(false);
   expect(view.queryByText(notice)).toBeNull();
-  expect(invokeCalls).toContainEqual({ command: "show_openbot" });
+  expect(invokeCalls).toContainEqual({ command: "show_shardsopenbot" });
   expect(view.queryByRole("button", { name: "Ask" }) !== null).toBe(false);
 });
 
@@ -1014,7 +1049,7 @@ test.each(["model", "root", "Intelligence"])(
       await user.click(
         view.getByRole("button", { name: "Change installation" }),
       );
-      const input = view.getByLabelText("Where OpenBot lives");
+      const input = view.getByLabelText("Where ShardsOpenBot lives");
       await user.clear(input);
       await user.type(input, "/tmp/changed-recovery-root");
       await completeInstallation(view);
@@ -1030,7 +1065,9 @@ test.each(["model", "root", "Intelligence"])(
     }
 
     if (changed !== "model")
-      await user.click(view.getByRole("button", { name: "Start OpenBot" }));
+      await user.click(
+        view.getByRole("button", { name: "Start ShardsOpenBot" }),
+      );
 
     expect(getStartStackPayload()).toMatchObject(
       changed === "root"
@@ -1039,9 +1076,9 @@ test.each(["model", "root", "Intelligence"])(
           ? { model: { apiKey: "new-model-key" } }
           : { apiUrl: "https://different.example/api" },
     );
-    expect(invokeCalls.some((call) => call.command === "show_openbot")).toBe(
-      changed !== "root",
-    );
+    expect(
+      invokeCalls.some((call) => call.command === "show_shardsopenbot"),
+    ).toBe(changed !== "root");
     expect(view.queryByRole("button", { name: "Ask" }) !== null).toBe(
       changed === "root",
     );
@@ -1109,7 +1146,9 @@ test("setup records telemetry without a consent gate and deduplicates viewed ste
   expect(setupEvents()).toEqual([
     { event: { kind: "step_viewed", step: "welcome" } },
   ]);
-  await userEvent.click(view.getByRole("button", { name: "Set up OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Set up ShardsOpenBot" }),
+  );
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
 
   expect(setupEvents()).toEqual([
@@ -1143,7 +1182,9 @@ test("setup records only model categories and reaches Ask when telemetry is unav
       custom_base_url: true,
     },
   });
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
   await view.findByRole("button", { name: "Ask" });
   expect(setupEvents().at(-1)).toEqual({
     event: { kind: "step_viewed", step: "ask" },
@@ -1153,7 +1194,7 @@ test("setup records only model categories and reaches Ask when telemetry is unav
     privateUrl,
     privateKey,
     "local-model",
-    "/tmp/openbot-app-test",
+    "/tmp/shardsopenbot-app-test",
   ]) {
     expect(serialized).not.toContain(privateValue);
   }
@@ -1235,7 +1276,7 @@ test("leftover database recovery requires confirmation and keeps setup ready to 
   invokeHandler = async (command, args) => {
     if (command === "start_stack" && ++starts === 1)
       throw {
-        said: "A previous OpenBot database remains without its encryption key.",
+        said: "A previous ShardsOpenBot database remains without its encryption key.",
         database_reset: "fixture_postgres-data",
       };
     if (command === "reset_leftover_database") return reset.promise;
@@ -1246,7 +1287,9 @@ test("leftover database recovery requires confirmation and keeps setup ready to 
     "synthetic-key",
   );
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
   const resets = () =>
     invokeCalls.filter((call) => call.command === "reset_leftover_database");
   await userEvent.click(
@@ -1267,7 +1310,7 @@ test("leftover database recovery requires confirmation and keeps setup ready to 
     {
       command: "reset_leftover_database",
       args: {
-        root: "/tmp/openbot-app-test",
+        root: "/tmp/shardsopenbot-app-test",
         volume: "fixture_postgres-data",
         confirmed: true,
       },
@@ -1286,7 +1329,9 @@ test("leftover database recovery requires confirmation and keeps setup ready to 
   ).toBeNull();
   expect(view.queryByRole("alert")).toBeNull();
   expect(starts).toBe(1);
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
   await view.findByRole("button", { name: "Ask" });
   expect(installationCalls()).toHaveLength(1);
 });
@@ -1302,7 +1347,7 @@ test("database recovery failure is shown without restarting services", async () 
       };
     if (command === "reset_leftover_database")
       throw {
-        said: "The database is still in use. Close the other OpenBot installation first.",
+        said: "The database is still in use. Close the other ShardsOpenBot installation first.",
       };
     return previous(command, args);
   };
@@ -1311,7 +1356,9 @@ test("database recovery failure is shown without restarting services", async () 
     "synthetic-key",
   );
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
   await userEvent.click(
     await view.findByRole("button", { name: "Reset leftover database" }),
   );
@@ -1322,10 +1369,9 @@ test("database recovery failure is shown without restarting services", async () 
   expect(
     invokeCalls.filter((call) => call.command === "start_stack"),
   ).toHaveLength(1);
-  expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-    "disabled",
-    false,
-  );
+  expect(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toHaveProperty("disabled", false);
 });
 
 function setupRootConfiguration(
@@ -1391,12 +1437,13 @@ function setupRootConfiguration(
 }
 
 test("Windows detection failure blocks setup and displays its diagnostic", async () => {
-  setupRootConfiguration("/tmp/openbot-windows-detection-test", async () =>
-    emptyConfiguration(),
+  setupRootConfiguration(
+    "/tmp/shardsopenbot-windows-detection-test",
+    async () => emptyConfiguration(),
   );
   const setupHandler = invokeHandler;
   const problem = {
-    said: "OpenBot could not check Windows virtualization support.",
+    said: "ShardsOpenBot could not check Windows virtualization support.",
     detail: "powershell exited with 17: synthetic CIM access denied",
   };
   invokeHandler = async (command, args) => {
@@ -1409,8 +1456,12 @@ test("Windows detection failure blocks setup and displays its diagnostic", async
   expect(alert.textContent).toContain(problem.said);
   await userEvent.click(view.getByText("Technical details"));
   expect(alert.textContent).toContain(problem.detail);
-  expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
-  expect(view.queryByRole("button", { name: "Start OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+  ).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toBeNull();
   expect(
     view.queryByText(/firmware settings|wsl --install|wsl --update/),
   ).toBeNull();
@@ -1420,8 +1471,9 @@ test("Windows detection failure blocks setup and displays its diagnostic", async
 });
 
 test("a failed Windows blocker instruction is visible instead of an empty blocker", async () => {
-  setupRootConfiguration("/tmp/openbot-windows-detection-test", async () =>
-    emptyConfiguration(),
+  setupRootConfiguration(
+    "/tmp/shardsopenbot-windows-detection-test",
+    async () => emptyConfiguration(),
   );
   const setupHandler = invokeHandler;
   invokeHandler = async (command, args) => {
@@ -1435,16 +1487,19 @@ test("a failed Windows blocker instruction is visible instead of an empty blocke
   expect((await view.findByRole("alert")).textContent).toContain(
     "The blocker instruction could not be read.",
   );
-  expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+  ).toBeNull();
 });
 
 test("a successfully detected missing WSL feature keeps its setup instruction", async () => {
-  setupRootConfiguration("/tmp/openbot-windows-detection-test", async () =>
-    emptyConfiguration(),
+  setupRootConfiguration(
+    "/tmp/shardsopenbot-windows-detection-test",
+    async () => emptyConfiguration(),
   );
   const setupHandler = invokeHandler;
   const instruction =
-    "Run wsl --install, restart Windows, and start OpenBot again.";
+    "Run wsl --install, restart Windows, and start ShardsOpenBot again.";
   invokeHandler = async (command, args) => {
     if (command === "windows_blocker") return "wsl-absent";
     if (command === "windows_blocker_instruction") return instruction;
@@ -1453,16 +1508,18 @@ test("a successfully detected missing WSL feature keeps its setup instruction", 
   const view = await renderApp();
   expect(await view.findByText(instruction)).toBeTruthy();
   expect(view.queryByRole("alert")).toBeNull();
-  expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+  ).toBeNull();
 });
 
 test("disabled Virtual Machine Platform displays its feature-specific fix and blocks setup", async () => {
-  setupRootConfiguration("/tmp/openbot-vmp-detection-test", async () =>
+  setupRootConfiguration("/tmp/shardsopenbot-vmp-detection-test", async () =>
     emptyConfiguration(),
   );
   const setupHandler = invokeHandler;
   const instruction =
-    "Virtual Machine Platform is switched off. Open Windows Terminal or PowerShell as an administrator, run `dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart`, restart Windows, and start OpenBot again.";
+    "Virtual Machine Platform is switched off. Open Windows Terminal or PowerShell as an administrator, run `dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart`, restart Windows, and start ShardsOpenBot again.";
   invokeHandler = async (command, args) => {
     if (command === "windows_blocker")
       return "virtual-machine-platform-disabled";
@@ -1480,8 +1537,12 @@ test("disabled Virtual Machine Platform displays its feature-specific fix and bl
     }),
   ).toBeTruthy();
   expect(view.queryByRole("alert")).toBeNull();
-  expect(view.queryByRole("button", { name: "Set up OpenBot" })).toBeNull();
-  expect(view.queryByRole("button", { name: "Start OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Set up ShardsOpenBot" }),
+  ).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toBeNull();
   expect(
     invokeCalls.some((call) =>
       ["prepare_installation", "prepare_engine", "start_stack"].includes(
@@ -1513,7 +1574,7 @@ function useCompatibleEndpointSetup(
         detail: "Docker is answering.",
       };
     }
-    if (command === "default_root") return "/tmp/openbot-app-test";
+    if (command === "default_root") return "/tmp/shardsopenbot-app-test";
     if (command === "already_configured") {
       return {
         values: existingValues,
@@ -1567,7 +1628,7 @@ async function enterCompatibleEndpoint(
   const view = await renderApp();
 
   await userEvent.click(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   );
   await userEvent.click(await view.findByRole("button", { name: "Continue" }));
   await completeInstallation(view);
@@ -1603,7 +1664,7 @@ async function startWithCompatibleEndpoint(
   );
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
   await userEvent.click(
-    await view.findByRole("button", { name: "Start OpenBot" }),
+    await view.findByRole("button", { name: "Start ShardsOpenBot" }),
   );
 }
 
@@ -1643,7 +1704,9 @@ test.each([true, false])(
   async (keyed) => {
     useSavedCompatibleEndpointSetup(undefined, undefined, keyed);
     const view = await renderApp();
-    await userEvent.click(view.getByRole("button", { name: "Set up OpenBot" }));
+    await userEvent.click(
+      view.getByRole("button", { name: "Set up ShardsOpenBot" }),
+    );
     await userEvent.click(view.getByRole("button", { name: "Continue" }));
     await completeInstallation(view);
     expect(view.getByLabelText("Base URL")).toHaveProperty(
@@ -1658,16 +1721,17 @@ test.each([true, false])(
       view.getByLabelText("API key, if the endpoint needs one"),
     ).toHaveProperty("value", "");
     await userEvent.click(view.getByRole("button", { name: "Continue" }));
-    expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-      "disabled",
-      false,
+    expect(
+      view.getByRole("button", { name: "Start ShardsOpenBot" }),
+    ).toHaveProperty("disabled", false);
+    await userEvent.click(
+      view.getByRole("button", { name: "Start ShardsOpenBot" }),
     );
-    await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
     expect(
       invokeCalls.filter((call) => call.command === "start_stack"),
     ).toHaveLength(1);
     expect(getStartStackPayload()).toEqual({
-      root: "/tmp/openbot-app-test",
+      root: "/tmp/shardsopenbot-app-test",
       apiKey: "",
       apiUrl: "https://api.intelligence.copilotkit.ai",
       gatewayWsUrl: "wss://realtime.intelligence.copilotkit.ai",
@@ -1694,7 +1758,9 @@ test.each([
   async (baseUrl, model) => {
     useSavedCompatibleEndpointSetup(baseUrl, model);
     const view = await renderApp();
-    await userEvent.click(view.getByRole("button", { name: "Set up OpenBot" }));
+    await userEvent.click(
+      view.getByRole("button", { name: "Set up ShardsOpenBot" }),
+    );
     await userEvent.click(view.getByRole("button", { name: "Continue" }));
     await completeInstallation(view);
     expect(view.getByRole("button", { name: "Continue" })).toHaveProperty(
@@ -1702,7 +1768,9 @@ test.each([
       true,
     );
     await userEvent.click(view.getByRole("button", { name: "Continue" }));
-    expect(view.queryByRole("button", { name: "Start OpenBot" })).toBeNull();
+    expect(
+      view.queryByRole("button", { name: "Start ShardsOpenBot" }),
+    ).toBeNull();
     expect(invokeCalls.some((call) => call.command === "start_stack")).toBe(
       false,
     );
@@ -1717,14 +1785,18 @@ test("an unsupported saved model kind does not become a startable endpoint", asy
     "unsupported-model",
   );
   const view = await renderApp();
-  await userEvent.click(view.getByRole("button", { name: "Set up OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Set up ShardsOpenBot" }),
+  );
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
   await completeInstallation(view);
   expect(view.getByRole("button", { name: "Continue" })).toHaveProperty(
     "disabled",
     true,
   );
-  expect(view.queryByRole("button", { name: "Start OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toBeNull();
   expect(invokeCalls.some((call) => call.command === "start_stack")).toBe(
     false,
   );
@@ -1741,7 +1813,7 @@ test("Change the model after an Ask failure stops the stack and reaches the prov
         detail: "Docker is answering.",
       };
     }
-    if (command === "default_root") return "/tmp/openbot-app-test";
+    if (command === "default_root") return "/tmp/shardsopenbot-app-test";
     if (command === "already_configured") {
       return {
         values: {
@@ -1796,20 +1868,21 @@ test("Change the model after an Ask failure stops the stack and reaches the prov
   const view = await renderApp();
 
   await userEvent.click(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   );
   await userEvent.click(await view.findByRole("button", { name: "Continue" }));
   await completeInstallation(view);
   await userEvent.click(await view.findByRole("radio", { name: /OpenAI/ }));
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
   await waitFor(() =>
-    expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-      "disabled",
-      false,
-    ),
+    expect(
+      view.getByRole("button", { name: "Start ShardsOpenBot" }),
+    ).toHaveProperty("disabled", false),
   );
 
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
   await userEvent.click(await view.findByRole("button", { name: "Ask" }));
   await userEvent.click(
     await view.findByRole("button", { name: "Change the model" }),
@@ -1822,7 +1895,7 @@ test("Change the model after an Ask failure stops the stack and reaches the prov
   );
   expect(view.getByRole("heading", { name: "Connect your AI" })).toBeTruthy();
   expect(view.getByRole("radio", { name: /OpenAI/ })).toBeTruthy();
-  expect(view.queryByRole("button", { name: "Stop OpenBot" })).toBeNull();
+  expect(view.queryByRole("button", { name: "Stop ShardsOpenBot" })).toBeNull();
 });
 
 test("empty Intelligence projects keep sign-in retryable while Start waits for a project key", async () => {
@@ -1837,7 +1910,7 @@ test("empty Intelligence projects keep sign-in retryable while Start waits for a
         detail: "Docker is answering.",
       };
     }
-    if (command === "default_root") return "/tmp/openbot-app-test";
+    if (command === "default_root") return "/tmp/shardsopenbot-app-test";
     if (command === "already_configured") {
       return {
         values: {
@@ -1894,7 +1967,7 @@ test("empty Intelligence projects keep sign-in retryable while Start waits for a
   const view = await renderApp();
 
   await userEvent.click(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   );
   await userEvent.click(await view.findByRole("button", { name: "Continue" }));
   await completeInstallation(view);
@@ -1909,10 +1982,9 @@ test("empty Intelligence projects keep sign-in retryable while Start waits for a
       exact: false,
     }),
   ).toBeTruthy();
-  expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-    "disabled",
-    true,
-  );
+  expect(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toHaveProperty("disabled", true);
 
   await userEvent.click(view.getByRole("button", { name: "Sign in again" }));
 
@@ -1923,10 +1995,9 @@ test("empty Intelligence projects keep sign-in retryable while Start waits for a
   );
   await userEvent.type(view.getByLabelText("Project key"), "ck-test");
   await waitFor(() =>
-    expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-      "disabled",
-      false,
-    ),
+    expect(
+      view.getByRole("button", { name: "Start ShardsOpenBot" }),
+    ).toHaveProperty("disabled", false),
   );
 });
 
@@ -1969,12 +2040,12 @@ test("creating a named project connects it only after the user submits", async (
   expect(create).toHaveProperty("disabled", true);
   await userEvent.type(
     view.getByLabelText("New project name"),
-    "  OpenBot workspace  ",
+    "  ShardsOpenBot workspace  ",
   );
   await userEvent.click(create);
   expect(invokeCalls).toContainEqual({
     command: "create_intelligence_project",
-    args: { name: "OpenBot workspace" },
+    args: { name: "ShardsOpenBot workspace" },
   });
   expect(
     view.getByRole("button", { name: "Creating project…" }),
@@ -1984,17 +2055,16 @@ test("creating a named project connects it only after the user submits", async (
     true,
   );
   await act(async () =>
-    creation.resolve({ id: "new-project", name: "OpenBot workspace" }),
+    creation.resolve({ id: "new-project", name: "ShardsOpenBot workspace" }),
   );
   expect(view.getByText("Connected to CopilotKit.")).toBeTruthy();
   expect(invokeCalls).toContainEqual({
     command: "intelligence_key_for",
     args: { project: "new-project" },
   });
-  expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-    "disabled",
-    false,
-  );
+  expect(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toHaveProperty("disabled", false);
 });
 
 test("project creation failure preserves the name and retries without losing a created project", async () => {
@@ -2006,7 +2076,7 @@ test("project creation failure preserves the name and retries without losing a c
     if (command === "create_intelligence_project") {
       if (++creations === 1)
         throw { said: "The project could not be created." };
-      return { id: "new-project", name: "OpenBot workspace" };
+      return { id: "new-project", name: "ShardsOpenBot workspace" };
     }
     if (command === "intelligence_key_for" && ++provisions === 1)
       throw { said: "The project key could not be created." };
@@ -2014,7 +2084,7 @@ test("project creation failure preserves the name and retries without losing a c
   };
   await userEvent.type(
     view.getByLabelText("New project name"),
-    "OpenBot workspace",
+    "ShardsOpenBot workspace",
   );
   await userEvent.click(view.getByRole("button", { name: "Create project" }));
   expect(view.getByRole("alert").textContent).toContain(
@@ -2022,7 +2092,7 @@ test("project creation failure preserves the name and retries without losing a c
   );
   expect(view.getByLabelText("New project name")).toHaveProperty(
     "value",
-    "OpenBot workspace",
+    "ShardsOpenBot workspace",
   );
   expect(view.getByRole("button", { name: "Create project" })).toHaveProperty(
     "disabled",
@@ -2033,14 +2103,14 @@ test("project creation failure preserves the name and retries without losing a c
     "The project key could not be created.",
   );
   await userEvent.click(
-    view.getByRole("button", { name: "OpenBot workspace" }),
+    view.getByRole("button", { name: "ShardsOpenBot workspace" }),
   );
   expect(view.getByText("Connected to CopilotKit.")).toBeTruthy();
   expect(creations).toBe(2);
 });
 
-test("mount navigates to OpenBot only when the selected root is already owned and running", async () => {
-  const root = "/tmp/openbot-owned-running-root";
+test("mount navigates to ShardsOpenBot only when the selected root is already owned and running", async () => {
+  const root = "/tmp/shardsopenbot-owned-running-root";
   setupRootConfiguration(root, async () => emptyConfiguration());
   const setupHandler = invokeHandler;
   invokeHandler = async (command, args) => {
@@ -2053,37 +2123,37 @@ test("mount navigates to OpenBot only when the selected root is already owned an
 
   await renderApp();
   await waitFor(() =>
-    expect(invokeCalls).toContainEqual({ command: "show_openbot" }),
+    expect(invokeCalls).toContainEqual({ command: "show_shardsopenbot" }),
   );
 });
 
 test("mount leaves setup visible when the shared port answers without selected root ownership", async () => {
-  const root = "/tmp/openbot-unowned-running-root";
+  const root = "/tmp/shardsopenbot-unowned-running-root";
   setupRootConfiguration(root, async () => emptyConfiguration());
 
   const view = await renderApp();
 
   expect(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   ).toBeTruthy();
-  expect(invokeCalls.some((call) => call.command === "show_openbot")).toBe(
-    false,
-  );
+  expect(
+    invokeCalls.some((call) => call.command === "show_shardsopenbot"),
+  ).toBe(false);
 });
 
 for (const staleProbe of [false, true]) {
   test(`recovery mount keeps setup available after ${staleProbe ? "a stale positive" : "a negative"} adoption probe`, async () => {
-    setupRootConfiguration("/tmp/openbot-worker-recovery", async () =>
+    setupRootConfiguration("/tmp/shardsopenbot-worker-recovery", async () =>
       emptyConfiguration(),
     );
     const setupHandler = invokeHandler;
     const failure = {
-      said: "Part of OpenBot (worker) stopped and could not be started again. Try starting OpenBot once more.",
+      said: "Part of ShardsOpenBot (worker) stopped and could not be started again. Try starting ShardsOpenBot once more.",
     };
     invokeHandler = async (command, args) => {
       if (command === "already_running") return staleProbe;
       if (command === "last_failure") return failure;
-      if (command === "show_openbot") throw failure;
+      if (command === "show_shardsopenbot") throw failure;
       return setupHandler(command, args);
     };
     const view = await renderApp();
@@ -2095,13 +2165,17 @@ for (const staleProbe of [false, true]) {
     if (staleProbe) {
       await waitFor(() =>
         expect(
-          invokeCalls.some((call) => call.command === "show_openbot"),
+          invokeCalls.some((call) => call.command === "show_shardsopenbot"),
         ).toBe(true),
       );
     }
-    expect(view.getByRole("button", { name: "Set up OpenBot" })).toBeTruthy();
+    expect(
+      view.getByRole("button", { name: "Set up ShardsOpenBot" }),
+    ).toBeTruthy();
     expect(view.getByRole("alert").textContent).toContain(failure.said);
-    expect(view.queryByRole("button", { name: "Stop OpenBot" })).toBeNull();
+    expect(
+      view.queryByRole("button", { name: "Stop ShardsOpenBot" }),
+    ).toBeNull();
   });
 }
 
@@ -2116,7 +2190,7 @@ test("saved startup credentials enable Start without raw protected secrets on mo
         detail: "Docker is answering.",
       };
     }
-    if (command === "default_root") return "/tmp/openbot-app-test";
+    if (command === "default_root") return "/tmp/shardsopenbot-app-test";
     if (command === "already_configured") {
       return {
         values: {},
@@ -2163,7 +2237,7 @@ test("saved startup credentials enable Start without raw protected secrets on mo
   const view = await renderApp();
 
   await userEvent.click(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   );
   await userEvent.click(await view.findByRole("button", { name: "Continue" }));
   await completeInstallation(view);
@@ -2171,10 +2245,9 @@ test("saved startup credentials enable Start without raw protected secrets on mo
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
 
   await waitFor(() =>
-    expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-      "disabled",
-      false,
-    ),
+    expect(
+      view.getByRole("button", { name: "Start ShardsOpenBot" }),
+    ).toHaveProperty("disabled", false),
   );
   expect(
     invokeCalls.filter((call) => call.command === "already_configured"),
@@ -2185,7 +2258,9 @@ async function chooseModelAfterRootEdit(
   view: Awaited<ReturnType<typeof renderApp>>,
   apiKey?: string,
 ) {
-  expect(view.queryByRole("button", { name: "Start OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toBeNull();
   await completeInstallation(view);
   await userEvent.click(await view.findByRole("radio", { name: /OpenAI/ }));
   if (apiKey)
@@ -2194,9 +2269,9 @@ async function chooseModelAfterRootEdit(
 }
 
 test("root edits reload saved configuration for that root and ignore stale saved responses", async () => {
-  const rootA = "/tmp/openbot-root-a";
-  const rootB = "/tmp/openbot-root-b";
-  const rootC = "/tmp/openbot-root-c";
+  const rootA = "/tmp/shardsopenbot-root-a";
+  const rootB = "/tmp/shardsopenbot-root-b";
+  const rootC = "/tmp/shardsopenbot-root-c";
   const savedForRootA = deferred<ReturnType<typeof savedOpenAiConfiguration>>();
   const emptyForRootB = deferred<ReturnType<typeof emptyConfiguration>>();
   const savedForRootC = deferred<ReturnType<typeof savedOpenAiConfiguration>>();
@@ -2214,7 +2289,7 @@ test("root edits reload saved configuration for that root and ignore stale saved
   });
 
   await userEvent.click(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   );
   await userEvent.click(await view.findByRole("button", { name: "Continue" }));
   await completeInstallation(view);
@@ -2222,16 +2297,15 @@ test("root edits reload saved configuration for that root and ignore stale saved
   expect(view.getByText(/A saved OpenAI API key will be used/)).toBeTruthy();
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
   await waitFor(() =>
-    expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-      "disabled",
-      false,
-    ),
+    expect(
+      view.getByRole("button", { name: "Start ShardsOpenBot" }),
+    ).toHaveProperty("disabled", false),
   );
 
   await userEvent.click(
     view.getByRole("button", { name: "Change installation" }),
   );
-  const rootField = view.getByLabelText("Where OpenBot lives");
+  const rootField = view.getByLabelText("Where ShardsOpenBot lives");
   const user = userEvent.setup({
     document: view.container.ownerDocument,
   });
@@ -2273,12 +2347,13 @@ test("root edits reload saved configuration for that root and ignore stale saved
   });
   await chooseModelAfterRootEdit(view);
   await waitFor(() =>
-    expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-      "disabled",
-      false,
-    ),
+    expect(
+      view.getByRole("button", { name: "Start ShardsOpenBot" }),
+    ).toHaveProperty("disabled", false),
   );
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
 
   expect(getStartStackPayload()).toMatchObject({
     root: rootC,
@@ -2291,8 +2366,8 @@ test("root edits reload saved configuration for that root and ignore stale saved
 });
 
 test("same-process setup remount prefers the retained selected root", async () => {
-  const rootA = "/tmp/openbot-default-root";
-  const rootB = "/tmp/openbot-retained-root";
+  const rootA = "/tmp/shardsopenbot-default-root";
+  const rootB = "/tmp/shardsopenbot-retained-root";
   setupRootConfiguration(rootA, async (requestedRoot) => {
     if (requestedRoot !== rootB)
       throw new Error(`unexpected already_configured root ${requestedRoot}`);
@@ -2306,10 +2381,10 @@ test("same-process setup remount prefers the retained selected root", async () =
 
   const view = await renderApp();
   await userEvent.click(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   );
   await userEvent.click(await view.findByRole("button", { name: "Continue" }));
-  expect(view.getByLabelText("Where OpenBot lives")).toHaveProperty(
+  expect(view.getByLabelText("Where ShardsOpenBot lives")).toHaveProperty(
     "value",
     rootB,
   );
@@ -2317,7 +2392,7 @@ test("same-process setup remount prefers the retained selected root", async () =
   await userEvent.click(await view.findByRole("radio", { name: /OpenAI/ }));
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
   await userEvent.click(
-    await view.findByRole("button", { name: "Start OpenBot" }),
+    await view.findByRole("button", { name: "Start ShardsOpenBot" }),
   );
 
   expect(
@@ -2348,9 +2423,9 @@ test.each([
 ])(
   "root edits invalidate the $name before blur",
   async ({ pendingRoot, finalRoot, savedModel }) => {
-    const rootA = "/tmp/openbot-root-a";
-    const rootB = "/tmp/openbot-root-b";
-    const currentRoot = `/tmp/openbot-root-${finalRoot}`;
+    const rootA = "/tmp/shardsopenbot-root-a";
+    const rootB = "/tmp/shardsopenbot-root-b";
+    const currentRoot = `/tmp/shardsopenbot-root-${finalRoot}`;
     const requests: Array<{
       root: string;
       response: Deferred<ReturnType<typeof savedOpenAiConfiguration>>;
@@ -2370,7 +2445,7 @@ test.each([
       ),
     );
     await user.click(
-      await view.findByRole("button", { name: "Set up OpenBot" }),
+      await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
     );
     await user.click(await view.findByRole("button", { name: "Continue" }));
     await completeInstallation(view);
@@ -2385,10 +2460,12 @@ test.each([
       );
     }
     await user.click(view.getByRole("button", { name: "Continue" }));
-    const previousStart = view.getByRole("button", { name: "Start OpenBot" });
+    const previousStart = view.getByRole("button", {
+      name: "Start ShardsOpenBot",
+    });
     expect(previousStart).toHaveProperty("disabled", !savedModel);
     await user.click(view.getByRole("button", { name: "Change installation" }));
-    const rootField = view.getByLabelText("Where OpenBot lives");
+    const rootField = view.getByLabelText("Where ShardsOpenBot lives");
 
     if (pendingRoot === "a") {
       await user.click(rootField);
@@ -2405,7 +2482,7 @@ test.each([
       await user.type(rootField, currentRoot);
     }
     const pending = requests[requests.length - 1];
-    expect(pending.root).toBe(`/tmp/openbot-root-${pendingRoot}`);
+    expect(pending.root).toBe(`/tmp/shardsopenbot-root-${pendingRoot}`);
     const requestCountBeforeBlur = requests.length;
 
     function expectBlockedSetup() {
@@ -2416,7 +2493,9 @@ test.each([
       expect(
         view.queryByRole("button", { name: "Continue to sign in" }),
       ).toBeNull();
-      expect(view.queryByRole("button", { name: "Start OpenBot" })).toBeNull();
+      expect(
+        view.queryByRole("button", { name: "Start ShardsOpenBot" }),
+      ).toBeNull();
       expect(requests).toHaveLength(requestCountBeforeBlur);
       expect(invokeCalls.some((call) => call.command === "start_stack")).toBe(
         false,
@@ -2455,8 +2534,10 @@ test.each([
         true,
       );
       await user.click(view.getByRole("button", { name: "Back" }));
-      await user.click(view.getByLabelText("Where OpenBot lives"));
-      await act(async () => view.getByLabelText("Where OpenBot lives").blur());
+      await user.click(view.getByLabelText("Where ShardsOpenBot lives"));
+      await act(async () =>
+        view.getByLabelText("Where ShardsOpenBot lives").blur(),
+      );
     } else {
       await act(async () => rootField.blur());
     }
@@ -2494,7 +2575,9 @@ test.each([
       "value",
       "wss://current.example/ws",
     );
-    const currentStart = view.getByRole("button", { name: "Start OpenBot" });
+    const currentStart = view.getByRole("button", {
+      name: "Start ShardsOpenBot",
+    });
     expect(currentStart).toHaveProperty("disabled", false);
     await user.click(currentStart);
     expect(
@@ -2528,7 +2611,7 @@ function useBringYourOwnHarnessSetup() {
         detail: "Docker is answering.",
       };
     }
-    if (command === "default_root") return "/tmp/openbot-app-test";
+    if (command === "default_root") return "/tmp/shardsopenbot-app-test";
     if (command === "already_configured") {
       return {
         values: {},
@@ -2589,7 +2672,7 @@ async function enterBringYourOwnHarnessEndpoint(agentUrl: string) {
   const view = await renderApp();
 
   await userEvent.click(
-    await view.findByRole("button", { name: "Set up OpenBot" }),
+    await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
   );
   await userEvent.click(await view.findByText("Choose the agent framework"));
   await userEvent.click(
@@ -2624,7 +2707,9 @@ test.each([
   await userEvent.click(continueButton);
   expect(view.getByRole("heading", { name: "Your first Bot" })).toBeTruthy();
   expect(view.queryByRole("heading", { name: "Connect your AI" })).toBeNull();
-  expect(view.queryByRole("button", { name: "Start OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toBeNull();
   expect(invokeCalls.filter((call) => call.command === "start_stack")).toEqual(
     [],
   );
@@ -2660,7 +2745,7 @@ test.each([
     await userEvent.type(view.getByLabelText("Model name"), "local-model");
     await userEvent.click(view.getByRole("button", { name: "Continue" }));
     await userEvent.click(
-      await view.findByRole("button", { name: "Start OpenBot" }),
+      await view.findByRole("button", { name: "Start ShardsOpenBot" }),
     );
 
     const payload = getStartStackPayload();
@@ -2668,7 +2753,7 @@ test.each([
       invokeCalls.filter((call) => call.command === "start_stack"),
     ).toHaveLength(1);
     expect(payload).toEqual({
-      root: "/tmp/openbot-app-test",
+      root: "/tmp/shardsopenbot-app-test",
       apiKey: "",
       apiUrl: "https://api.intelligence.copilotkit.ai",
       gatewayWsUrl: "wss://realtime.intelligence.copilotkit.ai",
@@ -2698,7 +2783,9 @@ test.each([
   expect(continueButton).toHaveProperty("disabled", true);
   await userEvent.click(continueButton);
   expect(view.getByRole("heading", { name: "Connect your AI" })).toBeTruthy();
-  expect(view.queryByRole("button", { name: "Start OpenBot" })).toBeNull();
+  expect(
+    view.queryByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toBeNull();
   expect(invokeCalls.filter((call) => call.command === "start_stack")).toEqual(
     [],
   );
@@ -2718,7 +2805,7 @@ test.each(["http://localhost:11434/v1", "https://models.example/v1"])(
       invokeCalls.filter((call) => call.command === "start_stack"),
     ).toHaveLength(1);
     expect(payload).toEqual({
-      root: "/tmp/openbot-app-test",
+      root: "/tmp/shardsopenbot-app-test",
       apiKey: "",
       apiUrl: "https://api.intelligence.copilotkit.ai",
       gatewayWsUrl: "wss://realtime.intelligence.copilotkit.ai",
@@ -2764,7 +2851,9 @@ test("saved compatible endpoint restores the optional container URL", async () =
   );
 
   const view = await renderApp();
-  await userEvent.click(view.getByRole("button", { name: "Set up OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Set up ShardsOpenBot" }),
+  );
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
   await completeInstallation(view);
 
@@ -2773,7 +2862,7 @@ test("saved compatible endpoint restores the optional container URL", async () =
   ).toHaveProperty("value", "http://ollama:11434/v1");
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
   await userEvent.click(
-    await view.findByRole("button", { name: "Start OpenBot" }),
+    await view.findByRole("button", { name: "Start ShardsOpenBot" }),
   );
 
   expect(getStartStackPayload().model).toMatchObject({
@@ -2812,7 +2901,7 @@ for (const provider of [
     async (session) => {
       const planToken = `synthetic-${provider.id}-plan-token`;
       const hiddenKey = `sk-synthetic-${provider.id}-hidden`;
-      setupRootConfiguration("/tmp/openbot-app-test", async () => ({
+      setupRootConfiguration("/tmp/shardsopenbot-app-test", async () => ({
         ...emptyConfiguration(),
         saved: {
           ...emptyConfiguration().saved,
@@ -2844,7 +2933,7 @@ for (const provider of [
 
       const view = await renderApp();
       await userEvent.click(
-        await view.findByRole("button", { name: "Set up OpenBot" }),
+        await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
       );
       await userEvent.click(
         await view.findByRole("button", { name: "Continue" }),
@@ -2884,7 +2973,7 @@ for (const provider of [
       );
       await userEvent.click(view.getByRole("button", { name: "Continue" }));
       await userEvent.click(
-        await view.findByRole("button", { name: "Start OpenBot" }),
+        await view.findByRole("button", { name: "Start ShardsOpenBot" }),
       );
 
       const payload = getStartStackPayload();
@@ -2909,7 +2998,7 @@ for (const provider of [
           detail: "Docker is answering.",
         };
       }
-      if (command === "default_root") return "/tmp/openbot-app-test";
+      if (command === "default_root") return "/tmp/shardsopenbot-app-test";
       if (command === "already_configured") {
         return {
           values: {},
@@ -2960,7 +3049,7 @@ for (const provider of [
     const view = await renderApp();
 
     await userEvent.click(
-      await view.findByRole("button", { name: "Set up OpenBot" }),
+      await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
     );
     await userEvent.click(
       await view.findByRole("button", { name: "Continue" }),
@@ -2978,17 +3067,19 @@ for (const provider of [
 
     await waitFor(() =>
       expect(
-        view.getByRole("button", { name: "Start OpenBot" }),
+        view.getByRole("button", { name: "Start ShardsOpenBot" }),
       ).toHaveProperty("disabled", false),
     );
-    await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+    await userEvent.click(
+      view.getByRole("button", { name: "Start ShardsOpenBot" }),
+    );
 
     expect(
       invokeCalls.filter((call) => call.command === "already_configured"),
     ).toEqual([
       {
         command: "already_configured",
-        args: { root: "/tmp/openbot-app-test" },
+        args: { root: "/tmp/shardsopenbot-app-test" },
       },
     ]);
     for (const call of invokeCalls) {
@@ -2999,7 +3090,7 @@ for (const provider of [
     expect(
       invokeCalls.find((call) => call.command === "start_stack")?.args,
     ).toMatchObject({
-      root: "/tmp/openbot-app-test",
+      root: "/tmp/shardsopenbot-app-test",
       apiKey: "",
       model: {
         provider: provider.id,
@@ -3042,7 +3133,7 @@ for (const provider of [
       };
       const view = await renderApp();
       await userEvent.click(
-        await view.findByRole("button", { name: "Set up OpenBot" }),
+        await view.findByRole("button", { name: "Set up ShardsOpenBot" }),
       );
       await userEvent.click(
         await view.findByRole("button", { name: "Continue" }),
@@ -3065,7 +3156,7 @@ for (const provider of [
       );
       await userEvent.click(view.getByRole("button", { name: "Continue" }));
       expect(
-        view.getByRole("button", { name: "Start OpenBot" }),
+        view.getByRole("button", { name: "Start ShardsOpenBot" }),
       ).toHaveProperty("disabled", true);
       await userEvent.click(
         view.getByRole("button", { name: "Use a saved connection" }),
@@ -3082,7 +3173,7 @@ for (const provider of [
         ),
       ).toBe(false);
       await userEvent.click(
-        view.getByRole("button", { name: "Start OpenBot" }),
+        view.getByRole("button", { name: "Start ShardsOpenBot" }),
       );
       await view.findByText("Synthetic saved credential is unavailable.");
       expect(getStartStackPayload()).toMatchObject({
@@ -3114,7 +3205,7 @@ test("Start credential failures do not expose a restore action", async () => {
           setting: "INTELLIGENCE_API_KEY",
           label: "Restore access to saved setup",
           explanation:
-            "This Mac is protecting a credential from your saved OpenBot setup. Restoring access may ask macOS to confirm this app. Your saved data stays in place.",
+            "This Mac is protecting a credential from your saved ShardsOpenBot setup. Restoring access may ask macOS to confirm this app. Your saved data stays in place.",
         },
       };
     return previous(command, args);
@@ -3124,7 +3215,9 @@ test("Start credential failures do not expose a restore action", async () => {
     "synthetic-model-key",
   );
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
 
   expect(
     await view.findByText("Saved credential needs authorization."),
@@ -3151,7 +3244,9 @@ test("the Enter that finishes a composed character does not ask the Bot", async 
   };
   const view = await enterCompatibleEndpoint("https://models.example/v1");
   await userEvent.click(view.getByRole("button", { name: "Continue" }));
-  await userEvent.click(view.getByRole("button", { name: "Start OpenBot" }));
+  await userEvent.click(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  );
   const question = await view.findByLabelText("Your question");
   // Keys land on the focused field.
   await userEvent.click(question);
@@ -3216,10 +3311,9 @@ test("self-hosted Intelligence sign-in selects a project and receives its provis
     "value",
     "self-hosted-project-key",
   );
-  expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-    "disabled",
-    false,
-  );
+  expect(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toHaveProperty("disabled", false);
 });
 
 test("cancelling self-hosted login ignores a late project response and keeps manual setup available", async () => {
@@ -3253,10 +3347,9 @@ test("cancelling self-hosted login ignores a late project response and keeps man
   expect(view.queryByRole("button", { name: "Cancelled team" })).toBeNull();
   expect(view.getByLabelText("API URL")).toHaveProperty("disabled", false);
   await userEvent.type(view.getByLabelText("Project key"), "manual-key");
-  expect(view.getByRole("button", { name: "Start OpenBot" })).toHaveProperty(
-    "disabled",
-    false,
-  );
+  expect(
+    view.getByRole("button", { name: "Start ShardsOpenBot" }),
+  ).toHaveProperty("disabled", false);
 });
 
 test("self-hosted provisioning failure offers a fresh sign-in without retaining a stale picker", async () => {

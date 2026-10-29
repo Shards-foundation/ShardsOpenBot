@@ -205,7 +205,9 @@ test("the original built-in executes its granted tool and sends the actual match
     port: 0,
     fetch: async (request) => {
       const body = await request.json();
-      expect(request.headers.get("x-openbot-agent-token")).toBe("owned-token");
+      expect(request.headers.get("x-shardsopenbot-agent-token")).toBe(
+        "owned-token",
+      );
       requests.push(body);
       const events =
         requests.length === 1
@@ -299,8 +301,8 @@ test("the original built-in executes its granted tool and sends the actual match
       }),
     );
     expect(requests[0]?.forwardedProps).toEqual({
-      openbotModelOnly: true,
-      openbotBotId: "knowledge",
+      shardsopenbotModelOnly: true,
+      shardsopenbotBotId: "knowledge",
     });
     expect(agent.messages.at(-1)).toMatchObject({
       content: "Policy 42 [source].",
@@ -318,7 +320,7 @@ test("plan selection requires the matching deployment-owned harness and does not
     CHATGPT_AUTH_FILE: "/owned/auth.json",
     PICKED_HARNESS_SOURCE: "installed",
     PICKED_HARNESS_IMAGE:
-      "ghcr.io/copilotkit/openbot/agent-langgraph-agui:0.0.13",
+      "ghcr.io/copilotkit/shardsopenbot/agent-langgraph-agui:0.0.13",
     PICKED_HARNESS_URL: "http://127.0.0.1:9876/ag-ui",
     MANAGED_AGENT_TOKEN: "owned",
   };
@@ -327,7 +329,7 @@ test("plan selection requires the matching deployment-owned harness and does not
     planModelForEnvironment({
       ...selected,
       PICKED_HARNESS_IMAGE:
-        "ghcr.io/copilotkit/openbot-agent-langgraph-agui@sha256:6489cdcff5dc1b4f4d8fd34f0bd1b3e68019fd6c6249e8327097c16b5faac183",
+        "ghcr.io/copilotkit/shardsopenbot-agent-langgraph-agui@sha256:6489cdcff5dc1b4f4d8fd34f0bd1b3e68019fd6c6249e8327097c16b5faac183",
     })?.provider,
   ).toBe("chatgpt");
   expect(() =>

@@ -1,5 +1,5 @@
 {
-  "name": "@openbot/supervisor",
+  "name": "@shardsopenbot/supervisor",
   "license": "MIT",
   "private": true,
   "type": "module",

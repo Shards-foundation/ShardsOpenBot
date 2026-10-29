@@ -4,7 +4,7 @@
 // Nothing here ever reads a field's value into a name or a selector. A click names the element the person meant
 // (meantElement). The collector's own description of what was clicked or edited (its tag, role attribute, text,
 // attributes and value) stays exactly as CopilotKit wrote it: the Recorder only adds fields of its own beside it.
-import { REDACTED } from "@openbot/shared/recorder-masking";
+import { REDACTED } from "@shardsopenbot/shared/recorder-masking";
 import type { AgentTarget } from "../shared/agent-target";
 
 /** Attributes a team puts on an element for tests and automation: the steadiest handle there is. `data-testid` first,

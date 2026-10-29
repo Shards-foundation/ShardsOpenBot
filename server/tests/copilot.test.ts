@@ -8,8 +8,8 @@ import { BuiltInAgent } from "@copilotkit/runtime/v2";
 import {
   computerGuidance,
   PROVENANCE_GUIDANCE,
-} from "@openbot/shared/bot-prompt";
-import { defaultModelFor } from "@openbot/shared/model-providers";
+} from "@shardsopenbot/shared/bot-prompt";
+import { defaultModelFor } from "@shardsopenbot/shared/model-providers";
 import { EMPTY, lastValueFrom } from "rxjs";
 import { z } from "zod";
 import { createActorAgentResolver } from "../src/agents/agent-resolver";
@@ -110,10 +110,10 @@ test("remote runs receive coordination tools and preserve the signed delivery sc
     agent.threadId = "scratch-thread";
     await agent.runAgent({
       runId: "actual-run",
-      forwardedProps: { openbotRun: "signed-delivery" },
+      forwardedProps: { shardsopenbotRun: "signed-delivery" },
     });
     expect(seen[0]?.tools.map((tool) => tool.name)).toContain("ask_person");
-    expect(seen[0]?.forwardedProps.openbotRun).toBe("signed-delivery");
+    expect(seen[0]?.forwardedProps.shardsopenbotRun).toBe("signed-delivery");
   } finally {
     run.mockRestore();
   }
@@ -799,7 +799,7 @@ describe("standing agent roles", () => {
       }),
     );
 
-    const request = new Request("http://openbot.test/api/copilotkit");
+    const request = new Request("http://shardsopenbot.test/api/copilotkit");
     const resolved = await factory({ request });
 
     expect(seen.request).toBe(request);
@@ -833,7 +833,7 @@ describe("standing agent roles", () => {
         resolveModelApiKey: async () => null,
       }),
     );
-    const request = new Request("http://openbot.test/api/copilotkit");
+    const request = new Request("http://shardsopenbot.test/api/copilotkit");
 
     const before = await factory({ request });
     roleDescription = "Reconcile corporate card statements.";
@@ -1630,7 +1630,7 @@ describe("a person's standing instructions", () => {
     );
 
     await factory({
-      request: new Request("http://openbot.test/api/copilotkit"),
+      request: new Request("http://shardsopenbot.test/api/copilotkit"),
     });
 
     /*

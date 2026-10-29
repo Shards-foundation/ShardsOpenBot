@@ -1,17 +1,17 @@
 import { createHash } from "node:crypto";
 import type { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
-import type { LearningSettings } from "@openbot/shared/learning";
-import type { LearningSpaceState } from "@openbot/shared/recorder-api";
+import type { LearningSettings } from "@shardsopenbot/shared/learning";
+import type { LearningSpaceState } from "@shardsopenbot/shared/recorder-api";
 import { eq } from "drizzle-orm";
 import type { Database } from "../db/client";
 import { learningPersonSpaces } from "../db/schema/learning";
 import type { LearningContainerSpec } from "./ensure-container";
 
 /**
- * A person's own Learning space: one Intelligence Learning container per OpenBot person, which every recording they make
+ * A person's own Learning space: one Intelligence Learning container per ShardsOpenBot person, which every recording they make
  * joins, whichever Bot they later use, and whose published Skills reach every Bot they run (learning/runtime.ts).
  *
- * Its id is derived from the person's: `user-` and the first 32 hex digits of the SHA-256 of their OpenBot user id. A
+ * Its id is derived from the person's: `user-` and the first 32 hex digits of the SHA-256 of their ShardsOpenBot user id. A
  * user id is any text (mixed case, a better-auth id, `dev-local-user`), and Intelligence takes 1 to 64 lowercase letters,
  * digits and single hyphens, so the id is hashed rather than copied: the same person always gets the same space, on
  * every replica, with nothing to look up, and two people never share one.
@@ -20,8 +20,8 @@ export function personalLearningContainerId(userId: string): string {
   return `user-${personDigest(userId)}`;
 }
 
-/** The first 32 hex digits of the SHA-256 of an OpenBot user id: what every id derived from a person is built on (their
- * Learning space here, and their OpenBot browser, browser/person.ts). */
+/** The first 32 hex digits of the SHA-256 of an ShardsOpenBot user id: what every id derived from a person is built on (their
+ * Learning space here, and their ShardsOpenBot browser, browser/person.ts). */
 export function personDigest(userId: string): string {
   return createHash("sha256").update(userId).digest("hex").slice(0, 32);
 }
@@ -58,7 +58,7 @@ function errorCode(error: unknown): string {
   return typeof code === "string" ? code : "";
 }
 
-/** The rows that remember which people's spaces OpenBot has seen exist. */
+/** The rows that remember which people's spaces ShardsOpenBot has seen exist. */
 export function createPersonSpaceStore(database: Database) {
   return {
     async confirmed(userId: string): Promise<boolean> {
@@ -199,7 +199,7 @@ export function createPersonalLearningSpaces(deps: {
         const name = (await deps.nameFor?.(userId).catch(() => null))?.trim();
         const result = await create({
           id: containerId,
-          name: `OpenBot: ${name || containerId}`.slice(0, 255),
+          name: `ShardsOpenBot: ${name || containerId}`.slice(0, 255),
         });
         if (result === "skipped") return false;
         // A key that can answer and still cannot see it means the credential made it in another project.

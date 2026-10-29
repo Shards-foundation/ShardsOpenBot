@@ -1,6 +1,6 @@
 # Changelog
 
-What changed, for somebody deciding whether to upgrade. Written for the person running OpenBot, not
+What changed, for somebody deciding whether to upgrade. Written for the person running ShardsOpenBot, not
 for the person who wrote the commit: a line belongs here when a deployment behaves differently
 afterwards, and does not when only the code moved.
 
@@ -17,16 +17,16 @@ Newest first. `Unreleased` is what is on `main` and not yet tagged.
   into Intelligence, a few people at a time each minute; it is idempotent and safe to interrupt.
   Memories awaiting review, paused or forgotten stay local until that changes.
 - With nothing saved under Admin → Automatic Learning and no `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID`,
-  the server assigns its Intelligence project's `openbot` container once it exists, and `scripts/start.sh`
+  the server assigns its Intelligence project's `shardsopenbot` container once it exists, and `scripts/start.sh`
   creates that container. A saved setting, including off, is never changed;
-  `OPENBOT_LEARNING_AUTO_ASSIGN=false` (Helm: `config.learning.autoAssign: false`) prevents it.
+  `SHARDSOPENBOT_LEARNING_AUTO_ASSIGN=false` (Helm: `config.learning.autoAssign: false`) prevents it.
 - Migration `0055_default_opt_outs` adds one table, `default_opt_outs`, where a person's removal of a
   default memory source or background research is recorded. Memory sources and background research
   then switch on for each person and Bot that talk (below), so expect background research turns, and
   their model tokens, four hours after a person first talks to a Bot. Only removals from now on are
   recorded: a source or research setting somebody deleted before the upgrade left no trace, so it
   comes back on their next conversation with that Bot (one they turned off and kept stays off).
-  `OPENBOT_MEMORY_SOURCE_DEFAULTS=false` and `OPENBOT_PROACTIVE_DEFAULTS=false` (Helm: `config.memory.*`)
+  `SHARDSOPENBOT_MEMORY_SOURCE_DEFAULTS=false` and `SHARDSOPENBOT_PROACTIVE_DEFAULTS=false` (Helm: `config.memory.*`)
   prevent it.
 - Migration `0056_sign_in_code_step` widens the check on `sign_in_requests.status` to allow
   `code_required` (below). A server and a computer must be upgraded together: an older computer has
@@ -34,7 +34,7 @@ Newest first. `Unreleased` is what is on `main` and not yet tagged.
 - Migration `0060_app_access_requests` adds one table, `app_access_requests`, where a person's
   request for an administrator to switch on a work app, grant it to a Bot, or connect a Shared app's
   team account is kept, with who answered it and when. It starts empty and nothing is backfilled.
-- Migration `0066_recorder_extension` adds six tables for the OpenBot Recorder and each person's own
+- Migration `0066_recorder_extension` adds six tables for the ShardsOpenBot Recorder and each person's own
   Learning space (below): `recorder_connect_codes`, `recorder_connections`,
   `recorder_trajectory_bindings`, `learning_person_spaces`, `learning_skill_sharing` and
   `learning_open_skills`. Nothing existing changes, and the tables stay empty until somebody
@@ -47,7 +47,7 @@ Newest first. `Unreleased` is what is on `main` and not yet tagged.
   `COPILOTKIT_OPENAI_API=responses` keeps the Responses API (`chat` forces Chat Completions); any
   other value is an error when a built-in Bot runs. Deployments on OpenAI or Azure are unchanged.
 - Migration `0067_recorder_activity` adds two nullable columns to `recorder_connections`, where each
-  OpenBot Recorder's latest recording activity is kept. Nothing existing changes.
+  ShardsOpenBot Recorder's latest recording activity is kept. Nothing existing changes.
 - Migration `0061_suggestion_superseded` widens the check on `proactive_suggestions.status` to allow
   `superseded` (below). Open suggestions from before the upgrade stay open until that Bot's next
   research run replaces them.
@@ -67,13 +67,13 @@ Newest first. `Unreleased` is what is on `main` and not yet tagged.
 With generative UI on, a Bot builds an interface from the A2UI 1.0 basic components instead of the
 A2UI 0.9 ones. It's the same set of 18: text, images, icons, video, audio, rows, columns, lists,
 cards, tabs, dividers, dialogs, buttons, checkboxes, text fields, date pickers, choice pickers and
-sliders. They now take OpenBot's colours, radii and font, in light and dark. The gallery components a
-Bot is granted are unchanged. `OPENBOT_GENERATIVE_UI=false` still switches it all off, on the server
+sliders. They now take ShardsOpenBot's colours, radii and font, in light and dark. The gallery components a
+Bot is granted are unchanged. `SHARDSOPENBOT_GENERATIVE_UI=false` still switches it all off, on the server
 as well as in the browser.
 
 ### CopilotKit 1.83
 
-OpenBot now runs on CopilotKit 1.83.0 (`@copilotkit/runtime` and `react-core`, from 1.77.0) and
+ShardsOpenBot now runs on CopilotKit 1.83.0 (`@copilotkit/runtime` and `react-core`, from 1.77.0) and
 AG-UI 1.0.2 (`@ag-ui/core` and `@ag-ui/client`, from 1.0.1). A managed Intelligence project needs
 nothing changed. A deployment whose `OPENAI_BASE_URL` points at an OpenAI-compatible gateway rather
 than OpenAI or Azure now reaches `openai/...` models through Chat Completions; a gateway that only
@@ -81,14 +81,14 @@ speaks the Responses API needs `COPILOTKIT_OPENAI_API=responses`.
 
 ### Pick a skin: OpenDuet, OpenDots or OpenMuse
 
-Settings → Preferences → Skin changes how OpenBot looks for you, and nothing about what it does.
-Three skins draw the open-source templates' looks over OpenBot's own features: OpenDuet (one
+Settings → Preferences → Skin changes how ShardsOpenBot looks for you, and nothing about what it does.
+Three skins draw the open-source templates' looks over ShardsOpenBot's own features: OpenDuet (one
 phone-width column with Chat and Tasks), OpenDots (a rail, a sidebar of Bots with their avatars, and
 the Bot's computer beside the chat) and OpenMuse (one Bot at the centre, with Chat, Activity, Ideas,
-Goals and Apps). Every skin keeps your deployment's name from `brand.yaml`, OpenBot's own mark and
+Goals and Apps). Every skin keeps your deployment's name from `brand.yaml`, ShardsOpenBot's own mark and
 each Bot's own avatar; only the look changes. The choice is saved on your account, so it follows
 you to every device, and changes nothing for anybody else. The templates' own features that
-OpenBot has no server for, such as OpenDots' Spaces, OpenDuet's morning brief and OpenMuse's mail and
+ShardsOpenBot has no server for, such as OpenDots' Spaces, OpenDuet's morning brief and OpenMuse's mail and
 calendar, are not part of the skins.
 
 ### The audit log reads like a log
@@ -255,18 +255,18 @@ stopped it. A refused step reads as a refusal the Bot can explain.
 
 ### The computer image is about a fifth smaller to download
 
-The `openbot-agent-computer` image carried two copies of Chromium: the full browser it runs, and
+The `shardsopenbot-agent-computer` image carried two copies of Chromium: the full browser it runs, and
 Playwright's separate headless shell, which it never starts. Every launch names a Chromium channel,
 and Playwright runs the full browser for a named channel even with `COMPUTER_BROWSER_MODE=headless`.
 The image now installs only the full browser and drops the package cache left from installing it.
 The download falls from 537 MB to about 423 MB on arm64 and from 520 MB to about 411 MB on amd64.
-Unpacked, the image is about 375 MB smaller on arm64 and 296 MB smaller on amd64. The all-in-one `openbot` image installs the same browser the same way and shrinks by about
+Unpacked, the image is about 375 MB smaller on arm64 and 296 MB smaller on amd64. The all-in-one `shardsopenbot` image installs the same browser the same way and shrinks by about
 as much. The browser and its behaviour are unchanged. On a desktop install the computer is the
 largest image, so a first install and each upgrade download less.
 
 ### A Bot can send, draft and reply in Gmail
 
-OpenBot left out every Composio action that takes a file, because a Bot has no way to supply one.
+ShardsOpenBot left out every Composio action that takes a file, because a Bot has no way to supply one.
 That also left out actions where the file is optional, such as an email's attachment, so Gmail's
 send, draft, reply and update-draft actions never appeared and a Bot could read mail but not send
 it. These actions are now offered without the optional file, and a call that includes one anyway is
@@ -279,7 +279,7 @@ Refresh tools on its page in Admin to list the new actions, then grant them to a
 Pressing Connect on a Composio app, from a conversation's Connect card or from Connections, could end
 in a refusal saying Composio already held a connected account for the app and that disconnecting it
 would clear the way. The app showed as not connected, so there was nothing to disconnect. This
-happened when Composio held the account and OpenBot had no record of it: on a fresh or upgraded
+happened when Composio held the account and ShardsOpenBot had no record of it: on a fresh or upgraded
 install, or on a second local install signing in as the same person with the same Composio key. Connect
 now asks Composio again, records the account it holds, and shows the app as connected, the same way
 opening the app's page already did. A Shared app's team account is still recorded only by an admin.
@@ -321,9 +321,9 @@ view for as long as it stayed open. The panel now starts showing the screen once
 
 ### Plainer words, and one word for each thing
 
-OpenBot now says **Bot** everywhere a person reads it, where screens used to mix Bot, agent, coworker
+ShardsOpenBot now says **Bot** everywhere a person reads it, where screens used to mix Bot, agent, coworker
 and assistant; "agent" is kept only for an outside program you connect. It says **admin** rather
-than administrator, **conversation** rather than channel, and **OpenBot** rather than "this
+than administrator, **conversation** rather than channel, and **ShardsOpenBot** rather than "this
 deployment" on pages anybody can open. Headings, descriptions, empty states, errors and the
 messages the server shows are shorter and say what happened and what to do next, across the home
 page, a Bot's pages, Capabilities, Connections, Settings, conversations and Admin. Admin keeps the
@@ -390,41 +390,41 @@ The administrator's page for the app still names `COMPOSIO_API_KEY`.
 A built-in Bot behind a gateway or proxy in front of OpenAI (an `OPENAI_BASE_URL` that is not OpenAI or
 Azure) answers again on `gpt-5.6-terra` and on every other model that takes tools only through the
 Responses API (`gpt-5.6` and later, the `-pro` models, `gpt-5.3-codex`, also under a gateway's `openai/`
-name). OpenBot now sets `COPILOTKIT_OPENAI_API=responses` for those at boot, where CopilotKit 1.79.1 had
+name). ShardsOpenBot now sets `COPILOTKIT_OPENAI_API=responses` for those at boot, where CopilotKit 1.79.1 had
 sent them to Chat Completions and every turn failed with "Function tools with reasoning_effort are not
 supported". Every other model still uses Chat Completions there, and a value you set yourself still wins.
 
-### Teach a Bot by doing the task in your own browser: the OpenBot Recorder
+### Teach a Bot by doing the task in your own browser: the ShardsOpenBot Recorder
 
-The OpenBot Recorder is a Chrome and Edge extension. A person names the task, does it in their own
+The ShardsOpenBot Recorder is a Chrome and Edge extension. A person names the task, does it in their own
 browser, and the Recorder sends what they did, step by step (each click, entry, choice, submit,
 Enter and page change, with what an agent needs to find that element again, and the one request a
 step sent when it saved something), masked in the browser first, straight to Intelligence as a
 trajectory in that person's own Learning space; the page's own traffic is never recorded, except the
 agent's AG-UI events (below). Every Bot
-they use then gets the Skills learned there, beside the Bot's own. OpenBot connects the browser and
+they use then gets the Skills learned there, beside the Bot's own. ShardsOpenBot connects the browser and
 hands out each capture pass; it receives nothing that is recorded.
 
 - **The agent's side too.** On a page whose agent speaks AG-UI (over SSE or the Intelligence
-  WebSocket, OpenBot's own chat included), the Recorder also sends the agent's side, in exactly the
+  WebSocket, ShardsOpenBot's own chat included), the Recorder also sends the agent's side, in exactly the
   shape the CopilotKit SDK emits so Intelligence cannot tell the two apart: `agent.run`,
   `agent.message` (the person's own messages too), `tool.call` and `thread.linked`, a click inside a
   chat message with its Thread and message, and `agent.event` for what those leave out (a tool
   call's arguments and result, state, reasoning, errors), never one row per streamed token.
   CopilotKit's suggestion runs are left out, as its own capture leaves them out.
 - **Clicks and typing come from CopilotKit main's own capture code**, carried as a Bun patch over
-  `@copilotkit/learning` 0.0.1 (`patches/`, which the images and OpenBot Desktop copy) until main is
+  `@copilotkit/learning` 0.0.1 (`patches/`, which the images and ShardsOpenBot Desktop copy) until main is
   published.
 - **Settings → Browsers** connects the Recorder in this browser and lists every browser connected
-  as you, each with a Disconnect. OpenBot Desktop can connect the Recorder on its own computer too.
+  as you, each with a Disconnect. ShardsOpenBot Desktop can connect the Recorder on its own computer too.
 - **Only a connected browser gets a capture pass.** The runtime's `trajectory/<id>/connect` route
   answers only the Recorder's own bearer, and binds the trajectory to that person; no Bot is
   picked or named. A signed-in session alone gets no pass, and the Recorder's bearer cannot run a
   Bot or read a conversation.
 - **One Learning space per person.** Every recording joins the person's own Intelligence Learning
-  container, `user-` and 32 hex digits derived from their OpenBot user id. OpenBot makes it when
+  container, `user-` and 32 hex digits derived from their ShardsOpenBot user id. ShardsOpenBot makes it when
   the browser connects (and again on a capture pass if it is still missing) with the same
-  credential that makes the `openbot` container: a service token on a CopilotKit local evaluation
+  credential that makes the `shardsopenbot` container: a service token on a CopilotKit local evaluation
   install, or a CopilotKit CLI login against managed Intelligence. Intelligence's runtime key
   cannot make one. With neither, a missing space cannot be made, and the Recorder's popup says
   Learning will not see the recording; the recording still goes to Intelligence.
@@ -457,14 +457,14 @@ hands out each capture pass; it receives nothing that is recorded.
   of it.
 - **A Recorder's connection ends** whenever your sign-in ends (signing out, signing out everywhere, an
   admin removing you or requiring SSO, your organization ending its session), or after it goes unused for
-  as long as an OpenBot sign-in lasts; signing out does not finish, and says so, if they cannot be ended; a recording kept for a person who never connects again is deleted unsent
-  after 7 days. A page on your own computer is trusted to connect without a click only at OpenBot
-  Desktop's own address, as its native host confirms it, and connecting to another OpenBot or as
+  as long as an ShardsOpenBot sign-in lasts; signing out does not finish, and says so, if they cannot be ended; a recording kept for a person who never connects again is deleted unsent
+  after 7 days. A page on your own computer is trusted to connect without a click only at ShardsOpenBot
+  Desktop's own address, as its native host confirms it, and connecting to another ShardsOpenBot or as
   another person always asks you first, saying which connection it replaces.
 - **Intelligence must allow trajectories:** the `trajectories` licence feature,
   `FF_LEARNING_TRAJECTORIES=true`, a realtime gateway that can ask Intelligence whether an
   organization may capture, and an `INTELLIGENCE_GATEWAY_WS_URL` that people's browsers can reach.
-- **`OPENBOT_RECORDER_EXTRA_EXTENSION_IDS`** lists other extension ids to trust besides the
+- **`SHARDSOPENBOT_RECORDER_EXTRA_EXTENSION_IDS`** lists other extension ids to trust besides the
   Recorder's own, for a fork or a build signed with another key. Each must be 32 letters from a to
   p, comma separated; **a value that is not stops the server at boot.**
 - Connecting, disconnecting and refusals are audited as `recorder.connected`, `recorder.revoked`,
@@ -472,103 +472,103 @@ hands out each capture pass; it receives nothing that is recorded.
   Settings → Learning as `learning.sharing_changed`, `learning.skill_opened` and
   `learning.skill_closed`.
 
-### When OpenBot is open in Chrome or Edge, the Browser button uses that browser
+### When ShardsOpenBot is open in Chrome or Edge, the Browser button uses that browser
 
-With the OpenBot Recorder in that browser, one click on Browser opens Record and Stop right in OpenBot,
+With the ShardsOpenBot Recorder in that browser, one click on Browser opens Record and Stop right in ShardsOpenBot,
 and the red dot follows the recording at once. If the Recorder is not connected yet, the same click
-connects it (OpenBot Desktop and your organization's own OpenBot, when its address is set by policy,
+connects it (ShardsOpenBot Desktop and your organization's own ShardsOpenBot, when its address is set by policy,
 need no Connect click; any other site still asks you to confirm). If it is not installed, the click
-opens its store page in a new tab. Only the OpenBot the Recorder is connected to can start, stop or see
+opens its store page in a new tab. Only the ShardsOpenBot the Recorder is connected to can start, stop or see
 its recordings; any other website is told it is not connected. Settings, Browsers shows Connected
-straight away when no Connect click is needed. OpenBot Desktop's own window, Safari and Firefox are
+straight away when no Connect click is needed. ShardsOpenBot Desktop's own window, Safari and Firefox are
 unchanged.
 
 ### Your own everyday Chrome or Edge, with the Recorder in it
 
-On OpenBot Desktop the Browser button now works with your own everyday Chrome or Edge: your profile,
+On ShardsOpenBot Desktop the Browser button now works with your own everyday Chrome or Edge: your profile,
 extensions, password manager and logins, not a separate copy.
 
-- **Once the OpenBot Recorder is published** on the Chrome Web Store and Edge Add-ons, OpenBot Desktop
+- **Once the ShardsOpenBot Recorder is published** on the Chrome Web Store and Edge Add-ons, ShardsOpenBot Desktop
   registers it with your Chrome and Edge, and the browser installs it from the store and asks you once to
   turn it on (on a Mac the next time you restart the browser, on Windows while it runs, on Linux in Edge
   only). Before it is there, the Browser button opens the Recorder's store page in your Chrome (or Edge)
-  so you can add it at once. Until the Recorder is published, the Browser button opens the OpenBot browser
+  so you can add it at once. Until the Recorder is published, the Browser button opens the ShardsOpenBot browser
   as before. Uninstalling Desktop on Windows takes the registration back out.
-- **The Recorder connects through OpenBot Desktop as it installs, with nothing to click.** "Connect with
-  OpenBot Desktop" in the Recorder's popup also connects at once; connecting from a web page still asks
+- **The Recorder connects through ShardsOpenBot Desktop as it installs, with nothing to click.** "Connect with
+  ShardsOpenBot Desktop" in the Recorder's popup also connects at once; connecting from a web page still asks
   you to confirm. Once it is connected, the Browser button brings that browser to the front.
 - **The red dot follows a recording in any of your browsers**, your everyday one included, on Desktop and
-  hosted: the Recorder tells OpenBot when it starts and stops recording, and every 30 seconds while it
+  hosted: the Recorder tells ShardsOpenBot when it starts and stops recording, and every 30 seconds while it
   records, and the dot goes out 90 seconds after a browser stops reporting.
 - **The Recorder says what it collects** first on its setup page (above its request for your microphone)
   and on its Record form, before anything is recorded: every step in every tab you use until you stop, what is on those pages, your clicks and
   typing (secrets masked in your browser first), what each step saves and what you say, all going
   straight from your browser to your organization's own Intelligence, with a pass from your
-  organization's OpenBot, which is told that you are recording, the task's name, when it started and
-  how many steps it holds; when you record in a browser shown inside OpenBot, your narration passes
+  organization's ShardsOpenBot, which is told that you are recording, the task's name, when it started and
+  how many steps it holds; when you record in a browser shown inside ShardsOpenBot, your narration passes
   through it to the Recorder without being stored.
 - Migration `0067_recorder_activity` adds two nullable columns to `recorder_connections` (each
   Recorder's latest activity). Nothing existing changes.
 
 ### A recording follows every tab you use
 
-While a recording runs, the OpenBot Recorder now records in every tab you use: any tab you switch to or
-open, in any window, in the OpenBot browser and in your everyday Chrome. Before, it recorded only the
+While a recording runs, the ShardsOpenBot Recorder now records in every tab you use: any tab you switch to or
+open, in any window, in the ShardsOpenBot browser and in your everyday Chrome. Before, it recorded only the
 tab you started in and tabs opened from it, so steps in a tab you switched to were lost. Tabs you do
 not visit during a recording are never recorded, and nothing on the browser's own pages (a new tab,
 settings) or the Recorder's own is. A tab that reloaded as you switched to it no longer loses the saves
 it sends.
 
-### Your own browser, opened from OpenBot, with the Recorder already in it
+### Your own browser, opened from ShardsOpenBot, with the Recorder already in it
 
-Wherever OpenBot can run a browser for you, the sidebar has a **Browser** button below Connections. It
-opens your own browser with the OpenBot Recorder already in it and connected as you: no install and no
-Connect step. On OpenBot Desktop one click opens your browser window, or brings it to the front, and
-you stay where you are in OpenBot; record with the Recorder's button in that window's toolbar. On
-hosted OpenBot the click takes you to the browser in the page. While a recording runs, the Browser
+Wherever ShardsOpenBot can run a browser for you, the sidebar has a **Browser** button below Connections. It
+opens your own browser with the ShardsOpenBot Recorder already in it and connected as you: no install and no
+Connect step. On ShardsOpenBot Desktop one click opens your browser window, or brings it to the front, and
+you stay where you are in ShardsOpenBot; record with the Recorder's button in that window's toolbar. On
+hosted ShardsOpenBot the click takes you to the browser in the page. While a recording runs, the Browser
 button shows a red dot; hover it for the recording's name and how long it has run. Name a task and press Record; the page shows the recording's name, how long it has run and
 how many actions it holds, and after Stop it says what was saved to your Learning space (for example
 "7 actions and 1 narrated phrase"), or that nothing was recorded, and says the same after a reload. Nothing a Bot does is recorded. When
-your browser cannot open because of how OpenBot is set up, OpenBot tells you to ask an admin (on
-single-user OpenBot, such as OpenBot Desktop, to quit and reopen OpenBot), the message stays until you
+your browser cannot open because of how ShardsOpenBot is set up, ShardsOpenBot tells you to ask an admin (on
+single-user ShardsOpenBot, such as ShardsOpenBot Desktop, to quit and reopen ShardsOpenBot), the message stays until you
 close it, and the reason is in the server's and the computer's logs.
 
-- **On OpenBot Desktop** it is your installed Google Chrome, or Microsoft Edge where Chrome is missing,
-  in a separate OpenBot profile, as its own window; opening it again brings that window to the front.
-  OpenBot starts it itself rather than through Playwright, so tabs behind the one in front behave as
-  background tabs, and OpenBot follows the tab you are on. It is an everyday browser: install your password manager from the Chrome Web Store (a password manager's
+- **On ShardsOpenBot Desktop** it is your installed Google Chrome, or Microsoft Edge where Chrome is missing,
+  in a separate ShardsOpenBot profile, as its own window; opening it again brings that window to the front.
+  ShardsOpenBot starts it itself rather than through Playwright, so tabs behind the one in front behave as
+  background tabs, and ShardsOpenBot follows the tab you are on. It is an everyday browser: install your password manager from the Chrome Web Store (a password manager's
   link to its desktop app works, such as 1Password's), or sign in to Chrome and sync brings your
   extensions, bookmarks and passwords; saved passwords use the system keychain. Once you turn narration
   on, the Recorder hears your microphone itself, and the page shows whether it is listening, muted or
   cannot hear.
   Desktop runs this browser as a fourth process beside the server, app and worker, only where Chrome or
   Edge is installed. Installation copies the Recorder, prebuilt, out of the release's computer image into
-  your OpenBot folder, existing installations download their OpenBot files once more after updating, and Stop
+  your ShardsOpenBot folder, existing installations download their ShardsOpenBot files once more after updating, and Stop
   and Quit let the browser close cleanly first. Chrome's extensions page lists the Recorder as an
   extension it cannot verify, because it is not installed from the Chrome Web Store.
-- **On hosted OpenBot** the browser is the computer's Chromium, shown in the page with tabs, an address
+- **On hosted ShardsOpenBot** the browser is the computer's Chromium, shown in the page with tabs, an address
   bar, back, forward and reload, and you click and type in it straight away. Only the Recorder is
   allowed in it. It runs only on a computer of its own (each person's own, as the supervisor and the
   sandbox give one): where Bots share one computer, which can run commands, the Browser button is
   hidden and the Browser page says why. While you record with narration on, the page transcribes it
   with your own browser's on-device speech recognition (Firefox has none, and the page says so; the
   narration switch reads off whenever it cannot hear you), and each phrase is placed before the steps
-  you took while saying it. It reaches the open web, and OpenBot and the Intelligence gateway on their own
+  you took while saying it. It reaches the open web, and ShardsOpenBot and the Intelligence gateway on their own
   ports, never anything else inside the deployment.
 - **Only you** can see or use your browser, admins included. It appears in Settings → Browsers as your
-  OpenBot browser and can be disconnected there, which signs out the Recorder in it at once (a recording
+  ShardsOpenBot browser and can be disconnected there, which signs out the Recorder in it at once (a recording
   in progress stops and is kept, and goes to Intelligence when you next record). Each open replaces its
   previous connection, and Record after a Disconnect connects it again first.
 - A person's hosted browser closes after going idle as a Bot's does, and the computer's browser cap
-  closes the least recently used first; OpenBot Desktop's own window is never closed for being idle.
-- On Linux, OpenBot Desktop also finds Chrome and Edge on the `PATH` (Flatpak builds cannot hold the
+  closes the least recently used first; ShardsOpenBot Desktop's own window is never closed for being idle.
+- On Linux, ShardsOpenBot Desktop also finds Chrome and Edge on the `PATH` (Flatpak builds cannot hold the
   Recorder and are not used), and the Browser page says why when there is none. On Windows, Stop and
   Quit ask the browser to close before ending it. Uninstalling on Windows, and removing the Linux
-  package, deletes the OpenBot browser's profile and the Recorder's files.
-- `OPENBOT_RECORDER_DIR` on a computer is the built Recorder it puts in a person's browser; the computer
+  package, deletes the ShardsOpenBot browser's profile and the Recorder's files.
+- `SHARDSOPENBOT_RECORDER_DIR` on a computer is the built Recorder it puts in a person's browser; the computer
   image sets it, and without it the computer still serves Bots and refuses to open a person's browser,
-  saying why. `OPENBOT_BROWSER_URL` on the server runs people's browsers on a separate computer
-  (OpenBot Desktop sets it). The local Chrome helper (`scripts/start-local-chrome-computer.ts`) now also
+  saying why. `SHARDSOPENBOT_BROWSER_URL` on the server runs people's browsers on a separate computer
+  (ShardsOpenBot Desktop sets it). The local Chrome helper (`scripts/start-local-chrome-computer.ts`) now also
   starts when only Edge is installed.
 - A computer's network rules can allow a site by name on given ports only (`ports` on a domain rule).
 - **Each browser on a shared computer follows its own network policy.** Browsers there now identify
@@ -576,7 +576,7 @@ close it, and the reason is in the server's and the computer's logs.
   because another browser on that computer is not, and no browser borrows another's allowances.
 - A hosted person's browser says who it is as a hosted Bot's does (no `HeadlessChrome`), but never
   carries the deployment's Web Bot Auth signature: a person browsing is not the deployment's Bot.
-- A person's browser always runs the Recorder that came with its OpenBot, even in a profile that ran an
+- A person's browser always runs the Recorder that came with its ShardsOpenBot, even in a profile that ran an
   earlier one, and keeps it pinned to the toolbar once.
 - A Recorder that is slow to answer is refused instead of taking down the computer and every browser
   on it. Typing on a live screen that records a demonstration reaches the page in the order typed.
@@ -587,7 +587,7 @@ close it, and the reason is in the server's and the computer's logs.
 - **Google loads in Bots' browsers again.** Behind the computer's network filter, Google's pages never
   finished loading (Chromium restarts the request for client hints and the restart was lost); the
   computer now launches every filtered browser with that restart switched off.
-- When a page does not open, OpenBot names the site and says it did not load or was refused, instead of
+- When a page does not open, ShardsOpenBot names the site and says it did not load or was refused, instead of
   showing a browser error, the address bar keeps the address that failed, and a slow page says it is
   slow rather than that the browser could not be reached.
 - A package can no longer give a Bot an id shaped like `person-` and 32 hex digits.
@@ -683,8 +683,8 @@ thing itself — a card naming the app, with a Connect button.
 
 ### No-sign-in startup rejects addresses without a host
 
-With `OPENBOT_SINGLE_USER=true`, an address such as `example.com:3010` in `OPENBOT_PUBLIC_URL`,
-`OPENBOT_APP_URL` or `TRUSTED_ORIGINS` now refuses startup. It previously counted as a private
+With `SHARDSOPENBOT_SINGLE_USER=true`, an address such as `example.com:3010` in `SHARDSOPENBOT_PUBLIC_URL`,
+`SHARDSOPENBOT_APP_URL` or `TRUSTED_ORIGINS` now refuses startup. It previously counted as a private
 network address and only warned, even though the missing URL scheme left its host unidentified.
 
 ### A reply's tool calls fold into one line
@@ -765,11 +765,11 @@ saying why. It is now passed whenever `externalSecrets.data` names `license-toke
 reference with `secrets.existingSecret`, where the chart cannot see the Secret's keys. The chart's
 CI check now also fails a render in which a store syncs a key that nothing reads.
 
-### OpenBot says at boot when Intelligence will refuse memory
+### ShardsOpenBot says at boot when Intelligence will refuse memory
 
 A self-hosted Intelligence needs its own licence. Without one it answers every runtime entitlement
 read with `RUNTIME_ENTITLEMENTS_SELF_HOSTED_MISCONFIGURED` and refuses memory, while conversations
-carry on and nothing in OpenBot's log says why. The server now asks once at start-up and logs
+carry on and nothing in ShardsOpenBot's log says why. The server now asks once at start-up and logs
 `intelligence-entitlement-not-ready` with the code and where the licence goes, and
 `intelligence-entitlement-unreadable` when Intelligence cannot be asked. Start-up does not wait for
 the answer.
@@ -821,7 +821,7 @@ computer and leave the person a blank page to solve. Now:
 
 A fresh deployment used to remember only what a person told a Bot: connected-app memory sources and
 background research each waited for somebody to set them up, one Bot at a time. Now, when a person
-talks to one of their Bots in a conversation with that Bot alone, OpenBot switches on background
+talks to one of their Bots in a conversation with that Bot alone, ShardsOpenBot switches on background
 research by that Bot (read-only as before, every four hours, first run one interval later). And from
 any turn a Bot takes for a person, each app the person connected in their own account, that the Bot
 can read, becomes a memory source for that Bot, except on a Team Bot somebody else published, where
@@ -829,14 +829,14 @@ the person's own accounts need their consent. Sources read as the person, their 
 person's review before they go to Intelligence, exactly as a source made by hand. Shared apps and apps
 that need no account are not added; a person still adds those by hand.
 
-Turning either off keeps it off, and removing one is remembered: OpenBot never switches it back on,
-and resetting the Bot keeps both. Nothing already saved changes. Set `OPENBOT_MEMORY_SOURCE_DEFAULTS=false` or
-`OPENBOT_PROACTIVE_DEFAULTS=false` (Helm: `config.memory.sourceDefaults` / `researchDefaults`) to stop
+Turning either off keeps it off, and removing one is remembered: ShardsOpenBot never switches it back on,
+and resetting the Bot keeps both. Nothing already saved changes. Set `SHARDSOPENBOT_MEMORY_SOURCE_DEFAULTS=false` or
+`SHARDSOPENBOT_PROACTIVE_DEFAULTS=false` (Helm: `config.memory.sourceDefaults` / `researchDefaults`) to stop
 new defaults for the whole deployment.
 
-### Automatic Learning creates its container where OpenBot holds a credential that can
+### Automatic Learning creates its container where ShardsOpenBot holds a credential that can
 
-The runtime key cannot create Learning containers, so a deployment without the `openbot` container
+The runtime key cannot create Learning containers, so a deployment without the `shardsopenbot` container
 collected nothing until somebody ran a helper. Now:
 - `bun scripts/setup-learning.ts` (and `scripts/start.sh` on every start) creates it with a CopilotKit
   CLI login even when no project is selected in the checkout, choosing the runtime key's project.
@@ -845,29 +845,29 @@ collected nothing until somebody ran a helper. Now:
   Learning).
 - The Helm chart runs a setup Job when `config.learning.setup` names a CLI-login Secret or a service
   token Secret.
-- Admin → Automatic Learning has a "Create the openbot container" button when the deployment holds one
+- Admin → Automatic Learning has a "Create the shardsopenbot container" button when the deployment holds one
   of those, and otherwise, like the server log, says exactly what to run.
 
 ### Automatic Learning assigns its container without a trip to Admin
 
 Learning was on by default but collected nothing until somebody assigned a container. Now, when
 nothing is saved under Admin → Automatic Learning and `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID` is
-not set, the server assigns its Intelligence project's `openbot` container as the default as soon as
+not set, the server assigns its Intelligence project's `shardsopenbot` container as the default as soon as
 that container exists, records it in the audit log, and the Admin page says so. A saved setting,
 including off, is never changed. The runtime key cannot create a container, so
-`bun scripts/setup-learning.ts` now creates `openbot` in an existing key's project instead of
+`bun scripts/setup-learning.ts` now creates `shardsopenbot` in an existing key's project instead of
 refusing, and `scripts/start.sh` runs that check on every start without a browser or prompt. Set
-`OPENBOT_LEARNING_AUTO_ASSIGN=false` (Helm: `config.learning.autoAssign: false`) to keep the old
+`SHARDSOPENBOT_LEARNING_AUTO_ASSIGN=false` (Helm: `config.learning.autoAssign: false`) to keep the old
 behaviour.
 
 ### Memory lives in CopilotKit Intelligence
 
 A deployment entitled to Intelligence memory now keeps its people's memories there: Intelligence holds
 the content and ranks recall, and memories another app on the same project formed for a person appear
-in their Memory page and reach their Bots. OpenBot still records each memory's provenance, review state
+in their Memory page and reach their Bots. ShardsOpenBot still records each memory's provenance, review state
 and which Bot or source it came from, and applies those rules to everything Intelligence returns, so a
 Bot-formed memory still reaches only the Bot that formed it. Without Intelligence memory nothing changes:
-OpenBot's own tables remain the store.
+ShardsOpenBot's own tables remain the store.
 
 ## 0.2.0
 
@@ -963,7 +963,7 @@ from such a deployment, set `deleted_at` on their `agent_profiles` rows after up
 
 ### CopilotKit 1.77 and AG-UI 1.0
 
-OpenBot now runs on CopilotKit 1.77.0 (`@copilotkit/runtime`, `react-core` and `a2ui-renderer`,
+ShardsOpenBot now runs on CopilotKit 1.77.0 (`@copilotkit/runtime`, `react-core` and `a2ui-renderer`,
 from 1.73.1), which carries the Intelligence client, and on AG-UI 1.0 (`@ag-ui/core` and
 `@ag-ui/client` 1.0.1, from 0.0.59). A managed Intelligence project needs nothing changed; it is the
 client in the server that moved. Among what comes with it: thread naming falls back to the first
@@ -992,7 +992,7 @@ Bot's next turn reads it.
   DNS, but only the exact name `localhost` was on the refused list, so a deployment that had not opted
   into private hosts could still be pointed at its own services this way.
 
-- `OPENBOT_SINGLE_USER` is now refused with a public name that starts with `127.`, such as
+- `SHARDSOPENBOT_SINGLE_USER` is now refused with a public name that starts with `127.`, such as
   `https://127.example.com` or `https://127.0.0.1.nip.io`. The check for a loopback address matched
   any host beginning `127.`, so a public address like that read as this machine and the no-sign-in
   administrator was allowed on it. Only a full 127.x.x.x address counts as loopback now.
@@ -1083,8 +1083,8 @@ A call that is refused anyway, from a schema offered earlier, is still refused a
   `0051_routine_enabled_at`.
 - An existing Windows clone checks text files out with LF only after
   `git rm -r --cached . && git reset --hard` on a clean tree.
-- The signed-in app shows a bar offering CopilotKit's help self-hosting OpenBot, unless the
-  deployment is on a paid Intelligence plan. Set `OPENBOT_SELF_HOST_BANNER=false` to remove it for
+- The signed-in app shows a bar offering CopilotKit's help self-hosting ShardsOpenBot, unless the
+  deployment is on a paid Intelligence plan. Set `SHARDSOPENBOT_SELF_HOST_BANNER=false` to remove it for
   everybody.
 - An egress rule with a malformed IP range, such as `10.0.0.5/`, used to be read as `/0` and allow
   every IPv4 address. It is now refused, and a saved network policy that contains one is refused as
@@ -1097,14 +1097,14 @@ A reply held until its owner allowed it to be shown in a group was written into 
 
 **Before upgrading.** Four things change for an existing deployment:
 
-### The app offers help self-hosting OpenBot, until you close it
+### The app offers help self-hosting ShardsOpenBot, until you close it
 
 A slim bar at the top of the signed-in app links to CopilotKit's engineers for help self-hosting
-OpenBot. Closing it is saved to your preferences, so it stays closed on every device. A deployment
+ShardsOpenBot. Closing it is saved to your preferences, so it stays closed on every device. A deployment
 on a paid Intelligence plan (`pro`, `team`, `team_self_hosted` or `enterprise`, or a licence bought
 through AWS Marketplace) never shows it; any other plan, or an entitlement that cannot be read,
-shows it. A fork running OpenBot for its own organization hides it for everybody with
-`OPENBOT_SELF_HOST_BANNER=false`.
+shows it. A fork running ShardsOpenBot for its own organization hides it for everybody with
+`SHARDSOPENBOT_SELF_HOST_BANNER=false`.
 
 ### A request to the approvals API that is not JSON answers 400
 
@@ -1508,16 +1508,16 @@ OpenAI SDK only defaults an absent URL, so it was given "" as the address. The B
 `https://api.openai.com/v1` for an empty value, as its Anthropic branch already did for
 `ANTHROPIC_BASE_URL`. An OpenAI-compatible endpoint is unchanged.
 
-### `OPENBOT_ONE_COMPUTER_EACH=false` in `.env` is honoured by `start.sh`
+### `SHARDSOPENBOT_ONE_COMPUTER_EACH=false` in `.env` is honoured by `start.sh`
 
-`scripts/start.sh` read `OPENBOT_ONE_COMPUTER_EACH` from the environment alone, so the line that
+`scripts/start.sh` read `SHARDSOPENBOT_ONE_COMPUTER_EACH` from the environment alone, so the line that
 `docs/configuration.md` tells people to put in `.env` was ignored: the supervisor was still started
 and the server still told to give each Bot its own computer. It now reads the key as it reads every
 other setting, the environment first, then `.env`, then the default of `true`.
 
 ### Skill selection keeps capabilities named across multiple JSON replies
 
-When a model wraps its skill choice in prose or sends a revised JSON object, OpenBot reads each
+When a model wraps its skill choice in prose or sends a revised JSON object, ShardsOpenBot reads each
 complete `skills` list and offers the union of the named skills' granted tools. This also works with
 Anthropic's OpenAI-compatible endpoint, which may ignore the request for bare JSON. Previously a
 reply containing multiple objects fell back to offering every tool; replies with no valid `skills`
@@ -1574,9 +1574,9 @@ handoffs all follow the same settings.
 
 Learning is on unless an administrator has saved it off, and a saved off stays off. It collects and
 delivers nothing until a container exists in the Intelligence project and is assigned:
-`bun scripts/setup-learning.ts` creates or reuses one called `openbot` and writes it to `.env`, or
+`bun scripts/setup-learning.ts` creates or reuses one called `shardsopenbot` and writes it to `.env`, or
 set `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID` (Helm: `config.learning.containerId`), or enter it on
-the Admin page. OpenBot starts and chats without one. Skills are reviewed and published in
+the Admin page. ShardsOpenBot starts and chats without one. Skills are reviewed and published in
 Intelligence; nothing is approved automatically. See
 [Automatic Learning](docs/automatic-learning.md). Adds migration `0046_automatic_learning`.
 
@@ -1623,7 +1623,7 @@ expandable group instead of filling the conversation with screenshots.
 
 ### A model provider's own sign-in can stand in for an API key
 
-`OPENBOT_MODEL_OAUTH_FILE` names a credential file holding a Google or xAI OAuth grant. Set it and
+`SHARDSOPENBOT_MODEL_OAUTH_FILE` names a credential file holding a Google or xAI OAuth grant. Set it and
 the server mounts `POST /api/model-provider/v1/chat/completions`, which answers an ordinary Chat
 Completions request using that grant, refreshing the access token 120 seconds before it expires and
 again on a provider 401, and persisting the rotation under a lock the writer and the desktop share.
@@ -1648,7 +1648,7 @@ resource permission, which signing in again cannot fix, so only a 401 now raises
 Downloads report transferred bytes, every running step reports elapsed time, and running, completed
 and failed stages are told apart. Back preserves the connections already entered.
 
-OpenBot now chooses its local ports by binding them rather than assuming them, holds them until the
+ShardsOpenBot now chooses its local ports by binding them rather than assuming them, holds them until the
 whole set is settled, and writes them to the deployment's `.env` so a restart keeps the same
 addresses. That covers a port another program holds and a port Windows has reserved, neither of
 which the old fixed defaults survived. A port that becomes unavailable between choosing and starting
@@ -1674,10 +1674,10 @@ resolved `docker`, and the directory holding what it points at when it is a syml
 to the PATH the engine is invoked with. Appended, so an existing helper still wins, and the inherited
 PATH is now kept rather than replaced, which it was not before.
 
-### OpenBot starts only on the Bun it pins
+### ShardsOpenBot starts only on the Bun it pins
 
 An installed or cached Bun that is not the pinned version is no longer accepted, on install and on
-every start, and OpenBot acquires its own copy instead. The version already on the machine is left
+every start, and ShardsOpenBot acquires its own copy instead. The version already on the machine is left
 exactly as it is and simply not used.
 
 ### Organization sign-in survives a callback that arrives in pieces
@@ -1778,7 +1778,7 @@ mode that pass would run again on every resume from idle.
 
 ### Which email domains may sign in, decided by the deployment rather than the provider
 
-Nothing in OpenBot filtered who could sign in. `INITIAL_ADMIN_EMAILS` decides who is an
+Nothing in ShardsOpenBot filtered who could sign in. `INITIAL_ADMIN_EMAILS` decides who is an
 administrator once they are in, which is a different question. The providers do not answer it
 either: `MICROSOFT_OAUTH_TENANT_ID` defaults to `common`, which is any Microsoft account including
 personal ones, and Okta has no equivalent setting. So a deployment reachable from the internet
@@ -1795,7 +1795,7 @@ Matching is exact with no wildcards, for the reason `AGENT_ENDPOINT_ALLOWED_HOST
 same IDNA normalisation, so a list may be written `@Example.COM.` or in punycode and still mean
 what it says.
 
-**It is a filter, not a boundary, and the deployment is told so.** OpenBot does not require a
+**It is a filter, not a boundary, and the deployment is told so.** ShardsOpenBot does not require a
 verified address, and Entra's `email` claim comes from a directory attribute that the signing-in
 tenant's own administrator writes. Two consequences, both now enforced at start-up rather than
 documented and hoped for:
@@ -1814,11 +1814,11 @@ because genuinely multi-tenant is a real deployment.
 
 ### No sign-in cannot be combined with a public address
 
-`OPENBOT_SINGLE_USER=true` admits every request as one administrator. The flag is how somebody says
+`SHARDSOPENBOT_SINGLE_USER=true` admits every request as one administrator. The flag is how somebody says
 they meant that, and it still is. What was missing is the second question: one administrator and no
 sign-in is a thing you run where only you can reach it, and nothing checked the address.
 
-It is now refused alongside an `OPENBOT_PUBLIC_URL`, `OPENBOT_APP_URL` or `TRUSTED_ORIGINS` entry
+It is now refused alongside an `SHARDSOPENBOT_PUBLIC_URL`, `SHARDSOPENBOT_APP_URL` or `TRUSTED_ORIGINS` entry
 that the public internet routes to, and the refusal names the address it objected to. This is the
 rule the chart already applies twice, in `validation.yaml`, moved to where a deployment that never
 goes near Helm is asked it too: `.env.example` ships the flag on so that a clone runs, and README's
@@ -1826,7 +1826,7 @@ goes near Helm is asked it too: `.env.example` ships the flag on so that a clone
 server is an address.
 
 **Public, not "not loopback", and the difference is most of the deployments this flag has.** A home
-server at `192.168.1.10`, a Tailnet address, a VPN address, `openbot.local`, a bare hostname with
+server at `192.168.1.10`, a Tailnet address, a VPN address, `shardsopenbot.local`, a bare hostname with
 no dot in it: none of those is loopback and none of them is a stranger's to reach. Refusing them
 would refuse the feature's own audience, and the only way out would be to turn off the flag that
 describes what the operator is doing. Those run, and warn once at boot that anybody on that network
@@ -1835,7 +1835,7 @@ because a value nobody could read is not one anybody checked.
 
 Nothing on loopback changes, so the local workflow the flag exists for is untouched, and neither is
 the chart's `config.singleUser` trial mode, which sets no public address. A deployment naming an
-external authority through `OPENBOT_ORGANIZATION_AUTH_URL` is unaffected too: the authority wins
+external authority through `SHARDSOPENBOT_ORGANIZATION_AUTH_URL` is unaffected too: the authority wins
 before this is consulted. Explicitly NOT gated on `NODE_ENV`: the image and the chart both set it
 to `production` for every deployment including that trial, so it says nothing about who can reach
 a deployment.
@@ -1862,7 +1862,7 @@ IMDS, and its own documentation asks for a hop limit of 2 or greater in a contai
 A hop limit of 1 also rules out `MutableCSINodeAllocatableCount`, which requires IMDS to be the
 driver's metadata source. Take these two lines out if you need that.
 
-Nothing in OpenBot wants pod-level IMDS: the chart reaches AWS through IRSA. Documentation only; no
+Nothing in ShardsOpenBot wants pod-level IMDS: the chart reaches AWS through IRSA. Documentation only; no
 chart template changed, and an existing cluster is unaffected until its node group is recreated.
 
 ### A large text file says so on the composer before it is sent
@@ -1877,7 +1877,7 @@ Whether a file is text is decided by what the server read in its bytes, not by w
 called it, so a file the browser labelled an image and the server read as text is warned about too.
 That is the file the old reading would have missed.
 
-### ADK and Langroid Bots can call the tools OpenBot supplies
+### ADK and Langroid Bots can call the tools ShardsOpenBot supplies
 
 Both answered text prompts on an OpenAI key and neither could reliably use the tools the deployment
 supplies them, so a Bot on either harness could talk but could not act. ADK now registers the
@@ -1888,7 +1888,7 @@ keeps its own tool and history state.
 ### Built-in Bots carry a model provider's sign-in failure through as itself
 
 A built-in or LangGraph Bot whose model credential had expired ended the run as a generic failure,
-which reads as the Bot being broken. The run now ends with `OPENBOT_MODEL_AUTH_REQUIRED` and says to
+which reads as the Bot being broken. The run now ends with `SHARDSOPENBOT_MODEL_AUTH_REQUIRED` and says to
 sign in to the model provider again.
 
 The built-in Bot's tool loop also moved to the server, which owns the grants that decide what a tool
@@ -1898,11 +1898,11 @@ thread after the first.
 
 ### A deployment can name an organization authority that decides who it admits
 
-`OPENBOT_ORGANIZATION_AUTH_URL` points at an OpenBot deployment configured with Google, Microsoft or
+`SHARDSOPENBOT_ORGANIZATION_AUTH_URL` points at an ShardsOpenBot deployment configured with Google, Microsoft or
 Okta, which verifies who somebody is and what roles they currently hold. It is separate from any
 Intelligence connection, and the authority keeps its own secrets.
 
-Naming one settles the sign-in question by itself: it wins over `OPENBOT_SINGLE_USER`, so a
+Naming one settles the sign-in question by itself: it wins over `SHARDSOPENBOT_SINGLE_USER`, so a
 deployment carrying a leftover single-user flag admits verified people rather than admitting
 everybody as one administrator.
 
@@ -2455,7 +2455,7 @@ fact named. The verdict is about the functions named now, or a 400; an absent li
 
 ### Generated interfaces, tables and forms
 
-Generative UI is enabled by default; set `OPENBOT_GENERATIVE_UI=false` or `0` to disable it.
+Generative UI is enabled by default; set `SHARDSOPENBOT_GENERATIVE_UI=false` or `0` to disable it.
 Bots can render A2UI interfaces, compare records in sortable tables, and collect related answers in
 a form that waits for submission. LangGraph receives the component schemas needed to draw these
 interfaces correctly.
@@ -2584,7 +2584,7 @@ comes up clean and a Bot that cannot answer, and handing over at that point mean
 later, inside the product, with no idea which of their answers caused it. Setup now ends on a
 question with one checkable answer and waits for it. A run that produces no text is a failure here
 rather than an empty answer, because the framework catches its own 401 and logs it, leaving the whole
-of a refusal in the container's log and nowhere else. The sentence on screen is OpenBot's own and
+of a refusal in the container's log and nowhere else. The sentence on screen is ShardsOpenBot's own and
 names the choice to change, with the harness's log behind a disclosure for the developer half.
 
 ### A subscription picks the Bot that can spend it
@@ -2658,12 +2658,12 @@ the next run, while the run that saved it worked fine. From the store the creden
 containers and the host processes as environment, which compose resolves before it reads the `.env`,
 so a secret arrives at exactly the services that declare it and is written down nowhere. What an
 earlier version already wrote in plaintext is moved and then purged, or the change would have bought
-nothing for anybody who already had OpenBot.
+nothing for anybody who already had ShardsOpenBot.
 
 ### The credential store is asked once per run, not once per screen
 
 Four Keychain dialogs every time the setup screen mounted, each needing a click before the window
-would go on, and four more for navigating between setup and OpenBot. macOS authorizes every
+would go on, and four more for navigating between setup and ShardsOpenBot. macOS authorizes every
 individual read of a stored password unless the application is signed with an identity the item's ACL
 already trusts; a development build is re-signed on every compile, so its ACL never matches, and the
 wizard reads four secrets to arrive filled in. The store is asked once per name per process now and
@@ -2677,7 +2677,7 @@ process can: that decision belongs to the operating system and to the signature.
 Compose only acts on a profiled service when the profile is named, so Stop left the one container the
 person actually chose running on their laptop after they had stopped the app, still holding its port.
 The next Start then refused, saying something was already listening on 4206, about a container
-OpenBot itself had started, which the person never saw and could not find, and there was no way
+ShardsOpenBot itself had started, which the person never saw and could not find, and there was no way
 forward from that screen. A port this deployment already publishes is not a stranger on the port, so
 the check reclaims our own and keeps its teeth for somebody else's.
 
@@ -2692,12 +2692,12 @@ beside the logs when the processes start and Stop reads them, ending each proces
 children, since `bun run serve` starts the real server as a grandchild. A sweep of the ports this
 deployment publishes stays as a second pass for a stack whose pid file is gone. Separately, a
 byte-order mark in front of `package.json`, which `Set-Content -Encoding UTF8` writes freely, made
-the manifest unreadable and was reported as "the deployment is older than this version of OpenBot",
+the manifest unreadable and was reported as "the deployment is older than this version of ShardsOpenBot",
 sending somebody looking for a newer installer over three bytes.
 
 ### The installed app is served without a development server
 
-"Show OpenBot" did nothing on a machine where the stack was up. The window said OpenBot was running,
+"Show ShardsOpenBot" did nothing on a machine where the stack was up. The window said ShardsOpenBot was running,
 the button was there, and clicking it had no effect at all. The app host process was dead: it was
 started through `vite preview` under `bun --bun`, and Vite's proxy calls `socket.destroySoon()` when
 an upstream response ends, which bun's sockets do not implement, so the process died with a TypeError
@@ -2707,14 +2707,14 @@ served by a small server of its own now: a directory and one forwarded prefix, w
 install needs, with no Node and no Vite at runtime. The websocket upgrade the live screen needs is
 forwarded rather than answered with HTML, a miss under `/assets` is a 404 rather than the page, and
 paths are confined to the directory, since the deployment's `.env` sits two levels above it. The
-button also shows what it was told: the call behind it already answered "OpenBot is not answering on
+button also shows what it was told: the call behind it already answered "ShardsOpenBot is not answering on
 port 3010 yet, so there is nothing to show", and the click handler threw that sentence away, which is
 why a dead process looked like a dead button.
 
 ### A conversation whose history this deployment cannot reach says so
 
 Clicking a conversation in the rail drew the coworker's name and then nothing at all. The rail comes
-from OpenBot's own database, so a channel is listed whatever the history store says, while the
+from ShardsOpenBot's own database, so a channel is listed whatever the history store says, while the
 messages live in the Intelligence project: pointing a deployment at a different project leaves the
 platform answering `THREAD_NOT_FOUND`. That 404 is deliberately read as "no history" and has to stay
 that way, because a thread id is minted before the thread exists, so a brand-new conversation 404s as
@@ -2830,7 +2830,7 @@ character is named; the key never is.
 
 ### A deployment directory pasted with a stray space goes where it says
 
-The desktop setup screen asks where OpenBot should live, enables Start once that box is not blank
+The desktop setup screen asks where ShardsOpenBot should live, enables Start once that box is not blank
 after trimming, and then sent the untrimmed string — the same trap the API URL, the gateway URL, the
 intelligence key and the model key were taken out of, and this is the one of the five that is a
 place on disk rather than a credential. A path copied with the space the selection picked up, or
@@ -2851,7 +2851,7 @@ binds whichever one its runtime resolved `localhost` to — Node picks `::1`, Bu
 so an answer at either counts. The refusal in front of it asked only `127.0.0.1`, which meant a port
 held on `::1` alone was reported free and the start went ahead into it. Both addresses are asked
 now, so the two agree on what "in use" means and the person is told which port is taken and what
-OpenBot wanted it for.
+ShardsOpenBot wanted it for.
 
 ### A request for a secret no longer follows a Bot into tomorrow's conversations
 
@@ -2916,7 +2916,7 @@ easiest to miss was the one that mattered: a Bot's computer is made by the super
 compose, so `docker compose down` left a Chromium running per Bot. `bash scripts/stop.sh` stops the
 app, the routine worker, the API server, the compose services and every Bot computer, in that order,
 and is safe to rerun. It kills a port holder only once that process has identified itself as
-OpenBot, so an unrelated process on 3010 is named and left alone rather than killed. Nothing is
+ShardsOpenBot, so an unrelated process on 3010 is named and left alone rather than killed. Nothing is
 deleted: the database, the Bots' files and their browser profiles are volumes. `--keep-computers`
 leaves the browsers signed in.
 
@@ -2954,7 +2954,7 @@ single-user desktop profile is already the boundary, so the change is Unix-only.
 
 `env::write` keeps the lines it did not write, and its own header comment is one of them, so each
 start preserved the previous banner and appended another. A deployment started fifty times had fifty
-copies of "Written by OpenBot Desktop" and fifty blank lines stacked above its settings. The banner
+copies of "Written by ShardsOpenBot Desktop" and fifty blank lines stacked above its settings. The banner
 is now recognised and replaced rather than kept, and comments somebody else put in the file are left
 alone exactly as before.
 
@@ -2962,7 +2962,7 @@ alone exactly as before.
 
 The shell generated a fresh set of secrets every time Start was pressed, including the
 `KEY_ENCRYPTION_KEY` that encrypts the credential vault. The database survives a stop, so the second
-session of an installed OpenBot met a vault it could no longer read: every stored credential failed
+session of an installed ShardsOpenBot met a vault it could no longer read: every stored credential failed
 to decrypt, with an error that named an operation rather than a cause. It also handed the server a
 `COMPUTER_TOKEN` that no computer created before the restart holds. The secrets an existing `.env`
 already carries are now kept, and only generated when there is nothing usable to keep — a value
@@ -3036,17 +3036,17 @@ host, which is what an ingress terminating TLS on 443 requires and a fixed serve
 
 ## 0.0.8
 
-### A desktop shell that installs OpenBot and then becomes it
+### A desktop shell that installs ShardsOpenBot and then becomes it
 
 One window, on macOS, Windows and Linux. From a machine with nothing on it, one click fetches the
 deployment for this release, pins every image to the digest the release published, generates the
-secrets that are OpenBot's to generate, raises the containers, applies the migrations, installs the
+secrets that are ShardsOpenBot's to generate, raises the containers, applies the migrations, installs the
 dependencies, starts the host processes, waits until both the API and the app answer, and then shows
-OpenBot in the same window. It is not a launcher for a browser tab. Stop takes the stack down, closing
+ShardsOpenBot in the same window. It is not a launcher for a browser tab. Stop takes the stack down, closing
 the window hides it to the tray, a second launch hands over the window that already exists, and
 quitting stops what starting started. Windows is told what it needs before anything else runs: WSL,
 its kernel, virtualisation and administrator rights are each named with the command that fixes them,
-because none of them is something OpenBot can fix on somebody's behalf.
+because none of them is something ShardsOpenBot can fix on somebody's behalf.
 
 ### A title or name that is only spaces is refused rather than stored
 
@@ -3169,7 +3169,7 @@ approved.
 ### A password with a `%` in it says so, instead of failing as `URI error`
 
 `DATABASE_URL` is taken apart before it reaches Bun, and each part is percent-decoded. A part
-holding a `%` that starts no escape -- `postgres://openbot:100%pure@host:5432/openbot`, which a
+holding a `%` that starts no escape -- `postgres://shardsopenbot:100%pure@host:5432/shardsopenbot`, which a
 generated password produces often enough -- is a string `new URL` accepts and `decodeURIComponent`
 rejects, so the server stopped with `URIError: URI error` and named neither the variable nor the
 part. It now refuses with the same kind of sentence as every other malformed address: which part is
@@ -3241,7 +3241,7 @@ unless it is set. On rootless Podman on Linux, set it to `$XDG_RUNTIME_DIR/podma
 
 ### A Bot's computer is waited for properly on Podman, and the supervisor can reach the engine there
 
-Two things stopped OpenBot running on Podman, which nothing had tried before.
+Two things stopped ShardsOpenBot running on Podman, which nothing had tried before.
 
 The supervisor could not reach the engine at all: `The supervisor could not reach Docker`. The socket
 is there and the mount is right, but Podman's virtual machine runs SELinux and labels the socket in a
@@ -3267,19 +3267,19 @@ zstd inflates several times faster, which on 2 GB of Chromium is worth more than
 comes from recompressing the layers that arrived from somebody else's registry, where nearly all of
 the bytes are, so the images no longer share layers with a gzip pull of the same base.
 
-This applies to the five `ghcr.io/copilotkit/openbot-<service>` images and not to
-`ghcr.io/copilotkit/openbot`. Reading a zstd layer needs a client that supports it, which Podman and
+This applies to the five `ghcr.io/copilotkit/shardsopenbot-<service>` images and not to
+`ghcr.io/copilotkit/shardsopenbot`. Reading a zstd layer needs a client that supports it, which Podman and
 current containerd do; the single image is pulled by deployments running whatever they have, so it
 stays gzip.
 
 ### A release publishes every service's image, not just the one
 
-`ghcr.io/copilotkit/openbot` was the only image a release produced, so anything running the Compose
+`ghcr.io/copilotkit/shardsopenbot` was the only image a release produced, so anything running the Compose
 stack built `agent-computer`, the supervisor, both Bots and the migration image from source on
 every machine. That needs a toolchain and it needs several minutes, most of them Chromium, and it
 is the difference between a deployment and a laptop being able to start at all.
 
-Each of those is now published beside it, at `ghcr.io/copilotkit/openbot-<service>`, carrying both
+Each of those is now published beside it, at `ghcr.io/copilotkit/shardsopenbot-<service>`, carrying both
 `linux/amd64` and `linux/arm64` so one reference works on a server and on an arm64 laptop. Every
 image gets its own build provenance attestation, and `container-images.json` on the release pins a
 digest for all of them rather than for one.
@@ -3734,7 +3734,7 @@ Nothing to configure, and no change for a deployment whose database connection n
 ### A Bot can answer with a picture instead of describing one
 
 Ask for a chart and a Bot replied in prose, or handed back a fenced block of HTML for somebody to
-read instead of look at. Set `OPENBOT_GENERATIVE_UI=true` and it may answer with an interface it
+read instead of look at. Set `SHARDSOPENBOT_GENERATIVE_UI=true` and it may answer with an interface it
 writes itself, drawn in the transcript. Off unless asked for, and deliberately so: it runs code a
 model wrote, so a deployment acquires the capability by choosing it rather than by upgrading.
 
@@ -3789,7 +3789,7 @@ next poll, so an answer's round trip no longer pays up to two seconds per leg.
 ### A Bot's shell can no longer reach the embedded database without a password
 
 In the all-in-one image the cluster was `trust`-auth on loopback, and the Bot's shell runs in the
-same container: it could `psql -h 127.0.0.1 -U openbot` with no password and read the audit trail,
+same container: it could `psql -h 127.0.0.1 -U shardsopenbot` with no password and read the audit trail,
 the policy store, and the credential vault as the instance owner. The cluster now uses
 `scram-sha-256` with a password generated on first init and kept beside the data, handed to the API
 over the container environment. The shell has no way to learn it, so the connection is refused. An
@@ -3829,7 +3829,7 @@ Mounted at the parent, the mount arrives owned by root, `data` is not in it, and
 build-time `chown` is hidden underneath — so `initdb`, which has already dropped to the `postgres`
 user, cannot create the directory. `postgres-init` now creates and chowns it first, as root, which is
 the only step in a position to. This also fixes the plain
-`docker run -v openbot-data:/var/lib/postgresql` case, which relied entirely on that hidden chown.
+`docker run -v shardsopenbot-data:/var/lib/postgresql` case, which relied entirely on that hidden chown.
 
 Mounted directly on the data directory, the mount arrives holding a `lost+found`, and `initdb` will
 not initialise into a directory with anything in it. **The documented mount is now the parent,
@@ -3843,7 +3843,7 @@ container came up anyway, the platform reported the deploy a success, and the pu
 persistent 502 with the real reason visible only in the container log. A data directory that holds no
 cluster and is not empty is now refused with a sentence naming the mount to use instead.
 
-Reported by [@jerelvelarde](https://github.com/CopilotKit/OpenBot/issues/269) with the container logs
+Reported by [@jerelvelarde](https://github.com/CopilotKit/ShardsOpenBot/issues/269) with the container logs
 for both mount paths, which is what made the two failure modes separable.
 
 ### Turning on network policies no longer leaves the culler pod open
@@ -4130,7 +4130,7 @@ reader that rewrites what it does not recognise is worse than one that refuses i
 
 ### Run this on Kubernetes
 
-A Helm chart under `charts/openbot`, Bots and all, and the fixes that installing it for real turned
+A Helm chart under `charts/shardsopenbot`, Bots and all, and the fixes that installing it for real turned
 up. Proven on a real EKS cluster: five workloads, replicas across two nodes, EBS volumes bound, and a
 Bot opening a real page from inside AWS with the decision in the audit trail.
 
@@ -4141,7 +4141,7 @@ no RuntimeClass, a plain Kubernetes Secret, an Ingress. Identity is one `service
 map, which is all IRSA, Workload Identity and AKS workload identity are. Secrets are a plain Secret
 by default and an ExternalSecret against any backend when asked, so Secrets Manager, Secret Manager
 and Key Vault are a values block rather than three code paths. Gateway API is supported beside
-Ingress rather than instead of it. `charts/openbot/ci` holds a values file per target.
+Ingress rather than instead of it. `charts/shardsopenbot/ci` holds a values file per target.
 
 Two replicas by default, because horizontal is the point and one replica hides every bug that is
 not. A bad install is refused at `helm install`, naming the value to change, rather than discovered
@@ -4407,7 +4407,7 @@ networks**, which is the one place the two are meant to meet.
 The published port is now on loopback, as every other port in that file already was. Taking the
 database off the Bots' network removes the name, not the address: a container's default gateway is
 the host, and a port published on every interface answers there. From inside the computer container,
-the gateway on `5432` accepted a connection and began authenticating as `openbot` on `openbot`, with
+the gateway on `5432` accepted a connection and began authenticating as `shardsopenbot` on `shardsopenbot`, with
 the password in the same file. **A deployment that reached the database from another machine over
 this port has to reach it another way**, which is what publishing it on every interface was doing.
 
@@ -4716,7 +4716,7 @@ one they are, so those match too.
 No configuration changes and nothing is stored differently; a deployment that was already on the
 light theme sees no difference at all.
 
-### `start.sh` refuses a port that answers but is not OpenBot
+### `start.sh` refuses a port that answers but is not ShardsOpenBot
 
 The startup checks asked whether a port answered, and treated that as proof the port belonged to this
 stack. Those are not the same claim. Any single-page app serves its index.html for every path it does
@@ -4745,7 +4745,7 @@ wrong, naming it, rather than several steps later on a parse error.
 
 `SUPERVISOR_TOKEN` and `COMPUTER_TOKEN` defaulted to the empty string in `docker-compose.yml`, so
 which stack you got depended on how you brought it up. `scripts/start.sh` resolves both to their
-`openbot-dev-*` defaults and exports them before calling compose. A plain `docker compose up -d` —
+`shardsopenbot-dev-*` defaults and exports them before calling compose. A plain `docker compose up -d` —
 which this project's own shutdown notes tell you to use — passed an empty string instead.
 
 `agent-computer` refuses to start without one, so that half failed loudly. The supervisor half was
@@ -4873,7 +4873,7 @@ already behaved this way.
 Two configurations now refuse to start:
 
 - A provider configured with no `INITIAL_ADMIN_EMAILS`. Set it to at least one address.
-- No provider at all and no `OPENBOT_SINGLE_USER=true`. Configure a provider, or set that to say you
+- No provider at all and no `SHARDSOPENBOT_SINGLE_USER=true`. Configure a provider, or set that to say you
   meant a deployment where every visitor is one administrator. This no longer depends on `NODE_ENV`,
   which is unset by default and so let exactly the dangerous case through. A deployment already
   running open needs the line added before it will start again.
@@ -4935,7 +4935,7 @@ Sessions survive and nobody signs in again.
   no second copy of anybody's documents here to keep in step, to secure, or to leave behind when
   somebody is removed. The local index that was being filled — `documents`, `chunks` and
   `document_acls` — and the connector that filled it have both been dropped. Retrieval over
-  a copy of a customer's corpus is not a thing OpenBot does.
+  a copy of a customer's corpus is not a thing ShardsOpenBot does.
 
 ### Added
 - **A skill can say which tools it needs.** `POST /api/plugins/skills` takes a `tools` list of
@@ -4971,7 +4971,7 @@ Sessions survive and nobody signs in again.
   then connects their own account, and there is deliberately no endpoint for an administrator to
   connect one on somebody's behalf. The redirect URI has to match what is registered character for
   character, and the connector page states the exact string to paste, because a mismatch fails at
-  Google with a message that never mentions OpenBot. See
+  Google with a message that never mentions ShardsOpenBot. See
   [docs/plugins/google-drive.md](docs/plugins/google-drive.md) for the whole setup and for what each
   failure means.
 
@@ -4999,7 +4999,7 @@ Sessions survive and nobody signs in again.
   page agreed with it.
 - **Releases are cut by a workflow, not by hand.** `Create release PR` bumps the version and promotes
   `## Unreleased` to a numbered section; merging the pull request it opens is what publishes. Merging
-  builds and pushes one image to `ghcr.io/copilotkit/openbot`, signs a build provenance attestation
+  builds and pushes one image to `ghcr.io/copilotkit/shardsopenbot`, signs a build provenance attestation
   for its digest, tags the commit and creates the GitHub Release with `container-images.json` so a
   deployment can name an exact digest rather than a tag somebody could move. See
   [docs/releasing.md](docs/releasing.md).
@@ -5301,7 +5301,7 @@ Sessions survive and nobody signs in again.
   removal from anybody else, so a second administrator opened the Identity providers screen, found
   it empty, and registered one that already existed. Worse, the row cascaded from that person's user
   row: deleting the administrator who set sign-in up deleted the company's sign-in with them. What is
-  registered is a fact about the deployment, so reads and removals go through OpenBot's own
+  registered is a fact about the deployment, so reads and removals go through ShardsOpenBot's own
   administrator-only routes against the whole table, and a provider outlives the person who added it.
 - **A customer's client secret was in the clear.** The SSO plugin writes `oidc_config` and
   `saml_config` as plaintext JSON, with the OAuth client secret for that company's directory inside
@@ -5429,15 +5429,15 @@ Sessions survive and nobody signs in again.
   nothing reads it on any access path, and `users.groups` is written by nothing either, so both halves
   of the rule are waiting on group membership arriving from the identity provider. Channel access is
   membership alone. The columns stay, because they are the right shape for the rule they are named
-  for. Thanks to [@NathanTarbert](https://github.com/CopilotKit/OpenBot/pull/92) and
-  [@andreolf](https://github.com/CopilotKit/OpenBot/issues/82).
+  for. Thanks to [@NathanTarbert](https://github.com/CopilotKit/ShardsOpenBot/pull/92) and
+  [@andreolf](https://github.com/CopilotKit/ShardsOpenBot/issues/82).
 - **Running with no sign-in takes a flag and nothing else.** It used to be locked with
   `NODE_ENV=production`, which is exactly backwards: `NODE_ENV` is unset unless somebody sets it, so
   a container on a VM with a hand-written env file and no identity provider served every visitor on
   the internet as an administrator, silently, because nothing looked wrong from the outside. A
-  deployment with no provider now refuses to start unless `OPENBOT_SINGLE_USER=true` says it was
+  deployment with no provider now refuses to start unless `SHARDSOPENBOT_SINGLE_USER=true` says it was
   meant. `.env.example` ships that line switched on, so a clone still runs with no configuration at
-  all, and the line is greppable in a way a default never was. `OPENBOT_DEV_NO_AUTH` is still
+  all, and the line is greppable in a way a default never was. `SHARDSOPENBOT_DEV_NO_AUTH` is still
   honoured.
 - **Requires Better Auth 1.7**, which adds an `issuer` to every account. Migrations `0002` and `0003`
   add the column and backfill existing rows with their provider's real issuer, so nobody is asked to
@@ -5448,7 +5448,7 @@ Sessions survive and nobody signs in again.
 - **Where a Bot's computer runs is now a plug.** One `ComputerProvider` interface sits under the
   gateway, with the Docker supervisor as one implementation and a shared computer as another. A
   computer somewhere else is an adapter rather than a change to the governed path. Thanks to
-  [@mu-hashmi](https://github.com/CopilotKit/OpenBot/pull/57) for the refactor.
+  [@mu-hashmi](https://github.com/CopilotKit/ShardsOpenBot/pull/57) for the refactor.
 - The address a provider hands back is checked before anything is sent to it, and the cloud metadata
   addresses are refused whatever a provider says.
 - The container image runs as an unprivileged user rather than root.

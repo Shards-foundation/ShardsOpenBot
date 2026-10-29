@@ -1,5 +1,5 @@
 {
-  "name": "@openbot/example-langgraph-bot",
+  "name": "@shardsopenbot/example-langgraph-bot",
   "private": true,
   "type": "module",
   "scripts": {

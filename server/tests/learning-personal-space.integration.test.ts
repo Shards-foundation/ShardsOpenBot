@@ -18,7 +18,7 @@ import { skillSnapshot } from "./fixtures/learned-skills";
 import { TEST_POOL, testDatabaseUrl } from "./support/database";
 
 /*
- * Several OpenBot replicas making the same person's Learning space at once, against one database and one Intelligence.
+ * Several ShardsOpenBot replicas making the same person's Learning space at once, against one database and one Intelligence.
  * Intelligence is faked as it behaves: a container id is unique per project, a second create answers 409
  * LEARNING_CONTAINER_ALREADY_EXISTS, and the runtime key's skills read says whether a container exists. Each replica
  * creates through the real service-token path in learning/ensure-container.ts.
@@ -128,7 +128,7 @@ test("a person's space is created once across concurrent calls on several replic
     expect(answer).toEqual({ state: "assigned", containerId: SPACE });
   // Intelligence holds it once; each replica asked at most once, and a replica that lost the race was told it exists.
   expect([...containers.keys()]).toEqual([SPACE]);
-  expect(containers.get(SPACE)).toBe("OpenBot: Ada Lovelace");
+  expect(containers.get(SPACE)).toBe("ShardsOpenBot: Ada Lovelace");
   expect(posts.length).toBeGreaterThanOrEqual(1);
   expect(posts.length).toBeLessThanOrEqual(replicas.length);
   expect(posts.every((post) => post.id === SPACE)).toBe(true);

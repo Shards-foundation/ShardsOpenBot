@@ -76,8 +76,8 @@ pub fn podman_download() -> Result<Download, Problem> {
         ),
         ("macos", _) => {
             return Err(Problem::with(
-                "OpenBot cannot install the container engine on an Intel Mac. Install Podman \
-                 Desktop or Docker Desktop, then start OpenBot again.",
+                "ShardsOpenBot cannot install the container engine on an Intel Mac. Install Podman \
+                 Desktop or Docker Desktop, then start ShardsOpenBot again.",
                 format!("Podman {PODMAN} publishes an arm64 package only"),
             ))
         }
@@ -88,7 +88,7 @@ pub fn podman_download() -> Result<Download, Problem> {
         }
         (os, arch) => {
             return Err(Problem::with(
-                "OpenBot cannot install the container engine on this kind of computer.",
+                "ShardsOpenBot cannot install the container engine on this kind of computer.",
                 format!("no Podman installer for {os} on {arch}"),
             ))
         }
@@ -134,7 +134,7 @@ pub fn compose_download() -> Result<Download, Problem> {
         ),
         (os, arch) => {
             return Err(Problem::with(
-                "OpenBot cannot install the piece that runs the containers on this kind of \
+                "ShardsOpenBot cannot install the piece that runs the containers on this kind of \
                  computer.",
                 format!("no Compose build for {os} on {arch}"),
             ))
@@ -162,7 +162,7 @@ fn fetch_verified(download: &Download, into: &Path) -> Result<PathBuf, Problem> 
 
     let body = crate::deployment::get(&download.url).map_err(|error| {
         Problem::with(
-            "OpenBot could not download the software it needs to run. Check the internet \
+            "ShardsOpenBot could not download the software it needs to run. Check the internet \
              connection and try again.",
             format!("{}: {error}", download.url),
         )
@@ -171,7 +171,7 @@ fn fetch_verified(download: &Download, into: &Path) -> Result<PathBuf, Problem> 
     let got = digest_of(&body);
     if got != download.sha256 {
         return Err(Problem::with(
-            "What OpenBot downloaded is not what it was expecting, so it has not been run. Try \
+            "What ShardsOpenBot downloaded is not what it was expecting, so it has not been run. Try \
              again.",
             format!(
                 "{} from {}: expected sha256 {}, got {got}",
@@ -188,7 +188,7 @@ fn fetch_verified(download: &Download, into: &Path) -> Result<PathBuf, Problem> 
 /// One sentence for every "could not write here", because the person's fix is the same each time.
 fn unwritable(path: &Path, error: &str) -> Problem {
     Problem::with(
-        "OpenBot could not save the software it downloaded. Check there is free disk space and \
+        "ShardsOpenBot could not save the software it downloaded. Check there is free disk space and \
          try again.",
         format!("{}: {error}", path.display()),
     )
@@ -249,7 +249,7 @@ fn bun_download(os: &str, arch: &str) -> Result<Download, Problem> {
         ),
         _ => {
             return Err(Problem::with(
-                "OpenBot cannot install its app runtime on this kind of computer.",
+                "ShardsOpenBot cannot install its app runtime on this kind of computer.",
                 format!("no Bun {BUN} build for {os} on {arch}"),
             ))
         }
@@ -314,7 +314,7 @@ fn install_bun_with(
 fn extract_bun(archive: &Path, target: &Path, entry: &str) -> Result<(), Problem> {
     let unpack_error = |error: &dyn std::fmt::Display| {
         Problem::with(
-            "OpenBot could not unpack its app runtime. Try again.",
+            "ShardsOpenBot could not unpack its app runtime. Try again.",
             format!("{} entry {entry}: {error}", archive.display()),
         )
     };
@@ -344,13 +344,13 @@ pub(crate) fn verify_bun(binary: &Path) -> Result<(), Problem> {
         .output()
         .map_err(|error| {
             Problem::with(
-                "OpenBot could not start its app runtime.",
+                "ShardsOpenBot could not start its app runtime.",
                 format!("{}: {error}", binary.display()),
             )
         })?;
     if !output.status.success() || String::from_utf8_lossy(&output.stdout).trim() != BUN {
         return Err(Problem::with(
-            "OpenBot could not verify its app runtime.",
+            "ShardsOpenBot could not verify its app runtime.",
             format!(
                 "{} --version: {}; expected {BUN}; stdout: {}; stderr: {}",
                 binary.display(),
@@ -406,8 +406,8 @@ fn install_engine_with(
     // reporting no engine on a machine that has just installed one.
     if engine::program(Engine::Podman).is_none() {
         return Err(Problem::with(
-            "OpenBot installed the container engine, but cannot find it afterwards. Install \
-             Podman Desktop and start OpenBot again.",
+            "ShardsOpenBot installed the container engine, but cannot find it afterwards. Install \
+             Podman Desktop and start ShardsOpenBot again.",
             format!(
                 "the {PODMAN} installer reported success; podman is on neither PATH nor any \
                  install location this platform uses"
@@ -446,7 +446,7 @@ fn place_compose(into: &Path) -> Result<String, Problem> {
         std::fs::set_permissions(&named, std::fs::Permissions::from_mode(0o755)).map_err(
             |error| {
                 Problem::with(
-                    "OpenBot could not finish installing the piece that runs the containers.",
+                    "ShardsOpenBot could not finish installing the piece that runs the containers.",
                     format!("chmod 755 {}: {error}", named.display()),
                 )
             },
@@ -528,7 +528,7 @@ fn msiexec(verb: &[&str], msi: &Path, log: &Path) -> Result<(), MsiexecFailure> 
 fn installer_stopped(verb: &str, msi: &Path, failure: MsiexecFailure, log: &Path) -> Problem {
     match failure {
         MsiexecFailure::Start(error) => Problem::with(
-            "OpenBot could not start the installer for the software it needs. Try again.",
+            "ShardsOpenBot could not start the installer for the software it needs. Try again.",
             format!(
                 "msiexec {verb} {} could not start: {error}; intended log path is {}",
                 msi.display(),
@@ -539,11 +539,11 @@ fn installer_stopped(verb: &str, msi: &Path, failure: MsiexecFailure, log: &Path
             if code == 1625 {
                 // ERROR_INSTALL_PACKAGE_REJECTED requires an administrator to resolve policy.
                 // https://learn.microsoft.com/en-us/windows/win32/msi/error-codes
-                "Windows policy blocks installing Podman, the container engine OpenBot needs. \
+                "Windows policy blocks installing Podman, the container engine ShardsOpenBot needs. \
                  Ask an administrator to allow the installation or install Podman for your \
                  account, then try again."
             } else {
-                "Installing the software OpenBot needs did not finish. Try again."
+                "Installing the software ShardsOpenBot needs did not finish. Try again."
             },
             format!(
                 "msiexec {verb} {} stopped with exit code {code}; its log is at {}",
@@ -571,7 +571,7 @@ fn install_podman(into: &Path) -> Result<(), Problem> {
         .output()
         .map_err(|error| {
             Problem::with(
-                "OpenBot could not start the installer for the software it needs.",
+                "ShardsOpenBot could not start the installer for the software it needs.",
                 format!("osascript: {error}"),
             )
         })?;
@@ -583,12 +583,12 @@ fn install_podman(into: &Path) -> Result<(), Problem> {
     // -128 is AppleScript's "user cancelled", which is a decision rather than a failure.
     if said.contains("-128") {
         return Err(Problem::plain(
-            "The install was cancelled, so OpenBot does not have the software it needs yet. Press \
+            "The install was cancelled, so ShardsOpenBot does not have the software it needs yet. Press \
              Start to try again.",
         ));
     }
     Err(Problem::with(
-        "Installing the software OpenBot needs did not finish. Try again.",
+        "Installing the software ShardsOpenBot needs did not finish. Try again.",
         said,
     ))
 }
@@ -607,8 +607,8 @@ fn applescript_shell_arg(path: &Path) -> String {
 fn install_podman(_into: &Path) -> Result<(), Problem> {
     let (manager, args) = linux_package_manager().ok_or_else(|| {
         Problem::with(
-            "OpenBot cannot install the software it needs on this system. Install the `podman` \
-             package, then start OpenBot again.",
+            "ShardsOpenBot cannot install the software it needs on this system. Install the `podman` \
+             package, then start ShardsOpenBot again.",
             "no apt-get, dnf, zypper or pacman in /usr/bin",
         )
     })?;
@@ -622,7 +622,7 @@ fn install_podman(_into: &Path) -> Result<(), Problem> {
         .output()
         .map_err(|error| {
             Problem::with(
-                "OpenBot could not start the installer for the software it needs.",
+                "ShardsOpenBot could not start the installer for the software it needs.",
                 format!("pkexec {manager}: {error}"),
             )
         })?;
@@ -634,12 +634,12 @@ fn install_podman(_into: &Path) -> Result<(), Problem> {
     // package manager that failed.
     if matches!(output.status.code(), Some(126) | Some(127)) {
         return Err(Problem::plain(
-            "The install was not allowed, so OpenBot does not have the software it needs yet. \
+            "The install was not allowed, so ShardsOpenBot does not have the software it needs yet. \
              Press Start to try again.",
         ));
     }
     Err(Problem::with(
-        "Installing the software OpenBot needs did not finish. Try again.",
+        "Installing the software ShardsOpenBot needs did not finish. Try again.",
         crate::quiet::said(&output.stderr),
     ))
 }
@@ -680,7 +680,7 @@ mod tests {
         std::fs::write(
             &source,
             r#"fn main() {
-                if std::env::var_os("OPENBOT_TEST_DOCKER_RUNNING").is_none() {
+                if std::env::var_os("SHARDSOPENBOT_TEST_DOCKER_RUNNING").is_none() {
                     std::process::exit(1);
                 }
                 println!("1.44");
@@ -691,7 +691,7 @@ mod tests {
         std::env::set_var("PATH", &bin);
         std::env::set_var("LOCALAPPDATA", root.join("Local"));
         std::env::set_var("ProgramFiles", root.join("Program Files"));
-        std::env::remove_var("OPENBOT_TEST_DOCKER_RUNNING");
+        std::env::remove_var("SHARDSOPENBOT_TEST_DOCKER_RUNNING");
 
         let found = engine::detect();
         assert_eq!(found.engine, Some(Engine::Docker));
@@ -714,7 +714,7 @@ mod tests {
 
         // A responding Docker still supplies the engine; never install a replacement.
         std::fs::remove_file(bin.join("podman.exe")).unwrap();
-        std::env::set_var("OPENBOT_TEST_DOCKER_RUNNING", "1");
+        std::env::set_var("SHARDSOPENBOT_TEST_DOCKER_RUNNING", "1");
         assert!(engine::detect().responding);
         let result = install_engine_with(
             &root,
@@ -890,7 +890,7 @@ mod tests {
         ) {
             return;
         }
-        std::env::set_var("PATH", "/openbot-no-developer-tools");
+        std::env::set_var("PATH", "/shardsopenbot-no-developer-tools");
         let (root, download) = bun_zip_fixture("bun user's fresh account");
         let binary = ensure_bun_with(None, || {
             install_bun_with(
@@ -1014,7 +1014,7 @@ mod tests {
     fn unsupported_existing_bun_acquires_pinned_runtime_without_changing_user_binary() {
         let root = temp_root("unsupported-existing-bun");
         let existing = runtime_version_fixture(&root.join("user"), "1.2.15");
-        let pinned = runtime_version_fixture(&root.join("openbot"), BUN);
+        let pinned = runtime_version_fixture(&root.join("shardsopenbot"), BUN);
         let before = std::fs::read(&existing).unwrap();
         let chosen = ensure_bun_with(Some(existing.clone()), || Ok(pinned.clone())).unwrap();
         assert_eq!(
@@ -1236,7 +1236,7 @@ mod tests {
         assert_eq!(
             problem.said,
             "Windows policy blocks installing Podman, the container engine \
-            OpenBot needs. Ask an administrator to allow the installation or install Podman for \
+            ShardsOpenBot needs. Ask an administrator to allow the installation or install Podman for \
             your account, then try again."
         );
         assert_eq!(

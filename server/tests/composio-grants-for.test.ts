@@ -170,7 +170,7 @@ function vendorWith(parts: {
 const OUR_GMAIL_CONFIG: ConfigFixture = {
   row: {
     id: "ac_1",
-    name: "gmail (OpenBot)",
+    name: "gmail (ShardsOpenBot)",
     status: "ENABLED",
     scopes: ["gmail.readonly", "gmail.send"],
   },
@@ -183,7 +183,7 @@ const OUR_GMAIL_CONFIG: ConfigFixture = {
  *
  * IT IS IN EVERY GMAIL FIXTURE BELOW ON PURPOSE. The configs listing is scoped to the project
  * rather than to this deployment, so this row comes back beside ours on every read, and the only
- * thing telling the two apart is the `(OpenBot)` suffix. Without such a row present, `grantsFor`
+ * thing telling the two apart is the `(ShardsOpenBot)` suffix. Without such a row present, `grantsFor`
  * reading `held` instead of `ours` answers identically to `grantsFor` reading `ours` — which is to
  * say the suite could not see the distinction it is named after. `gmail.modify` appears nowhere
  * else in this file, so it names which side of the filter an answer came from.
@@ -270,7 +270,7 @@ describe("Composio's grantsFor", () => {
           {
             row: {
               id: "ac_1",
-              name: "gmail (OpenBot)",
+              name: "gmail (ShardsOpenBot)",
               status: "ENABLED",
               scopes: ["gmail.readonly"],
             },
@@ -402,7 +402,7 @@ describe("Composio's grantsFor", () => {
           {
             row: {
               id: "ac_2",
-              name: "slack (OpenBot)",
+              name: "slack (ShardsOpenBot)",
               status: "ENABLED",
               scopes: ["slack.chat.write"],
             },
@@ -574,7 +574,11 @@ describe("Composio's grantsFor", () => {
         ],
         configs: [
           {
-            row: { id: "ac_1", name: "firecrawl (OpenBot)", status: "ENABLED" },
+            row: {
+              id: "ac_1",
+              name: "firecrawl (ShardsOpenBot)",
+              status: "ENABLED",
+            },
             toolkit: "firecrawl",
           },
           {
@@ -640,7 +644,7 @@ describe("the declared sub-surface", () => {
     ensureAuthConfig: async () => "not-needed" as const,
     deleteAuthConfig: async () => {},
     authorize: async () => ({
-      redirectUrl: "https://openbot.test/x",
+      redirectUrl: "https://shardsopenbot.test/x",
       authorizationId: null,
     }),
     isConnected: async () => false,

@@ -1,8 +1,8 @@
-// A person's own OpenBot browser, through the real routes and the real database: opening it mints the person's Recorder
+// A person's own ShardsOpenBot browser, through the real routes and the real database: opening it mints the person's Recorder
 // connection with no Connect step, the connection resolves through the Recorder guard as that person, each open
 // replaces the last, organization mode seals the session from the request, and nobody else (an admin included) reaches
 // the browser or its live screen. The computer is a stand-in that answers its routes exactly as the contract types them
-// (shared/openbot-browser.ts): slice 1 builds the real ones.
+// (shared/shardsopenbot-browser.ts): slice 1 builds the real ones.
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
 import { mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
@@ -22,12 +22,12 @@ import {
   isPersonBrowserId,
   type LauncherConnection,
   type LauncherState,
-} from "@openbot/shared/openbot-browser";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
 import {
   RECORDER_SIGNED_OUT,
   type RecorderConnectionsResponse,
-} from "@openbot/shared/recorder-api";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+} from "@shardsopenbot/shared/recorder-api";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { eq, inArray } from "drizzle-orm";
 import { NOT_ITS_OWN_COMPUTER } from "../../agent-computer/src/person-access";
 import { NO_INSTALLED_BROWSER } from "../../agent-computer/src/person-launch";
@@ -36,7 +36,7 @@ import type { AuditEventInput } from "../src/audit";
 import { DEV_ACTOR, initializeDevActorUser } from "../src/auth/dev-actor";
 import { createOrganizationAuth } from "../src/auth/organization";
 import { organizationUserStore } from "../src/auth/organization-store";
-import { openbotAddress } from "../src/browser/address";
+import { shardsopenbotAddress } from "../src/browser/address";
 import { personBrowserEgressPolicy } from "../src/browser/egress";
 import {
   gatewayBrowserComputers,
@@ -92,7 +92,7 @@ const admin = {
 };
 const PEOPLE = { ada, ben, admin } as const;
 const COMPUTER_TOKEN = "browser-routes-computer-token";
-const PUBLIC = "https://openbot.example.com";
+const PUBLIC = "https://shardsopenbot.example.com";
 const GATEWAY = "wss://gateway.example.com/socket";
 // Their own ports: the stand-in computer, the server the live screen is proxied through, the organization's sign-in
 // server, and a port nothing listens on.
@@ -104,12 +104,12 @@ const NOTHING_PORT = 7764;
 const REAL_COMPUTER_PORT = 7815;
 /** The real shared computer another runs. */
 const SHARED_COMPUTER_PORT = 7816;
-/** What the person is told when their browser cannot open for OpenBot's own setup. */
+/** What the person is told when their browser cannot open for ShardsOpenBot's own setup. */
 const NOT_SET_UP =
-  "Your browser can't open right now. Ask an admin to check OpenBot's setup.";
-/** The same, on a single-user OpenBot (OpenBot Desktop), where the person is the admin. */
+  "Your browser can't open right now. Ask an admin to check ShardsOpenBot's setup.";
+/** The same, on a single-user ShardsOpenBot (ShardsOpenBot Desktop), where the person is the admin. */
 const NOT_SET_UP_SINGLE_USER =
-  "Your browser can't open right now. Quit OpenBot, open it again, and try once more.";
+  "Your browser can't open right now. Quit ShardsOpenBot, open it again, and try once more.";
 
 // ---- The stand-in computer --------------------------------------------------------------------
 
@@ -152,23 +152,23 @@ let refuseNextDisconnect: { status: number } | { never: Promise<void> } | null =
 let silentState: { answers: true } | { never: Promise<void> } | null = null;
 /** What the real computer answers when the browser did not answer (agent-computer's NOT_ANSWERING). */
 const COMPUTER_NOT_ANSWERING = "The browser did not answer within 5 s.";
-/** The window an open shows its browser in: a screen (hosted OpenBot) unless a test opens a native one (Desktop). */
+/** The window an open shows its browser in: a screen (hosted ShardsOpenBot) unless a test opens a native one (Desktop). */
 let openAs: "screen" | "native" = "screen";
 /**
  * When a test says so, the Recorder takes a connection as the real one does (extension/src/background/launcher.ts): it
- * asks OpenBot who the connection is for, `askMs` after it was handed it, and refuses one OpenBot answers is signed out,
+ * asks ShardsOpenBot who the connection is for, `askMs` after it was handed it, and refuses one ShardsOpenBot answers is signed out,
  * with its own sentence, which the computer answers as a Recorder that could not be connected.
  */
 let confirmOpens: {
   askMs: number;
-  /** OpenBot's status for `/api/recorder/me` with this token. */
+  /** ShardsOpenBot's status for `/api/recorder/me` with this token. */
   me: (token: string) => Promise<number>;
 } | null = null;
 
 const recorderOf = (opened: Opened): LauncherState =>
   opened.state.recorder as LauncherState;
 
-/** The computer's routes as the contract types them: the token, a person's browser id in `x-openbot-bot-id` (400 for
+/** The computer's routes as the contract types them: the token, a person's browser id in `x-shardsopenbot-bot-id` (400 for
  * anything else), and each body read against the contract's schema. */
 const computer = Bun.serve<{ bot: string }>({
   hostname: "127.0.0.1",
@@ -183,9 +183,11 @@ const computer = Bun.serve<{ bot: string }>({
         ? undefined
         : new Response(null, { status: 400 });
     }
-    if (request.headers.get("x-openbot-computer-token") !== COMPUTER_TOKEN)
+    if (
+      request.headers.get("x-shardsopenbot-computer-token") !== COMPUTER_TOKEN
+    )
       return Response.json({ error: "Unauthorized." }, { status: 401 });
-    const id = request.headers.get("x-openbot-bot-id") ?? "";
+    const id = request.headers.get("x-shardsopenbot-bot-id") ?? "";
     asked.push(`${request.method} ${url.pathname} ${id}`);
     if (url.pathname === "/health") return Response.json({ status: "ok" });
     if (url.pathname === "/egress-policy" && request.method === "PUT") {
@@ -239,7 +241,7 @@ const computer = Bun.serve<{ bot: string }>({
             return Response.json(
               {
                 error:
-                  "The Recorder could not be connected: OpenBot did not accept this browser's connection. Open the browser from OpenBot again.",
+                  "The Recorder could not be connected: ShardsOpenBot did not accept this browser's connection. Open the browser from ShardsOpenBot again.",
               },
               { status: 502 },
             );
@@ -284,7 +286,7 @@ const computer = Bun.serve<{ bot: string }>({
           // The Recorder's own refusals, in its words (extension/src/background/launcher.ts, recording.ts).
           if (!recorder.connected)
             return Response.json(
-              { error: "Connect this browser to OpenBot first." },
+              { error: "Connect this browser to ShardsOpenBot first." },
               { status: 409 },
             );
           if (recorder.phase !== "idle")
@@ -355,7 +357,7 @@ const computer = Bun.serve<{ bot: string }>({
         return Response.json(opened.state);
       }
       case "/browser/disconnect": {
-        // A POST with no body. The Recorder forgets its connection as it does when OpenBot answers that its token is
+        // A POST with no body. The Recorder forgets its connection as it does when ShardsOpenBot answers that its token is
         // gone, and reports what it reports then (extension/src/background/launcher.ts): a recording under it stopped.
         if (request.method !== "POST" || sent !== "")
           return Response.json({ error: "Bad request." }, { status: 400 });
@@ -396,7 +398,7 @@ const computer = Bun.serve<{ bot: string }>({
   },
 });
 
-// ---- OpenBot, as index.ts builds it ------------------------------------------------------------
+// ---- ShardsOpenBot, as index.ts builds it ------------------------------------------------------------
 
 const audits: AuditEventInput[] = [];
 const auditStore = {
@@ -430,7 +432,7 @@ const better = {
   },
 };
 
-/** One OpenBot: the Bots' computer provider carrying people's browsers, the gateway over it, and the browser routes. */
+/** One ShardsOpenBot: the Bots' computer provider carrying people's browsers, the gateway over it, and the browser routes. */
 function build(
   environment: Record<string, string | undefined> = {},
   options: {
@@ -448,7 +450,7 @@ function build(
   } = {},
 ) {
   const base = {
-    OPENBOT_PUBLIC_URL: PUBLIC,
+    SHARDSOPENBOT_PUBLIC_URL: PUBLIC,
     INTELLIGENCE_GATEWAY_WS_URL: GATEWAY,
     AGENT_COMPUTER_URL: `http://127.0.0.1:${COMPUTER_PORT}`,
     COMPUTER_TOKEN,
@@ -458,7 +460,8 @@ function build(
   const config = loadConfig(
     options.organizationAuth
       ? {
-          DATABASE_URL: "postgres://openbot:openbot@127.0.0.1:5432/openbot",
+          DATABASE_URL:
+            "postgres://shardsopenbot:shardsopenbot@127.0.0.1:5432/shardsopenbot",
           KEY_ENCRYPTION_KEY: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           INTELLIGENCE_API_URL: "http://127.0.0.1:7100",
           INTELLIGENCE_API_KEY: "tenant-api-key",
@@ -470,7 +473,7 @@ function build(
   const personPolicy = personBrowserEgressPolicy({
     native: config.browser !== undefined,
     allowPrivateHosts: false,
-    openbotUrls: [config.publicUrl, config.appUrl],
+    shardsopenbotUrls: [config.publicUrl, config.appUrl],
     gatewayUrl: config.runtime.intelligence.gatewayWsUrl,
   });
   const provider = withPolicyPushOnWake(
@@ -515,7 +518,7 @@ function build(
       ...(options.computers === false ? {} : place),
       token: options.token ?? COMPUTER_TOKEN,
       recorder,
-      openbotUrl: openbotAddress(config),
+      shardsopenbotUrl: shardsopenbotAddress(config),
       singleUser: config.singleUser,
       ...(options.callTimeoutMs
         ? { callTimeoutMs: options.callTimeoutMs }
@@ -526,7 +529,7 @@ function build(
   return { app: createApp(...args), gateway, config };
 }
 
-type OpenBot = ReturnType<typeof build>;
+type ShardsOpenBot = ReturnType<typeof build>;
 
 /**
  * The stand-in computer as a provider that gives every computer named its own, as a supervisor or a Sandbox does: where
@@ -544,12 +547,12 @@ function ownComputers(): ComputerProvider {
 }
 
 const call = (
-  { app }: OpenBot,
+  { app }: ShardsOpenBot,
   path: string,
   init: RequestInit & { json?: unknown; as?: keyof typeof PEOPLE } = {},
 ) => {
   const { json, headers, as, ...rest } = init;
-  return app.request(`http://openbot.test${path}`, {
+  return app.request(`http://shardsopenbot.test${path}`, {
     ...rest,
     headers: {
       ...(json === undefined ? {} : { "content-type": "application/json" }),
@@ -563,18 +566,18 @@ const bearer = (token: string) => ({ authorization: `Bearer ${token}` });
 /** The connection the computer was handed at the last open of this person's browser. */
 const handed = (userId: string) =>
   browsers.get(personBrowserId(userId))?.connection as {
-    openbotUrl: string;
+    shardsopenbotUrl: string;
     token: string;
     connectionId: string;
     user: { id: string; name: string; email: string };
   };
 
 async function open(
-  openbot: OpenBot,
+  shardsopenbot: ShardsOpenBot,
   as: keyof typeof PEOPLE,
   headers: Record<string, string> = {},
 ) {
-  const response = await call(openbot, "/api/browser/open", {
+  const response = await call(shardsopenbot, "/api/browser/open", {
     method: "POST",
     as,
     headers,
@@ -583,10 +586,10 @@ async function open(
   return (await response.json()) as BrowserOpenResponse;
 }
 
-let openbot: OpenBot;
+let shardsopenbot: ShardsOpenBot;
 beforeAll(async () => {
   await database.insert(users).values([ada, ben, admin]);
-  openbot = build();
+  shardsopenbot = build();
 });
 afterAll(async () => {
   computer.stop(true);
@@ -604,7 +607,7 @@ describe("opening a person's own browser", () => {
     const computerId = personBrowserId(ada.id);
     expect(isPersonBrowserId(computerId)).toBe(true);
     expect(computerId).not.toBe(personBrowserId(ben.id));
-    const state = await call(openbot, "/api/browser", { as: "ada" });
+    const state = await call(shardsopenbot, "/api/browser", { as: "ada" });
     expect(state.status).toBe(200);
     expect(await state.json()).toEqual({
       available: true,
@@ -613,8 +616,8 @@ describe("opening a person's own browser", () => {
       open: false,
       tabs: [],
     } satisfies BrowserApiState);
-    expect((await call(openbot, "/api/browser")).status).toBe(401);
-    // An OpenBot with no way to run a person's browser says so, and the app hides the button.
+    expect((await call(shardsopenbot, "/api/browser")).status).toBe(401);
+    // An ShardsOpenBot with no way to run a person's browser says so, and the app hides the button.
     const without = build({}, { computers: false });
     expect(
       await (await call(without, "/api/browser", { as: "ada" })).json(),
@@ -662,7 +665,7 @@ describe("opening a person's own browser", () => {
     expect(asked.slice(before)).toEqual([]);
   });
 
-  test("the state says where the browser shows before it is opened: a window on the desktop on OpenBot Desktop, a screen elsewhere", async () => {
+  test("the state says where the browser shows before it is opened: a window on the desktop on ShardsOpenBot Desktop, a screen elsewhere", async () => {
     // The sidebar's Browser button reads this on every load to know what one click does, so it is said with no browser
     // open, from where people's browsers run here, and asking it starts nothing.
     const started: string[] = [];
@@ -678,10 +681,10 @@ describe("opening a person's own browser", () => {
       reset: async () => ({ cleared: false }),
       list: async () => [],
     } satisfies ComputerProvider;
-    // OpenBot Desktop: people's browsers run on its host-side local Chrome computer, here one that is not answering
+    // ShardsOpenBot Desktop: people's browsers run on its host-side local Chrome computer, here one that is not answering
     // (Chrome closed, the computer restarting), and Bots' computers stay where they are.
     const desktop = build(
-      { OPENBOT_BROWSER_URL: `http://127.0.0.1:${NOTHING_PORT}` },
+      { SHARDSOPENBOT_BROWSER_URL: `http://127.0.0.1:${NOTHING_PORT}` },
       { provider: bots },
     );
     const before = asked.length;
@@ -711,7 +714,7 @@ describe("opening a person's own browser", () => {
     openAs = "native";
     try {
       const native = build({
-        OPENBOT_BROWSER_URL: `http://127.0.0.1:${COMPUTER_PORT}`,
+        SHARDSOPENBOT_BROWSER_URL: `http://127.0.0.1:${COMPUTER_PORT}`,
       });
       const opened = await open(native, "ben");
       expect(opened.window).toBe("native");
@@ -729,10 +732,10 @@ describe("opening a person's own browser", () => {
     }
   });
 
-  test("on OpenBot Desktop with no Chrome or Edge it can open, the state says why in a sentence for the person", async () => {
-    // With Chrome or Edge somewhere OpenBot Desktop did not look, or installed only as a Flatpak, the reason used to be
+  test("on ShardsOpenBot Desktop with no Chrome or Edge it can open, the state says why in a sentence for the person", async () => {
+    // With Chrome or Edge somewhere ShardsOpenBot Desktop did not look, or installed only as a Flatpak, the reason used to be
     // only in Desktop's log. Desktop now names it to the server, which says it to the person.
-    const flatpak = build({ OPENBOT_BROWSER_ABSENT: "flatpak-chrome" });
+    const flatpak = build({ SHARDSOPENBOT_BROWSER_ABSENT: "flatpak-chrome" });
     expect(
       await (await call(flatpak, "/api/browser", { as: "ben" })).json(),
     ).toEqual({
@@ -744,11 +747,11 @@ describe("opening a person's own browser", () => {
       tabs: [],
     } satisfies BrowserApiState);
     expect(BROWSER_ABSENCES["flatpak-chrome"]).toBe(
-      "OpenBot can't open the Flatpak version of Google Chrome, so install Chrome from google.com/chrome to use your own browser.",
+      "ShardsOpenBot can't open the Flatpak version of Google Chrome, so install Chrome from google.com/chrome to use your own browser.",
     );
     // With no computers for it at all, the same sentence is why it cannot open.
     const nothing = build(
-      { OPENBOT_BROWSER_ABSENT: "no-chrome-or-edge" },
+      { SHARDSOPENBOT_BROWSER_ABSENT: "no-chrome-or-edge" },
       { computers: false },
     );
     expect(
@@ -756,10 +759,10 @@ describe("opening a person's own browser", () => {
     ).toMatchObject({ available: false });
     // A name this server does not know, and a browser that does run, explain nothing.
     for (const environment of [
-      { OPENBOT_BROWSER_ABSENT: "a-reason-from-a-newer-desktop" },
+      { SHARDSOPENBOT_BROWSER_ABSENT: "a-reason-from-a-newer-desktop" },
       {
-        OPENBOT_BROWSER_ABSENT: "no-chrome-or-edge",
-        OPENBOT_BROWSER_URL: `http://127.0.0.1:${NOTHING_PORT}`,
+        SHARDSOPENBOT_BROWSER_ABSENT: "no-chrome-or-edge",
+        SHARDSOPENBOT_BROWSER_URL: `http://127.0.0.1:${NOTHING_PORT}`,
       },
     ])
       expect(
@@ -769,7 +772,7 @@ describe("opening a person's own browser", () => {
       ).not.toHaveProperty("note");
   });
 
-  test("OpenBot Desktop's host-side computer carries people's browsers, while Bots' computers stay where they are", async () => {
+  test("ShardsOpenBot Desktop's host-side computer carries people's browsers, while Bots' computers stay where they are", async () => {
     const bots = {
       name: "docker",
       isolation: "per-bot",
@@ -790,24 +793,26 @@ describe("opening a person's own browser", () => {
       "http://127.0.0.1:4300/bot-computer",
     );
     expect(await desktop.status("agent_7")).toMatchObject({ state: "absent" });
-    // Without OPENBOT_BROWSER_URL the same provider carries both.
+    // Without SHARDSOPENBOT_BROWSER_URL the same provider carries both.
     expect(withPersonBrowsers(bots, undefined)).toBe(bots);
     // There, a person's own desktop browser goes everywhere their own browser would.
     expect(
       personBrowserEgressPolicy({
         native:
           loadConfig(
-            testEnvironment({ OPENBOT_BROWSER_URL: "http://127.0.0.1:4101" }),
+            testEnvironment({
+              SHARDSOPENBOT_BROWSER_URL: "http://127.0.0.1:4101",
+            }),
           ).browser !== undefined,
         allowPrivateHosts: false,
-        openbotUrls: [],
+        shardsopenbotUrls: [],
         gatewayUrl: GATEWAY,
       }),
     ).toEqual({ mode: "allow_all", rules: [] });
   });
 
   test("open mints the person's Recorder connection, which resolves through the Recorder guard as them and shows in Settings, Browsers", async () => {
-    const opened = await open(openbot, "ada");
+    const opened = await open(shardsopenbot, "ada");
     const computerId = personBrowserId(ada.id);
     expect(opened).toEqual({
       ok: true,
@@ -817,7 +822,7 @@ describe("opening a person's own browser", () => {
       narration: "external",
     });
     const connection = handed(ada.id);
-    expect(connection.openbotUrl).toBe(PUBLIC);
+    expect(connection.shardsopenbotUrl).toBe(PUBLIC);
     expect(connection.user).toEqual({
       id: ada.id,
       name: "Ada",
@@ -826,7 +831,7 @@ describe("opening a person's own browser", () => {
     expect(connection.token).toMatch(/^obr_/);
 
     // The Recorder guard takes the token as Ada's, on the Recorder's own routes.
-    const me = await call(openbot, "/api/recorder/me", {
+    const me = await call(shardsopenbot, "/api/recorder/me", {
       headers: bearer(connection.token),
     });
     expect(me.status).toBe(200);
@@ -837,15 +842,15 @@ describe("opening a person's own browser", () => {
 
     // One more connected browser, as any other.
     const listed = (await (
-      await call(openbot, "/api/recorder/connections", { as: "ada" })
+      await call(shardsopenbot, "/api/recorder/connections", { as: "ada" })
     ).json()) as RecorderConnectionsResponse;
     const mine = listed.connections.filter(
       (row) => row.id === connection.connectionId,
     );
     expect(mine).toEqual([
       expect.objectContaining({
-        label: "OpenBot browser",
-        via: "openbot-browser",
+        label: "ShardsOpenBot browser",
+        via: "shardsopenbot-browser",
         extensionId: RECORDER_EXTENSION_ID,
         installId: computerId.slice("person-".length),
       }),
@@ -856,9 +861,12 @@ describe("opening a person's own browser", () => {
           event.eventType === "recorder.connected" &&
           event.targetId === connection.connectionId,
       )?.payload,
-    ).toMatchObject({ via: "openbot-browser", label: "OpenBot browser" });
+    ).toMatchObject({
+      via: "shardsopenbot-browser",
+      label: "ShardsOpenBot browser",
+    });
 
-    // The browser's network policy went to its computer ahead of the browser: the open web and this OpenBot and the
+    // The browser's network policy went to its computer ahead of the browser: the open web and this ShardsOpenBot and the
     // Intelligence gateway by name on their own ports, nothing inside the deployment.
     const policy = policies.get(computerId) as {
       mode: string;
@@ -867,7 +875,7 @@ describe("opening a person's own browser", () => {
     expect(policy.mode).toBe("allowlist_only");
     expect(policy.rules).toContainEqual({
       type: "domain",
-      value: "openbot.example.com",
+      value: "shardsopenbot.example.com",
       ports: "443",
     });
     expect(policy.rules).toContainEqual({
@@ -887,7 +895,7 @@ describe("opening a person's own browser", () => {
 
     // The state now shows the open browser, with its Recorder.
     expect(
-      await (await call(openbot, "/api/browser", { as: "ada" })).json(),
+      await (await call(shardsopenbot, "/api/browser", { as: "ada" })).json(),
     ).toMatchObject({
       available: true,
       computerId,
@@ -902,7 +910,7 @@ describe("opening a person's own browser", () => {
   test("opening it again keeps the connection that stands: no new token, and nothing on the trail", async () => {
     // The end-to-end run: every open, and many a Record, revoked the browser's connection and made another, a
     // `recorder.revoked` and a `recorder.connected` row each time.
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const first = handed(ada.id);
     const trail = () =>
       audits.filter(
@@ -914,15 +922,18 @@ describe("opening a person's own browser", () => {
     const rows = trail();
 
     // Again while it is open, and again after it was closed: its Recorder kept the connection in its profile.
-    await open(openbot, "ada");
-    await call(openbot, "/api/browser/close", { method: "POST", as: "ada" });
-    const reopened = await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
+    await call(shardsopenbot, "/api/browser/close", {
+      method: "POST",
+      as: "ada",
+    });
+    const reopened = await open(shardsopenbot, "ada");
     expect(reopened.narration).toBe("external");
     expect(handed(ada.id).token).toBe(first.token);
     expect(trail()).toBe(rows);
     expect(
       (
-        await call(openbot, "/api/recorder/me", {
+        await call(shardsopenbot, "/api/recorder/me", {
           headers: bearer(first.token),
         })
       ).status,
@@ -937,20 +948,20 @@ describe("opening a person's own browser", () => {
   });
 
   test("a Recorder that does not hold the connection that stands is handed a new one, which replaces it", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const first = handed(ada.id);
-    // The Recorder in the open browser holds some other connection than the one OpenBot holds for it.
+    // The Recorder in the open browser holds some other connection than the one ShardsOpenBot holds for it.
     const opened = browsers.get(personBrowserId(ada.id));
     if (!opened?.state.recorder) throw new Error("Ada's browser is open.");
     opened.state.recorder = {
       ...opened.state.recorder,
       connectionId: "another-connection",
     };
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const second = handed(ada.id);
     expect(second.token).not.toBe(first.token);
 
-    const before = await call(openbot, "/api/recorder/me", {
+    const before = await call(shardsopenbot, "/api/recorder/me", {
       headers: bearer(first.token),
     });
     expect(before.status).toBe(401);
@@ -959,7 +970,7 @@ describe("opening a person's own browser", () => {
     );
     expect(
       (
-        await call(openbot, "/api/recorder/me", {
+        await call(shardsopenbot, "/api/recorder/me", {
           headers: bearer(second.token),
         })
       ).status,
@@ -981,18 +992,22 @@ describe("opening a person's own browser", () => {
   });
 
   test("a connection that no longer stands is not kept: the next open makes a new one", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const first = handed(ada.id);
     // Disconnected in Settings, Browsers, which also tells the browser to forget it.
     expect(
       (
-        await call(openbot, `/api/recorder/connections/${first.connectionId}`, {
-          method: "DELETE",
-          as: "ada",
-        })
+        await call(
+          shardsopenbot,
+          `/api/recorder/connections/${first.connectionId}`,
+          {
+            method: "DELETE",
+            as: "ada",
+          },
+        )
       ).status,
     ).toBe(204);
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const next = handed(ada.id);
     expect(next.token).not.toBe(first.token);
     expect(
@@ -1004,18 +1019,18 @@ describe("opening a person's own browser", () => {
     ).toHaveLength(1);
   });
 
-  test("the OpenBot browser's connection is disconnected from Settings, Browsers like any other", async () => {
-    await open(openbot, "ada");
+  test("the ShardsOpenBot browser's connection is disconnected from Settings, Browsers like any other", async () => {
+    await open(shardsopenbot, "ada");
     const connection = handed(ada.id);
     const removed = await call(
-      openbot,
+      shardsopenbot,
       `/api/recorder/connections/${connection.connectionId}`,
       { method: "DELETE", as: "ada" },
     );
     expect(removed.status).toBe(204);
     expect(
       (
-        await call(openbot, "/api/recorder/me", {
+        await call(shardsopenbot, "/api/recorder/me", {
           headers: bearer(connection.token),
         })
       ).status,
@@ -1023,10 +1038,10 @@ describe("opening a person's own browser", () => {
   });
 
   test("record, narrate, tabs, navigate and close reach the person's browser and answer its state", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const computerId = personBrowserId(ada.id);
     const post = (path: string, json: unknown) =>
-      call(openbot, path, { method: "POST", as: "ada", json });
+      call(shardsopenbot, path, { method: "POST", as: "ada", json });
 
     const started = await post("/api/browser/recording", {
       action: "start",
@@ -1104,7 +1119,7 @@ describe("opening a person's own browser", () => {
     expect(((await stopped.json()) as BrowserApiState).recorder?.phase).toBe(
       "idle",
     );
-    const closed = await call(openbot, "/api/browser/close", {
+    const closed = await call(shardsopenbot, "/api/browser/close", {
       method: "POST",
       as: "ada",
     });
@@ -1116,7 +1131,7 @@ describe("opening a person's own browser", () => {
     // A form from another site cannot send any of these.
     expect(
       (
-        await call(openbot, "/api/browser/recording", {
+        await call(shardsopenbot, "/api/browser/recording", {
           method: "POST",
           as: "ada",
           headers: { "content-type": "text/plain" },
@@ -1127,15 +1142,15 @@ describe("opening a person's own browser", () => {
   });
 
   test("the computer's refusals reach the person as theirs, and its own failings never read as the person's", async () => {
-    // No Chrome or Edge here, in the computer's own words (agent-computer's browser-host.ts answers it 503): OpenBot's
+    // No Chrome or Edge here, in the computer's own words (agent-computer's browser-host.ts answers it 503): ShardsOpenBot's
     // setup, which the person is told is why their browser cannot open, and who can see to it.
     refuseNextOpen = { status: 503, error: NO_INSTALLED_BROWSER };
     const { result: unavailable, warned } = await logged(() =>
-      call(openbot, "/api/browser/open", { method: "POST", as: "ada" }),
+      call(shardsopenbot, "/api/browser/open", { method: "POST", as: "ada" }),
     );
     expect(unavailable.status).toBe(503);
     expect(await unavailable.json()).toEqual({ error: NOT_SET_UP });
-    // The computer's sentence is in the server's log, for whoever runs OpenBot.
+    // The computer's sentence is in the server's log, for whoever runs ShardsOpenBot.
     expect(
       warned
         .map((line) => JSON.parse(line) as Record<string, unknown>)
@@ -1152,9 +1167,9 @@ describe("opening a person's own browser", () => {
     refuseNextOpen = {
       status: 409,
       error:
-        "Your organization's Recorder policy does not allow this OpenBot. Ask your IT team.",
+        "Your organization's Recorder policy does not allow this ShardsOpenBot. Ask your IT team.",
     };
-    const refused = await call(openbot, "/api/browser/open", {
+    const refused = await call(shardsopenbot, "/api/browser/open", {
       method: "POST",
       as: "ada",
     });
@@ -1164,7 +1179,7 @@ describe("opening a person's own browser", () => {
       status: 502,
       error: "The Recorder in your browser does not offer its launcher.",
     };
-    const failed = await call(openbot, "/api/browser/open", {
+    const failed = await call(shardsopenbot, "/api/browser/open", {
       method: "POST",
       as: "ada",
     });
@@ -1172,7 +1187,7 @@ describe("opening a person's own browser", () => {
     expect(await failed.json()).toEqual({
       error: "The Recorder in your browser does not offer its launcher.",
     });
-    // OpenBot calling its computer with the wrong token is not the person signed out.
+    // ShardsOpenBot calling its computer with the wrong token is not the person signed out.
     const misconfigured = build({}, { token: "not-the-computer-token" });
     const wrong = await call(misconfigured, "/api/browser/open", {
       method: "POST",
@@ -1186,8 +1201,8 @@ describe("opening a person's own browser", () => {
 
   test("a computer with no built Recorder: the person is told their browser cannot open, and the setup sentence stays in both logs", async () => {
     // The fourth end-to-end run: with the Recorder missing on the computer, the Browser page showed the computer's
-    // sentence naming OPENBOT_RECORDER_DIR and a build command. The real computer, its Recorder directory empty.
-    const dir = await mkdtemp(join(tmpdir(), "openbot-no-recorder-"));
+    // sentence naming SHARDSOPENBOT_RECORDER_DIR and a build command. The real computer, its Recorder directory empty.
+    const dir = await mkdtemp(join(tmpdir(), "shardsopenbot-no-recorder-"));
     await Promise.all(
       ["recorder", "profiles", "workspace"].map((name) =>
         mkdir(join(dir, name)),
@@ -1205,7 +1220,7 @@ describe("opening a person's own browser", () => {
           PORT: String(REAL_COMPUTER_PORT),
           PROFILES_DIR: join(dir, "profiles"),
           WORKSPACE_DIR: join(dir, "workspace"),
-          OPENBOT_RECORDER_DIR: join(dir, "recorder"),
+          SHARDSOPENBOT_RECORDER_DIR: join(dir, "recorder"),
           // Started for Ada's browser alone, as a supervisor starts the container it makes for it.
           COMPUTER_BOT_ID: personBrowserId(ada.id),
         },
@@ -1247,7 +1262,7 @@ describe("opening a person's own browser", () => {
       expect(result.status).toBe(503);
       expect(await result.json()).toEqual({ error: NOT_SET_UP });
 
-      // The computer's own sentence, for whoever runs OpenBot, in the server's log and in the computer's.
+      // The computer's own sentence, for whoever runs ShardsOpenBot, in the server's log and in the computer's.
       const failures = warned
         .map((line) => JSON.parse(line) as Record<string, unknown>)
         .filter((line) => line.type === "browser-computer-failed");
@@ -1256,7 +1271,7 @@ describe("opening a person's own browser", () => {
           type: "browser-computer-failed",
           path: "/browser/open",
           status: 503,
-          error: expect.stringContaining("OPENBOT_RECORDER_DIR"),
+          error: expect.stringContaining("SHARDSOPENBOT_RECORDER_DIR"),
         },
       ]);
       realComputer.kill();
@@ -1288,9 +1303,9 @@ describe("opening a person's own browser", () => {
 
   test("the computer refuses a person's browser on itself where Bots run, whatever the server was told", async () => {
     // The computer's half of keeping a person's browser off the computer Bots share: a server configured to think the
-    // shared computer is a computer of its own (a provider that says per-bot, a stray OPENBOT_BROWSER_URL) still cannot
+    // shared computer is a computer of its own (a provider that says per-bot, a stray SHARDSOPENBOT_BROWSER_URL) still cannot
     // open a person's browser beside Bots.
-    const dir = await mkdtemp(join(tmpdir(), "openbot-shared-computer-"));
+    const dir = await mkdtemp(join(tmpdir(), "shardsopenbot-shared-computer-"));
     await Promise.all(
       ["profiles", "workspace"].map((name) => mkdir(join(dir, name))),
     );
@@ -1307,7 +1322,7 @@ describe("opening a person's own browser", () => {
           PORT: String(SHARED_COMPUTER_PORT),
           PROFILES_DIR: join(dir, "profiles"),
           WORKSPACE_DIR: join(dir, "workspace"),
-          OPENBOT_RECORDER_DIR: join(dir, "recorder"),
+          SHARDSOPENBOT_RECORDER_DIR: join(dir, "recorder"),
         },
         stdout: "pipe",
         stderr: "pipe",
@@ -1359,8 +1374,8 @@ describe("opening a person's own browser", () => {
       for (const path of ["/browser/state", "/egress-policy", "/control"]) {
         const asked = await fetch(`${base}${path}`, {
           headers: {
-            "x-openbot-computer-token": COMPUTER_TOKEN,
-            "x-openbot-bot-id": personBrowserId(ada.id),
+            "x-shardsopenbot-computer-token": COMPUTER_TOKEN,
+            "x-shardsopenbot-bot-id": personBrowserId(ada.id),
           },
         });
         expect(asked.status).toBe(503);
@@ -1375,8 +1390,8 @@ describe("opening a person's own browser", () => {
         (
           await fetch(`${base}/control`, {
             headers: {
-              "x-openbot-computer-token": COMPUTER_TOKEN,
-              "x-openbot-bot-id": "agent_7",
+              "x-shardsopenbot-computer-token": COMPUTER_TOKEN,
+              "x-shardsopenbot-bot-id": "agent_7",
             },
           })
         ).status,
@@ -1394,7 +1409,7 @@ describe("opening a person's own browser", () => {
       "The Recorder could not be connected: The Recorder did not answer in time.";
     refuseNextOpen = { status: 502, error: sentence };
     const { result, warned } = await logged(() =>
-      call(openbot, "/api/browser/open", { method: "POST", as: "ada" }),
+      call(shardsopenbot, "/api/browser/open", { method: "POST", as: "ada" }),
     );
     expect(result.status).toBe(502);
     expect(
@@ -1417,16 +1432,19 @@ describe("opening a person's own browser", () => {
     confirmOpens = {
       askMs: 200,
       me: async (token) =>
-        (await call(openbot, "/api/recorder/me", { headers: bearer(token) }))
-          .status,
+        (
+          await call(shardsopenbot, "/api/recorder/me", {
+            headers: bearer(token),
+          })
+        ).status,
     };
     try {
-      const first = call(openbot, "/api/browser/open", {
+      const first = call(shardsopenbot, "/api/browser/open", {
         method: "POST",
         as: "ada",
       });
       await Bun.sleep(50);
-      const second = call(openbot, "/api/browser/open", {
+      const second = call(shardsopenbot, "/api/browser/open", {
         method: "POST",
         as: "ada",
       });
@@ -1448,7 +1466,7 @@ describe("opening a person's own browser", () => {
     // The connection the Recorder holds is the one that stands.
     expect(
       (
-        await call(openbot, "/api/recorder/me", {
+        await call(shardsopenbot, "/api/recorder/me", {
           headers: bearer(handed(ada.id).token),
         })
       ).status,
@@ -1463,7 +1481,7 @@ describe("opening a person's own browser", () => {
       for (let index = 0; index < 10; index += 1) {
         expect(await codes.mintCode(ben.id, "web")).not.toBeNull();
       }
-      const refused = await call(openbot, "/api/browser/open", {
+      const refused = await call(shardsopenbot, "/api/browser/open", {
         method: "POST",
         as: "ben",
       });
@@ -1483,7 +1501,7 @@ describe("opening a person's own browser", () => {
           eventType: "recorder.connect_refused",
           targetType: "recorder_connection",
           actorUserId: ben.id,
-          payload: { reason: "too_many_codes", via: "openbot-browser" },
+          payload: { reason: "too_many_codes", via: "shardsopenbot-browser" },
         },
       ]);
     } finally {
@@ -1494,8 +1512,8 @@ describe("opening a person's own browser", () => {
   });
 
   test("each person reaches only their own browser", async () => {
-    await open(openbot, "ada");
-    const benOpened = await open(openbot, "ben");
+    await open(shardsopenbot, "ada");
+    const benOpened = await open(shardsopenbot, "ben");
     expect(benOpened.computerId).toBe(personBrowserId(ben.id));
     expect(handed(ben.id).user.id).toBe(ben.id);
     expect(
@@ -1504,7 +1522,7 @@ describe("opening a person's own browser", () => {
     // Ben's token is Ben's, never Ada's.
     expect(
       await (
-        await call(openbot, "/api/recorder/me", {
+        await call(shardsopenbot, "/api/recorder/me", {
           headers: bearer(handed(ben.id).token),
         })
       ).json(),
@@ -1543,7 +1561,7 @@ const typesOf = (lines: string[]) =>
 
 describe("narration on the server's clock", () => {
   const post = (json: unknown) =>
-    call(openbot, "/api/browser/narration", {
+    call(shardsopenbot, "/api/browser/narration", {
       method: "POST",
       as: "ada",
       json,
@@ -1557,7 +1575,7 @@ describe("narration on the server's clock", () => {
   const SKEW_MS = -3_600_000;
 
   test("a phrase is moved onto the server's clock by how far the page's clock is from it, and reaches the Recorder so", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const pageNow = Date.now() + SKEW_MS;
     const before = Date.now();
     const answer = await post({
@@ -1582,7 +1600,7 @@ describe("narration on the server's clock", () => {
   });
 
   test("the person starting and stopping a phrase reaches the Recorder on the server's clock too", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const pageNow = Date.now() + SKEW_MS;
     const before = Date.now();
     expect(
@@ -1606,7 +1624,7 @@ describe("narration on the server's clock", () => {
   });
 
   test("times no phrase sent now could have are refused, and nothing reaches the Recorder", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const computerId = personBrowserId(ada.id);
     const pageNow = Date.now() + SKEW_MS;
     const count = () => browsers.get(computerId)?.narrated.length;
@@ -1659,7 +1677,7 @@ describe("narration on the server's clock", () => {
 });
 
 describe("a slow page, and a browser that cannot be reached", () => {
-  test("OpenBot waits longer for its computer than the computer waits for a page", async () => {
+  test("ShardsOpenBot waits longer for its computer than the computer waits for a page", async () => {
     // The computer's own navigation timeout, as it sets it (agent-computer/src/index.ts).
     const source = await Bun.file(
       new URL("../../agent-computer/src/index.ts", import.meta.url),
@@ -1746,21 +1764,24 @@ describe("a slow page, and a browser that cannot be reached", () => {
     expect(STATE_TIMEOUT_MS).toBeLessThan(10_000);
   });
 
-  test("a slow open and a slow page answer through OpenBot's own server, never with an empty reply", async () => {
+  test("a slow open and a slow page answer through ShardsOpenBot's own server, never with an empty reply", async () => {
     // Bun.serve closes a request that has sent nothing for 10 s, and these waited on the computer for up to 45 s, or 90
     // for an open: a cold open or a slow page reached the person as an empty reply, and the app said only its fallback.
-    await call(openbot, "/api/browser/close", { method: "POST", as: "ada" });
+    await call(shardsopenbot, "/api/browser/close", {
+      method: "POST",
+      as: "ada",
+    });
     const server = startHttpServer({
       port: SERVER_PORT,
-      config: openbot.config,
+      config: shardsopenbot.config,
       resolveRequestActor: async () => {
         throw new Error("Only the live screen asks this.");
       },
       agentProfileStore: { get: async () => null } as never,
-      computerGateway: openbot.gateway,
+      computerGateway: shardsopenbot.gateway,
       demonstrationStore: {} as never,
       demonstrationRecorder: {} as never,
-      app: openbot.app,
+      app: shardsopenbot.app,
     });
     const post = (path: string, json?: unknown) =>
       fetch(`http://127.0.0.1:${SERVER_PORT}${path}`, {
@@ -1880,7 +1901,7 @@ describe("a slow page, and a browser that cannot be reached", () => {
 });
 
 describe("a browser that is open and not answering", () => {
-  /** What the person is told, on an OpenBot with sign-in. */
+  /** What the person is told, on an ShardsOpenBot with sign-in. */
   const NOT_ANSWERING =
     "Your browser isn't answering. If it doesn't come back soon, ask an admin for help.";
   /** How many requests the computer took that start with `line` (`<method> <path>`). */
@@ -1888,11 +1909,11 @@ describe("a browser that is open and not answering", () => {
     asked.filter((entry) => entry.startsWith(line)).length;
 
   test("the state says so in a sentence, the Browser button stays, and it shows again once the browser answers", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     silentState = { answers: true };
     try {
       const { result: asked, warned } = await logged(() =>
-        call(openbot, "/api/browser", { as: "ada" }),
+        call(shardsopenbot, "/api/browser", { as: "ada" }),
       );
       // Not logged as a failure at every ask: the page asks every second, and the computer says it once.
       expect(typesOf(warned)).toEqual([]);
@@ -1905,7 +1926,7 @@ describe("a browser that is open and not answering", () => {
       });
       // Record is told the same at once, and never reaches the browser to wait on it.
       const recordsBefore = timesAsked("POST /browser/recording");
-      const record = await call(openbot, "/api/browser/recording", {
+      const record = await call(shardsopenbot, "/api/browser/recording", {
         method: "POST",
         as: "ada",
         json: { action: "start", title: "Pay the invoice" },
@@ -1917,16 +1938,16 @@ describe("a browser that is open and not answering", () => {
       silentState = null;
     }
     const back = (await (
-      await call(openbot, "/api/browser", { as: "ada" })
+      await call(shardsopenbot, "/api/browser", { as: "ada" })
     ).json()) as BrowserApiState;
     expect(back.open).toBe(true);
     expect(back.problem).toBeUndefined();
   });
 
-  test("a computer that does not answer at all still gets the person an answer, before OpenBot's own server would close the request", async () => {
+  test("a computer that does not answer at all still gets the person an answer, before ShardsOpenBot's own server would close the request", async () => {
     // The end-to-end run: the state waited 45 s, Bun.serve closed the person's request with an empty reply at 10, the
     // Browser page had nothing to say and the sidebar lost its Browser button.
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     let release = () => {};
     silentState = {
       never: new Promise<void>((resolve) => {
@@ -1935,15 +1956,15 @@ describe("a browser that is open and not answering", () => {
     };
     const server = startHttpServer({
       port: SERVER_PORT,
-      config: openbot.config,
+      config: shardsopenbot.config,
       resolveRequestActor: async () => {
         throw new Error("Only the live screen asks this.");
       },
       agentProfileStore: { get: async () => null } as never,
-      computerGateway: openbot.gateway,
+      computerGateway: shardsopenbot.gateway,
       demonstrationStore: {} as never,
       demonstrationRecorder: {} as never,
-      app: openbot.app,
+      app: shardsopenbot.app,
     });
     try {
       const asking = Date.now();
@@ -1968,15 +1989,15 @@ describe("a browser that is open and not answering", () => {
   }, 30_000);
 });
 
-describe("Record after the OpenBot browser is disconnected", () => {
+describe("Record after the ShardsOpenBot browser is disconnected", () => {
   const record = (title: string) =>
-    call(openbot, "/api/browser/recording", {
+    call(shardsopenbot, "/api/browser/recording", {
       method: "POST",
       as: "ada",
       json: { action: "start", title },
     });
   const stop = () =>
-    call(openbot, "/api/browser/recording", {
+    call(shardsopenbot, "/api/browser/recording", {
       method: "POST",
       as: "ada",
       json: { action: "stop" },
@@ -1984,7 +2005,7 @@ describe("Record after the OpenBot browser is disconnected", () => {
   const disconnect = async (connectionId: string) =>
     expect(
       (
-        await call(openbot, `/api/recorder/connections/${connectionId}`, {
+        await call(shardsopenbot, `/api/recorder/connections/${connectionId}`, {
           method: "DELETE",
           as: "ada",
         })
@@ -1996,13 +2017,16 @@ describe("Record after the OpenBot browser is disconnected", () => {
       .length;
   const disconnects = (id = computerId()) =>
     asked.filter((line) => line === `POST /browser/disconnect ${id}`).length;
-  const state = async (on: OpenBot = openbot, as: "ada" | "ben" = "ada") =>
+  const state = async (
+    on: ShardsOpenBot = shardsopenbot,
+    as: "ada" | "ben" = "ada",
+  ) =>
     (await (await call(on, "/api/browser", { as })).json()) as BrowserApiState;
 
   test("Disconnect in Settings, Browsers tells the person's open browser at once, and its Recorder and the state say it is signed out", async () => {
     // The second end-to-end run: after Disconnect the Recorder went on saying it was connected for minutes (90 s on
-    // Desktop, 125 s hosted, before the run stopped looking), until its next call to OpenBot.
-    await open(openbot, "ada");
+    // Desktop, 125 s hosted, before the run stopped looking), until its next call to ShardsOpenBot.
+    await open(shardsopenbot, "ada");
     const revoked = handed(ada.id);
     expect((await state()).recorder).toMatchObject({
       connected: true,
@@ -2039,7 +2063,7 @@ describe("Record after the OpenBot browser is disconnected", () => {
   });
 
   test("a Recorder the revoke did not reach is never reported connected, and Record connects it again first", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const revoked = handed(ada.id);
     // An older computer, with no disconnect route: the revoke stands, and the Recorder has not heard.
     refuseNextDisconnect = { status: 404 };
@@ -2054,7 +2078,7 @@ describe("Record after the OpenBot browser is disconnected", () => {
     expect(reported.recorder).toMatchObject({ connected: false });
     expect(reported.recorder).not.toHaveProperty("userId");
     // Every answer that carries the state says so, not only the state route's.
-    const tabs = await call(openbot, "/api/browser/tabs", {
+    const tabs = await call(shardsopenbot, "/api/browser/tabs", {
       method: "POST",
       as: "ada",
       json: { action: "new" },
@@ -2077,9 +2101,12 @@ describe("Record after the OpenBot browser is disconnected", () => {
 
   test("a closed, stopped, unreachable or slow browser never fails the revoke", async () => {
     // Closed: the computer has nothing to tell, and says so.
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const closedOne = handed(ada.id);
-    await call(openbot, "/api/browser/close", { method: "POST", as: "ada" });
+    await call(shardsopenbot, "/api/browser/close", {
+      method: "POST",
+      as: "ada",
+    });
     const { warned: closedWarned } = await logged(() =>
       disconnect(closedOne.connectionId),
     );
@@ -2108,7 +2135,7 @@ describe("Record after the OpenBot browser is disconnected", () => {
         } satisfies ComputerProvider,
       },
     );
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const before = disconnects();
     expect(
       (
@@ -2140,7 +2167,7 @@ describe("Record after the OpenBot browser is disconnected", () => {
         } satisfies ComputerProvider,
       },
     );
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const { result: unreachable, failed } = await logged(() =>
       call(gone, `/api/recorder/connections/${handed(ada.id).connectionId}`, {
         method: "DELETE",
@@ -2150,9 +2177,9 @@ describe("Record after the OpenBot browser is disconnected", () => {
     expect(unreachable.status).toBe(204);
     expect(typesOf(failed)).toEqual(["browser-computer-unreachable"]);
 
-    // A computer that takes the request and does not answer: the revoke answers once OpenBot stops waiting.
+    // A computer that takes the request and does not answer: the revoke answers once ShardsOpenBot stops waiting.
     const impatient = build({}, { callTimeoutMs: 300 });
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const slow = handed(ada.id);
     let release = () => {};
     refuseNextDisconnect = {
@@ -2177,27 +2204,27 @@ describe("Record after the OpenBot browser is disconnected", () => {
     for (const connection of [closedOne, slow])
       expect(
         (
-          await call(openbot, "/api/recorder/me", {
+          await call(shardsopenbot, "/api/recorder/me", {
             headers: bearer(connection.token),
           })
         ).status,
       ).toBe(401);
   });
 
-  test("only the OpenBot browser's own connection reaches it: not another browser's, and not the Recorder's own Disconnect", async () => {
-    await open(openbot, "ada");
+  test("only the ShardsOpenBot browser's own connection reaches it: not another browser's, and not the Recorder's own Disconnect", async () => {
+    await open(shardsopenbot, "ada");
     const browser = handed(ada.id);
     const before = disconnects();
 
     // Ada's Chrome on her laptop, connected through the Recorder's own Connect, disconnected in Settings, Browsers.
     const code = (await (
-      await call(openbot, "/api/recorder/connect-codes", {
+      await call(shardsopenbot, "/api/recorder/connect-codes", {
         method: "POST",
         as: "ada",
         json: { via: "web" },
       })
     ).json()) as { code: string };
-    const exchanged = await call(openbot, "/api/recorder/connections", {
+    const exchanged = await call(shardsopenbot, "/api/recorder/connections", {
       method: "POST",
       headers: { origin: `chrome-extension://${RECORDER_EXTENSION_ID}` },
       json: {
@@ -2216,11 +2243,11 @@ describe("Record after the OpenBot browser is disconnected", () => {
       userId: ada.id,
     });
 
-    // The Recorder in the OpenBot browser disconnecting itself from its own popup: it forgets the connection itself, as
+    // The Recorder in the ShardsOpenBot browser disconnecting itself from its own popup: it forgets the connection itself, as
     // the person's own Disconnect, so it is not told it was signed out.
     expect(
       (
-        await call(openbot, "/api/recorder/connections/current", {
+        await call(shardsopenbot, "/api/recorder/connections/current", {
           method: "DELETE",
           headers: bearer(browser.token),
         })
@@ -2230,10 +2257,10 @@ describe("Record after the OpenBot browser is disconnected", () => {
   });
 
   test("Disconnect in Settings, Browsers, then Record: the browser is connected again first, and records under a connection that stands", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const revoked = handed(ada.id);
     await disconnect(revoked.connectionId);
-    // OpenBot told the Recorder at once, and it says it is signed out.
+    // ShardsOpenBot told the Recorder at once, and it says it is signed out.
     expect(browsers.get(computerId())?.state.recorder?.connected).toBe(false);
 
     const started = await record("Look up Charles Babbage");
@@ -2245,26 +2272,26 @@ describe("Record after the OpenBot browser is disconnected", () => {
     expect(now.connectionId).not.toBe(revoked.connectionId);
     const recordedUnder = browsers.get(computerId())?.recordedUnder as string;
     expect(recordedUnder).toBe(now.token);
-    // Its capture passes carry a token OpenBot takes as the person's.
-    const me = await call(openbot, "/api/recorder/me", {
+    // Its capture passes carry a token ShardsOpenBot takes as the person's.
+    const me = await call(shardsopenbot, "/api/recorder/me", {
       headers: bearer(recordedUnder),
     });
     expect(me.status).toBe(200);
     expect(await me.json()).toMatchObject({ user: { id: ada.id } });
-    // One OpenBot browser in Settings, Browsers again, the new one.
+    // One ShardsOpenBot browser in Settings, Browsers again, the new one.
     const listed = (await (
-      await call(openbot, "/api/recorder/connections", { as: "ada" })
+      await call(shardsopenbot, "/api/recorder/connections", { as: "ada" })
     ).json()) as RecorderConnectionsResponse;
     expect(
       listed.connections
-        .filter((row) => row.via === "openbot-browser")
+        .filter((row) => row.via === "shardsopenbot-browser")
         .map((row) => row.id),
     ).toEqual([now.connectionId]);
     expect((await stop()).status).toBe(200);
   });
 
   test("a Recorder that holds no connection of its own is connected again too", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const opened = browsers.get(computerId()) as Opened;
     opened.state.recorder = {
       connected: false,
@@ -2281,7 +2308,7 @@ describe("Record after the OpenBot browser is disconnected", () => {
   });
 
   test("a connection that stands is not made again for every recording", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     const held = handed(ada.id);
     const before = opens();
     expect((await record("Refund order 1043")).status).toBe(200);
@@ -2291,10 +2318,10 @@ describe("Record after the OpenBot browser is disconnected", () => {
   });
 
   test("when the Recorder refuses to connect again, Record says why and nothing is recorded", async () => {
-    await open(openbot, "ada");
+    await open(shardsopenbot, "ada");
     await disconnect(handed(ada.id).connectionId);
     const sentence =
-      "The Recorder could not be connected: Your organization's Recorder policy does not allow this OpenBot. Ask your IT team.";
+      "The Recorder could not be connected: Your organization's Recorder policy does not allow this ShardsOpenBot. Ask your IT team.";
     refuseNextOpen = { status: 502, error: sentence };
     const recordings = () =>
       asked.filter((line) => line === `POST /browser/recording ${computerId()}`)
@@ -2313,7 +2340,7 @@ describe("Record after the OpenBot browser is disconnected", () => {
 });
 
 describe("who hears the person, as every answer says it", () => {
-  // The window decides (shared/openbot-browser.ts): a native window's Recorder hears the person itself and says whether
+  // The window decides (shared/shardsopenbot-browser.ts): a native window's Recorder hears the person itself and says whether
   // it does (`voice`); a screen's browser has no microphone, the app hears the person, and there is no `voice`.
   const expected = {
     screen: { narration: "external" as const },
@@ -2321,11 +2348,11 @@ describe("who hears the person, as every answer says it", () => {
   };
   const state = async () =>
     (await (
-      await call(openbot, "/api/browser", { as: "ada" })
+      await call(shardsopenbot, "/api/browser", { as: "ada" })
     ).json()) as BrowserApiState;
   const newTab = async () =>
     (await (
-      await call(openbot, "/api/browser/tabs", {
+      await call(shardsopenbot, "/api/browser/tabs", {
         method: "POST",
         as: "ada",
         json: { action: "new" },
@@ -2337,11 +2364,11 @@ describe("who hears the person, as every answer says it", () => {
       openAs = window;
       try {
         // Closed first, so it opens in this window: an open browser keeps the window it has.
-        await call(openbot, "/api/browser/close", {
+        await call(shardsopenbot, "/api/browser/close", {
           method: "POST",
           as: "ada",
         });
-        const opened = await open(openbot, "ada");
+        const opened = await open(shardsopenbot, "ada");
         expect(opened.narration).toBe(expected[window].narration);
         const signedIn: LauncherState = {
           connected: true,
@@ -2360,7 +2387,7 @@ describe("who hears the person, as every answer says it", () => {
         // its own default narration, `own` with a voice, whatever window it is in (the third end-to-end run's hosted
         // Disconnect).
         const removed = await call(
-          openbot,
+          shardsopenbot,
           `/api/recorder/connections/${handed(ada.id).connectionId}`,
           { method: "DELETE", as: "ada" },
         );
@@ -2385,7 +2412,7 @@ describe("who hears the person, as every answer says it", () => {
 });
 
 describe("a person's browser where every Bot shares one computer", () => {
-  // With OPENBOT_BROWSER_URL unset, a person's browser used to run on the shared computer, in the container where Bots
+  // With SHARDSOPENBOT_BROWSER_URL unset, a person's browser used to run on the shared computer, in the container where Bots
   // may run a shell, so a prompt-injected Bot could read the person's cookies off its disk.
   test("is refused through every route before anything reaches the computer, and the state says why", async () => {
     const shared = build(
@@ -2464,7 +2491,7 @@ describe("a person's browser where every Bot shares one computer", () => {
     );
   });
 
-  test("a computer of each one's own, and OpenBot Desktop's host-side computer, still run it", () => {
+  test("a computer of each one's own, and ShardsOpenBot Desktop's host-side computer, still run it", () => {
     const shared = { isolation: "shared" } as const;
     const own = { isolation: "per-bot" } as const;
     expect(personBrowserRefusal(shared, undefined)).toBe(SHARED_COMPUTER);
@@ -2478,7 +2505,7 @@ describe("a person's browser on the computer routes and the live screen", () => 
 
   test("its person reads who holds the wheel; nobody else does, an admin included, and nothing that acts as a Bot answers", async () => {
     const control = await call(
-      openbot,
+      shardsopenbot,
       `/api/computers/${adaBrowser()}/control`,
       {
         as: "ada",
@@ -2491,7 +2518,7 @@ describe("a person's browser on the computer routes and the live screen", () => 
     });
     for (const as of ["ben", "admin"] as const) {
       const refused = await call(
-        openbot,
+        shardsopenbot,
         `/api/computers/${adaBrowser()}/control`,
         { as },
       );
@@ -2506,7 +2533,7 @@ describe("a person's browser on the computer routes and the live screen", () => 
       ["GET", "files/download"],
     ] as const) {
       const refused = await call(
-        openbot,
+        shardsopenbot,
         `/api/computers/${adaBrowser()}/${path}`,
         { method, as: "ada", json: method === "POST" ? {} : undefined },
       );
@@ -2517,7 +2544,7 @@ describe("a person's browser on the computer routes and the live screen", () => 
   test("the live screen streams to its person and refuses everyone else, an admin included", async () => {
     const server = startHttpServer({
       port: SERVER_PORT,
-      config: openbot.config,
+      config: shardsopenbot.config,
       resolveRequestActor: async (request) => {
         const person = personOf(request.headers.get("cookie"));
         if (!person) throw new Error("Sign in first.");
@@ -2528,14 +2555,14 @@ describe("a person's browser on the computer routes and the live screen", () => 
         };
       },
       agentProfileStore: { get: async () => null } as never,
-      computerGateway: openbot.gateway,
+      computerGateway: shardsopenbot.gateway,
       demonstrationStore: {
         active: async () => {
           throw new Error("A person's browser is never a demonstration.");
         },
       } as never,
       demonstrationRecorder: {} as never,
-      app: openbot.app,
+      app: shardsopenbot.app,
     });
     try {
       const watch = (as: keyof typeof PEOPLE, id = adaBrowser()) =>
@@ -2571,17 +2598,17 @@ describe("a person's browser on the computer routes and the live screen", () => 
   });
 });
 
-describe("where the browser reaches this OpenBot", () => {
+describe("where the browser reaches this ShardsOpenBot", () => {
   test("the configured public origin, else this machine's own window, else the app's address; never another site", () => {
     const at = (environment: { publicUrl?: string; appUrl?: string }) =>
-      openbotAddress({
+      shardsopenbotAddress({
         publicUrl: environment.publicUrl,
         appUrl: environment.appUrl,
       });
-    expect(at({ publicUrl: "https://openbot.example.com/" })(undefined)).toBe(
-      "https://openbot.example.com",
-    );
-    // OpenBot Desktop: no public URL, and its window found its own loopback address.
+    expect(
+      at({ publicUrl: "https://shardsopenbot.example.com/" })(undefined),
+    ).toBe("https://shardsopenbot.example.com");
+    // ShardsOpenBot Desktop: no public URL, and its window found its own loopback address.
     const desktop = at({ appUrl: "http://localhost:3010" });
     expect(desktop("http://[::1]:3010")).toBe("http://[::1]:3010");
     expect(desktop("http://127.0.0.1:3010")).toBe("http://127.0.0.1:3010");
@@ -2593,16 +2620,16 @@ describe("where the browser reaches this OpenBot", () => {
     ).toBe("https://app.example.com");
     // An address the Recorder would refuse is no answer: plain http to another machine.
     expect(
-      at({ publicUrl: "http://openbot.internal:3001" })(undefined),
+      at({ publicUrl: "http://shardsopenbot.internal:3001" })(undefined),
     ).toBeNull();
   });
 
   test("with no address the Recorder would connect to, the person is told their browser cannot open, and the setting to fix is in the log", async () => {
-    // The person used to be told to set OPENBOT_PUBLIC_URL, which only whoever runs OpenBot can do.
+    // The person used to be told to set SHARDSOPENBOT_PUBLIC_URL, which only whoever runs ShardsOpenBot can do.
     const nowhere = build({
-      OPENBOT_PUBLIC_URL: "http://openbot.internal:3001",
-      BETTER_AUTH_URL: "http://openbot.internal:3001",
-      TRUSTED_ORIGINS: "http://openbot.internal:3010",
+      SHARDSOPENBOT_PUBLIC_URL: "http://shardsopenbot.internal:3001",
+      BETTER_AUTH_URL: "http://shardsopenbot.internal:3001",
+      TRUSTED_ORIGINS: "http://shardsopenbot.internal:3010",
     });
     const { result: refused, warned } = await logged(() =>
       call(nowhere, "/api/browser/open", {
@@ -2620,29 +2647,29 @@ describe("where the browser reaches this OpenBot", () => {
       {
         type: "browser-open-no-address",
         error:
-          "This OpenBot has no address a person's browser can reach it at, so the Recorder in it cannot be connected. Set OPENBOT_PUBLIC_URL to this OpenBot's https address.",
+          "This ShardsOpenBot has no address a person's browser can reach it at, so the Recorder in it cannot be connected. Set SHARDSOPENBOT_PUBLIC_URL to this ShardsOpenBot's https address.",
       },
     ]);
   });
 });
 
-describe("a single-user OpenBot, where the person is its admin", () => {
+describe("a single-user ShardsOpenBot, where the person is its admin", () => {
   /**
-   * OpenBot Desktop's server: one person and no sign-in, no address anybody else reaches, and people's browsers on the
+   * ShardsOpenBot Desktop's server: one person and no sign-in, no address anybody else reaches, and people's browsers on the
    * host-side computer (here the stand-in), so they show as windows on the person's desktop.
    */
   const desktop = () =>
     build({
-      OPENBOT_SINGLE_USER: "true",
-      OPENBOT_PUBLIC_URL: undefined,
+      SHARDSOPENBOT_SINGLE_USER: "true",
+      SHARDSOPENBOT_PUBLIC_URL: undefined,
       BETTER_AUTH_URL: undefined,
       BETTER_AUTH_SECRET: undefined,
       GOOGLE_OAUTH_CLIENT_ID: undefined,
       GOOGLE_OAUTH_CLIENT_SECRET: undefined,
       INITIAL_ADMIN_EMAILS: undefined,
-      OPENBOT_BROWSER_URL: `http://127.0.0.1:${COMPUTER_PORT}`,
+      SHARDSOPENBOT_BROWSER_URL: `http://127.0.0.1:${COMPUTER_PORT}`,
     });
-  /** The address OpenBot Desktop's window uses, which the Recorder is handed. */
+  /** The address ShardsOpenBot Desktop's window uses, which the Recorder is handed. */
   const WINDOW = { origin: "http://127.0.0.1:3010" };
 
   beforeAll(async () => {
@@ -2654,8 +2681,8 @@ describe("a single-user OpenBot, where the person is its admin", () => {
       .where(eq(recorderConnections.userId, DEV_ACTOR.id));
   });
 
-  test("a browser the computer cannot run is OpenBot's setup, which the person is told to check themselves, not to ask an admin about", async () => {
-    // Run 7, on OpenBot Desktop: the person was told to ask an admin, and on Desktop there is nobody else.
+  test("a browser the computer cannot run is ShardsOpenBot's setup, which the person is told to check themselves, not to ask an admin about", async () => {
+    // Run 7, on ShardsOpenBot Desktop: the person was told to ask an admin, and on Desktop there is nobody else.
     const single = desktop();
     expect(single.config.singleUser).toBe(true);
     expect(
@@ -2681,10 +2708,10 @@ describe("a single-user OpenBot, where the person is its admin", () => {
       },
     ]);
 
-    // On an OpenBot with sign-in, the same refusal still sends the person to an admin.
+    // On an ShardsOpenBot with sign-in, the same refusal still sends the person to an admin.
     refuseNextOpen = { status: 503, error: NO_INSTALLED_BROWSER };
     const { result: multi } = await logged(() =>
-      call(openbot, "/api/browser/open", { method: "POST", as: "ada" }),
+      call(shardsopenbot, "/api/browser/open", { method: "POST", as: "ada" }),
     );
     expect(multi.status).toBe(503);
     expect(await multi.json()).toEqual({ error: NOT_SET_UP });
@@ -2703,7 +2730,7 @@ describe("a single-user OpenBot, where the person is its admin", () => {
       ).toMatchObject({
         available: true,
         problem:
-          "Your browser isn't answering. If it doesn't come back soon, quit OpenBot and open it again.",
+          "Your browser isn't answering. If it doesn't come back soon, quit ShardsOpenBot and open it again.",
       });
     } finally {
       silentState = null;
@@ -2711,7 +2738,7 @@ describe("a single-user OpenBot, where the person is its admin", () => {
   });
 
   test("with no address the Recorder would connect to, the single person is told the same, and the setting is in the log", async () => {
-    // A request with no Origin, and nothing configured: OpenBot has no address to hand the Recorder.
+    // A request with no Origin, and nothing configured: ShardsOpenBot has no address to hand the Recorder.
     const { result: refused, warned } = await logged(() =>
       call(desktop(), "/api/browser/open", { method: "POST" }),
     );
@@ -2763,7 +2790,7 @@ describe("organization mode", () => {
     });
     const org = build(
       {
-        OPENBOT_ORGANIZATION_AUTH_URL: `http://127.0.0.1:${AUTHORITY_PORT}`,
+        SHARDSOPENBOT_ORGANIZATION_AUTH_URL: `http://127.0.0.1:${AUTHORITY_PORT}`,
       },
       { auth: organizationAuth, organizationAuth },
     );
@@ -2782,7 +2809,7 @@ describe("organization mode", () => {
       `${APP}/api/auth/organization/session?ticket=${ticket}`,
     );
     const cookie = consumed.headers.get("set-cookie")?.split(";")[0] as string;
-    expect(cookie).toStartWith("openbot.organization-session=");
+    expect(cookie).toStartWith("shardsopenbot.organization-session=");
 
     const opened = await org.app.request(`${APP}/api/browser/open`, {
       method: "POST",
@@ -2793,7 +2820,7 @@ describe("organization mode", () => {
     const [row] = await database
       .select()
       .from(recorderConnections)
-      .where(eq(recorderConnections.via, "openbot-browser"))
+      .where(eq(recorderConnections.via, "shardsopenbot-browser"))
       .then((rows) =>
         rows.filter(
           (candidate) =>

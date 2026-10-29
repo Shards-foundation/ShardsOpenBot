@@ -46,7 +46,7 @@ type Attempt =
   | { state: "closed" }
   | { state: "failed"; message: string };
 
-/** Whether the Recorder in this browser is installed, and connected to this OpenBot as you. `onInstallId` hears this
+/** Whether the Recorder in this browser is installed, and connected to this ShardsOpenBot as you. `onInstallId` hears this
  * browser's own copy once it is known (it answers with it only once connected: not while its Connect page waits for
  * the person, since any site can ask to connect), so the list of connected browsers can say which row is this one. */
 export function ThisBrowser({
@@ -55,7 +55,7 @@ export function ThisBrowser({
   onInstallId?: (installId: string | undefined) => void;
 } = {}) {
   const [attempt, setAttempt] = useState<Attempt>({ state: "idle" });
-  // The install id a trusted OpenBot's connect answer carried: a copy only reports its own once connected.
+  // The install id a trusted ShardsOpenBot's connect answer carried: a copy only reports its own once connected.
   const [connectedAs, setConnectedAs] = useState<string | undefined>();
   const awaiting = attempt.state === "awaiting";
   const connections = useQuery(recorderConnectionsQueryOptions({ awaiting }));
@@ -151,7 +151,7 @@ export function ThisBrowser({
       }
       setConnectedAs(answer.installId);
       if (answer.connected) {
-        // A trusted OpenBot: connected already, with no Connect page to wait on. The new connection is read before the
+        // A trusted ShardsOpenBot: connected already, with no Connect page to wait on. The new connection is read before the
         // row stops saying it is connecting, so it goes straight to Connected.
         await queryClient.invalidateQueries({ queryKey: recorderKeys.all });
         setAttempt({ state: "idle" });
@@ -182,7 +182,7 @@ export function ThisBrowser({
               <IconBrowser />
             </ItemMedia>
             <ItemContent>
-              <ItemTitle>OpenBot Recorder</ItemTitle>
+              <ItemTitle>ShardsOpenBot Recorder</ItemTitle>
               <ItemDescription>
                 {describe(detected, connected, attempt)}
               </ItemDescription>
@@ -209,7 +209,7 @@ export function ThisBrowser({
 
 /**
  * The Recorder's store page in this browser, in a new tab, where it is published, as the sidebar's Browser button opens
- * it (`StorePageLink`): a link, because it goes somewhere, with the same note waiting in OpenBot for when the person
+ * it (`StorePageLink`): a link, because it goes somewhere, with the same note waiting in ShardsOpenBot for when the person
  * comes back. Once they added it, coming back to this page finds it and offers Connect. Nothing where the browser has no
  * store page for it.
  */
@@ -237,17 +237,18 @@ function describe(
   connected: boolean,
   attempt: Attempt,
 ): string {
-  if (!detected) return "The OpenBot Recorder isn't installed in this browser.";
+  if (!detected)
+    return "The ShardsOpenBot Recorder isn't installed in this browser.";
   if (connected) return "Connected";
   switch (attempt.state) {
     case "awaiting":
-      return "Confirm in the OpenBot Recorder tab that opened.";
+      return "Confirm in the ShardsOpenBot Recorder tab that opened.";
     case "expired":
       return "The request expired. Try again.";
     case "cancelled":
-      return "You cancelled in the OpenBot Recorder tab. Nothing was connected.";
+      return "You cancelled in the ShardsOpenBot Recorder tab. Nothing was connected.";
     case "closed":
-      return "The OpenBot Recorder tab closed before you confirmed. Nothing was connected.";
+      return "The ShardsOpenBot Recorder tab closed before you confirmed. Nothing was connected.";
     case "failed":
       return attempt.message;
     default:

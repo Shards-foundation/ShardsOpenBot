@@ -1,5 +1,5 @@
 //! Owner approval is collected by native dialogs, never by an app/tool-provided answer.
-use openbot_desktop_lib::host_access::{
+use shardsopenbot_desktop_lib::host_access::{
     command_approval, ApprovedFolder, ChooseFolderPrompt, CommandApproval, CommandPolicy,
     CommandPrompt, HostAccessError, HostAccessResult, HostApprovalUi, LocalCommandAllowList,
     WritePrompt,
@@ -70,7 +70,7 @@ impl<R: tauri::Runtime> NativeApproval<R> {
         let window = self
             .0
             .get_webview_window("main")
-            .ok_or_else(|| refused("The local OpenBot window is closed."))?;
+            .ok_or_else(|| refused("The local ShardsOpenBot window is closed."))?;
         window.show().map_err(|error| refused(error.to_string()))?;
         window
             .set_focus()
@@ -82,7 +82,7 @@ impl<R: tauri::Runtime> NativeApproval<R> {
         let window = self
             .0
             .get_webview_window("main")
-            .ok_or_else(|| refused("The local OpenBot window is closed."))?;
+            .ok_or_else(|| refused("The local ShardsOpenBot window is closed."))?;
         window.show().map_err(|error| refused(error.to_string()))?;
         window
             .set_focus()
@@ -113,7 +113,7 @@ impl<R: tauri::Runtime> HostApprovalUi for NativeApproval<R> {
         let window = self
             .0
             .get_webview_window("main")
-            .ok_or_else(|| refused("The local OpenBot window is closed."))?;
+            .ok_or_else(|| refused("The local ShardsOpenBot window is closed."))?;
         window.show().map_err(|error| refused(error.to_string()))?;
         window
             .set_focus()
@@ -130,7 +130,7 @@ impl<R: tauri::Runtime> HostApprovalUi for NativeApproval<R> {
             .into_path()
             .map_err(|error| refused(error.to_string()))?;
         self.confirm("Allow folder access?", format!(
-            "Bot: {bot}\nRequested by: {}\n\nFolder: {}\n\nAllow this Bot to read this folder for this OpenBot session? Each edit and command asks separately. You can revoke access in Computers.",
+            "Bot: {bot}\nRequested by: {}\n\nFolder: {}\n\nAllow this Bot to read this folder for this ShardsOpenBot session? Each edit and command asks separately. You can revoke access in Computers.",
             request.actor_id, root.display()
         ))?;
         Ok(ApprovedFolder { root })
@@ -140,7 +140,7 @@ impl<R: tauri::Runtime> HostApprovalUi for NativeApproval<R> {
         reviewable(&request.content)?;
         let bot = bot_label(request.bot_name.as_deref(), &request.bot_id);
         self.confirm("Allow this file change?", format!(
-            "Bot: {bot}\nFolder: {}\nFile: {}\n\nNew content:\n{}\n\nAllow this exact change once? OpenBot keeps the previous contents when replacing a file.",
+            "Bot: {bot}\nFolder: {}\nFile: {}\n\nNew content:\n{}\n\nAllow this exact change once? ShardsOpenBot keeps the previous contents when replacing a file.",
             request.root.display(), request.relative_path, request.content
         ))
     }
@@ -165,17 +165,17 @@ impl<R: tauri::Runtime> HostApprovalUi for NativeApproval<R> {
         };
         let setting = if offer_always {
             format!(
-                "Your OpenBot setting: {}. Choose \"{ALWAYS_HERE}\" to stop asking about {bot}'s read-only commands in this folder on this computer.",
+                "Your ShardsOpenBot setting: {}. Choose \"{ALWAYS_HERE}\" to stop asking about {bot}'s read-only commands in this folder on this computer.",
                 request.command_policy.label()
             )
         } else if request.writable && request.command_policy == CommandPolicy::Allow {
             format!(
-                "Your OpenBot setting: {}. Commands that can edit files still ask every time.",
+                "Your ShardsOpenBot setting: {}. Commands that can edit files still ask every time.",
                 request.command_policy.label()
             )
         } else {
             format!(
-                "Your OpenBot setting: {}. Change it in Settings → Approvals.",
+                "Your ShardsOpenBot setting: {}. Change it in Settings → Approvals.",
                 request.command_policy.label()
             )
         };

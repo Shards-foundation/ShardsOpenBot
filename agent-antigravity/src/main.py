@@ -38,7 +38,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from google.antigravity.models import GeminiAPIEndpoint
 
-TOKEN_HEADER = "x-openbot-agent-token"
+TOKEN_HEADER = "x-shardsopenbot-agent-token"
 
 #: The Gemini row this Bot is pinned to. Both variable names come from it.
 _GOOGLE = SPEC["providers"]["google"]

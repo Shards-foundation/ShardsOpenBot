@@ -1,5 +1,5 @@
 /**
- * What openbot needs of Composio the BROKER, as against Composio the transport.
+ * What shardsopenbot needs of Composio the BROKER, as against Composio the transport.
  *
  * `./composio` is about calling an action once an app is connected. This file is about everything
  * that has to be true before that: which apps exist to choose from, which of them this deployment
@@ -382,7 +382,7 @@ export type AuthConfigOutcome = "created" | "standing" | "not-needed";
 /**
  * What one account holds at one app, in THIS DEPLOYMENT'S OWN VOCABULARY rather than a vendor's row.
  *
- * `action` PLUS A STATE PLUS `scopes` IS OPENBOT'S SHAPE AND NOT ARCADE'S. A provider that grants
+ * `action` PLUS A STATE PLUS `scopes` IS SHARDSOPENBOT'S SHAPE AND NOT ARCADE'S. A provider that grants
  * per action answers one of these per action because that is what it knows; a provider that grants
  * per app answers the same state once per action because that is what IT knows, and neither is
  * reading the other's rows. The four states are what a caller can act on — run it, send them to a
@@ -556,14 +556,14 @@ export type ConnectedAppBroker = {
    * - on a TOOL LISTING, `requirements.authorization.provider_id` is the provider TYPE (`google`) —
    *   this is the one this member reads, and the one it returns;
    * - on a USER-CONNECTION ROW, `provider_id` is the provider INSTANCE id, an operator's
-   *   configuration OF a type (`google-openbot`, `arcade-google`, `cpk-poc`). A refusal envelope's
+   *   configuration OF a type (`google-shardsopenbot`, `arcade-google`, `cpk-poc`). A refusal envelope's
    *   `"provider_id": "cpk-poc"` is an instance too;
    * - on an AUTH-PROVIDER CONFIG the two sit side by side — `id` is the INSTANCE and `provider_id`
    *   is the TYPE — which is the only bridge between the first two, because a connection row
    *   carries no vendor-type field at all: its `provider_type` is `"oauth2"`, the auth SCHEME.
    *
    * SO A CALLER MUST NOT COMPARE THIS ANSWER TO A CONNECTION ROW'S `provider_id`. `"google"` never
-   * equals `"google-openbot"`, so that comparison matched zero rows on every real deployment —
+   * equals `"google-shardsopenbot"`, so that comparison matched zero rows on every real deployment —
    * Arcade's own defaults included, since those are `arcade-google` and `arcade-github` and never
    * the bare type — and it read as "connected to nothing" rather than as an error. A caller wanting
    * rows expands this type into the SET of configured instance ids of that type first; the Arcade
@@ -679,7 +679,7 @@ export type ConnectedAppBroker = {
      *
      * AND `string` IS THE WHOLE OF WHAT THE TYPE CAN PROMISE, WHICH IS WHY
      * {@link brokerReturnUrl} EXISTS. "Required" above means "not optional", and `""`, `"   "` and
-     * `openbot.example.com/settings/...` are all required values: they satisfy this field and
+     * `shardsopenbot.example.com/settings/...` are all required values: they satisfy this field and
      * reach the vendor as a callback nobody returns through. Nor can a narrower type fix it — the
      * address is assembled at run time from an environment variable, so the caller holds a
      * `string` and every type an ordinary `string` is assignable to admits the empty one too. The
@@ -957,7 +957,7 @@ export class BrokerAccountHeldError extends BrokerRefusalError {
  * ITS OWN CLASS BECAUSE ITS REMEDY IS ITS OWN. Every other refusal in this file is about the broker
  * — a key that is not set, a config this deployment never made, a consent the vendor answered with
  * no page. This one is about this deployment's own address for itself, and the reader who can act
- * on it is an operator with `OPENBOT_APP_URL` in front of them. A caller that could not tell the
+ * on it is an operator with `SHARDSOPENBOT_APP_URL` in front of them. A caller that could not tell the
  * two apart would send somebody to check a vendor key that is perfectly fine.
  *
  * A {@link BrokerRefusalError} because it keeps that class's promise about the message: the sentence
@@ -967,7 +967,7 @@ export class BrokerAccountHeldError extends BrokerRefusalError {
  *
  * TWO SENTENCES, BECAUSE THE READER WHO MEETS THIS IS NOT THE READER WHO CAN FIX IT, and that is
  * the whole of what this class now settles. Both call sites are `requireUser` routes: whoever reads
- * `message` is somebody who pressed Connect, and `OPENBOT_APP_URL` is an environment variable they
+ * `message` is somebody who pressed Connect, and `SHARDSOPENBOT_APP_URL` is an environment variable they
  * cannot set and a vendor name is vocabulary spec D11 keeps off their screen — the same division
  * {@link BrokerUnconfiguredError} draws between its `person` and its `operator`. So `message` says
  * what happened and who to ask, and {@link operatorMessage} — which the route logs rather than
@@ -991,13 +991,13 @@ export class BrokerReturnUrlError extends BrokerRefusalError {
     const { vendor } = BROKERED_PROFILE[provider];
     super(
       address === "unbuilt"
-        ? "OpenBot has no address to bring you back to, so connecting didn't start. Nothing was asked of your account. Ask an admin to set OpenBot's address."
-        : "OpenBot's return address isn't a web address, so connecting didn't start. Nothing was asked of your account. Ask an admin to fix OpenBot's address.",
+        ? "ShardsOpenBot has no address to bring you back to, so connecting didn't start. Nothing was asked of your account. Ask an admin to set ShardsOpenBot's address."
+        : "ShardsOpenBot's return address isn't a web address, so connecting didn't start. Nothing was asked of your account. Ask an admin to fix ShardsOpenBot's address.",
     );
     this.operatorMessage =
       address === "unbuilt"
-        ? `This deployment built no address for ${vendor} to send a person back to, so the connection was not begun rather than begun with nowhere to land. Set OPENBOT_APP_URL to the address this deployment's pages are served from, and connecting an app will have a return leg.`
-        : `The address ${vendor} would send a person back to is not a web address, so a consent granted there would end on ${vendor}'s own page with no way back here. Set OPENBOT_APP_URL to this deployment's own origin including the scheme — https://openbot.example.com rather than openbot.example.com.`;
+        ? `This deployment built no address for ${vendor} to send a person back to, so the connection was not begun rather than begun with nowhere to land. Set SHARDSOPENBOT_APP_URL to the address this deployment's pages are served from, and connecting an app will have a return leg.`
+        : `The address ${vendor} would send a person back to is not a web address, so a consent granted there would end on ${vendor}'s own page with no way back here. Set SHARDSOPENBOT_APP_URL to this deployment's own origin including the scheme — https://shardsopenbot.example.com rather than shardsopenbot.example.com.`;
     this.name = "BrokerReturnUrlError";
   }
 }
@@ -1013,8 +1013,8 @@ export class BrokerReturnUrlError extends BrokerRefusalError {
  *
  * TWO REFUSALS, BECAUSE THEY ARE TWO DIFFERENT MISTAKES. An empty address is a caller that built
  * none — the guard in front of this one did not run, or ran against the wrong value. An address that
- * is not a web page is a configured one that cannot work: `OPENBOT_APP_URL` set to
- * `openbot.example.com`, which no browser can resolve from the vendor's origin, or to `localhost:3001`,
+ * is not a web page is a configured one that cannot work: `SHARDSOPENBOT_APP_URL` set to
+ * `shardsopenbot.example.com`, which no browser can resolve from the vendor's origin, or to `localhost:3001`,
  * where `localhost:` is read as the scheme. Both are reachable from the settings this deployment
  * actually ships — the variable is an environment string and nothing between it and the vendor looks
  * at it — and both end with the same person on the same hosted page with nowhere to go.
@@ -1028,7 +1028,7 @@ export class BrokerReturnUrlError extends BrokerRefusalError {
  *
  * WHAT COMES BACK IS THE ADDRESS THAT WAS CHECKED, WHICH IS NOT ALWAYS THE STRING THAT WENT IN. The
  * check reads a parsed address: the emptiness test trims, and parsing drops the spaces and control
- * characters a URL cannot contain — so ` https://openbot.test/…`, an address ending in a newline and
+ * characters a URL cannot contain — so ` https://shardsopenbot.test/…`, an address ending in a newline and
  * one with a tab inside its host all satisfy this guard while denoting something else entirely. A
  * version that approved the parsed address and returned the raw one approved nothing: the padding
  * travelled on to the vendor as part of the callback, which is the person stranded on a vendor page
@@ -1099,13 +1099,13 @@ export type ProviderDecision =
   /** No key is set: this deployment has no broker and never had one through configuration. */
   | { kind: "unconfigured" }
   /**
-   * Both keys are set and `OPENBOT_BROKER_PROVIDER` names neither, so configuration proposes two
+   * Both keys are set and `SHARDSOPENBOT_BROKER_PROVIDER` names neither, so configuration proposes two
    * providers and chooses between them nowhere. A legal state — `docs/plugins/arcade.md` says so,
    * and a migrating deployment passes through it — and the one an answer must never be invented
    * for.
    */
   | { kind: "ambiguous"; configured: BrokerProvider[] }
-  /** `OPENBOT_BROKER_PROVIDER` names a provider whose key is unset: an operator's typo. */
+  /** `SHARDSOPENBOT_BROKER_PROVIDER` names a provider whose key is unset: an operator's typo. */
   | { kind: "misnamed"; named: BrokerProvider };
 
 /**
@@ -1220,6 +1220,6 @@ export function assertActivatable(
   }
   if (otherProviderRows === 0) return;
   throw new BrokerRefusalError(
-    `${self} cannot be activated while ${otherProviderRows} brokered connection${otherProviderRows === 1 ? "" : "s"} still belong${otherProviderRows === 1 ? "s" : ""} to ${other}. Keep ${other} active — its API key set and OPENBOT_BROKER_PROVIDER=${other.toLowerCase()} — and end those connections first: each person disconnects their own on the connected-accounts page, an administrator disconnects a Shared app's account, or an administrator removes an app, which ends every account connected to it. There is no single action that ends them all. Switching providers by changing the environment would leave accounts nobody can revoke.`,
+    `${self} cannot be activated while ${otherProviderRows} brokered connection${otherProviderRows === 1 ? "" : "s"} still belong${otherProviderRows === 1 ? "s" : ""} to ${other}. Keep ${other} active — its API key set and SHARDSOPENBOT_BROKER_PROVIDER=${other.toLowerCase()} — and end those connections first: each person disconnects their own on the connected-accounts page, an administrator disconnects a Shared app's account, or an administrator removes an app, which ends every account connected to it. There is no single action that ends them all. Switching providers by changing the environment would leave accounts nobody can revoke.`,
   );
 }

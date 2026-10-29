@@ -32,7 +32,7 @@ export class CoworkerRoutingInputError extends Error {
   }
 }
 
-const DEV_ACTOR_EMAIL = "dev@openbot.local";
+const DEV_ACTOR_EMAIL = "dev@shardsopenbot.local";
 const WORD_CHARACTER = /[\p{L}\p{N}\p{M}_]/u;
 
 export type CoworkerRouteResult =

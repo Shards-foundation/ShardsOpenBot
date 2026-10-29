@@ -6,7 +6,7 @@ import { testEnvironment } from "./support/environment";
 
 const MEMBER = {
   id: "member-1",
-  email: "member@openbot.test",
+  email: "member@shardsopenbot.test",
   name: "A Member",
   image: null,
 };
@@ -55,7 +55,7 @@ describe("onboarding routes", () => {
     const { store } = memoryStore({ step: 1, completedAt: null });
     const app = appWith(store);
 
-    const response = await app.request("http://openbot.local/api/me");
+    const response = await app.request("http://shardsopenbot.local/api/me");
 
     expect(response.status).toBe(200);
     const body = (await response.json()) as {
@@ -67,7 +67,7 @@ describe("onboarding routes", () => {
   test("/api/me reports null onboarding when the deployment has no store", async () => {
     const app = appWith(undefined);
 
-    const response = await app.request("http://openbot.local/api/me");
+    const response = await app.request("http://shardsopenbot.local/api/me");
 
     expect(response.status).toBe(200);
     const body = (await response.json()) as { user: { onboarding: null } };
@@ -79,7 +79,7 @@ describe("onboarding routes", () => {
     const app = appWith(store);
 
     const response = await app.request(
-      "http://openbot.local/api/me/onboarding",
+      "http://shardsopenbot.local/api/me/onboarding",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -99,7 +99,7 @@ describe("onboarding routes", () => {
     const app = appWith(store);
 
     const response = await app.request(
-      "http://openbot.local/api/me/onboarding",
+      "http://shardsopenbot.local/api/me/onboarding",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -128,7 +128,7 @@ describe("onboarding routes", () => {
     const app = appWith(store);
 
     const response = await app.request(
-      "http://openbot.local/api/me/onboarding",
+      "http://shardsopenbot.local/api/me/onboarding",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -144,7 +144,7 @@ describe("onboarding routes", () => {
     const app = appWith(undefined);
 
     const response = await app.request(
-      "http://openbot.local/api/me/onboarding",
+      "http://shardsopenbot.local/api/me/onboarding",
       {
         method: "POST",
         headers: { "content-type": "application/json" },

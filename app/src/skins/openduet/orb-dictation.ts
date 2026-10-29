@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 /*
  * THE ORB TALKS THROUGH THE COMPOSER'S OWN DICTATION, IT DOES NOT HAVE ONE OF ITS OWN.
  *
- * OpenBot's composer owns dictation end to end (`components/channels/composer/use-dictation.ts`):
+ * ShardsOpenBot's composer owns dictation end to end (`components/channels/composer/use-dictation.ts`):
  * the recording, the transcription, the waveform, Retry, and where the words land, which is that
  * composer's draft. A second session in the header would have to put text into an editor it does
  * not own, and would race the composer's own. So the orb presses the composer's own control, by
- * the name OpenBot gives it, and reads the composer's own controls back to know it is listening.
- * Everything a person sees while they talk is OpenBot's.
+ * the name ShardsOpenBot gives it, and reads the composer's own controls back to know it is listening.
+ * Everything a person sees while they talk is ShardsOpenBot's.
  *
- * Every part of the composer is found by the `data-slot` hooks OpenBot gives skins, never by its
+ * Every part of the composer is found by the `data-slot` hooks ShardsOpenBot gives skins, never by its
  * classes or its words; `tests/skins-openduet-orb.test.tsx` renders the real composer and holds
  * every one of these to it.
  */
@@ -23,12 +23,12 @@ export const RECORDING_SELECTOR = '[data-slot="composer-dictate-cancel"]';
 export const STOP_SELECTOR = '[data-slot="composer-dictate-stop"]';
 /**
  * Drawn by the composer for as long as the Bot's turn runs in this conversation: the most direct
- * word OpenBot has that the Bot is working, and it needs no round trip through the server.
+ * word ShardsOpenBot has that the Bot is working, and it needs no round trip through the server.
  */
 export const WORKING_SELECTOR = '[data-slot="composer-stop"]';
 /**
  * How long the Stop control has to stay before the orb reads the Bot as working. Opening a
- * conversation shows it for a moment while OpenBot checks for a turn already running, and an orb
+ * conversation shows it for a moment while ShardsOpenBot checks for a turn already running, and an orb
  * that thought for that moment on every open would be a flicker, not news. A real turn runs far
  * longer than this.
  */

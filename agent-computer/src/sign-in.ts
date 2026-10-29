@@ -50,7 +50,7 @@ export type SignInCodeResult = {
   error?: string;
 };
 
-const LOGIN_ATTRIBUTE = "data-openbot-login";
+const LOGIN_ATTRIBUTE = "data-shardsopenbot-login";
 const STEP_TIMEOUT_MS = 15_000;
 
 /** The origin of a URL, or empty for one that has none (`about:blank`). */

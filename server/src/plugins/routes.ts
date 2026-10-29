@@ -102,7 +102,7 @@ export function createPluginRoutes(
    * TAKEN FROM THE STORE, BECAUSE THE STORE'S ROWS ARE WHAT IS BEING NAMED. It used to be read off
    * the broker bag with `?? "composio"` behind it, and that `??` was a second answer to a question
    * `server/src/index.ts` had already answered. The two came apart exactly where it hurt: a
-   * deployment with both API keys set and `OPENBOT_BROKER_PROVIDER` unset — legal, and what a
+   * deployment with both API keys set and `SHARDSOPENBOT_BROKER_PROVIDER` unset — legal, and what a
    * migration sits in — is wired with NO broker, so the bag is absent, so every `arcade://` row of
    * that deployment was parsed with Composio's parser. The account-mode switch refused those rows
    * as "not reached through a broker", the directory called enabled apps not enabled, connect fell

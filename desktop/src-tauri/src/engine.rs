@@ -15,10 +15,10 @@
 //!   to run as LocalSystem, so none of this can be done from a service; see `windows.rs`.
 //!
 //! A second rule was learned the same way: **never assume the engine is on this process's PATH.**
-//! When OpenBot installs Podman itself, the installer extends the *user's* PATH, and this process
+//! When ShardsOpenBot installs Podman itself, the installer extends the *user's* PATH, and this process
 //! was started with the old one. `podman` then cannot be run for the rest of the session, so the
 //! app reports no engine while `podman.exe` sits on disk where it was just put. Every engine
-//! command is therefore built from a resolved path, and the Compose provider OpenBot placed is put
+//! command is therefore built from a resolved path, and the Compose provider ShardsOpenBot placed is put
 //! on the child's PATH. See `install.rs`.
 //!
 //! One rule cuts across all three: **never address Podman through its ambient default connection.**
@@ -303,19 +303,19 @@ struct MachineListing {
     running: bool,
 }
 
-/// Where OpenBot keeps the engine tools it installed itself.
+/// Where ShardsOpenBot keeps the engine tools it installed itself.
 ///
 /// Set once, at start-up, because the app knows its own cache directory and this module is called
 /// from places that do not. Unset in tests and in any caller that never installed anything, which
 /// is why every read tolerates its absence.
 static TOOLS: OnceLock<PathBuf> = OnceLock::new();
 
-/// Tell this module where the tools OpenBot installed live.
+/// Tell this module where the tools ShardsOpenBot installed live.
 pub fn tools_live_in(dir: PathBuf) {
     let _ = TOOLS.set(dir);
 }
 
-/// The directory holding OpenBot's own copy of the Compose provider, under a download directory.
+/// The directory holding ShardsOpenBot's own copy of the Compose provider, under a download directory.
 pub fn tools_dir_under(downloads: &Path) -> PathBuf {
     downloads.join("bin")
 }
@@ -374,7 +374,7 @@ fn command_at(engine: Engine, binary: &Path) -> Command {
 
 /// This process's PATH with `first` in front of it.
 ///
-/// In front, so the provider OpenBot placed is the one found; appended, a broken `docker-compose`
+/// In front, so the provider ShardsOpenBot placed is the one found; appended, a broken `docker-compose`
 /// earlier on PATH would still win.
 fn path_with(first: &Path) -> OsString {
     let mut joined = OsString::from(first);
@@ -390,7 +390,7 @@ fn path_with(first: &Path) -> OsString {
 /// Where this engine's binary is, looking on PATH first and then where installers put it.
 ///
 /// PATH first, because somebody who installed it themselves may have put it anywhere and that
-/// choice is theirs. The fixed places are the fallback for the session in which OpenBot installed
+/// choice is theirs. The fixed places are the fallback for the session in which ShardsOpenBot installed
 /// it, when this process's PATH is the one it started with.
 pub fn program(engine: Engine) -> Option<PathBuf> {
     on_path(engine.binary()).or_else(|| where_installers_put(engine))
@@ -529,7 +529,7 @@ pub fn detect() -> EngineStatus {
         address: None,
         responding: false,
         engine_socket: None,
-        // Not an instruction any more: OpenBot installs one. See `install.rs`.
+        // Not an instruction any more: ShardsOpenBot installs one. See `install.rs`.
         detail: "No container engine yet.".into(),
     }
 }
@@ -692,13 +692,13 @@ fn main() {
 
     #[test]
     fn a_podman_machine_is_named_on_every_command_it_is_addressed_with() {
-        let address = Address::new(Engine::Podman, Some("openbot".into()));
+        let address = Address::new(Engine::Podman, Some("shardsopenbot".into()));
         let command = address.command();
         let args: Vec<_> = command
             .get_args()
             .map(|arg| arg.to_string_lossy())
             .collect();
-        assert_eq!(args, ["--connection", "openbot"]);
+        assert_eq!(args, ["--connection", "shardsopenbot"]);
     }
 
     #[test]
@@ -707,7 +707,7 @@ fn main() {
         assert_eq!(command.get_args().count(), 0);
     }
 
-    /// The program is a path, not a name. This is the fix for an engine OpenBot has just installed
+    /// The program is a path, not a name. This is the fix for an engine ShardsOpenBot has just installed
     /// but this process's PATH does not know about, and asserting it here is the only place it is
     /// visible without a machine that has no engine on it.
     #[test]
@@ -729,7 +729,7 @@ fn main() {
     /// yet" screen reachable rather than a panic.
     #[test]
     fn a_binary_that_is_nowhere_is_absent_rather_than_guessed_at() {
-        assert_eq!(on_path("openbot-not-a-real-binary"), None);
+        assert_eq!(on_path("shardsopenbot-not-a-real-binary"), None);
     }
 
     #[test]
@@ -760,7 +760,7 @@ fn main() {
             std::fs::create_dir_all(installation.parent().unwrap()).unwrap();
             std::fs::copy(&binary, &installation).unwrap();
             assert_eq!(program(Engine::Podman).as_ref(), Some(&installation));
-            let address = Address::new(Engine::Podman, Some("openbot".into()));
+            let address = Address::new(Engine::Podman, Some("shardsopenbot".into()));
             assert_eq!(address.parts().0, installation);
             assert!(address.responds(), "resolved engine should actually run");
             assert!(tool(Engine::Podman)
@@ -778,10 +778,10 @@ fn main() {
     /// somebody's PATH would otherwise be the one Podman runs.
     #[test]
     fn the_provider_directory_goes_in_front_of_the_inherited_path() {
-        let ours = Path::new("/tmp/openbot-tools");
+        let ours = Path::new("/tmp/shardsopenbot-tools");
         let joined = path_with(ours);
         let text = joined.to_string_lossy();
-        assert!(text.starts_with("/tmp/openbot-tools"), "{text}");
+        assert!(text.starts_with("/tmp/shardsopenbot-tools"), "{text}");
         if let Some(existing) = std::env::var_os("PATH") {
             assert!(text.ends_with(&*existing.to_string_lossy()), "{text}");
         }
@@ -791,18 +791,18 @@ fn main() {
     /// for both and a retry finds what it already fetched.
     #[test]
     fn the_tools_live_under_the_downloads_they_came_from() {
-        let downloads = Path::new("/tmp/openbot-engine");
+        let downloads = Path::new("/tmp/shardsopenbot-engine");
         assert_eq!(tools_dir_under(downloads), downloads.join("bin"));
     }
 
     #[test]
     fn an_answering_engine_says_which_machine_answered() {
-        let status = answering(Address::new(Engine::Podman, Some("openbot".into())));
+        let status = answering(Address::new(Engine::Podman, Some("shardsopenbot".into())));
         assert!(status.responding);
-        assert!(status.detail.contains("openbot"), "{}", status.detail);
+        assert!(status.detail.contains("shardsopenbot"), "{}", status.detail);
         assert_eq!(
             status.address.unwrap().connection.as_deref(),
-            Some("openbot")
+            Some("shardsopenbot")
         );
     }
 }
@@ -828,7 +828,7 @@ pub mod local_api {
 
     fn problem(detail: impl Into<String>) -> Problem {
         Problem::with(
-            "OpenBot could not prepare its container API. Try again.",
+            "ShardsOpenBot could not prepare its container API. Try again.",
             detail,
         )
     }
@@ -1073,13 +1073,13 @@ mod local_api_tests {
                 "engine::local_api_tests::api_fixture_child",
                 "--nocapture",
             ])
-            .env("OPENBOT_API_FIXTURE_SOCKET", socket);
+            .env("SHARDSOPENBOT_API_FIXTURE_SOCKET", socket);
         command
     }
 
     #[test]
     fn api_fixture_child() {
-        let Some(socket) = std::env::var_os("OPENBOT_API_FIXTURE_SOCKET") else {
+        let Some(socket) = std::env::var_os("SHARDSOPENBOT_API_FIXTURE_SOCKET") else {
             return;
         };
         use std::io::{Read, Write};

@@ -12,7 +12,7 @@ async function signOut() {
 }
 
 /**
- * Every way out of OpenBot signs out through here, the skins' own menus included.
+ * Every way out of ShardsOpenBot signs out through here, the skins' own menus included.
  *
  * The skin is the account's, and this browser only caches it to paint before the preferences load.
  * Clearing it here means the next person on a shared machine starts from the default rather than

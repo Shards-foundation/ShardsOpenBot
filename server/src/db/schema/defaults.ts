@@ -8,11 +8,11 @@ import {
 } from "drizzle-orm/pg-core";
 import { agents, users } from "./core";
 
-/** What a person can switch off that OpenBot otherwise switches on for them. */
+/** What a person can switch off that ShardsOpenBot otherwise switches on for them. */
 export type DefaultFeature = "memory_source" | "proactive_research";
 
 /**
- * A default a person turned down, so OpenBot never switches it back on.
+ * A default a person turned down, so ShardsOpenBot never switches it back on.
  *
  * Memory sources and background research are on by default (see `memory/defaults.ts`): a person who
  * talks to one of their Bots gets research from it, and each app they connected that the Bot can read

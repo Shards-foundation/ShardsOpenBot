@@ -5,7 +5,7 @@ import { join, relative } from "node:path";
 /**
  * Guard: a comment says why the code is as it is, in the code's own terms, never that a review asked for it.
  *
- * The Recorder's and the OpenBot Browser's tests (and a few of Desktop's) said "the code-owner review", "blocker 3" or
+ * The Recorder's and the ShardsOpenBot Browser's tests (and a few of Desktop's) said "the code-owner review", "blocker 3" or
  * "end-to-end run 1 of the review fixes" where the reason belonged: which defect the test pins, what a person saw. That
  * is review history, which the pull request keeps; to someone reading the test next year it says only that somebody
  * once asked, and nothing of what breaks if the test goes. So the sources and tests of the parts that work was in are

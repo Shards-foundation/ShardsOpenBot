@@ -10,7 +10,7 @@ import { signerFromJWK } from "web-bot-auth/crypto";
  * then carries three headers, in the form Cloudflare's verifier reads
  * (https://developers.cloudflare.com/bots/reference/bot-verification/web-bot-auth/):
  *
- *   Signature-Agent: "https://openbot.example.com"
+ *   Signature-Agent: "https://shardsopenbot.example.com"
  *   Signature-Input: sig1=("@authority" "signature-agent");created=…;keyid="…";alg="ed25519";expires=…;nonce="…";tag="web-bot-auth"
  *   Signature: sig1=:…:
  *

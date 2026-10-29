@@ -14,8 +14,8 @@ import {
   browserApiPaths,
   type LauncherState,
   type RealBrowserOpenResponse,
-} from "@openbot/shared/openbot-browser";
-import type { RecorderActivity } from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
+import type { RecorderActivity } from "@shardsopenbot/shared/recorder-api";
 import { environmentManager, QueryClientProvider } from "@tanstack/react-query";
 import {
   createMemoryHistory,
@@ -39,9 +39,9 @@ import { queryClient } from "@/query-client";
 import { settleReactWork } from "./settle-react-work";
 
 /**
- * The sidebar's Browser button, against the server's Browser routes as the contract in shared/openbot-browser.ts types
- * them: one click opens the person's browser. On OpenBot Desktop (`shows: "native"`) that is their own Chrome window,
- * opened or brought to the front while they stay where they are; on hosted OpenBot (`shows: "screen"`) it is the
+ * The sidebar's Browser button, against the server's Browser routes as the contract in shared/shardsopenbot-browser.ts types
+ * them: one click opens the person's browser. On ShardsOpenBot Desktop (`shows: "native"`) that is their own Chrome window,
+ * opened or brought to the front while they stay where they are; on hosted ShardsOpenBot (`shows: "screen"`) it is the
  * Browser page. On Desktop the click may instead bring the person's own everyday Chrome or Edge forward, or open the
  * Recorder's store page there, which a short note says. While any of the person's Recorders records (the server's
  * `activity`), in either, the button carries a red dot named for it.
@@ -62,16 +62,16 @@ afterAll(async () => {
 });
 
 const PERSON_BROWSER = `person-${"cd34".repeat(8)}`;
-/** What the server says when the person's browser cannot open for OpenBot's own setup (server/src/browser/routes.ts). */
+/** What the server says when the person's browser cannot open for ShardsOpenBot's own setup (server/src/browser/routes.ts). */
 const NOT_SET_UP =
-  "Your browser can't open right now. Ask an admin to check OpenBot's setup.";
+  "Your browser can't open right now. Ask an admin to check ShardsOpenBot's setup.";
 
 /** Every request the button made, as `<method> <path>`. */
 const requests: string[] = [];
 let state: BrowserApiState;
 let stateFails = false;
 /** How the server answers the next open: a refusal with its sentence, an answer held until `release` is called, or what
- * it did with the person's own browser on OpenBot Desktop. */
+ * it did with the person's own browser on ShardsOpenBot Desktop. */
 let nextOpen:
   | { refuse: string }
   | { held: Promise<void> }
@@ -132,7 +132,7 @@ function receipt(phase: LauncherState["phase"]): RecorderActivity {
   };
 }
 
-/** The Recorder in the open OpenBot browser at `phase`: its own report, and the `activity` the server makes of it. */
+/** The Recorder in the open ShardsOpenBot browser at `phase`: its own report, and the `activity` the server makes of it. */
 function recording(
   phase: LauncherState["phase"],
   shows: BrowserWindow = "native",
@@ -168,7 +168,7 @@ async function server(path: string, init?: RequestInit): Promise<Response> {
       return Response.json({ error: answer.refuse }, { status: 503 });
     if (answer && "real" in answer) return Response.json(answer.real);
     if (answer && "held" in answer) await answer.held;
-    // Where the browser that opened shows, which is not always where the state said it would: OpenBot Desktop opens a
+    // Where the browser that opened shows, which is not always where the state said it would: ShardsOpenBot Desktop opens a
     // browser in the page where it finds no Chrome or Edge.
     const shows =
       answer && "shownAs" in answer
@@ -271,7 +271,7 @@ const reads = () =>
   requests.filter((request) => request === `GET ${browserApiPaths.state}`)
     .length;
 
-test("on OpenBot Desktop the Browser button opens the person's own window in one click and leaves them where they are", async () => {
+test("on ShardsOpenBot Desktop the Browser button opens the person's own window in one click and leaves them where they are", async () => {
   const { view, router, visited } = draw();
   const button = await view.findByRole("button", { name: "Browser" });
   // A button, not a link: it goes nowhere.
@@ -292,7 +292,7 @@ test("on OpenBot Desktop the Browser button opens the person's own window in one
   expect(view.getByText("Home")).toBeTruthy();
 });
 
-test("on OpenBot Desktop, a click that opened a browser in the page takes the person to it", async () => {
+test("on ShardsOpenBot Desktop, a click that opened a browser in the page takes the person to it", async () => {
   // The end-to-end run: "Opening…" for seconds, then the person left on Home while their browser opened on the Browser
   // page they could not see.
   const { view, router } = draw();
@@ -306,7 +306,7 @@ test("on OpenBot Desktop, a click that opened a browser in the page takes the pe
   expect(toasts()).toEqual([]);
 });
 
-test("on OpenBot Desktop the keyboard opens the window as a button does: Tab to it, then Enter or Space", async () => {
+test("on ShardsOpenBot Desktop the keyboard opens the window as a button does: Tab to it, then Enter or Space", async () => {
   const { view, visited } = draw();
   const button = await view.findByRole("button", { name: "Browser" });
   const user = userEvent.setup({ document });
@@ -401,7 +401,7 @@ test("a refused open shows the server's own sentence in a toast that stays until
   expect(opens()).toBe(4);
 }, 15_000);
 
-test("on hosted OpenBot the Browser button is a link to the browser in the page, and the click opens nothing itself", async () => {
+test("on hosted ShardsOpenBot the Browser button is a link to the browser in the page, and the click opens nothing itself", async () => {
   state = closedState("screen");
   const { view, router } = draw();
   const link = await view.findByRole("link", { name: "Browser" });
@@ -431,7 +431,7 @@ test("a server from before shows was said keeps the Browser button a link to the
   expect(link.getAttribute("href")).toBe("/browser");
 });
 
-test("the sidebar has no Browser button where OpenBot cannot run one, or cannot say", async () => {
+test("the sidebar has no Browser button where ShardsOpenBot cannot run one, or cannot say", async () => {
   state = {
     available: false,
     computerId: PERSON_BROWSER,
@@ -471,7 +471,7 @@ for (const shows of ["native", "screen"] as const) {
     });
     expect(dots(view)).toEqual([]);
 
-    // Record, pressed in the Recorder's own toolbar button: the only place OpenBot hears of it is the state it reads.
+    // Record, pressed in the Recorder's own toolbar button: the only place ShardsOpenBot hears of it is the state it reads.
     const asked = reads();
     state = recording("recording", shows);
     const dot = await view.findByRole(
@@ -565,8 +565,8 @@ test("the sidebar asks often while the browser is open and rarely while it is cl
 }, 15_000);
 
 for (const shows of ["native", "screen"] as const) {
-  test(`a recording in the person's everyday browser puts the red dot on the ${shows === "native" ? "Desktop" : "hosted"} Browser button with no OpenBot browser open, and Stop there takes it away`, async () => {
-    // Nothing of OpenBot's own is open: the server's `activity` is the one thing saying a Recorder records.
+  test(`a recording in the person's everyday browser puts the red dot on the ${shows === "native" ? "Desktop" : "hosted"} Browser button with no ShardsOpenBot browser open, and Stop there takes it away`, async () => {
+    // Nothing of ShardsOpenBot's own is open: the server's `activity` is the one thing saying a Recorder records.
     state = { ...closedState(shows), activity: receipt("recording") };
     const { view } = draw();
     const dot = await view.findByRole("img", {
@@ -586,8 +586,8 @@ for (const shows of ["native", "screen"] as const) {
   });
 }
 
-test("the dot is the server's activity, not the OpenBot browser's own report: one that records nothing lights nothing", async () => {
-  // The server folds the OpenBot browser's Recorder into `activity` itself (server/src/browser/routes.ts); the sidebar
+test("the dot is the server's activity, not the ShardsOpenBot browser's own report: one that records nothing lights nothing", async () => {
+  // The server folds the ShardsOpenBot browser's Recorder into `activity` itself (server/src/browser/routes.ts); the sidebar
   // reads that alone, so one rule decides the dot wherever the person records.
   const { activity: _folded, ...unfolded } = recording("recording");
   state = unfolded;
@@ -597,7 +597,7 @@ test("the dot is the server's activity, not the OpenBot browser's own report: on
   expect(dots(view)).toEqual([]);
 });
 
-test("on OpenBot Desktop, while a Recorder in the person's own browser is connected, a Record pressed there lights the dot within two seconds", async () => {
+test("on ShardsOpenBot Desktop, while a Recorder in the person's own browser is connected, a Record pressed there lights the dot within two seconds", async () => {
   state = {
     ...closedState("native"),
     real: { connected: true, browsers: ["chrome", "msedge"] },
@@ -605,7 +605,7 @@ test("on OpenBot Desktop, while a Recorder in the person's own browser is connec
   const { view } = draw();
   await view.findByRole("button", { name: "Browser" });
   await waitFor(() => expect(reads()).toBe(1));
-  // Record, pressed in the Recorder's toolbar button in their everyday Chrome: OpenBot hears of it only from the state.
+  // Record, pressed in the Recorder's toolbar button in their everyday Chrome: ShardsOpenBot hears of it only from the state.
   state = { ...state, activity: receipt("starting") };
   expect(
     await view.findByRole(
@@ -616,14 +616,14 @@ test("on OpenBot Desktop, while a Recorder in the person's own browser is connec
   ).toBeTruthy();
 });
 
-test("on OpenBot Desktop a click that opened the Recorder's store page in the person's own browser says so in a short note, and they stay where they are", async () => {
+test("on ShardsOpenBot Desktop a click that opened the Recorder's store page in the person's own browser says so in a short note, and they stay where they are", async () => {
   nextOpen = { real: { ok: true, opened: "store", browser: "chrome" } };
   const { view, router, visited } = draw();
   const button = await view.findByRole("button", { name: "Browser" });
   const user = userEvent.setup({ document });
   await user.click(button);
   const chrome =
-    "The OpenBot Recorder's page is open in Google Chrome. Add it there to record in your own browser.";
+    "The ShardsOpenBot Recorder's page is open in Google Chrome. Add it there to record in your own browser.";
   expect(storeOpenedSentence("chrome")).toBe(chrome);
   await waitFor(() => expect(toasts()).toEqual([chrome]));
   // A note, not an alarm: nothing went wrong.
@@ -641,7 +641,7 @@ test("on OpenBot Desktop a click that opened the Recorder's store page in the pe
   await user.click(button);
   await waitFor(() =>
     expect(toasts()).toEqual([
-      "The OpenBot Recorder's page is open in Microsoft Edge. Add it there to record in your own browser.",
+      "The ShardsOpenBot Recorder's page is open in Microsoft Edge. Add it there to record in your own browser.",
     ]),
   );
   await waitFor(() => expect(button.getAttribute("aria-busy")).toBeNull());

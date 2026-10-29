@@ -1,5 +1,5 @@
 {
-  "name": "@openbot/example-mastra-bot",
+  "name": "@shardsopenbot/example-mastra-bot",
   "private": true,
   "type": "module",
   "scripts": {

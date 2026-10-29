@@ -19,13 +19,13 @@ export type DeploymentCapabilities = {
    */
   generativeUi: boolean;
   /**
-   * Whether to show the banner offering help self-hosting OpenBot. A fork that runs OpenBot for its
-   * own organization turns it off with OPENBOT_SELF_HOST_BANNER=false, and the server answers false
+   * Whether to show the banner offering help self-hosting ShardsOpenBot. A fork that runs ShardsOpenBot for its
+   * own organization turns it off with SHARDSOPENBOT_SELF_HOST_BANNER=false, and the server answers false
    * for a deployment on a paid Intelligence plan.
    */
   selfHostBanner: boolean;
   /**
-   * Whether this is somebody trying OpenBot on their own machine rather than an organization's
+   * Whether this is somebody trying ShardsOpenBot on their own machine rather than an organization's
    * deployment: single-user mode on the server, which only a local, unreachable install can be in.
    */
   localEvaluation: boolean;

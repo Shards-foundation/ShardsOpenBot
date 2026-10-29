@@ -6,8 +6,8 @@ import type { ChannelSummary } from "@/lib/channels/queries";
 
 /*
  * The rules OpenMuse's frame runs on, kept apart from the components so each one is a plain function
- * of OpenBot's own data. None of them decides anything the server already decided: they only choose
- * which of OpenBot's records to put where.
+ * of ShardsOpenBot's own data. None of them decides anything the server already decided: they only choose
+ * which of ShardsOpenBot's records to put where.
  */
 
 export type MuseTab = "chat" | "activity" | "ideas" | "goals" | "apps";
@@ -15,8 +15,8 @@ export type MuseTab = "chat" | "activity" | "ideas" | "goals" | "apps";
 /**
  * The Bot at the centre of the frame.
  *
- * OpenMuse is one agent. OpenBot has many, so the centre follows, in order: the Bot of the
- * conversation on screen, the Bot the person last chose, and OpenBot's own default Bot — the same
+ * OpenMuse is one agent. ShardsOpenBot has many, so the centre follows, in order: the Bot of the
+ * conversation on screen, the Bot the person last chose, and ShardsOpenBot's own default Bot — the same
  * `defaultAgentProfile` the home screen and `/bot` fall back to.
  */
 export function centreBot(
@@ -52,8 +52,8 @@ export function mainChannel(
 }
 
 /**
- * The tab whose own screen this path is, or null on any other OpenBot page. Chat is the conversation
- * routes; Apps is OpenBot's Connections, the apps a Bot uses as you. A Bot's page, Routines,
+ * The tab whose own screen this path is, or null on any other ShardsOpenBot page. Chat is the conversation
+ * routes; Apps is ShardsOpenBot's Connections, the apps a Bot uses as you. A Bot's page, Routines,
  * Capabilities and the rest light no tab, because they are not that tab's screen.
  */
 export function tabFor(pathname: string): MuseTab | null {
@@ -76,8 +76,8 @@ export function tabFor(pathname: string): MuseTab | null {
 
 /**
  * Whether the page stays in OpenMuse's 760px column on a wide screen. A tab's own screen does. Every
- * other OpenBot page, and a conversation with its Bot's computer or settings open beside it, gets
- * OpenBot's own width, so its wide layouts and side panels have the room they were built for.
+ * other ShardsOpenBot page, and a conversation with its Bot's computer or settings open beside it, gets
+ * ShardsOpenBot's own width, so its wide layouts and side panels have the room they were built for.
  */
 export function inColumn(pathname: string, sidePanelOpen: boolean): boolean {
   return tabFor(pathname) !== null && !sidePanelOpen;

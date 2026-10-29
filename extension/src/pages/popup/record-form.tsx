@@ -1,7 +1,7 @@
 import {
   joinedLearningContainer,
   type LearningSpaceState,
-} from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/recorder-api";
 import { IconMicrophone } from "@tabler/icons-react";
 import { useState } from "react";
 import { PageSection } from "@/components/layout/page-parts";
@@ -20,17 +20,17 @@ import { DISCLOSURE_SHORT } from "../ui/disclosure";
 const LEARNING_SENTENCES: Partial<Record<LearningSpaceState["state"], string>> =
   {
     unassigned:
-      "Learning will not see this recording: Automatic Learning is off in this OpenBot. It still goes to Intelligence.",
+      "Learning will not see this recording: Automatic Learning is off in this ShardsOpenBot. It still goes to Intelligence.",
     missing:
       "Learning will not see this recording: your Learning space could not be made in Intelligence. Ask an admin to check Admin, Automatic Learning. It still goes to Intelligence.",
-    // OpenBot could not read its Learning settings, or your space was still being made, so it named none.
+    // ShardsOpenBot could not read its Learning settings, or your space was still being made, so it named none.
     unverified:
-      "Learning may not see this recording: OpenBot could not reach your Learning space just now. It still goes to Intelligence.",
+      "Learning may not see this recording: ShardsOpenBot could not reach your Learning space just now. It still goes to Intelligence.",
   };
 
 /**
  * What the person is told under the title: a warning only when the capture pass joins none of their own Learning space
- * (Automatic Learning is off, the space could not be made, or OpenBot could not reach it). A space OpenBot could not
+ * (Automatic Learning is off, the space could not be made, or ShardsOpenBot could not reach it). A space ShardsOpenBot could not
  * check with Intelligence (its Learning delivery off, or Intelligence not answering) says nothing, because the pass
  * still joins it.
  */
@@ -45,7 +45,7 @@ const TITLE_MAX = 120;
  * The title, narration and Record. Every recording goes into the person's own Learning space, so there is nothing to
  * pick. Narration is the person's own choice, made once and kept: until they made it (on the setup page, or here) the
  * form asks before its first recording, and the Recorder opens no microphone; after, a switch shows it and changes it.
- * Deviation from openbot-screen-layout: the title `Input` sits in a `Field` inside the section rather than as a summary
+ * Deviation from shardsopenbot-screen-layout: the title `Input` sits in a `Field` inside the section rather than as a summary
  * row that opens a dialog, because a toolbar popup is one short form whose only job is to name and press Record, and a
  * dialog over a 384px popup would hide the very button it serves.
  */
@@ -59,7 +59,7 @@ export function RecordForm({
   narration = null,
   onNarration,
 }: {
-  /** The person's own Learning space, once OpenBot said; null until then, and nothing is warned about. */
+  /** The person's own Learning space, once ShardsOpenBot said; null until then, and nothing is warned about. */
   learning?: LearningSpaceState | null;
   busy: boolean;
   onRecord: (title: string) => void;

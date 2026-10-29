@@ -2,13 +2,14 @@ import { describe, expect, test } from "bun:test";
 import { loadConfig } from "../src/config";
 
 const baseEnvironment = {
-  DATABASE_URL: "postgres://openbot:openbot@localhost:5432/openbot",
+  DATABASE_URL:
+    "postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot",
   KEY_ENCRYPTION_KEY: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
   GOOGLE_OAUTH_CLIENT_ID: "google-client-id",
   GOOGLE_OAUTH_CLIENT_SECRET: "google-client-secret",
   BETTER_AUTH_SECRET: "a-long-enough-local-development-auth-secret",
   BETTER_AUTH_URL: "http://localhost:3001",
-  INITIAL_ADMIN_EMAILS: "admin@openbot.test",
+  INITIAL_ADMIN_EMAILS: "admin@shardsopenbot.test",
   INTELLIGENCE_API_URL: "http://localhost:7100",
   INTELLIGENCE_GATEWAY_WS_URL: "ws://localhost:7103",
   INTELLIGENCE_API_KEY: "tenant-api-key",
@@ -27,7 +28,7 @@ function singleUserEnvironment() {
     INITIAL_ADMIN_EMAILS: _admins,
     ...rest
   } = baseEnvironment;
-  return { ...rest, OPENBOT_SINGLE_USER: "true" };
+  return { ...rest, SHARDSOPENBOT_SINGLE_USER: "true" };
 }
 
 describe("GitHub App sign-in configuration", () => {
@@ -52,7 +53,7 @@ describe("GitHub App sign-in configuration", () => {
       ...baseEnvironment,
       GITHUB_APP_CLIENT_ID: "gh-id",
       GITHUB_APP_CLIENT_SECRET: "gh-secret",
-      GITHUB_APP_SLUG: "openbot",
+      GITHUB_APP_SLUG: "shardsopenbot",
     });
     expect(config.githubApp).toEqual({
       clientId: "gh-id",
@@ -78,14 +79,14 @@ describe("GitHub App sign-in configuration", () => {
         GITHUB_APP_CLIENT_SECRET: "gh-secret",
       }),
     ).toThrow(
-      "GITHUB_APP_CLIENT_ID needs OPENBOT_PUBLIC_URL (or BETTER_AUTH_URL) so GitHub can send people back to this server.",
+      "GITHUB_APP_CLIENT_ID needs SHARDSOPENBOT_PUBLIC_URL (or BETTER_AUTH_URL) so GitHub can send people back to this server.",
     );
   });
 
   test("accepts a GitHub App when a public URL resolves", () => {
     const config = loadConfig({
       ...baseEnvironment,
-      OPENBOT_PUBLIC_URL: "https://openbot.example.com",
+      SHARDSOPENBOT_PUBLIC_URL: "https://shardsopenbot.example.com",
       GITHUB_APP_CLIENT_ID: "gh-id",
       GITHUB_APP_CLIENT_SECRET: "gh-secret",
     });

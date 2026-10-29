@@ -68,12 +68,12 @@ export function selectProviderWiring(
   if (decision.kind === "misnamed") {
     const keyName = BROKERED_PROFILE[decision.named].envVar;
     throw new Error(
-      `OPENBOT_BROKER_PROVIDER=${decision.named} names a provider whose ${keyName} is not set to a key. Set ${keyName} to this deployment's key, or change or unset OPENBOT_BROKER_PROVIDER.`,
+      `SHARDSOPENBOT_BROKER_PROVIDER=${decision.named} names a provider whose ${keyName} is not set to a key. Set ${keyName} to this deployment's key, or change or unset SHARDSOPENBOT_BROKER_PROVIDER.`,
     );
   }
   if (decision.kind === "ambiguous") {
     throw new Error(
-      "COMPOSIO_API_KEY and ARCADE_API_KEY are both set and OPENBOT_BROKER_PROVIDER is unset, so no provider is active and nothing brokered would work. Set OPENBOT_BROKER_PROVIDER to composio or arcade to say which vendor is live, or unset the key of the vendor this deployment is not using.",
+      "COMPOSIO_API_KEY and ARCADE_API_KEY are both set and SHARDSOPENBOT_BROKER_PROVIDER is unset, so no provider is active and nothing brokered would work. Set SHARDSOPENBOT_BROKER_PROVIDER to composio or arcade to say which vendor is live, or unset the key of the vendor this deployment is not using.",
     );
   }
   if (decision.kind === "unconfigured") {
@@ -164,7 +164,7 @@ export function storedProvider(
   if (decision.kind === "misnamed") {
     // Unreachable: `selectProviderWiring` stops the server on this before any store is built.
     throw new Error(
-      `OPENBOT_BROKER_PROVIDER=${decision.named} names a provider whose ${BROKERED_PROFILE[decision.named].envVar} is not set.`,
+      `SHARDSOPENBOT_BROKER_PROVIDER=${decision.named} names a provider whose ${BROKERED_PROFILE[decision.named].envVar} is not set.`,
     );
   }
   const owners = [...new Set(rowOwners)];
@@ -175,9 +175,9 @@ export function storedProvider(
     throw new Error(
       `This deployment holds brokered connections at ${counted}, and nothing names which provider is active: ${
         decision.kind === "ambiguous"
-          ? `${decision.configured.map((p) => BROKERED_PROFILE[p].envVar).join(" and ")} are both set and OPENBOT_BROKER_PROVIDER is unset`
+          ? `${decision.configured.map((p) => BROKERED_PROFILE[p].envVar).join(" and ")} are both set and SHARDSOPENBOT_BROKER_PROVIDER is unset`
           : "no broker API key is set"
-      }. Nothing in this deployment can end them while both are held: activating either provider is refused while the other still holds connections. End one vendor's accounts in that vendor's own dashboard and delete its rows from brokered_connections by hand, then set OPENBOT_BROKER_PROVIDER to the other.`,
+      }. Nothing in this deployment can end them while both are held: activating either provider is refused while the other still holds connections. End one vendor's accounts in that vendor's own dashboard and delete its rows from brokered_connections by hand, then set SHARDSOPENBOT_BROKER_PROVIDER to the other.`,
     );
   }
   const owner = owners[0];
@@ -205,13 +205,13 @@ export const ARCADE_VERIFY_PATH = "/api/plugins/arcade/verify";
  * that binds a consent to the attempt that started it, records the connection and files its audit
  * entry; with Arcade's own verifier none of that runs, and nothing in this deployment's logs says so.
  *
- * Takes the configured public origin (`OPENBOT_PUBLIC_URL`, else `BETTER_AUTH_URL`, already stripped
+ * Takes the configured public origin (`SHARDSOPENBOT_PUBLIC_URL`, else `BETTER_AUTH_URL`, already stripped
  * of trailing slashes by config) and names the exact address to paste, or says which variable is
  * missing when there is none.
  */
 export function arcadeVerifierNotice(publicUrl: string | undefined): string {
   const address = publicUrl
     ? `${publicUrl.replace(/\/+$/, "")}${ARCADE_VERIFY_PATH}`
-    : `<this deployment's public origin>${ARCADE_VERIFY_PATH} (OPENBOT_PUBLIC_URL and BETTER_AUTH_URL are both unset, so this deployment does not know its own origin; set one)`;
+    : `<this deployment's public origin>${ARCADE_VERIFY_PATH} (SHARDSOPENBOT_PUBLIC_URL and BETTER_AUTH_URL are both unset, so this deployment does not know its own origin; set one)`;
   return `Arcade is the active broker, and this deployment cannot check which user verifier its Arcade project uses: Arcade has no API that reads that setting. Unless the project's verifier is set to custom, pointing at ${address}, this deployment's verify route is never called: no consent is bound to the attempt that started it, and none is recorded or audited when it returns. Set it in the Arcade dashboard; see docs/plugins/arcade.md, "The verifier URL is the one dashboard-only step".`;
 }

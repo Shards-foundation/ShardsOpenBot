@@ -5,7 +5,7 @@ import {
   DICTATION_TIMEOUT_MS,
   dictationMediaType,
   MAX_DICTATION_BYTES,
-} from "@openbot/shared/dictation";
+} from "@shardsopenbot/shared/dictation";
 import type { AppVariables } from "../auth/guards";
 import { TranscriptionError, type TranscriptionProvider } from "./provider";
 
@@ -20,7 +20,7 @@ export function createDictationRoutes(
     "/transcriptions",
     async (context, next) => {
       // A cross-origin HTML form cannot set this header; this route grants no CORS access.
-      if (context.req.header("x-openbot-dictation") !== "1") {
+      if (context.req.header("x-shardsopenbot-dictation") !== "1") {
         return context.json({ error: "Invalid dictation request." }, 403);
       }
       if (!provider)

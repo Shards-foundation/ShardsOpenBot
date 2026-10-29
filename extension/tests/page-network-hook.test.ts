@@ -13,7 +13,7 @@ import {
   type CapturedEvent,
   EVENT_BUDGET_BYTES,
   trimEvent,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { acceptPageNetworkEvent } from "../src/background/network/fallback";
 import {
   CARD_AND_PIN_CLOCK,
@@ -126,7 +126,7 @@ afterAll(async () => {
 });
 
 const hookKey = (name: "configure" | "stop") =>
-  Symbol.for(`openbot.recorder.${name}`);
+  Symbol.for(`shardsopenbot.recorder.${name}`);
 const globals = globalThis as unknown as Record<symbol, unknown>;
 const configure = (id: string) =>
   (globals[hookKey("configure")] as (id: string) => void)(id);

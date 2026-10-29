@@ -25,7 +25,7 @@ import { mintDeploymentVendorUserId } from "../src/plugins/shared-accounts";
  * narrowed by a runtime check that says what was missing, not by a cast that asserts it was there.
  *
  * SKIPPED WITHOUT A KEY, so CI and a contributor with no Composio account are unaffected. Run it
- * deliberately: `OPENBOT_LIVE_COMPOSIO=1 COMPOSIO_API_KEY=... bun test tests/composio-live.test.ts`.
+ * deliberately: `SHARDSOPENBOT_LIVE_COMPOSIO=1 COMPOSIO_API_KEY=... bun test tests/composio-live.test.ts`.
  *
  * IT READS AND IT FAILS ON PURPOSE. Every action it calls is a read; the user id it calls for is one
  * nobody has connected, and the one action it calls that is allowed to reach a third party is a
@@ -33,10 +33,10 @@ import { mintDeploymentVendorUserId } from "../src/plugins/shared-accounts";
  * the failure is the assertion.
  */
 const key = process.env.COMPOSIO_API_KEY?.trim();
-const live = process.env.OPENBOT_LIVE_COMPOSIO === "1" && Boolean(key);
+const live = process.env.SHARDSOPENBOT_LIVE_COMPOSIO === "1" && Boolean(key);
 
 /** A user id nobody has connected, so no call below can reach an account that belongs to somebody. */
-const NOBODY = "openbot-live-test-nobody";
+const NOBODY = "shardsopenbot-live-test-nobody";
 
 /**
  * The vendor's own no-auth example action, and a record it cannot find.
@@ -47,7 +47,7 @@ const NOBODY = "openbot-live-test-nobody";
  * calls, so a toolkit that stops being no-auth says so instead of quietly asking for a connection.
  */
 const NO_AUTH_ACTION = "HACKERNEWS_GET_USER";
-const NO_SUCH_RECORD = "openbot-live-test-no-such-hacker-news-user";
+const NO_SUCH_RECORD = "shardsopenbot-live-test-no-such-hacker-news-user";
 
 describe.skipIf(!live)("Composio, for real", () => {
   // Constructed inside each test rather than here, because Bun evaluates the body of a skipped
@@ -276,7 +276,7 @@ describe.skipIf(!live)("Composio, for real", () => {
    * Every test above calls with a plain string user id. The broker is also asked to accept
    * `{ holder: "deployment", vendorUserId }` — the shape a shared app's calls carry — and nothing
    * here had shown the real API takes that vendor user id at all rather than, say, rejecting a
-   * value shaped like `openbot-deployment:<id>:<random>` as malformed. A freshly minted id names
+   * value shaped like `shardsopenbot-deployment:<id>:<random>` as malformed. A freshly minted id names
    * no account, so both calls below answer "nothing here" — not connected, no name — and that is
    * the whole assertion: the identity is accepted, and an empty listing reads as empty rather than
    * as an error.

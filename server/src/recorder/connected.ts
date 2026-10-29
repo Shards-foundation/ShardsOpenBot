@@ -31,8 +31,8 @@ export function recorderAudit(
 }
 
 /**
- * What follows every new Recorder connection, however it was made (Connect this browser's exchange, or OpenBot opening
- * the person's own OpenBot browser), once its rows are written with it: the person's Learning space made in the
+ * What follows every new Recorder connection, however it was made (Connect this browser's exchange, or ShardsOpenBot opening
+ * the person's own ShardsOpenBot browser), once its rows are written with it: the person's Learning space made in the
  * background.
  */
 export function recorderConnected(input: {

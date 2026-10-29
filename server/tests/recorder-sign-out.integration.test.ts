@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, expect, test } from "bun:test";
 import { createHmac, randomUUID } from "node:crypto";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { eq, inArray } from "drizzle-orm";
 import { createApp } from "../src/app";
 import type { AuditEventInput, AuditStore } from "../src/audit";
@@ -174,7 +174,7 @@ const endings = (...connectionIds: string[]) =>
     ])
     .sort();
 
-test("signing out of OpenBot signs every Recorder connected as that person out, and nobody else's", async () => {
+test("signing out of ShardsOpenBot signs every Recorder connected as that person out, and nobody else's", async () => {
   const chrome = await connect(person, "c".repeat(32));
   const edge = await connect(person, "e".repeat(32));
   const theirs = await connect(other, "c".repeat(32));
@@ -310,6 +310,6 @@ test("a session that ends by itself, or is found expired, does not sign the Reco
   expect(await me(chrome.token)).toBe(200);
 });
 
-test("a Recorder connection lasts as long as an OpenBot session: Better Auth's own lifetime, read from the auth", async () => {
+test("a Recorder connection lasts as long as an ShardsOpenBot session: Better Auth's own lifetime, read from the auth", async () => {
   expect(await sessionLifetimeMs(auth)).toBe(SESSION_LIFETIME_MS);
 });

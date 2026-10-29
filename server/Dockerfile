@@ -51,8 +51,8 @@ FROM oven/bun:1.4.3 AS runtime
 
 # Not root. The API opens a socket and talks to Postgres; neither needs privileges, and a Chromium
 # container is a separate image with its own reasons.
-RUN groupadd --system --gid 1001 openbot \
-  && useradd --system --uid 1001 --gid openbot openbot
+RUN groupadd --system --gid 1001 shardsopenbot \
+  && useradd --system --uid 1001 --gid shardsopenbot shardsopenbot
 
 WORKDIR /app
 
@@ -63,7 +63,7 @@ COPY --from=deps /app/server/node_modules server/node_modules
 COPY --from=deps /app/toolkit/node_modules toolkit/node_modules
 # shared files import zod at runtime, and the isolated install resolves it from shared/node_modules
 COPY --from=deps /app/shared/node_modules shared/node_modules
-# The worker's own `node_modules` holds one thing, the link to `@openbot/shared`, and without it the
+# The worker's own `node_modules` holds one thing, the link to `@shardsopenbot/shared`, and without it the
 # first import in `worker/src/env.ts` fails. The install is isolated: each workspace resolves through
 # the folder beside its own manifest, so the server's copy of that link is no use to the worker.
 COPY --from=deps /app/worker/node_modules worker/node_modules
@@ -83,7 +83,7 @@ COPY worker/src worker/src
 COPY --from=app-build /app/app/dist app/dist
 ENV APP_DIST_DIR=/app/app/dist
 
-USER openbot:openbot
+USER shardsopenbot:shardsopenbot
 
 ENV NODE_ENV=production
 ENV PORT=3001

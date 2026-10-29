@@ -1,4 +1,4 @@
-//! OpenBot Desktop's binary run the way its callers run it: `--install-recorder-host` as the app's setup
+//! ShardsOpenBot Desktop's binary run the way its callers run it: `--install-recorder-host` as the app's setup
 //! and a person would, and the native messaging host as Chrome starts it.
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, ErrorKind, Read, Write};
@@ -9,7 +9,7 @@ use std::sync::mpsc;
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
-const BINARY: &str = env!("CARGO_BIN_EXE_openbot-desktop");
+const BINARY: &str = env!("CARGO_BIN_EXE_shardsopenbot-desktop");
 const SHARED: &str = include_str!("../../../shared/recorder-extension.json");
 
 fn shared(field: &str) -> String {
@@ -47,7 +47,7 @@ impl TempHome {
             .unwrap()
             .as_nanos();
         let path = std::env::temp_dir().join(format!(
-            "openbot-recorder-{name}-{}-{nanos}",
+            "shardsopenbot-recorder-{name}-{}-{nanos}",
             std::process::id()
         ));
         std::fs::create_dir_all(&path).unwrap();
@@ -98,7 +98,7 @@ fn finish(mut child: Child, patience: Duration) -> Output {
     let stderr = stderr.join().unwrap();
     let Some(status) = status else {
         panic!(
-            "openbot-desktop was still running after {patience:?}: {}",
+            "shardsopenbot-desktop was still running after {patience:?}: {}",
             String::from_utf8_lossy(&stderr)
         );
     };
@@ -110,7 +110,7 @@ fn finish(mut child: Child, patience: Duration) -> Output {
 }
 
 /// Where a debug binary's `--install-recorder-host` writes; it writes nowhere without it.
-const TEST_HOME: &str = "OPENBOT_RECORDER_HOST_TEST_HOME";
+const TEST_HOME: &str = "SHARDSOPENBOT_RECORDER_HOST_TEST_HOME";
 
 /// The binary with nothing of the developer's own environment that would change its answer.
 fn binary(home: &Path) -> Command {
@@ -290,13 +290,13 @@ impl Host {
         let mut command = binary(home);
         command
             .arg(origin)
-            .env_remove("OPENBOT_RECORDER_HOST_TEST_APP_URL")
+            .env_remove("SHARDSOPENBOT_RECORDER_HOST_TEST_APP_URL")
             .stdin(Stdio::piped());
         if cfg!(windows) {
             command.arg("--parent-window=0");
         }
         if let Some(url) = test_app_url {
-            command.env("OPENBOT_RECORDER_HOST_TEST_APP_URL", url);
+            command.env("SHARDSOPENBOT_RECORDER_HOST_TEST_APP_URL", url);
         }
         let mut child = command.spawn().unwrap();
         let stdin = child.stdin.take();
@@ -465,7 +465,7 @@ fn http(status: &str, headers: &str, body: &str) -> String {
 
 const MINTED: &str = r#"{"code":"obc_fixture","expiresAt":"2026-10-18T12:00:00.000Z"}"#;
 
-// A debug binary lets a test point the host at an OpenBot it started itself. A release binary has no
+// A debug binary lets a test point the host at an ShardsOpenBot it started itself. A release binary has no
 // such seam: CI runs this file with `--release` on Windows, where the same variable changes nothing.
 #[test]
 fn the_test_app_address_reaches_only_a_debug_binary() {
@@ -485,7 +485,7 @@ fn the_test_app_address_reaches_only_a_debug_binary() {
         // request below is still the ping's.
         assert_eq!(
             host.ask(json!({ "type": "address" })),
-            json!({ "ok": true, "openbotUrl": url })
+            json!({ "ok": true, "shardsopenbotUrl": url })
         );
         assert_eq!(
             host.ask(json!({ "type": "ping" })),
@@ -493,7 +493,7 @@ fn the_test_app_address_reaches_only_a_debug_binary() {
         );
         assert_eq!(
             host.ask(json!({ "type": "handoff" })),
-            json!({ "ok": true, "openbotUrl": url, "code": "obc_fixture" })
+            json!({ "ok": true, "shardsopenbotUrl": url, "code": "obc_fixture" })
         );
         let seen = app.join().unwrap();
         assert_eq!(seen[0].line, "GET /api/capabilities HTTP/1.1");
@@ -584,7 +584,7 @@ fn organization_deployment(home: &Path, authority: &str, cookie: Option<&str>) -
     } else {
         home.join(".config")
     }
-    .join("ai.copilotkit.openbot.desktop");
+    .join("ai.copilotkit.shardsopenbot.desktop");
     let root = home.join("deployment");
     std::fs::create_dir_all(&config).unwrap();
     std::fs::create_dir_all(&root).unwrap();
@@ -595,14 +595,14 @@ fn organization_deployment(home: &Path, authority: &str, cookie: Option<&str>) -
     .unwrap();
     std::fs::write(
         root.join(".env"),
-        format!("OPENBOT_ORGANIZATION_AUTH_URL={authority}\n"),
+        format!("SHARDSOPENBOT_ORGANIZATION_AUTH_URL={authority}\n"),
     )
     .unwrap();
     if let Some(cookie) = cookie {
         let secrets = root.join(".secrets");
         std::fs::create_dir_all(&secrets).unwrap();
         std::fs::set_permissions(&secrets, std::fs::Permissions::from_mode(0o700)).unwrap();
-        let saved = secrets.join("OPENBOT_ORGANIZATION_SESSION.secret");
+        let saved = secrets.join("SHARDSOPENBOT_ORGANIZATION_SESSION.secret");
         std::fs::write(
             &saved,
             json!({ "authority": authority, "cookie": cookie }).to_string(),
@@ -674,7 +674,7 @@ fn the_host_never_logs_a_code_or_a_cookie() {
         } else if line.starts_with("GET /api/auth/organization/session?ticket=t ") {
             http(
                 "302 Found",
-                "Location: /\r\nSet-Cookie: openbot.organization-session=local-secret; Path=/; HttpOnly\r\n",
+                "Location: /\r\nSet-Cookie: shardsopenbot.organization-session=local-secret; Path=/; HttpOnly\r\n",
                 "",
             )
         } else if minted.fetch_add(1, std::sync::atomic::Ordering::SeqCst) == 0 {
@@ -684,7 +684,7 @@ fn the_host_never_logs_a_code_or_a_cookie() {
             http(
                 "500 Internal Server Error",
                 "",
-                r#"{"error":"obc_secretcode openbot.organization-session=local-secret"}"#,
+                r#"{"error":"obc_secretcode shardsopenbot.organization-session=local-secret"}"#,
             )
         }
     });
@@ -695,7 +695,7 @@ fn the_host_never_logs_a_code_or_a_cookie() {
     );
     assert_eq!(
         host.ask(json!({ "type": "handoff" })),
-        json!({ "ok": true, "openbotUrl": url, "code": "obc_secretcode" })
+        json!({ "ok": true, "shardsopenbotUrl": url, "code": "obc_secretcode" })
     );
     assert_eq!(
         host.ask(json!({ "type": "handoff" })),
@@ -707,7 +707,7 @@ fn the_host_never_logs_a_code_or_a_cookie() {
     assert!(seen[3]
         .head
         .to_lowercase()
-        .contains("cookie: openbot.organization-session=local-secret\r\n"));
+        .contains("cookie: shardsopenbot.organization-session=local-secret\r\n"));
     organization.join().unwrap();
     assert!(
         stderr.contains("answered the handoff with 500"),

@@ -41,11 +41,11 @@ export function desktopAuthPage(
   }).replaceAll("<", "\\u003c");
   const nonce = crypto.randomUUID();
   return new Response(
-    `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Sign in to OpenBot</title></head><body><main><h1>Sign in to OpenBot</h1><p id="status">Continue with your organization account to return to OpenBot.</p><button id="continue">Continue</button></main><script nonce="${nonce}">
+    `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Sign in to ShardsOpenBot</title></head><body><main><h1>Sign in to ShardsOpenBot</h1><p id="status">Continue with your organization account to return to ShardsOpenBot.</p><button id="continue">Continue</button></main><script nonce="${nonce}">
 const config=${config};
 const status=document.getElementById('status');
 const button=document.getElementById('continue');
-const query=new URLSearchParams({client_id:'openbot-desktop',state:config.state,code_challenge:config.challenge});
+const query=new URLSearchParams({client_id:'shardsopenbot-desktop',state:config.state,code_challenge:config.challenge});
 async function proceed(){button.disabled=true;try{
  const transfer=await fetch('/api/auth/electron/transfer-user?'+query,{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:'{}'});
  if(transfer.ok){const grant=await transfer.json();if(typeof grant.electron_authorization_code!=='string')throw new Error('Sign-in did not return a code.');const target=new URL(config.redirect);target.searchParams.set('code',grant.electron_authorization_code);target.searchParams.set('state',config.state);location.replace(target.href);return;}

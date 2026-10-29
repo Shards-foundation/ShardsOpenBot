@@ -3,7 +3,7 @@ import type {
   BrowserOpenResponse,
   BrowserProduct,
   RealBrowserOpenResponse,
-} from "@openbot/shared/openbot-browser";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
 import { IconBrowser } from "@tabler/icons-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
@@ -38,7 +38,7 @@ import {
 
 const TITLE = "Browser";
 const DESCRIPTION =
-  "Your own browser, with the OpenBot Recorder already in it. Record a task and what you do goes into your own Learning space.";
+  "Your own browser, with the ShardsOpenBot Recorder already in it. Record a task and what you do goes into your own Learning space.";
 
 const PRODUCT_NAMES: Record<BrowserProduct, string> = {
   chrome: "Google Chrome",
@@ -72,7 +72,7 @@ export function BrowserPage() {
       <PageShell title={TITLE}>
         <PageEmpty>
           {state.data.note ??
-            "OpenBot isn't set up to run a browser for you. Ask an admin."}
+            "ShardsOpenBot isn't set up to run a browser for you. Ask an admin."}
         </PageEmpty>
       </PageShell>
     );
@@ -101,7 +101,7 @@ function OpenedBrowser({ state }: { state: BrowserApiState }) {
     const said = state.problem ?? open.error?.message;
     return (
       <PageShell title={TITLE} description={DESCRIPTION}>
-        {/* While it opens, nothing: OpenBot draws no loading placeholder (openbot-data-access), and what arrives is the
+        {/* While it opens, nothing: ShardsOpenBot draws no loading placeholder (shardsopenbot-data-access), and what arrives is the
             browser itself. */}
         {said ? (
           <div className="mt-6 flex flex-col items-start gap-3">
@@ -118,7 +118,7 @@ function OpenedBrowser({ state }: { state: BrowserApiState }) {
       </PageShell>
     );
   }
-  // The person's own everyday browser (OpenBot Desktop) has no screen here: it is a window on their desktop.
+  // The person's own everyday browser (ShardsOpenBot Desktop) has no screen here: it is a window on their desktop.
   if ("window" in opened && opened.window === "screen") {
     return (
       <ScreenBrowser
@@ -141,7 +141,7 @@ function OpenedBrowser({ state }: { state: BrowserApiState }) {
 }
 
 /**
- * THE PERSON'S BROWSER AS A WINDOW ON THEIR DESKTOP (OpenBot Desktop): their own Chrome, or Edge, in a profile of its
+ * THE PERSON'S BROWSER AS A WINDOW ON THEIR DESKTOP (ShardsOpenBot Desktop): their own Chrome, or Edge, in a profile of its
  * own. The window is the browser, so this page says where it is, brings it to the front, and carries Record and Stop,
  * which the Recorder's toolbar button in that window also has.
  */

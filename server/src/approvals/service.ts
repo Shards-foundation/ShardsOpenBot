@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { PERSON_INITIATOR } from "../audit";
-import { HeadlessToolSuspension } from "@openbot/toolkit/headless-tools";
+import { HeadlessToolSuspension } from "@shardsopenbot/toolkit/headless-tools";
 import {
   decideAction,
   effectiveHostCommandPolicy,
@@ -40,7 +40,7 @@ export const DECLINED_BY_PERSON =
   "The person declined this action when you asked for their approval, so it was not done. This was their decision, not a policy or a boundary. Do not try this action, or anything equivalent, again in this conversation unless the person asks you to in words; tell them you did not do it because they declined.";
 /** What a Bot retrying an action that is still waiting is told, instead of opening a second request. */
 export const ALREADY_WAITING =
-  "An identical request is already waiting for the person's decision on the Bot's page in OpenBot, so this was not done and no second request was made. Do not repeat it; wait for their answer.";
+  "An identical request is already waiting for the person's decision on the Bot's page in ShardsOpenBot, so this was not done and no second request was made. Do not repeat it; wait for their answer.";
 export const WITHDRAWN_APPROVALS_OFF =
   "Not done: this request was withdrawn because the person switched off asking before changes. Try the action again if it is still needed.";
 export const WITHDRAWN_RULE_ALLOWS =
@@ -362,7 +362,7 @@ export function createApprovalService(
       const handOff = request.action.policy?.behaviour === "hand_off";
       throw new HeadlessToolSuspension(
         handOff
-          ? `This needs you: ${request.action.policy?.reason} Do it yourself, then mark it done on the Bot's page in OpenBot.`
+          ? `This needs you: ${request.action.policy?.reason} Do it yourself, then mark it done on the Bot's page in ShardsOpenBot.`
           : "This action is waiting for your approval.",
         {
           kind: "approval",

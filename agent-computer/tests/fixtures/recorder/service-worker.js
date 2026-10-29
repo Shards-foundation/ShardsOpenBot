@@ -1,22 +1,22 @@
 /*
- * The OpenBot Recorder's launcher API, standing in for the Recorder in agent-computer's tests while
+ * The ShardsOpenBot Recorder's launcher API, standing in for the Recorder in agent-computer's tests while
  * the Recorder's own is built alongside it. It answers exactly as `LauncherApi` in
- * shared/openbot-browser.ts types it, and keeps what it holds in `chrome.storage.local` as the
+ * shared/shardsopenbot-browser.ts types it, and keeps what it holds in `chrome.storage.local` as the
  * Recorder does, so it survives its worker being stopped and started again.
  *
  * Like the Recorder, it attaches `chrome.debugger` to the tab it records for as long as it records:
  * that is what makes a browser show its "started debugging this browser" bar, which the live screen
  * must not lose the page to.
  *
- * What it was called with goes to the OpenBot it was connected to, at `/fixture/calls`, with what it
+ * What it was called with goes to the ShardsOpenBot it was connected to, at `/fixture/calls`, with what it
  * can see from inside the browser at that moment (its tabs, the one in front, its microphone
  * permission, whether it opened its setup page), so a test reads the Recorder's side of each call
  * rather than taking the computer's word for it.
  *
- * Like the Recorder, it asks OpenBot whether a connection stands before it takes it, and refuses one
- * OpenBot says is signed out.
+ * Like the Recorder, it asks ShardsOpenBot whether a connection stands before it takes it, and refuses one
+ * ShardsOpenBot says is signed out.
  */
-const LAUNCHER_GLOBAL = "openbotLauncher";
+const LAUNCHER_GLOBAL = "shardsopenbotLauncher";
 /**
  * Which build of this script is running, sent with every call. A test copies the fixture, changes this
  * line, and reads back which build answered, as a person's browser would run a Recorder rebuilt since.
@@ -86,7 +86,7 @@ async function report(method, input) {
   });
   const microphone = (await navigator.permissions.query({ name: "microphone" }))
     .state;
-  await fetch(new URL("/fixture/calls", now.connection.openbotUrl), {
+  await fetch(new URL("/fixture/calls", now.connection.shardsopenbotUrl), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -102,14 +102,17 @@ async function report(method, input) {
 }
 
 /**
- * Whether OpenBot says this connection is signed out, which the Recorder asks before it takes one
- * (`confirm` in extension/src/background/launcher.ts). Only that answer refuses it: an OpenBot that
+ * Whether ShardsOpenBot says this connection is signed out, which the Recorder asks before it takes one
+ * (`confirm` in extension/src/background/launcher.ts). Only that answer refuses it: an ShardsOpenBot that
  * cannot be reached leaves the connection taken, as the Recorder's does.
  */
 async function signedOut(connection) {
-  const me = await fetch(new URL("/api/recorder/me", connection.openbotUrl), {
-    headers: { authorization: `Bearer ${connection.token}` },
-  }).catch(() => undefined);
+  const me = await fetch(
+    new URL("/api/recorder/me", connection.shardsopenbotUrl),
+    {
+      headers: { authorization: `Bearer ${connection.token}` },
+    },
+  ).catch(() => undefined);
   return me?.status === 401;
 }
 
@@ -121,7 +124,7 @@ globalThis[LAUNCHER_GLOBAL] = {
       JSON.stringify(now.connection) === JSON.stringify(input.connection) &&
       now.narration === input.narration;
     if (!holding && (await signedOut(input.connection))) {
-      // As the Recorder ends after OpenBot says its connection is gone: signed out, and a recording
+      // As the Recorder ends after ShardsOpenBot says its connection is gone: signed out, and a recording
       // under it stopped.
       if (now.recording)
         await chrome.debugger
@@ -131,7 +134,7 @@ globalThis[LAUNCHER_GLOBAL] = {
       return {
         ok: false,
         error:
-          "OpenBot did not accept this browser's connection. Open the browser from OpenBot again.",
+          "ShardsOpenBot did not accept this browser's connection. Open the browser from ShardsOpenBot again.",
       };
     }
     await chrome.storage.local.set({
@@ -207,7 +210,7 @@ globalThis[LAUNCHER_GLOBAL] = {
   },
 };
 
-// As the Recorder does on install: open its setup page. A browser OpenBot opened must never show it.
+// As the Recorder does on install: open its setup page. A browser ShardsOpenBot opened must never show it.
 chrome.runtime.onInstalled.addListener(async () => {
   await chrome.storage.local.set({ setupOpened: true });
   await chrome.tabs.create({ url: chrome.runtime.getURL("setup.html") });

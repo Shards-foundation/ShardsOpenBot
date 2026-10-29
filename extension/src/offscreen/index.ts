@@ -1,8 +1,8 @@
-import type { TrajectoryGrant } from "@openbot/shared/recorder-api";
+import type { TrajectoryGrant } from "@shardsopenbot/shared/recorder-api";
 import {
   type CapturedEvent,
   scrubTranscript,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import {
   type BackgroundToOffscreen,
   type CaptureStatus,
@@ -39,7 +39,7 @@ type Timers = {
   clear(handle: unknown): void;
 };
 type SignedOutReason = "revoked" | "removed" | "organization";
-type Target = { openbotUrl: string; token: string };
+type Target = { shardsopenbotUrl: string; token: string };
 
 export type OffscreenControllerDeps = {
   openOutbox: () => Promise<Outbox>;
@@ -101,7 +101,7 @@ type Stream = {
   /** Recordings it still sends; one leaves when it is done, replaced by Start over, or discarded. */
   recordings: Set<string>;
   signedOut: boolean;
-  /** The bearer the pass OpenBot answered "signed out" to used. */
+  /** The bearer the pass ShardsOpenBot answered "signed out" to used. */
   failedToken?: string;
   streamer?: Streamer;
 };
@@ -256,7 +256,7 @@ export function createOffscreenController(deps: OffscreenControllerDeps): void {
   const streams: Stream[] = [];
   /** Which recording each trajectory belongs to; kept in memory, since a discard clears the meta. */
   const owners = new Map<string, string>();
-  /** Tokens OpenBot answered "signed out" for, with the guard's reason: nothing more is sent with them. */
+  /** Tokens ShardsOpenBot answered "signed out" for, with the guard's reason: nothing more is sent with them. */
   const signedOutTokens = new Map<string, SignedOutReason>();
   let live: Live | null = null;
   let work: Promise<void> = Promise.resolve();
@@ -312,7 +312,7 @@ export function createOffscreenController(deps: OffscreenControllerDeps): void {
     }
   }
 
-  /** A token OpenBot already signed out: the request is refused here, without reaching OpenBot. */
+  /** A token ShardsOpenBot already signed out: the request is refused here, without reaching ShardsOpenBot. */
   function signedOutReason(
     stream: Stream,
     token: string,
@@ -326,11 +326,11 @@ export function createOffscreenController(deps: OffscreenControllerDeps): void {
     stream: Stream,
     trajectoryId: string,
   ): Promise<TrajectoryGrant> {
-    const { openbotUrl, token } = stream.target;
+    const { shardsopenbotUrl, token } = stream.target;
     const reason = signedOutReason(stream, token);
     if (reason) throw new GrantError({ kind: "signed-out", reason });
     try {
-      return await fetchGrant({ openbotUrl, token }, trajectoryId);
+      return await fetchGrant({ shardsopenbotUrl, token }, trajectoryId);
     } catch (error) {
       if (error instanceof GrantError && error.verdict.kind === "signed-out")
         stream.failedToken = token;
@@ -491,7 +491,7 @@ export function createOffscreenController(deps: OffscreenControllerDeps): void {
           // Record's own moment: the recording starts before anything it records.
           ...(resume ? { resume: true } : { startedAt: session.startedAt }),
         },
-        { openbotUrl: session.openbotUrl, token: session.token },
+        { shardsopenbotUrl: session.shardsopenbotUrl, token: session.token },
         {
           live: target,
           allowedGatewayUrls: session.allowedIntelligenceUrls,
@@ -755,14 +755,14 @@ export function createOffscreenController(deps: OffscreenControllerDeps): void {
     message: Extract<BackgroundToOffscreen, { type: "offscreen.recover" }>,
   ): Promise<void> {
     const target: Target = {
-      openbotUrl: message.openbotUrl,
+      shardsopenbotUrl: message.shardsopenbotUrl,
       token: message.token,
     };
     for (const drain of message.drains) {
       const current = streaming(drain.recordingId);
       if (current) {
         // Never a second streamer for one recording: the one sending it goes on, with the new connection's token.
-        if (current.target.openbotUrl === target.openbotUrl)
+        if (current.target.shardsopenbotUrl === target.shardsopenbotUrl)
           current.target.token = target.token;
         continue;
       }
@@ -877,7 +877,7 @@ export function createOffscreenController(deps: OffscreenControllerDeps): void {
           version: target.session.version,
           resume: true,
         },
-        { openbotUrl: target.session.openbotUrl, token },
+        { shardsopenbotUrl: target.session.shardsopenbotUrl, token },
         {
           live: target,
           allowedGatewayUrls: target.session.allowedIntelligenceUrls,
@@ -889,7 +889,7 @@ export function createOffscreenController(deps: OffscreenControllerDeps): void {
   }
 
   /** The service worker says this token's connection is gone: no stream sends with it any more, and a pass asked
-   * with it is refused here, so nothing reaches OpenBot or Intelligence for it. The events stay in the outbox. */
+   * with it is refused here, so nothing reaches ShardsOpenBot or Intelligence for it. The events stay in the outbox. */
   async function halt(token: string): Promise<void> {
     if (!signedOutTokens.has(token)) signedOutTokens.set(token, "revoked");
     const halting: Promise<void>[] = [];

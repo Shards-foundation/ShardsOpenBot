@@ -1,4 +1,4 @@
-import { installOnDeviceSpeech } from "@openbot/shared/on-device-speech";
+import { installOnDeviceSpeech } from "@shardsopenbot/shared/on-device-speech";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type NarrationPost, sendNarration } from "@/lib/browser/mutations";
 import {
@@ -112,7 +112,7 @@ export function useNarration({
   /**
    * Turns narration on or off. On after a failure tries again: the person was never muted, so muting alone would not. On
    * is always the person's click, the one thing that may ask the browser to download the language for recognition on
-   * their computer (@openbot/shared/on-device-speech), so it asks then; narration waits for the download.
+   * their computer (@shardsopenbot/shared/on-device-speech), so it asks then; narration waits for the download.
    */
   const setOn = useCallback(
     (next: boolean) => {

@@ -9,7 +9,7 @@
  * rejected a promise nobody held — an unhandled rejection in a deployment that had already replied.
  *
  * REACHABLE, NOT HYPOTHETICAL. The Composio connect route builds its return address INSIDE the
- * deadline's callback, and `brokerReturnUrl` throws synchronously on an `OPENBOT_APP_URL` with its
+ * deadline's callback, and `brokerReturnUrl` throws synchronously on an `SHARDSOPENBOT_APP_URL` with its
  * scheme left off — `app.example` rather than `https://app.example`. The route still answers its
  * refusal (the throw lands in the handler's `try`), which is why nothing on the response shows it;
  * what shows it is the timer, so the timer is what this asserts on.
@@ -132,7 +132,7 @@ function deployment() {
       signedIn,
       async () => true,
       {
-        publicUrl: "https://openbot.example",
+        publicUrl: "https://shardsopenbot.example",
         // THE MISTAKE: no scheme, so `brokerReturnUrl` throws as the callback's argument is built.
         appUrl: "app.example",
         encryptionKey: `${"A".repeat(43)}=`,
@@ -149,7 +149,7 @@ function deployment() {
     authorized,
     connect: () =>
       app.request(
-        `http://openbot.test/api/plugins/servers/${SERVER_ID}/connect`,
+        `http://shardsopenbot.test/api/plugins/servers/${SERVER_ID}/connect`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },

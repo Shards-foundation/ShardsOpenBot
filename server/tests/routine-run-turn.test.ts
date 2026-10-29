@@ -3,15 +3,15 @@ import type { Message } from "@ag-ui/client";
 import { AbstractAgent, EventType } from "@ag-ui/client";
 import {
   HeadlessToolSuspension,
-  OPENBOT_WAITING_METADATA,
-} from "@openbot/toolkit/headless-tools";
-import type { TurnAdmission } from "@openbot/toolkit/ports";
+  SHARDSOPENBOT_WAITING_METADATA,
+} from "@shardsopenbot/toolkit/headless-tools";
+import type { TurnAdmission } from "@shardsopenbot/toolkit/ports";
 import {
   createTurnRunner,
   drawnComponents,
   frameFiring,
   sanitizeSeededHistory,
-} from "@openbot/toolkit/run-turn";
+} from "@shardsopenbot/toolkit/run-turn";
 import { EMPTY } from "rxjs";
 import { serverTurnAdmission } from "../src/agents/turn-admission";
 import { HEADLESS_COMPONENTS } from "../src/components/headless";
@@ -1008,7 +1008,7 @@ describe("a turn's admission", () => {
 });
 
 /**
- * The waiting details travel two ways: as an `openbot.headless.waiting` CUSTOM event, and on the
+ * The waiting details travel two ways: as an `shardsopenbot.headless.waiting` CUSTOM event, and on the
  * interrupt's metadata for when that event did not survive the trip. Both must end the turn as a
  * suspension that names the open request, never as the generic "nobody to ask" failure, or the
  * request the person still has to answer is lost.
@@ -1028,7 +1028,7 @@ describe("a turn waiting on a person", () => {
     const { run, calls } = harness({
       drive: ({ agent, observer }) => {
         agent.pendingInterrupts = [
-          interruptCarrying({ [OPENBOT_WAITING_METADATA]: WAITING }),
+          interruptCarrying({ [SHARDSOPENBOT_WAITING_METADATA]: WAITING }),
         ];
         observer.complete();
       },
@@ -1046,7 +1046,7 @@ describe("a turn waiting on a person", () => {
       drive: ({ agent, observer }) => {
         agent.pendingInterrupts = [
           interruptCarrying({
-            [OPENBOT_WAITING_METADATA]: { kind: "question" },
+            [SHARDSOPENBOT_WAITING_METADATA]: { kind: "question" },
           }),
         ];
         observer.complete();
@@ -1060,7 +1060,7 @@ describe("a turn waiting on a person", () => {
     const { run } = harness({
       drive: (context) => {
         context.agent.pendingInterrupts = [
-          interruptCarrying({ [OPENBOT_WAITING_METADATA]: WAITING }),
+          interruptCarrying({ [SHARDSOPENBOT_WAITING_METADATA]: WAITING }),
         ];
         answers(context);
       },
@@ -1074,7 +1074,7 @@ describe("a turn waiting on a person", () => {
       drive: ({ agent, observer }) => {
         agent.pendingInterrupts = [
           interruptCarrying({
-            [OPENBOT_WAITING_METADATA]: { requestId: "request_1" },
+            [SHARDSOPENBOT_WAITING_METADATA]: { requestId: "request_1" },
           }),
         ];
         observer.complete();
@@ -1090,12 +1090,12 @@ describe("a turn waiting on a person", () => {
       drive: ({ agent, observer }) => {
         observer.next({
           type: EventType.CUSTOM,
-          name: "openbot.headless.waiting",
+          name: "shardsopenbot.headless.waiting",
           value: fromEvent,
           // biome-ignore lint/suspicious/noExplicitAny: the harness observer types only RUN_ERROR.
         } as any);
         agent.pendingInterrupts = [
-          interruptCarrying({ [OPENBOT_WAITING_METADATA]: WAITING }),
+          interruptCarrying({ [SHARDSOPENBOT_WAITING_METADATA]: WAITING }),
         ];
         observer.complete();
       },

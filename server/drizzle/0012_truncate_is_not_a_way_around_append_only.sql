@@ -31,7 +31,7 @@ BEGIN
   -- `true` so a session that never set it reads NULL instead of raising, which is the ordinary case
   -- and has to stay a plain refusal.
   BEGIN
-    retention_days := nullif(current_setting('openbot.audit_retention_days', true), '')::integer;
+    retention_days := nullif(current_setting('shardsopenbot.audit_retention_days', true), '')::integer;
   EXCEPTION WHEN others THEN
     retention_days := NULL;
   END;

@@ -15,7 +15,7 @@ async function probeServingPorts(env: {
   APP_PORT?: string;
   SERVER_PORT?: string;
 }) {
-  const directory = await mkdtemp(join(tmpdir(), "openbot-serve-ports-"));
+  const directory = await mkdtemp(join(tmpdir(), "shardsopenbot-serve-ports-"));
   const preload = join(directory, "probe.mjs");
   try {
     // Run the real entry and API handler, stopping both boundaries before any network access.
@@ -76,7 +76,9 @@ describe("serving port configuration", () => {
       expect(result.stdout).toContain(
         'PORT_PROBE:{"port":3010,"target":"http://127.0.0.1:3001/api/port-check"}',
       );
-      expect(result.stdout).toContain("OpenBot app on http://127.0.0.1:3010");
+      expect(result.stdout).toContain(
+        "ShardsOpenBot app on http://127.0.0.1:3010",
+      );
     },
   );
 
@@ -107,7 +109,7 @@ describe("serving port configuration", () => {
           `${name} must be a whole number from 1 to 65535`,
         );
         expect(result.stdout).not.toContain("PORT_PROBE:");
-        expect(result.stdout).not.toContain("OpenBot app on");
+        expect(result.stdout).not.toContain("ShardsOpenBot app on");
       },
     );
   }
@@ -118,7 +120,7 @@ describe("serving port configuration", () => {
  *
  * The failure that made this necessary: `vite preview` under `bun --bun` dies on the first proxied
  * call with `TypeError: socket.destroySoon is not a function`, so the app served its page, exited,
- * and the shell's window went on saying "OpenBot is running" with nothing listening.
+ * and the shell's window went on saying "ShardsOpenBot is running" with nothing listening.
  */
 describe("what answers a request", () => {
   test("the server answers its own prefix, and nothing near it", () => {
@@ -272,7 +274,7 @@ function startAuthenticatedUpstream(port: number) {
       if (request.headers.get("upgrade")?.toLowerCase() === "websocket") {
         const headers = snapshotHeaders(request);
         webSocketHandshakes.push(headers);
-        if (headers.cookie !== "openbot_session=valid") {
+        if (headers.cookie !== "shardsopenbot_session=valid") {
           return new Response("Sign in first.", { status: 401 });
         }
         if (server.upgrade(request)) return undefined;
@@ -335,8 +337,8 @@ async function startProxy(upstreamPort: number) {
 }
 
 test.each([
-  ["dictation", "/api/audio/transcriptions", "x-openbot-dictation"],
-  ["voice", "/api/voice/calls", "x-openbot-voice"],
+  ["dictation", "/api/audio/transcriptions", "x-shardsopenbot-dictation"],
+  ["voice", "/api/voice/calls", "x-shardsopenbot-voice"],
 ])(
   "%s can wait for a provider past Bun's default idle timeout",
   async (_name, path, header) => {
@@ -455,9 +457,9 @@ describe("api proxy", () => {
       new Headers({
         Authorization: "Bearer app-session",
         Connection: "Upgrade",
-        Cookie: "openbot_session=valid",
+        Cookie: "shardsopenbot_session=valid",
         Host: "127.0.0.1:3010",
-        Origin: "http://openbot.local",
+        Origin: "http://shardsopenbot.local",
         "Sec-WebSocket-Key": "client-generated",
         Upgrade: "websocket",
       }),
@@ -465,8 +467,8 @@ describe("api proxy", () => {
 
     expect(Object.fromEntries(headers)).toEqual({
       authorization: "Bearer app-session",
-      cookie: "openbot_session=valid",
-      origin: "http://openbot.local",
+      cookie: "shardsopenbot_session=valid",
+      origin: "http://shardsopenbot.local",
     });
   });
 
@@ -479,8 +481,8 @@ describe("api proxy", () => {
     try {
       const sessionHeaders = {
         Authorization: "Bearer app-session",
-        Cookie: "openbot_session=valid",
-        Origin: "http://openbot.local",
+        Cookie: "shardsopenbot_session=valid",
+        Origin: "http://shardsopenbot.local",
       };
       const httpResponse = await fetch(
         `http://127.0.0.1:${proxyPort}/api/header-check`,
@@ -488,15 +490,15 @@ describe("api proxy", () => {
       );
       expect(await httpResponse.json()).toEqual({
         authorization: "Bearer app-session",
-        cookie: "openbot_session=valid",
-        origin: "http://openbot.local",
+        cookie: "shardsopenbot_session=valid",
+        origin: "http://shardsopenbot.local",
       });
 
       const unauthorizedEvents = await failedHandshake(
         `ws://127.0.0.1:${proxyPort}/api/header-check`,
         {
           Authorization: "Bearer app-session",
-          Origin: "http://openbot.local",
+          Origin: "http://shardsopenbot.local",
         },
       );
       const unauthorizedHandshake = await waitForHandshake(
@@ -507,7 +509,7 @@ describe("api proxy", () => {
       expect(unauthorizedHandshake).toEqual({
         authorization: "Bearer app-session",
         cookie: null,
-        origin: "http://openbot.local",
+        origin: "http://shardsopenbot.local",
       });
 
       const socket = await connectWebSocket(
@@ -519,8 +521,8 @@ describe("api proxy", () => {
       socket.close();
       expect(await waitForHandshake(upstream.webSocketHandshakes, 2)).toEqual({
         authorization: "Bearer app-session",
-        cookie: "openbot_session=valid",
-        origin: "http://openbot.local",
+        cookie: "shardsopenbot_session=valid",
+        origin: "http://shardsopenbot.local",
       });
     } finally {
       upstream.server.stop(true);

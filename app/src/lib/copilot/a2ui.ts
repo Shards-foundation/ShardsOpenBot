@@ -7,7 +7,7 @@ import {
 
 /**
  * The A2UI 1.0 basic components: the same set the A2UI 0.9 basic catalog drew before. These are
- * declarative primitives, not the separately granted OpenBot gallery components.
+ * declarative primitives, not the separately granted ShardsOpenBot gallery components.
  */
 export const A2UI_BASIC_COMPONENTS = [
   "Text",
@@ -37,8 +37,8 @@ const basic: ReadonlySet<string> = new Set(A2UI_BASIC_COMPONENTS);
  * A2UI 1.0 basic components, which it carries under their A2UI names. The rest of the standard
  * catalog stays out until an admin can see and govern it.
  */
-export const OPENBOT_UI = createGenerativeUI({
-  id: "openbot/ui@1",
+export const SHARDSOPENBOT_UI = createGenerativeUI({
+  id: "shardsopenbot/ui@1",
   extends: [
     standardUI.omit(
       Object.keys(standardUI.manifestComponents).filter(
@@ -52,14 +52,14 @@ export const OPENBOT_UI = createGenerativeUI({
 const radius = (scale: number) => `calc(var(--radius) * ${scale})`;
 
 /**
- * OpenBot's tokens, by reference. They switch under `.dark` themselves, so one set covers both
+ * ShardsOpenBot's tokens, by reference. They switch under `.dark` themselves, so one set covers both
  * schemes, and set at the top level they outrank the SDK's built-in dark values. Status tints,
- * highlights and shadows have no OpenBot token and keep the SDK's light and dark values.
+ * highlights and shadows have no ShardsOpenBot token and keep the SDK's light and dark values.
  *
  * The font is spelled out rather than `var(--font-sans)`: that one lives in `@theme inline`, which
  * Tailwind inlines into utilities instead of emitting as a variable.
  */
-export const OPENBOT_UI_THEME: GenerativeUITheme = {
+export const SHARDSOPENBOT_UI_THEME: GenerativeUITheme = {
   "--a2ui-font-family":
     '"Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif',
   "--a2ui-color-text-default": "var(--foreground)",
@@ -101,8 +101,8 @@ export const OPENBOT_UI_THEME: GenerativeUITheme = {
 };
 
 const GENERATIVE_UI = {
-  ui: OPENBOT_UI,
-  theme: OPENBOT_UI_THEME,
+  ui: SHARDSOPENBOT_UI,
+  theme: SHARDSOPENBOT_UI_THEME,
 } satisfies NonNullable<CopilotKitProviderProps["generativeUI"]>;
 
 /**

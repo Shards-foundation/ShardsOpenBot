@@ -1,4 +1,4 @@
-import { summaryFor, WEB_HARNESSES } from "@openbot/shared/harnesses";
+import { summaryFor, WEB_HARNESSES } from "@shardsopenbot/shared/harnesses";
 import {
   IconCheck,
   IconLock,
@@ -801,8 +801,8 @@ function EndpointStep({
             />
           ) : (
             <FieldDescription>
-              Any agent that speaks AG-UI works. OpenBot connects to it, so it
-              has to be reachable from OpenBot's server.
+              Any agent that speaks AG-UI works. ShardsOpenBot connects to it,
+              so it has to be reachable from ShardsOpenBot's server.
             </FieldDescription>
           )}
         </Field>

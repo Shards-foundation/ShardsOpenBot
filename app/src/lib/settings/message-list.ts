@@ -6,11 +6,14 @@ import {
 } from "@tanstack/react-query";
 import { currentUserQueryOptions } from "@/lib/auth/queries";
 import { client } from "@/lib/client";
-import type { SkinId, UserPreferences } from "@openbot/shared/user-preferences";
+import type {
+  SkinId,
+  UserPreferences,
+} from "@shardsopenbot/shared/user-preferences";
 import { getSkinId, setSkin } from "@/skins/store";
 import { settingsKeys } from "./queries";
 
-export type { MessageListEmphasis } from "@openbot/shared/user-preferences";
+export type { MessageListEmphasis } from "@shardsopenbot/shared/user-preferences";
 
 export function userPreferencesQueryOptions(userId: string | undefined) {
   return queryOptions({
@@ -106,7 +109,7 @@ export const saveSkinMutationKey = [
 ] as const;
 
 /**
- * Choose how OpenBot looks for this person, on every device they sign in from.
+ * Choose how ShardsOpenBot looks for this person, on every device they sign in from.
  *
  * The skin is drawn the moment it is picked, and the cached preferences are patched to match, so
  * `SkinAccountSync` agrees with the picker while the save is out. A read already in flight is

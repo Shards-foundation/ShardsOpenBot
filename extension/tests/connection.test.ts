@@ -28,7 +28,7 @@ import { type ChromeFake, installChromeFake } from "./support/chrome-fake";
 
 type Exchange = { code: string; label: string; installId: string };
 const user = { id: "u1", name: "Ada", email: "ada@example.test" };
-/** Another person on the same OpenBot: a code ending `_bea` is hers, and exchanges for her own token. */
+/** Another person on the same ShardsOpenBot: a code ending `_bea` is hers, and exchanges for her own token. */
 const bea = { id: "u2", name: "Bea", email: "bea@example.test" };
 /** What a site's server can answer an exchange with, in the Recorder's own Connect page if it were shown. */
 const HOSTILE =
@@ -36,16 +36,16 @@ const HOSTILE =
 
 let server: ReturnType<typeof Bun.serve>;
 /**
- * The web OpenBot most tests connect: an https site, as a hosted OpenBot is. The Recorder takes a connect from OpenBot
+ * The web ShardsOpenBot most tests connect: an https site, as a hosted ShardsOpenBot is. The Recorder takes a connect from ShardsOpenBot
  * Desktop's loopback address with no Connect page, so a site that keeps the Connect click is https; its requests reach
- * the fake OpenBot below through `fetch` (`reachWebOpenBot`), as a name the browser resolves would.
+ * the fake ShardsOpenBot below through `fetch` (`reachWebShardsOpenBot`), as a name the browser resolves would.
  */
-const origin = "https://openbot.acme.test";
-/** The fake OpenBot's own address on this computer, as OpenBot Desktop's local stack serves OpenBot. */
+const origin = "https://shardsopenbot.acme.test";
+/** The fake ShardsOpenBot's own address on this computer, as ShardsOpenBot Desktop's local stack serves ShardsOpenBot. */
 let loopback = "";
 const realFetch = globalThis.fetch;
-/** Sends what the Recorder asks of `origin` to the fake OpenBot, path and all, and everything else where it was going. */
-function reachWebOpenBot(): void {
+/** Sends what the Recorder asks of `origin` to the fake ShardsOpenBot, path and all, and everything else where it was going. */
+function reachWebShardsOpenBot(): void {
   globalThis.fetch = Object.assign(
     (input: RequestInfo | URL, init?: RequestInit) => {
       const url = new URL(input instanceof Request ? input.url : input);
@@ -61,7 +61,7 @@ function reachWebOpenBot(): void {
 }
 const exchanges: Exchange[] = [];
 const hits: string[] = [];
-/** While set, a request to `path` reaches OpenBot (an exchange is recorded first), calls `arrived`, and has its answer
+/** While set, a request to `path` reaches ShardsOpenBot (an exchange is recorded first), calls `arrived`, and has its answer
  * held until `released` resolves. */
 let held: {
   path: string;
@@ -79,8 +79,8 @@ let meAnswer: { status: number; body: object } = {
   body: { user, connectionId: "c1" },
 };
 
-/** The fake OpenBot, on 127.0.0.1 for every test and on [::1] for the one that needs it. */
-async function openbot(request: Request): Promise<Response> {
+/** The fake ShardsOpenBot, on 127.0.0.1 for every test and on [::1] for the one that needs it. */
+async function shardsopenbot(request: Request): Promise<Response> {
   const url = new URL(request.url);
   hits.push(
     `${request.method} ${url.pathname} ${request.headers.get("authorization") ?? ""}`,
@@ -124,7 +124,7 @@ async function openbot(request: Request): Promise<Response> {
 }
 
 beforeAll(() => {
-  server = Bun.serve({ hostname: "127.0.0.1", port: 0, fetch: openbot });
+  server = Bun.serve({ hostname: "127.0.0.1", port: 0, fetch: shardsopenbot });
   loopback = server.url.origin;
 });
 afterAll(() => server.stop(true));
@@ -145,28 +145,28 @@ const openTab = async (url: string) => {
   return id;
 };
 const deps = () => ({ openTab, readPolicy: async () => policy });
-/** OpenBot Desktop's native host on this computer, answering `address` with `openbotUrl` (null: no OpenBot Desktop,
+/** ShardsOpenBot Desktop's native host on this computer, answering `address` with `shardsopenbotUrl` (null: no ShardsOpenBot Desktop,
  * as when its host is not installed), as recorder_host.rs answers it. */
-function desktopAnswers(openbotUrl: string | null): void {
-  fake.native.reply = openbotUrl
+function desktopAnswers(shardsopenbotUrl: string | null): void {
+  fake.native.reply = shardsopenbotUrl
     ? (message) =>
         (message as { type?: string }).type === "address"
-          ? { ok: true, openbotUrl }
+          ? { ok: true, shardsopenbotUrl }
           : { ok: false, error: "unknown-message" }
     : null;
 }
 const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 
 beforeEach(() => {
-  reachWebOpenBot();
+  reachWebShardsOpenBot();
   fake = installChromeFake({ manifestVersion: "0.2.0" });
   opened = [];
   exchanges.length = 0;
   hits.length = 0;
   askDesktopCalls = 0;
   policy = {
-    openbotUrl: null,
-    openbotUrlInvalid: false,
+    shardsopenbotUrl: null,
+    shardsopenbotUrlInvalid: false,
     allowedIntelligenceUrls: null,
   };
   meAnswer = {
@@ -195,12 +195,12 @@ afterEach(() => {
 
 const connect = (code: string, from = origin) =>
   handleExternalConnect(
-    { type: "openbot.connect", code },
+    { type: "shardsopenbot.connect", code },
     { origin: from },
     deps(),
   );
 
-/** Holds OpenBot's answers to `path` until `release`; `arrived` resolves once a request to it has reached OpenBot. */
+/** Holds ShardsOpenBot's answers to `path` until `release`; `arrived` resolves once a request to it has reached ShardsOpenBot. */
 function holdAnswer(path: string): {
   arrived: Promise<void>;
   release: () => void;
@@ -242,7 +242,7 @@ test("a web connect is confirmed on the extension's own page and exchanged at th
 });
 
 test("an http origin that is not loopback is refused and nothing opens", async () => {
-  expect(await connect("obc_a", "http://openbot.example.test")).toEqual({
+  expect(await connect("obc_a", "http://shardsopenbot.example.test")).toEqual({
     ok: false,
     error: "not-https",
   });
@@ -251,7 +251,10 @@ test("an http origin that is not loopback is refused and nothing opens", async (
 });
 
 test("a policy pinned to another origin refuses with pinned-elsewhere", async () => {
-  policy = { ...policy, openbotUrl: "https://openbot.example.test" };
+  policy = {
+    ...policy,
+    shardsopenbotUrl: "https://shardsopenbot.example.test",
+  };
   expect(await connect("obc_a")).toEqual({
     ok: false,
     error: "pinned-elsewhere",
@@ -328,22 +331,28 @@ test("the same origin asking again after five minutes still reuses its open conn
   });
 });
 
-test("a code OpenBot refuses shows the Recorder's own sentence on the Connect page, never the text the site's server sent, and stores nothing", async () => {
+test("a code ShardsOpenBot refuses shows the Recorder's own sentence on the Connect page, never the text the site's server sent, and stores nothing", async () => {
   for (const [code, sentence] of [
     [
       "obc_expired",
-      "This connect request has expired or was already used. Choose Connect this browser in OpenBot again.",
+      "This connect request has expired or was already used. Choose Connect this browser in ShardsOpenBot again.",
     ],
     [
       "obc_refused_403",
-      "This OpenBot does not accept this copy of the Recorder. Ask whoever runs it to add it.",
+      "This ShardsOpenBot does not accept this copy of the Recorder. Ask whoever runs it to add it.",
     ],
     [
       "obc_refused_429",
-      "OpenBot is taking too many connect requests just now. Try again in a few minutes.",
+      "ShardsOpenBot is taking too many connect requests just now. Try again in a few minutes.",
     ],
-    ["obc_refused_500", "OpenBot could not connect this browser. Try again."],
-    ["obc_refused_418", "OpenBot could not connect this browser. Try again."],
+    [
+      "obc_refused_500",
+      "ShardsOpenBot could not connect this browser. Try again.",
+    ],
+    [
+      "obc_refused_418",
+      "ShardsOpenBot could not connect this browser. Try again.",
+    ],
   ] as const) {
     clock += 30 * 1000;
     await connect(code);
@@ -359,7 +368,7 @@ test("a code OpenBot refuses shows the Recorder's own sentence on the Connect pa
   expect(await readLocal("connection")).toBeUndefined();
 });
 
-test("an approve that cannot reach OpenBot shows a plain sentence, not the browser's error, and stores nothing", async () => {
+test("an approve that cannot reach ShardsOpenBot shows a plain sentence, not the browser's error, and stores nothing", async () => {
   await connect("obc_abc");
   const unreachable = spyOn(globalThis, "fetch").mockImplementation(
     Object.assign(() => Promise.reject(new TypeError("Failed to fetch")), {
@@ -374,7 +383,7 @@ test("an approve that cannot reach OpenBot shows a plain sentence, not the brows
         label: "x",
         origin,
       }),
-    ).toEqual({ ok: false, error: "OpenBot did not answer. Try again." });
+    ).toEqual({ ok: false, error: "ShardsOpenBot did not answer. Try again." });
   } finally {
     unreachable.mockRestore();
   }
@@ -385,7 +394,7 @@ test("an approve that cannot reach OpenBot shows a plain sentence, not the brows
   });
 });
 
-test("disconnect tells OpenBot and forgets the token without a notice", async () => {
+test("disconnect tells ShardsOpenBot and forgets the token without a notice", async () => {
   await connect("obc_abc");
   await handleConnectionMessage({
     type: "page.connect.decide",
@@ -403,7 +412,7 @@ test("disconnect tells OpenBot and forgets the token without a notice", async ()
   expect(await readLocal("notice")).toBeUndefined();
 });
 
-test("a disconnect still telling OpenBot when a reconnect lands forgets only the connection it disconnected", async () => {
+test("a disconnect still telling ShardsOpenBot when a reconnect lands forgets only the connection it disconnected", async () => {
   await connected("obr_old");
   const deleting = holdAnswer("/api/recorder/connections/current");
   const disconnecting = handleConnectionMessage({ type: "page.disconnect" });
@@ -499,13 +508,13 @@ test("rejecting clears the pending connect and exchanges nothing", async () => {
 
 const connectStatus = (from = origin) =>
   handleExternalConnect(
-    { type: "openbot.connect.status" },
+    { type: "shardsopenbot.connect.status" },
     { origin: from },
     deps(),
   );
 
 test("the page that asked to connect hears at once that the person cancelled on the Connect page, or closed it, and no other site hears anything", async () => {
-  // After a Cancel on the Connect page, OpenBot's Settings used to go on saying "Confirm in the OpenBot Recorder tab that
+  // After a Cancel on the Connect page, ShardsOpenBot's Settings used to go on saying "Confirm in the ShardsOpenBot Recorder tab that
   // opened." for up to five minutes, as nothing told it the person had cancelled.
   expect(await connectStatus()).toEqual({ ok: true, connect: "none" });
   await connect("obc_abc");
@@ -545,7 +554,7 @@ test("the page that asked to connect hears at once that the person cancelled on 
   expect(exchanges.map((exchange) => exchange.code)).toEqual(["obc_ghi"]);
 });
 
-test("a Cancel is said only while a page could still be waiting on it: not after the five minutes, nor once that OpenBot connected another way", async () => {
+test("a Cancel is said only while a page could still be waiting on it: not after the five minutes, nor once that ShardsOpenBot connected another way", async () => {
   const cancel = async () => {
     await connect(`obc_${clock}`);
     await handleConnectionMessage({
@@ -562,10 +571,10 @@ test("a Cancel is said only while a page could still be waiting on it: not after
   expect(await connectStatus()).toEqual({ ok: true, connect: "none" });
   expect(await readSession("cancelledConnect")).toBeUndefined();
 
-  // Cancelled on the Connect page, then connected as the organization's own OpenBot, with no Connect page.
+  // Cancelled on the Connect page, then connected as the organization's own ShardsOpenBot, with no Connect page.
   clock += 60 * 1000;
   await cancel();
-  policy = { ...policy, openbotUrl: origin };
+  policy = { ...policy, shardsopenbotUrl: origin };
   expect(await connect("obc_pinned")).toMatchObject({
     ok: true,
     connected: true,
@@ -574,7 +583,7 @@ test("a Cancel is said only while a page could still be waiting on it: not after
 });
 
 const OUT_OF_DATE =
-  "This page is out of date. Close it and choose Connect this browser in OpenBot again.";
+  "This page is out of date. Close it and choose Connect this browser in ShardsOpenBot again.";
 
 test("a decide naming a site other than the pending one is refused, stores nothing, and keeps the pending connect", async () => {
   await connect("obc_abc");
@@ -603,7 +612,7 @@ test("a decide naming a site other than the pending one is refused, stores nothi
     }),
   ).toEqual({ ok: true });
   expect(exchanges.map((e) => e.code)).toEqual(["obc_abc"]);
-  expect((await readLocal("connection"))?.openbotUrl).toBe(origin);
+  expect((await readLocal("connection"))?.shardsopenbotUrl).toBe(origin);
 });
 
 test("a connect tab Chrome failed to close cannot connect the site that replaced its pending connect", async () => {
@@ -655,10 +664,10 @@ test("an approve still exchanging when another origin replaces the stale pending
   expect((await connect("obc_b", other)).ok).toBe(true);
   exchange.release();
   expect(await approving).toEqual({ ok: true });
-  // The person approved this origin and OpenBot minted its token, so the connection stands...
+  // The person approved this origin and ShardsOpenBot minted its token, so the connection stands...
   expect(exchanges.map((e) => e.code)).toEqual(["obc_a"]);
   expect(await readLocal("connection")).toMatchObject({
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token: "obr_fixture",
   });
   // ...and the other origin's connect tab still has its pending connect to show, which would now replace this one.
@@ -678,7 +687,10 @@ test("an approve still exchanging when another origin replaces the stale pending
 
 test("a web Connect's cancel that waited behind Desktop's connect leaves the connection Desktop made alone", async () => {
   await connect("obc_w", "https://a.example.test");
-  const handoff = Promise.withResolvers<{ openbotUrl: string; code: string }>();
+  const handoff = Promise.withResolvers<{
+    shardsopenbotUrl: string;
+    code: string;
+  }>();
   const connecting = connectThroughDesktop({
     askDesktop: () => handoff.promise,
     openTab,
@@ -691,14 +703,14 @@ test("a web Connect's cancel that waited behind Desktop's connect leaves the con
     origin: "https://a.example.test",
   });
   await settle();
-  handoff.resolve({ openbotUrl: loopback, code: "obc_d" });
+  handoff.resolve({ shardsopenbotUrl: loopback, code: "obc_d" });
   expect(await connecting).toEqual({ connected: true });
   expect(await cancelling).toEqual({ ok: true });
   // Desktop connected this browser and closed the web Connect tab; the cancel, for the web connect, changes nothing.
   expect(fake.removed).toEqual([41]);
   expect(await readSession("pendingConnect")).toBeUndefined();
   expect(await currentConnection()).toMatchObject({
-    openbotUrl: loopback,
+    shardsopenbotUrl: loopback,
     token: "obr_fixture",
     via: "desktop",
   });
@@ -721,16 +733,16 @@ test("Desktop availability is a ping that mints nothing", async () => {
 });
 
 test("Desktop's code connects this browser at once, with no Connect page, as an approved Connect connects it", async () => {
-  // The Recorder the person's own Chrome installed from the store connects through OpenBot Desktop with nothing to click.
+  // The Recorder the person's own Chrome installed from the store connects through ShardsOpenBot Desktop with nothing to click.
   const answer = await connectThroughDesktop({
-    askDesktop: async () => ({ openbotUrl: loopback, code: "obc_d" }),
+    askDesktop: async () => ({ shardsopenbotUrl: loopback, code: "obc_d" }),
     openTab,
     readPolicy: async () => policy,
   });
   expect(answer).toEqual({ connected: true });
   expect(opened).toEqual([]);
   expect(await readSession("pendingConnect")).toBeUndefined();
-  // Exchanged at OpenBot Desktop's OpenBot, under this copy's install id for it and the browser's own name.
+  // Exchanged at ShardsOpenBot Desktop's ShardsOpenBot, under this copy's install id for it and the browser's own name.
   expect(exchanges).toEqual([
     {
       code: "obc_d",
@@ -739,7 +751,7 @@ test("Desktop's code connects this browser at once, with no Connect page, as an 
     },
   ]);
   expect(await currentConnection()).toEqual({
-    openbotUrl: loopback,
+    shardsopenbotUrl: loopback,
     token: "obr_fixture",
     connectionId: "c1",
     user,
@@ -782,10 +794,10 @@ async function asBrowser(
   }
 }
 
-test("a connection OpenBot Desktop makes is named for the browser it is in, Edge as Edge and Chrome as Chrome, as OpenBot tells them apart", async () => {
+test("a connection ShardsOpenBot Desktop makes is named for the browser it is in, Edge as Edge and Chrome as Chrome, as ShardsOpenBot tells them apart", async () => {
   const desktopConnect = () =>
     connectThroughDesktop({
-      askDesktop: async () => ({ openbotUrl: loopback, code: "obc_d" }),
+      askDesktop: async () => ({ shardsopenbotUrl: loopback, code: "obc_d" }),
       openTab,
       readPolicy: async () => policy,
     });
@@ -841,7 +853,7 @@ test("a connection OpenBot Desktop makes is named for the browser it is in, Edge
 test("Desktop's connect closes an open web Connect tab, so approving that page cannot replace Desktop's connection", async () => {
   await connect("obc_w", "https://a.example.test");
   await connectThroughDesktop({
-    askDesktop: async () => ({ openbotUrl: loopback, code: "obc_d" }),
+    askDesktop: async () => ({ shardsopenbotUrl: loopback, code: "obc_d" }),
     openTab,
     readPolicy: async () => policy,
   });
@@ -859,32 +871,39 @@ test("a connection Desktop makes clears the signed-out notice, as an approved Co
     reason: "revoked",
   });
   await connectThroughDesktop({
-    askDesktop: async () => ({ openbotUrl: loopback, code: "obc_d" }),
+    askDesktop: async () => ({ shardsopenbotUrl: loopback, code: "obc_d" }),
     openTab,
     readPolicy: async () => policy,
   });
   expect(await readLocal("notice")).toBeUndefined();
 });
 
-test("a code OpenBot refuses, or an OpenBot that does not answer, stores nothing and says why", async () => {
+test("a code ShardsOpenBot refuses, or an ShardsOpenBot that does not answer, stores nothing and says why", async () => {
   expect(
     await connectThroughDesktop({
-      askDesktop: async () => ({ openbotUrl: loopback, code: "obc_expired" }),
+      askDesktop: async () => ({
+        shardsopenbotUrl: loopback,
+        code: "obc_expired",
+      }),
       openTab,
       readPolicy: async () => policy,
     }),
   ).toEqual({ connected: false, reason: "exchange-refused" });
-  // Nothing listens on this port: OpenBot Desktop named an OpenBot that is not running.
-  const closed = Bun.serve({ hostname: "127.0.0.1", port: 0, fetch: openbot });
+  // Nothing listens on this port: ShardsOpenBot Desktop named an ShardsOpenBot that is not running.
+  const closed = Bun.serve({
+    hostname: "127.0.0.1",
+    port: 0,
+    fetch: shardsopenbot,
+  });
   const gone = closed.url.origin;
   await closed.stop(true);
   expect(
     await connectThroughDesktop({
-      askDesktop: async () => ({ openbotUrl: gone, code: "obc_d" }),
+      askDesktop: async () => ({ shardsopenbotUrl: gone, code: "obc_d" }),
       openTab,
       readPolicy: async () => policy,
     }),
-  ).toEqual({ connected: false, reason: "openbot-unreachable" });
+  ).toEqual({ connected: false, reason: "shardsopenbot-unreachable" });
   expect(await currentConnection()).toBeNull();
   expect(opened).toEqual([]);
   expect(await readSession("pendingConnect")).toBeUndefined();
@@ -893,12 +912,12 @@ test("a code OpenBot refuses, or an OpenBot that does not answer, stores nothing
 test("a pin elsewhere that lands while Desktop's code is exchanged keeps the connection out and revokes its new token", async () => {
   const exchange = holdAnswer("/api/recorder/connections");
   const connecting = connectThroughDesktop({
-    askDesktop: async () => ({ openbotUrl: loopback, code: "obc_d" }),
+    askDesktop: async () => ({ shardsopenbotUrl: loopback, code: "obc_d" }),
     openTab,
     readPolicy: async () => policy,
   });
   await exchange.arrived;
-  policy = { ...policy, openbotUrl: "https://moved.example.test" };
+  policy = { ...policy, shardsopenbotUrl: "https://moved.example.test" };
   exchange.release();
   expect(await connecting).toEqual({
     connected: false,
@@ -923,10 +942,10 @@ test("installing registers onInstalled and no message listener (the router owns 
     expect(added).not.toContain(owned);
 });
 
-test("a fresh install creates its secret and connects through OpenBot Desktop with nothing to click, followed up as an approved Connect is", async () => {
+test("a fresh install creates its secret and connects through ShardsOpenBot Desktop with nothing to click, followed up as an approved Connect is", async () => {
   const followedUp: string[] = [];
   installConnection({
-    askDesktop: async () => ({ openbotUrl: loopback, code: "obc_d" }),
+    askDesktop: async () => ({ shardsopenbotUrl: loopback, code: "obc_d" }),
     openTab,
     readPolicy: async () => policy,
     connected: async () => {
@@ -943,7 +962,7 @@ test("a fresh install creates its secret and connects through OpenBot Desktop wi
   expect(followedUp).toEqual(["obr_fixture"]);
 });
 
-test("an install with no OpenBot Desktop to answer connects nothing and opens nothing", async () => {
+test("an install with no ShardsOpenBot Desktop to answer connects nothing and opens nothing", async () => {
   const followedUp: string[] = [];
   installConnection({
     askDesktop: async () => ({ error: "no-answer" }),
@@ -977,7 +996,11 @@ test("the exchange and the connected origin's ping carry this copy's install id 
     installId: await installIdFor(origin),
   });
   expect(
-    await handleExternalConnect({ type: "openbot.ping" }, { origin }, deps()),
+    await handleExternalConnect(
+      { type: "shardsopenbot.ping" },
+      { origin },
+      deps(),
+    ),
   ).toMatchObject({
     ok: true,
     installId: await installIdFor(origin),
@@ -988,7 +1011,7 @@ test("the exchange and the connected origin's ping carry this copy's install id 
 });
 
 test("a policy whose address is unusable refuses with policy-invalid", async () => {
-  policy = { ...policy, openbotUrlInvalid: true };
+  policy = { ...policy, shardsopenbotUrlInvalid: true };
   expect(await connect("obc_a")).toEqual({
     ok: false,
     error: "policy-invalid",
@@ -996,16 +1019,16 @@ test("a policy whose address is unusable refuses with policy-invalid", async () 
   expect(opened).toEqual([]);
 });
 
-test("a website that is not this copy's OpenBot learns nothing from a ping, a site with a connect waiting for the person included, until it is connected", async () => {
+test("a website that is not this copy's ShardsOpenBot learns nothing from a ping, a site with a connect waiting for the person included, until it is connected", async () => {
   const tracker = { origin: "https://tracker.example.test" };
   const ping = (from: { origin: string }) =>
-    handleExternalConnect({ type: "openbot.ping" }, from, deps());
+    handleExternalConnect({ type: "shardsopenbot.ping" }, from, deps());
   expect(await ping(tracker)).toEqual({ ok: true });
   expect(await ping({ origin })).toEqual({ ok: true });
   // A site that asked to connect is still any site until the person approves it.
   await connect("obc_a", tracker.origin);
   expect(await ping(tracker)).toEqual({ ok: true });
-  // The person closes the tracker's Connect page; OpenBot asks.
+  // The person closes the tracker's Connect page; ShardsOpenBot asks.
   fake.tabs.delete(41);
   await connect("obc_b");
   expect(await ping({ origin })).toEqual({ ok: true });
@@ -1056,8 +1079,8 @@ test("an origin that asks to connect over and over is throttled with the time le
   expect((await connect("obc_13")).ok).toBe(true);
 });
 
-test("a loopback page asking to connect over and over starts OpenBot Desktop's native host no more often than the limit lets it connect", async () => {
-  // Asking OpenBot Desktop for its address starts its native host, which looks for OpenBot's port with lsof or netstat.
+test("a loopback page asking to connect over and over starts ShardsOpenBot Desktop's native host no more often than the limit lets it connect", async () => {
+  // Asking ShardsOpenBot Desktop for its address starts its native host, which looks for ShardsOpenBot's port with lsof or netstat.
   // The request was counted only after that, so any page on a loopback port could have it started as often as it liked.
   desktopAnswers("http://127.0.0.1:3010");
   const asked = () =>
@@ -1119,7 +1142,7 @@ test("a web connect and Desktop's connect at once leave Desktop's connection, an
   await Promise.all([
     connect("obc_w", "https://a.example.test"),
     connectThroughDesktop({
-      askDesktop: async () => ({ openbotUrl: loopback, code: "obc_d" }),
+      askDesktop: async () => ({ shardsopenbotUrl: loopback, code: "obc_d" }),
       openTab,
       readPolicy: async () => policy,
     }),
@@ -1160,7 +1183,7 @@ test("the Desktop handoff respects a policy pinned elsewhere", async () => {
   const asking = {
     askDesktop: async () => {
       askDesktopCalls++;
-      return { openbotUrl: "http://127.0.0.1:7470", code: "obc_d" };
+      return { shardsopenbotUrl: "http://127.0.0.1:7470", code: "obc_d" };
     },
     openTab,
   };
@@ -1169,14 +1192,14 @@ test("the Desktop handoff respects a policy pinned elsewhere", async () => {
       ...asking,
       readPolicy: async () => ({
         ...policy,
-        openbotUrl: "https://openbot.example.test",
+        shardsopenbotUrl: "https://shardsopenbot.example.test",
       }),
     }),
   ).toEqual({ connected: false, reason: "pinned-elsewhere" });
   expect(
     await connectThroughDesktop({
       ...asking,
-      readPolicy: async () => ({ ...policy, openbotUrlInvalid: true }),
+      readPolicy: async () => ({ ...policy, shardsopenbotUrlInvalid: true }),
     }),
   ).toEqual({ connected: false, reason: "policy-invalid" });
   expect(
@@ -1184,7 +1207,7 @@ test("the Desktop handoff respects a policy pinned elsewhere", async () => {
       ...asking,
       readPolicy: async () => ({
         ...policy,
-        openbotUrl: "http://127.0.0.1:7999",
+        shardsopenbotUrl: "http://127.0.0.1:7999",
       }),
     }),
   ).toEqual({ connected: false, reason: "pinned-elsewhere" });
@@ -1214,7 +1237,10 @@ test("Desktop's refusal reaches the popup as its code, after a good ping too, an
   }
   expect(
     await connectThroughDesktop({
-      askDesktop: async () => ({ openbotUrl: "not a url", code: "obc_d" }),
+      askDesktop: async () => ({
+        shardsopenbotUrl: "not a url",
+        code: "obc_d",
+      }),
       openTab,
       readPolicy: async () => policy,
     }),
@@ -1225,17 +1251,17 @@ test("Desktop's refusal reaches the popup as its code, after a good ping too, an
 });
 
 test("Desktop's IPv6 loopback address is accepted", async () => {
-  const ipv6 = Bun.serve({ hostname: "::1", port: 0, fetch: openbot });
+  const ipv6 = Bun.serve({ hostname: "::1", port: 0, fetch: shardsopenbot });
   try {
     const address = `http://[::1]:${ipv6.port}`;
     expect(
       await connectThroughDesktop({
-        askDesktop: async () => ({ openbotUrl: address, code: "obc_d" }),
+        askDesktop: async () => ({ shardsopenbotUrl: address, code: "obc_d" }),
         openTab,
         readPolicy: async () => policy,
       }),
     ).toEqual({ connected: true });
-    expect((await currentConnection())?.openbotUrl).toBe(address);
+    expect((await currentConnection())?.shardsopenbotUrl).toBe(address);
   } finally {
     await ipv6.stop(true);
   }
@@ -1243,7 +1269,7 @@ test("Desktop's IPv6 loopback address is accepted", async () => {
 
 async function connected(token = "obr_fixture") {
   await writeLocal("connection", {
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token,
     connectionId: "c1",
     user,
@@ -1313,7 +1339,7 @@ test("a signed-out answer to a keep-alive sent with the old token leaves a recon
   const me = holdAnswer("/api/recorder/me");
   fake.alarms.fire("recorder-session-keepalive");
   await me.arrived;
-  // Reconnecting this copy stores the new token and revokes the old one on OpenBot...
+  // Reconnecting this copy stores the new token and revokes the old one on ShardsOpenBot...
   await connect("obc_abc");
   expect(
     await handleConnectionMessage({
@@ -1460,13 +1486,13 @@ test("a policy that moves the Recorder away tells the recording controller, then
     readPolicy: async () => policy,
     connectionLost: async (loss) => {
       lost.push(loss);
-      // The token is still live at OpenBot while the controller stops what used it.
+      // The token is still live at ShardsOpenBot while the controller stops what used it.
       expect(hits.some((hit) => hit.startsWith("DELETE"))).toBe(false);
     },
   });
   await settle();
-  policy = { ...policy, openbotUrl: "https://moved.example.test" };
-  fake.storage.setManaged({ OpenBotUrl: "https://moved.example.test" });
+  policy = { ...policy, shardsopenbotUrl: "https://moved.example.test" };
+  fake.storage.setManaged({ ShardsOpenBotUrl: "https://moved.example.test" });
   await settle();
   expect(await currentConnection()).toBeNull();
   expect(lost).toEqual([
@@ -1482,7 +1508,7 @@ test("a policy that moves the Recorder away tells the recording controller, then
 
 test("a connect page opened before a pin elsewhere cannot connect once the policy moved", async () => {
   await connect("obc_abc");
-  policy = { ...policy, openbotUrl: "https://moved.example.test" };
+  policy = { ...policy, shardsopenbotUrl: "https://moved.example.test" };
   expect(
     await handleConnectionMessage(
       {
@@ -1496,7 +1522,7 @@ test("a connect page opened before a pin elsewhere cannot connect once the polic
   ).toEqual({
     ok: false,
     error:
-      "Your organization's Recorder policy does not allow this OpenBot. Ask your IT team.",
+      "Your organization's Recorder policy does not allow this ShardsOpenBot. Ask your IT team.",
   });
   expect(exchanges).toEqual([]);
   expect(await currentConnection()).toBeNull();
@@ -1516,7 +1542,7 @@ test("a pin elsewhere that lands while the code is exchanged keeps the connectio
     deps(),
   );
   await exchange.arrived;
-  policy = { ...policy, openbotUrlInvalid: true };
+  policy = { ...policy, shardsopenbotUrlInvalid: true };
   exchange.release();
   expect(await approving).toMatchObject({ ok: false });
   expect(await currentConnection()).toBeNull();
@@ -1525,47 +1551,50 @@ test("a pin elsewhere that lands while the code is exchanged keeps the connectio
   );
 });
 
-// ---- Trusted OpenBots: no Connect page (shared/recorder-page.ts TrustedConnectRule) ----------
+// ---- Trusted ShardsOpenBots: no Connect page (shared/recorder-page.ts TrustedConnectRule) ----------
 
-test("only the organization's pinned OpenBot and the exact address OpenBot Desktop confirms are trusted to connect with no Connect page", () => {
+test("only the organization's pinned ShardsOpenBot and the exact address ShardsOpenBot Desktop confirms are trusted to connect with no Connect page", () => {
   const none = { ...policy };
-  const pinned = (openbotUrl: string) => ({ ...policy, openbotUrl });
+  const pinned = (shardsopenbotUrl: string) => ({
+    ...policy,
+    shardsopenbotUrl,
+  });
   const desktop = "http://127.0.0.1:3010";
   for (const [rules, address, confirmed, rule] of [
     [none, desktop, desktop, "loopback-desktop"],
     [none, "http://[::1]:3010", "http://[::1]:3010", "loopback-desktop"],
-    // Any other program can serve a page on a loopback port: one OpenBot Desktop did not confirm keeps the click.
+    // Any other program can serve a page on a loopback port: one ShardsOpenBot Desktop did not confirm keeps the click.
     [none, desktop, null, null],
     [none, "http://127.0.0.1:8888", desktop, null],
     [none, "http://[::1]:3010", desktop, null],
     [none, desktop, "http://[::1]:3010", null],
-    [none, "https://openbot.acme.test", desktop, null],
-    // https on a loopback IP is not OpenBot Desktop's local stack, which serves plain http.
+    [none, "https://shardsopenbot.acme.test", desktop, null],
+    // https on a loopback IP is not ShardsOpenBot Desktop's local stack, which serves plain http.
     [none, "https://127.0.0.1:3010", "https://127.0.0.1:3010", null],
     [none, "http://localhost:3010", "http://localhost:3010", null],
-    [none, "http://openbot.acme.test", desktop, null],
+    [none, "http://shardsopenbot.acme.test", desktop, null],
     [none, "null", desktop, null],
     [
-      pinned("https://openbot.acme.test"),
-      "https://openbot.acme.test",
+      pinned("https://shardsopenbot.acme.test"),
+      "https://shardsopenbot.acme.test",
       null,
       "policy-pinned",
     ],
     [
-      pinned("https://openbot.acme.test"),
+      pinned("https://shardsopenbot.acme.test"),
       "https://other.acme.test",
       null,
       null,
     ],
-    // A pin elsewhere keeps even OpenBot Desktop's address out.
-    [pinned("https://openbot.acme.test"), desktop, desktop, null],
+    // A pin elsewhere keeps even ShardsOpenBot Desktop's address out.
+    [pinned("https://shardsopenbot.acme.test"), desktop, desktop, null],
     [pinned(desktop), desktop, null, "policy-pinned"],
-    [{ ...policy, openbotUrlInvalid: true }, desktop, desktop, null],
+    [{ ...policy, shardsopenbotUrlInvalid: true }, desktop, desktop, null],
   ] as const)
     expect(trustedConnectRule(rules, address, confirmed)).toBe(rule);
 });
 
-test("OpenBot Desktop's own page on its loopback address connects with no Connect page, as an approved Connect connects", async () => {
+test("ShardsOpenBot Desktop's own page on its loopback address connects with no Connect page, as an approved Connect connects", async () => {
   desktopAnswers(loopback);
   await writeLocal("notice", { kind: "signed-out", at: 1, reason: "revoked" });
   const answer = await connect("obc_desktop_page", loopback);
@@ -1577,7 +1606,7 @@ test("OpenBot Desktop's own page on its loopback address connects with no Connec
   });
   expect(opened).toEqual([]);
   expect(await readSession("pendingConnect")).toBeUndefined();
-  // OpenBot Desktop's native host confirmed this address; nothing was minted to confirm it.
+  // ShardsOpenBot Desktop's native host confirmed this address; nothing was minted to confirm it.
   expect(fake.native.sent).toEqual([{ type: "address" }]);
   // Exchanged at the origin Chrome reported, under this copy's install id for it and the browser's own name.
   expect(exchanges).toEqual([
@@ -1588,7 +1617,7 @@ test("OpenBot Desktop's own page on its loopback address connects with no Connec
     },
   ]);
   expect(await currentConnection()).toEqual({
-    openbotUrl: loopback,
+    shardsopenbotUrl: loopback,
     token: "obr_fixture",
     connectionId: "c1",
     user,
@@ -1599,15 +1628,15 @@ test("OpenBot Desktop's own page on its loopback address connects with no Connec
   // The connected origin's ping now carries its version and install id.
   expect(
     await handleExternalConnect(
-      { type: "openbot.ping" },
+      { type: "shardsopenbot.ping" },
       { origin: loopback },
       deps(),
     ),
   ).toMatchObject({ ok: true, version: "0.2.0" });
 });
 
-test("the OpenBot the organization's policy pins connects with no Connect page", async () => {
-  policy = { ...policy, openbotUrl: origin };
+test("the ShardsOpenBot the organization's policy pins connects with no Connect page", async () => {
+  policy = { ...policy, shardsopenbotUrl: origin };
   expect(await connect("obc_pinned")).toEqual({
     ok: true,
     version: "0.2.0",
@@ -1617,7 +1646,7 @@ test("the OpenBot the organization's policy pins connects with no Connect page",
   expect(opened).toEqual([]);
   expect(exchanges.map((exchange) => exchange.code)).toEqual(["obc_pinned"]);
   expect(await currentConnection()).toMatchObject({
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token: "obr_fixture",
     via: "web",
   });
@@ -1625,7 +1654,7 @@ test("the OpenBot the organization's policy pins connects with no Connect page",
 
 test("a third-party https site still gets the Connect page and nothing is exchanged until the person approves it", async () => {
   desktopAnswers(loopback);
-  // Not pinned by the organization, and not OpenBot Desktop's: https on a loopback IP is a site like any other.
+  // Not pinned by the organization, and not ShardsOpenBot Desktop's: https on a loopback IP is a site like any other.
   for (const site of [origin, `https://127.0.0.1:${server.port}`]) {
     clock += 6 * 60 * 1000;
     expect(await connect(`obc_${site.length}`, site)).toEqual({
@@ -1642,26 +1671,30 @@ test("a third-party https site still gets the Connect page and nothing is exchan
   expect(await currentConnection()).toBeNull();
 });
 
-test("a trusted OpenBot's code OpenBot refuses, or an OpenBot that does not answer, stores nothing, opens nothing and says why", async () => {
+test("a trusted ShardsOpenBot's code ShardsOpenBot refuses, or an ShardsOpenBot that does not answer, stores nothing, opens nothing and says why", async () => {
   desktopAnswers(loopback);
   expect(await connect("obc_expired", loopback)).toEqual({
     ok: false,
     error: "exchange-refused",
   });
-  const closed = Bun.serve({ hostname: "127.0.0.1", port: 0, fetch: openbot });
+  const closed = Bun.serve({
+    hostname: "127.0.0.1",
+    port: 0,
+    fetch: shardsopenbot,
+  });
   const gone = closed.url.origin;
   await closed.stop(true);
   desktopAnswers(gone);
   expect(await connect("obc_d", gone)).toEqual({
     ok: false,
-    error: "openbot-unreachable",
+    error: "shardsopenbot-unreachable",
   });
   expect(await currentConnection()).toBeNull();
   expect(opened).toEqual([]);
   expect(await readSession("pendingConnect")).toBeUndefined();
 });
 
-test("a trusted OpenBot's connect closes a Connect page another site left open, so approving it cannot replace this connection", async () => {
+test("a trusted ShardsOpenBot's connect closes a Connect page another site left open, so approving it cannot replace this connection", async () => {
   desktopAnswers(loopback);
   expect(await connect("obc_w", "https://a.example.test")).toMatchObject({
     awaitingConfirmation: true,
@@ -1679,15 +1712,17 @@ test("a trusted OpenBot's connect closes a Connect page another site left open, 
       origin: "https://a.example.test",
     }),
   ).toEqual({ ok: false, error: "There is nothing to connect." });
-  expect(await currentConnection()).toMatchObject({ openbotUrl: loopback });
+  expect(await currentConnection()).toMatchObject({
+    shardsopenbotUrl: loopback,
+  });
 });
 
-test("a pin elsewhere that lands while a trusted OpenBot's code is exchanged keeps the connection out and revokes its new token", async () => {
+test("a pin elsewhere that lands while a trusted ShardsOpenBot's code is exchanged keeps the connection out and revokes its new token", async () => {
   desktopAnswers(loopback);
   const exchange = holdAnswer("/api/recorder/connections");
   const connecting = connect("obc_desktop_page", loopback);
   await exchange.arrived;
-  policy = { ...policy, openbotUrl: "https://moved.example.test" };
+  policy = { ...policy, shardsopenbotUrl: "https://moved.example.test" };
   exchange.release();
   expect(await connecting).toEqual({ ok: false, error: "pinned-elsewhere" });
   expect(await currentConnection()).toBeNull();
@@ -1696,10 +1731,10 @@ test("a pin elsewhere that lands while a trusted OpenBot's code is exchanged kee
   );
 });
 
-test("a trusted OpenBot asking to connect over and over is held to the same limit as any site", async () => {
+test("a trusted ShardsOpenBot asking to connect over and over is held to the same limit as any site", async () => {
   desktopAnswers(loopback);
   for (let i = 1; i <= 10; i++) {
-    // Connected to nothing each time, as a trusted OpenBot only connects with no Connect page then.
+    // Connected to nothing each time, as a trusted ShardsOpenBot only connects with no Connect page then.
     fake.storage.local.delete("connection");
     expect(await connect(`obc_${i}`, loopback)).toMatchObject({
       ok: true,
@@ -1715,23 +1750,23 @@ test("a trusted OpenBot asking to connect over and over is held to the same limi
   expect(exchanges).toHaveLength(10);
 });
 
-// ---- A loopback page is OpenBot Desktop's only when Desktop says so, and no connection is ever replaced without the
+// ---- A loopback page is ShardsOpenBot Desktop's only when Desktop says so, and no connection is ever replaced without the
 // Connect page: any program on this computer can serve a page on a loopback port, and one that connected with no click
 // would receive the person's next recordings ---------------------------------------------------------------------------
 
-test("a page on a loopback port that OpenBot Desktop did not confirm gets the Connect page, whatever serves it, and nothing is exchanged until the person approves it", async () => {
+test("a page on a loopback port that ShardsOpenBot Desktop did not confirm gets the Connect page, whatever serves it, and nothing is exchanged until the person approves it", async () => {
   const elsewhere = Bun.serve({
     hostname: "127.0.0.1",
     port: 0,
-    fetch: openbot,
+    fetch: shardsopenbot,
   });
   try {
     for (const [why, answer] of [
-      // No OpenBot Desktop on this computer: its native host is not installed.
+      // No ShardsOpenBot Desktop on this computer: its native host is not installed.
       ["no host", () => desktopAnswers(null)],
-      // OpenBot Desktop runs its OpenBot on another port: this page is a dev server, a notebook, any local app.
+      // ShardsOpenBot Desktop runs its ShardsOpenBot on another port: this page is a dev server, a notebook, any local app.
       ["another port", () => desktopAnswers(elsewhere.url.origin)],
-      // OpenBot Desktop from before the address message.
+      // ShardsOpenBot Desktop from before the address message.
       [
         "older host",
         () => {
@@ -1758,15 +1793,15 @@ test("a page on a loopback port that OpenBot Desktop did not confirm gets the Co
   }
 });
 
-test("a trusted OpenBot asking while this browser is connected goes through the Connect page, which names the connection it replaces, and nothing is exchanged before the click", async () => {
+test("a trusted ShardsOpenBot asking while this browser is connected goes through the Connect page, which names the connection it replaces, and nothing is exchanged before the click", async () => {
   desktopAnswers(loopback);
   await connected("obr_old");
   expect(await connect("obc_desktop_page_bea", loopback)).toEqual({
     ok: true,
     awaitingConfirmation: true,
   });
-  // The organization's pinned OpenBot, asking again as another person, is asked about too.
-  policy = { ...policy, openbotUrl: origin };
+  // The organization's pinned ShardsOpenBot, asking again as another person, is asked about too.
+  policy = { ...policy, shardsopenbotUrl: origin };
   clock += 6 * 60 * 1000;
   fake.tabs.delete(41);
   expect(await connect("obc_pinned_bea")).toEqual({
@@ -1784,7 +1819,7 @@ test("a trusted OpenBot asking while this browser is connected goes through the 
   });
 });
 
-test("approving a Connect page that replaces another OpenBot's or another person's connection stops what still uses it, then revokes its token at its OpenBot", async () => {
+test("approving a Connect page that replaces another ShardsOpenBot's or another person's connection stops what still uses it, then revokes its token at its ShardsOpenBot", async () => {
   const events: string[] = [];
   const losses: ConnectionLoss[] = [];
   const watched = {
@@ -1812,12 +1847,12 @@ test("approving a Connect page that replaces another OpenBot's or another person
         events.push(`revoked ${token}`);
   };
 
-  // Another person on the same OpenBot.
+  // Another person on the same ShardsOpenBot.
   await connected("obr_old");
   const ada = await currentConnection();
   if (!ada) throw new Error("Not connected");
   await handleExternalConnect(
-    { type: "openbot.connect", code: "obc_x_bea" },
+    { type: "shardsopenbot.connect", code: "obc_x_bea" },
     { origin },
     watched,
   );
@@ -1831,14 +1866,14 @@ test("approving a Connect page that replaces another OpenBot's or another person
   // The controller heard first, so nothing still sending with the old token meets its revocation.
   expect(events).toEqual(["lost obr_old", "revoked obr_old"]);
 
-  // The same person on the same OpenBot is this copy connecting again: OpenBot revoked the old token at the exchange
+  // The same person on the same ShardsOpenBot is this copy connecting again: ShardsOpenBot revoked the old token at the exchange
   // (one live connection per person and install id), and the recording goes on under the new one.
   clock += 6 * 60 * 1000;
   await connected("obr_old");
   hits.length = 0;
   losses.length = 0;
   await handleExternalConnect(
-    { type: "openbot.connect", code: "obc_y" },
+    { type: "shardsopenbot.connect", code: "obc_y" },
     { origin },
     watched,
   );
@@ -1847,7 +1882,7 @@ test("approving a Connect page that replaces another OpenBot's or another person
   expect(revoked("obr_old")).toBe(0);
 });
 
-test("a connection that lands while a trusted OpenBot's code is exchanged is never replaced: the new token is revoked and the page told to try again", async () => {
+test("a connection that lands while a trusted ShardsOpenBot's code is exchanged is never replaced: the new token is revoked and the page told to try again", async () => {
   desktopAnswers(loopback);
   const exchange = holdAnswer("/api/recorder/connections");
   const connecting = connect("obc_desktop_page", loopback);
@@ -1864,9 +1899,9 @@ test("a connection that lands while a trusted OpenBot's code is exchanged is nev
   );
 });
 
-test("a connection OpenBot Desktop makes in place of another person's stops what still uses the old one, then revokes it", async () => {
+test("a connection ShardsOpenBot Desktop makes in place of another person's stops what still uses the old one, then revokes it", async () => {
   await writeLocal("connection", {
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token: "obr_bea",
     connectionId: "c2",
     user: bea,
@@ -1876,7 +1911,7 @@ test("a connection OpenBot Desktop makes in place of another person's stops what
   const losses: ConnectionLoss[] = [];
   expect(
     await connectThroughDesktop({
-      askDesktop: async () => ({ openbotUrl: loopback, code: "obc_d" }),
+      askDesktop: async () => ({ shardsopenbotUrl: loopback, code: "obc_d" }),
       openTab,
       readPolicy: async () => policy,
       connectionLost: async (loss) => {

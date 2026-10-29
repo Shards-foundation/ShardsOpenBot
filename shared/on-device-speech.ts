@@ -2,7 +2,7 @@
  * SPEECH RECOGNITION ON THE PERSON'S OWN COMPUTER, OR NONE. Chrome's Web Speech API sends the microphone's audio to a
  * speech service by default; a recognition only stays on the device when it sets `processLocally`, which makes on-device
  * recognition a requirement rather than a preference: https://developer.mozilla.org/docs/Web/API/SpeechRecognition/processLocally
- * Narration, in the Recorder (extension/src/offscreen/voice.ts) and in OpenBot's own page (app/src/lib/browser/narration.ts),
+ * Narration, in the Recorder (extension/src/offscreen/voice.ts) and in ShardsOpenBot's own page (app/src/lib/browser/narration.ts),
  * always sets it, and asks first whether this browser can do it for the narration's language:
  *
  * - `SpeechRecognition.available({ langs, processLocally: true })` answers `available`, `downloading`, `downloadable`

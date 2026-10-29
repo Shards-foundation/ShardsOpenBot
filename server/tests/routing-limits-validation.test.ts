@@ -18,7 +18,7 @@ const requireUser: MiddlewareHandler<{ Variables: AppVariables }> = async (
 ) => {
   context.set("actor", {
     id: "user-1",
-    email: "user@openbot.test",
+    email: "user@shardsopenbot.test",
     role: "admin",
   });
   await next();
@@ -54,7 +54,7 @@ describe("POST /api/route text cap", () => {
 
   test("refuses oversized text with 400 and never routes", async () => {
     const calls: unknown[] = [];
-    const response = await app(calls).request("http://openbot.test/", {
+    const response = await app(calls).request("http://shardsopenbot.test/", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ text: "x".repeat(10001) }),
@@ -70,7 +70,7 @@ describe("POST /api/route text cap", () => {
     const calls: unknown[] = [];
     // Empty roster -> 409 "No Bot is available.", which still proves the text passed the
     // cap and reached the router path.
-    const response = await app(calls).request("http://openbot.test/", {
+    const response = await app(calls).request("http://shardsopenbot.test/", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ text: "x".repeat(10000) }),
@@ -128,7 +128,7 @@ describe("POST /internal/routines/run id", () => {
         },
       });
       const response = await app.request(
-        "http://openbot.local/internal/routines/run",
+        "http://shardsopenbot.local/internal/routines/run",
         {
           method: "POST",
           headers: {
@@ -173,7 +173,7 @@ describe("GET /api/computers/:botId/page-frame/:toolCallId", () => {
   test("returns null frame on the happy path", async () => {
     const calls: unknown[] = [];
     const response = await app(calls).request(
-      "http://openbot.test/bot-1/page-frame/turn-1",
+      "http://shardsopenbot.test/bot-1/page-frame/turn-1",
     );
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ frame: null });
@@ -183,7 +183,7 @@ describe("GET /api/computers/:botId/page-frame/:toolCallId", () => {
   test("refuses an overlong toolCallId with 400 and never reads", async () => {
     const calls: unknown[] = [];
     const response = await app(calls).request(
-      `http://openbot.test/bot-1/page-frame/${"t".repeat(201)}`,
+      `http://shardsopenbot.test/bot-1/page-frame/${"t".repeat(201)}`,
     );
     expect(response.status).toBe(400);
     expect(calls).toEqual([]);

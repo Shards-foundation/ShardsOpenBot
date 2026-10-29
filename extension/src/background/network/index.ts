@@ -11,7 +11,7 @@ import {
   type JsonValue,
   maskNetworkEvent,
   scrubUrl,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { isRecordablePage } from "../../shared/origin";
 import type { CaptureObservation } from "../agent/observation";
 import type { StepCall } from "../steps";
@@ -27,9 +27,9 @@ import { callSignature, createRepeatMemory, screenCall } from "./screen";
 
 export type NetworkMode = "debugger" | "page" | "waiting" | "off";
 export type NetworkCaptureDeps = {
-  /** The OpenBot the recording's passes come from: its own calls are never a step's, and the AG-UI capture follows only its
+  /** The ShardsOpenBot the recording's passes come from: its own calls are never a step's, and the AG-UI capture follows only its
    * chat with a Bot. Null once nothing records. */
-  openbotUrl(): string | null;
+  shardsopenbotUrl(): string | null;
   /** Whether a page the capture may attach to is one it records: a website, and not one the person keeps out of their
    * recordings. `isRecordablePage` when absent. */
   recordable?(url: string): boolean;
@@ -57,7 +57,7 @@ export type NetworkCapture = {
     tabs: { tabId: number; url: string }[],
     previous: NetworkMode | "stopped",
   ): Promise<NetworkMode | "stopped">;
-  /** A page-level fallback event (Task 18) from a followed tab, already re-masked: dropped when it is a call to OpenBot
+  /** A page-level fallback event (Task 18) from a followed tab, already re-masked: dropped when it is a call to ShardsOpenBot
    * itself (the debugger never sees those either) or fails the screens, else handed to the steps like a debugger call. */
   recordPageEvent(tabId: number, event: CapturedEvent): Promise<void>;
   /** An AG-UI observation the page hook made in a followed tab: handed to the agent events like a debugger one. */
@@ -74,15 +74,16 @@ const PAGE = "Chrome refused its debugger here.";
 const refusedSentence = (message: string) =>
   `Chrome would not let the Recorder see what each step saves here (${message}).`;
 
-/** OpenBot's CopilotKit runtime routes that run a Bot's agent or join its run: the runtime is mounted at /api/copilotkit
+/** ShardsOpenBot's CopilotKit runtime routes that run a Bot's agent or join its run: the runtime is mounted at /api/copilotkit
  * (server/src/copilot.ts) with REST routes only, `/agent/<id>/run` and `/agent/<id>/connect`. */
-const OPENBOT_AGENT_RUN = /^\/api\/copilotkit\/agent\/[^/]+\/(?:run|connect)$/;
-/** Where the page's CopilotKit asks OpenBot's runtime what it serves (`info`): a GET of /api/copilotkit/info, or, were
+const SHARDSOPENBOT_AGENT_RUN =
+  /^\/api\/copilotkit\/agent\/[^/]+\/(?:run|connect)$/;
+/** Where the page's CopilotKit asks ShardsOpenBot's runtime what it serves (`info`): a GET of /api/copilotkit/info, or, were
  * its transport to fall back to the single route, a POST of `{ method: "info" }` to /api/copilotkit. The answer names no
  * secret, only the runtime's version, mode and agents. */
-const OPENBOT_RUNTIME_INFO = /^\/api\/copilotkit(?:\/info)?\/?$/;
+const SHARDSOPENBOT_RUNTIME_INFO = /^\/api\/copilotkit(?:\/info)?\/?$/;
 /** CopilotKit Intelligence's client socket, as the page opens it from a run's join credentials (`<clientUrl>/websocket?
- * join_token=...`): on OpenBot's own origin when a deployment serves Intelligence's gateway there. */
+ * join_token=...`): on ShardsOpenBot's own origin when a deployment serves Intelligence's gateway there. */
 const INTELLIGENCE_SOCKET = /\/websocket$/;
 
 const AUTO_ATTACH = {
@@ -180,41 +181,41 @@ export function createNetworkCapture(
     params?: Record<string, unknown>,
   ) => chrome.debugger.sendCommand(target, method, params);
 
-  /** OpenBot's own calls are never a step's call or save: its API hands the page secrets (a live Recorder connect code)
+  /** ShardsOpenBot's own calls are never a step's call or save: its API hands the page secrets (a live Recorder connect code)
    * that must never reach Intelligence. */
   const ignore = (url: string): boolean => {
-    const openbot = deps.openbotUrl();
-    if (!openbot) return false;
+    const shardsopenbot = deps.shardsopenbotUrl();
+    if (!shardsopenbot) return false;
     try {
-      return new URL(url).origin === new URL(openbot).origin;
+      return new URL(url).origin === new URL(shardsopenbot).origin;
     } catch {
       return false;
     }
   };
 
-  /** OpenBot's runtime `info` route: followed for CopilotKit's info call alone (openbotInfo). */
-  const openbotInfo = (url: string): boolean => {
+  /** ShardsOpenBot's runtime `info` route: followed for CopilotKit's info call alone (shardsopenbotInfo). */
+  const shardsopenbotInfo = (url: string): boolean => {
     if (!ignore(url)) return false;
     try {
-      return OPENBOT_RUNTIME_INFO.test(new URL(url).pathname);
+      return SHARDSOPENBOT_RUNTIME_INFO.test(new URL(url).pathname);
     } catch {
       return false;
     }
   };
 
-  /** The AG-UI capture follows OpenBot's own page as it follows any other site's, but only in its chat with a Bot: the
-   * runs and joins it posts to OpenBot's CopilotKit runtime, whose answers are the agent's events or the Intelligence
+  /** The AG-UI capture follows ShardsOpenBot's own page as it follows any other site's, but only in its chat with a Bot: the
+   * runs and joins it posts to ShardsOpenBot's CopilotKit runtime, whose answers are the agent's events or the Intelligence
    * channel they stream on, an Intelligence client socket it opens with a run's join credentials, and the runtime's
    * answer to CopilotKit's `info` call (read for that alone: the page runs CopilotKit, so its clicks carry the open
-   * Thread). Every other call to OpenBot stays ignored. The Recorder's own calls to OpenBot (its connection, its capture
+   * Thread). Every other call to ShardsOpenBot stays ignored. The Recorder's own calls to ShardsOpenBot (its connection, its capture
    * pass) come from the extension, never from a tab, and match none of these. */
   const ignoreAgent = (url: string): boolean => {
     if (!ignore(url)) return false;
     try {
       const { pathname, searchParams } = new URL(url);
       return !(
-        OPENBOT_AGENT_RUN.test(pathname) ||
-        OPENBOT_RUNTIME_INFO.test(pathname) ||
+        SHARDSOPENBOT_AGENT_RUN.test(pathname) ||
+        SHARDSOPENBOT_RUNTIME_INFO.test(pathname) ||
         (INTELLIGENCE_SOCKET.test(pathname) && searchParams.has("join_token"))
       );
     } catch {
@@ -236,7 +237,7 @@ export function createNetworkCapture(
   const agent = createAgentCapture({
     send,
     ignore: ignoreAgent,
-    infoOnly: openbotInfo,
+    infoOnly: shardsopenbotInfo,
     observe: (observation) => {
       if (!ended && mode !== "stopped") deps.agent(observation);
     },
@@ -517,7 +518,7 @@ export function createNetworkCapture(
 
     async recordPageEvent(tabId, event) {
       if (ended) return;
-      // The URLs are already masked, which keeps their origin. A call a redirect landed on OpenBot is OpenBot's too.
+      // The URLs are already masked, which keeps their origin. A call a redirect landed on ShardsOpenBot is ShardsOpenBot's too.
       const value = event.value as NetworkValue | null;
       const urls = [value?.url, value?.response?.url];
       if (urls.some((url) => typeof url === "string" && ignore(url))) return;

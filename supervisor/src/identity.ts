@@ -20,9 +20,9 @@ const SPIFFE_ENABLED = process.env.SPIRE_SOCKET !== undefined;
 /** The parent every workload entry hangs from: the agent that attested the node. */
 const AGENT_SPIFFE_ID =
   process.env.SPIRE_AGENT_ID ??
-  "spiffe://openbot.local/spire/agent/join_token/openbot";
+  "spiffe://shardsopenbot.local/spire/agent/join_token/shardsopenbot";
 
-const TRUST_DOMAIN = process.env.SPIRE_TRUST_DOMAIN ?? "openbot.local";
+const TRUST_DOMAIN = process.env.SPIRE_TRUST_DOMAIN ?? "shardsopenbot.local";
 
 export function spiffeIdFor(botId: string): string {
   return `spiffe://${TRUST_DOMAIN}/bot/${botId}`;

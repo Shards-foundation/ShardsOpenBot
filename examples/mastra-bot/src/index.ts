@@ -8,7 +8,7 @@ import { listenPort } from "../../../shared/listen-port";
 /**
  * A Bot written in Mastra.
  *
- * This and the LangGraph example share no OpenBot-specific code beyond the AG-UI protocol. Tools
+ * This and the LangGraph example share no ShardsOpenBot-specific code beyond the AG-UI protocol. Tools
  * arrive in `input.tools` from the surface, so both drive a governed browser they have no direct
  * access to.
  *
@@ -34,9 +34,9 @@ const NEEDS_RESPONSES_API =
   /^gpt-5\.[6-9]|^gpt-[6-9]/.test(MODEL);
 
 const bot = new Agent({
-  name: "OpenBot Mastra coworker",
+  name: "ShardsOpenBot Mastra coworker",
   instructions:
-    "You are a Bot running on Mastra inside OpenBot. You have a real web browser available through " +
+    "You are a Bot running on Mastra inside ShardsOpenBot. You have a real web browser available through " +
     "the tools you are given.\n\n" +
     // Same guard as the LangGraph example: page contents require a fresh tool result.
     "NEVER state what a page contains unless you have just read it with a tool in this conversation. " +
@@ -124,7 +124,7 @@ function safeArgs(raw: string): Record<string, unknown> {
  * The tools the surface granted, in the Vercel-AI-SDK shape Mastra passes through.
  *
  * `execute` is deliberately absent: nothing runs here. The tool loop belongs to the client, which is
- * what puts every call through OpenBot's policy gateway instead of this process.
+ * what puts every call through ShardsOpenBot's policy gateway instead of this process.
  */
 function toMastraTools(input: RunAgentInput) {
   const tools: Record<string, unknown> = {};

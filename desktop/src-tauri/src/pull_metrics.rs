@@ -146,7 +146,7 @@ pub fn pull_image(
     }
     command.args([
         "--project-name",
-        "openbot-image-pull",
+        "shardsopenbot-image-pull",
         "-f",
         "-",
         "pull",
@@ -260,7 +260,7 @@ fn run_with_progress(
         bytes,
     });
     let output = output.map_err(|error| {
-        Problem::plain(format!("Could not pull the images OpenBot needs: {error}"))
+        Problem::plain(format!("Could not pull the images ShardsOpenBot needs: {error}"))
     })?;
     if output.status.success() {
         return Ok(());
@@ -514,7 +514,7 @@ Executing external compose provider
 
     #[test]
     fn reports_spawn_failure_once() {
-        let command = crate::quiet::command("openbot-test-missing-pull-executable");
+        let command = crate::quiet::command("shardsopenbot-test-missing-pull-executable");
         let mut reports = Vec::new();
         assert!(run(command, None, true, |metrics| reports.push(metrics)).is_err());
         assert_eq!(reports.len(), 1);

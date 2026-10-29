@@ -17,7 +17,7 @@ use std::{
 #[path = "provider_oauth_lock.rs"]
 mod credential_lock;
 
-pub const FILE: &str = ".openbot/model-oauth.json";
+pub const FILE: &str = ".shardsopenbot/model-oauth.json";
 const XAI_CLIENT: &str = "b1a00492-073a-47ea-816f-4c329264a828";
 const XAI_SCOPE: &str = "openid profile email offline_access grok-cli:access api:access";
 const GOOGLE_SCOPE: &str = "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.retriever";
@@ -82,16 +82,16 @@ fn random() -> String {
 }
 fn configured(name: &str) -> Option<String> {
     let embedded = match name {
-        "OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID" => {
-            option_env!("OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID")
+        "SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID" => {
+            option_env!("SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID")
         }
-        "OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET" => {
-            option_env!("OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET")
+        "SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET" => {
+            option_env!("SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET")
         }
-        "OPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT" => {
-            option_env!("OPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT")
+        "SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT" => {
+            option_env!("SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT")
         }
-        "OPENBOT_XAI_MODEL_OAUTH_CLIENT_ID" => option_env!("OPENBOT_XAI_MODEL_OAUTH_CLIENT_ID"),
+        "SHARDSOPENBOT_XAI_MODEL_OAUTH_CLIENT_ID" => option_env!("SHARDSOPENBOT_XAI_MODEL_OAUTH_CLIENT_ID"),
         _ => None,
     };
     std::env::var(name)
@@ -104,7 +104,7 @@ fn http() -> Result<reqwest::blocking::Client, String> {
     reqwest::blocking::Client::builder()
         .timeout(Duration::from_secs(25))
         .redirect(reqwest::redirect::Policy::none())
-        .user_agent("OpenBot/desktop-provider-oauth")
+        .user_agent("ShardsOpenBot/desktop-provider-oauth")
         .build()
         .map_err(|e| e.to_string())
 }
@@ -151,11 +151,11 @@ pub fn begin(root: &Path, provider: &str) -> Result<Authorization, String> {
     let flow = reserve(root);
     let (pending, url, user_code) = match provider {
         "google" => {
-            let client_id = configured("OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID").ok_or("Google sign-in needs this OpenBot build's registered desktop OAuth client. Use an API key until it is configured.")?;
-            let project = configured("OPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT").ok_or(
+            let client_id = configured("SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID").ok_or("Google sign-in needs this ShardsOpenBot build's registered desktop OAuth client. Use an API key until it is configured.")?;
+            let project = configured("SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT").ok_or(
                 "Google sign-in needs a Google Cloud quota project with the Gemini API enabled.",
             )?;
-            let client_secret = configured("OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET");
+            let client_secret = configured("SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET");
             let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
             listener.set_nonblocking(true).map_err(|e| e.to_string())?;
             let redirect = format!(
@@ -193,7 +193,7 @@ pub fn begin(root: &Path, provider: &str) -> Result<Authorization, String> {
             )
         }
         "xai" => {
-            let client_id = configured("OPENBOT_XAI_MODEL_OAUTH_CLIENT_ID")
+            let client_id = configured("SHARDSOPENBOT_XAI_MODEL_OAUTH_CLIENT_ID")
                 .unwrap_or_else(|| XAI_CLIENT.into());
             let body = response_json(
                 http()?
@@ -201,7 +201,7 @@ pub fn begin(root: &Path, provider: &str) -> Result<Authorization, String> {
                     .form(&[
                         ("client_id", client_id.as_str()),
                         ("scope", XAI_SCOPE),
-                        ("referrer", "openbot"),
+                        ("referrer", "shardsopenbot"),
                     ])
                     .send()
                     .map_err(|e| e.to_string())?,
@@ -367,7 +367,7 @@ fn receive_callback(stream: &mut TcpStream, state: &str) -> Result<Option<String
         return Ok(None);
     }
     if let Some(error) = query.get("error") {
-        let _ = stream.write_all(b"HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\nSign-in was not approved. Return to OpenBot.");
+        let _ = stream.write_all(b"HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\nSign-in was not approved. Return to ShardsOpenBot.");
         return Err(format!("Google sign-in was not approved: {error}"));
     }
     let code = query
@@ -375,7 +375,7 @@ fn receive_callback(stream: &mut TcpStream, state: &str) -> Result<Option<String
         .filter(|v| !v.is_empty())
         .cloned()
         .ok_or("Google did not return an authorization code.")?;
-    stream.write_all(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nReturn to OpenBot to finish signing in.").map_err(|e| e.to_string())?;
+    stream.write_all(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nReturn to ShardsOpenBot to finish signing in.").map_err(|e| e.to_string())?;
     Ok(Some(code))
 }
 
@@ -562,11 +562,11 @@ fn write(
             return Err("The provider credential directory cannot be redirected.".into());
         }
         // Give new atomically replaced files an owner-only inherited DACL, including runtime refreshes.
-        let script = "$ErrorActionPreference='Stop'; $sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User; $acl=New-Object System.Security.AccessControl.DirectorySecurity; $acl.SetOwner($sid); $acl.SetAccessRuleProtection($true,$false); $rule=New-Object System.Security.AccessControl.FileSystemAccessRule($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow'); $acl.AddAccessRule($rule); Set-Acl -LiteralPath $env:OPENBOT_OAUTH_DIRECTORY -AclObject $acl";
+        let script = "$ErrorActionPreference='Stop'; $sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User; $acl=New-Object System.Security.AccessControl.DirectorySecurity; $acl.SetOwner($sid); $acl.SetAccessRuleProtection($true,$false); $rule=New-Object System.Security.AccessControl.FileSystemAccessRule($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow'); $acl.AddAccessRule($rule); Set-Acl -LiteralPath $env:SHARDSOPENBOT_OAUTH_DIRECTORY -AclObject $acl";
         let output = std::process::Command::new("powershell.exe")
             .args(["-NoProfile", "-NonInteractive", "-Command", script])
-            .env("OPENBOT_OAUTH_DIRECTORY", directory)
-            // A PowerShell 7 parent passes its incompatible modules through Cargo/OpenBot.
+            .env("SHARDSOPENBOT_OAUTH_DIRECTORY", directory)
+            // A PowerShell 7 parent passes its incompatible modules through Cargo/ShardsOpenBot.
             // Let Windows PowerShell rebuild its own default module search path.
             .env_remove("PSModulePath")
             .creation_flags(0x08000000)
@@ -574,7 +574,7 @@ fn write(
             .map_err(|e| e.to_string())?;
         if !output.status.success() {
             return Err(format!(
-                "OpenBot could not make the provider sign-in private to your Windows account. {}",
+                "ShardsOpenBot could not make the provider sign-in private to your Windows account. {}",
                 crate::quiet::said(&output.stderr)
             ));
         }
@@ -620,7 +620,7 @@ mod tests {
     #[test]
     fn xai_verification_url_preserves_the_provider_code() {
         let plain = "https://accounts.x.ai/oauth2/device";
-        let complete = "https://accounts.x.ai/oauth2/device?user_code=ABCD-EFGH&referrer=openbot";
+        let complete = "https://accounts.x.ai/oauth2/device?user_code=ABCD-EFGH&referrer=shardsopenbot";
         assert_eq!(
             xai_verification_url(&serde_json::json!({"verification_uri": plain})).unwrap(),
             plain
@@ -820,7 +820,7 @@ mod tests {
 
     #[test]
     fn credential_lock_child_process() {
-        let Some(path) = std::env::var_os("OPENBOT_TEST_CREDENTIAL_LOCK_CHILD") else {
+        let Some(path) = std::env::var_os("SHARDSOPENBOT_TEST_CREDENTIAL_LOCK_CHILD") else {
             return;
         };
         let _lock = credential_lock::acquire(Path::new(&path)).unwrap();
@@ -866,7 +866,7 @@ mod tests {
         let native = credential_lock::acquire(&path).unwrap();
         let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../server/tests/fixtures/provider-oauth-lock-owner.ts");
-        let bun = std::env::var_os("OPENBOT_TEST_BUN").unwrap_or_else(|| "bun".into());
+        let bun = std::env::var_os("SHARDSOPENBOT_TEST_BUN").unwrap_or_else(|| "bun".into());
         let mut child = LockChild(
             crate::quiet::command(bun)
                 .args([fixture.as_os_str(), path.as_os_str()])
@@ -920,7 +920,7 @@ mod tests {
                     "provider_oauth::tests::credential_lock_child_process",
                     "--nocapture",
                 ])
-                .env("OPENBOT_TEST_CREDENTIAL_LOCK_CHILD", &path)
+                .env("SHARDSOPENBOT_TEST_CREDENTIAL_LOCK_CHILD", &path)
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
                 .stderr(Stdio::inherit())

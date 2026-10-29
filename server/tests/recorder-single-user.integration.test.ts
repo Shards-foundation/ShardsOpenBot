@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import type { ExchangeResponse } from "@openbot/shared/recorder-api";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+import type { ExchangeResponse } from "@shardsopenbot/shared/recorder-api";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { eq, inArray } from "drizzle-orm";
 import { createApp } from "../src/app";
 import type { AuditEventInput } from "../src/audit";
@@ -20,13 +20,14 @@ const other = `recorder-single-${randomUUID()}-other`;
 const ORIGIN = `chrome-extension://${RECORDER_EXTENSION_ID}`;
 
 const config = loadConfig({
-  DATABASE_URL: "postgres://openbot:openbot@127.0.0.1:5432/openbot",
+  DATABASE_URL:
+    "postgres://shardsopenbot:shardsopenbot@127.0.0.1:5432/shardsopenbot",
   KEY_ENCRYPTION_KEY: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
   INTELLIGENCE_API_URL: "http://127.0.0.1:7100",
   INTELLIGENCE_GATEWAY_WS_URL: "ws://127.0.0.1:7103",
   INTELLIGENCE_API_KEY: "tenant-api-key",
   COPILOTKIT_LICENSE_TOKEN: "license-token",
-  OPENBOT_SINGLE_USER: "true",
+  SHARDSOPENBOT_SINGLE_USER: "true",
 });
 const auditStore = { insert: async (_event: AuditEventInput) => {} };
 const roleRepository = { rolesForUser: async () => ["admin" as const] };
@@ -61,7 +62,7 @@ const app = createApp(...args);
 
 const call = (path: string, init: RequestInit & { json?: unknown } = {}) => {
   const { json, headers, ...rest } = init;
-  return app.request(`http://openbot.test${path}`, {
+  return app.request(`http://shardsopenbot.test${path}`, {
     ...rest,
     headers: {
       ...(json === undefined ? {} : { "content-type": "application/json" }),

@@ -17,7 +17,7 @@ import { createRoot } from "react-dom/client";
 import {
   type CapturedEvent,
   sha256HexSync,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import {
   collectorBeforeSend,
   startEventCapture,

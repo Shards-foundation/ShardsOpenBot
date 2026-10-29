@@ -4,7 +4,7 @@
 //! a manifest rather than a branch in wizard code, so adding a harness is an entry here plus an
 //! image, and never a new screen.
 //!
-//! Two things this list deliberately does not contain. OpenBot's own `built-in` agent type, which
+//! Two things this list deliberately does not contain. ShardsOpenBot's own `built-in` agent type, which
 //! is a system prompt and not a harness: everybody leaves setup with a real one, either an image we
 //! publish or an address they already run. And anything whose AG-UI integration we would have to
 //! write ourselves. A harness earns a row only when the integration exists and somebody other than
@@ -146,7 +146,7 @@ fn byo_remote_ag_ui_url(value: &str) -> Result<String, String> {
 ///
 /// Mastra is here on different terms from the rest, and the difference is in the server rather than
 /// in this list. Every other row is an image serving an AG-UI route; Mastra's image is a plain
-/// Mastra server, and OpenBot dials it through `getRemoteAgents` from `@ag-ui/mastra`, the bridge
+/// Mastra server, and ShardsOpenBot dials it through `getRemoteAgents` from `@ag-ui/mastra`, the bridge
 /// Mastra and AG-UI maintain between them. See `remoteTransport` in server/src/copilot.ts.
 ///
 /// It reads as a harness like any other because the difference ends at the transport: a Mastra Bot
@@ -270,7 +270,7 @@ pub fn picked(
         // Our own Mastra image serves one agent, named for the product. Somebody pointing at their
         // own Mastra server names theirs on the Bot's page.
         remote_agent_id: if mastra {
-            "openbot".to_string()
+            "shardsopenbot".to_string()
         } else {
             String::new()
         },
@@ -318,7 +318,7 @@ mod tests {
 
     use super::*;
 
-    /// OpenBot's own `built-in` agent type is a system prompt, not a harness, and the doc is
+    /// ShardsOpenBot's own `built-in` agent type is a system prompt, not a harness, and the doc is
     /// explicit that it is not offered. Everybody leaves setup with a real one.
     #[test]
     fn the_built_in_agent_type_is_not_offered() {
@@ -456,9 +456,9 @@ mod tests {
             .filter_map(|row| row.image)
             .map(|image| {
                 format!(
-                    "\"{image}\": {{ \"repository\": \"ghcr.io/copilotkit/openbot-{image}\", \
+                    "\"{image}\": {{ \"repository\": \"ghcr.io/copilotkit/shardsopenbot-{image}\", \
                      \"digest\": \"sha256:abc\", \
-                     \"reference\": \"ghcr.io/copilotkit/openbot-{image}@sha256:abc\" }}"
+                     \"reference\": \"ghcr.io/copilotkit/shardsopenbot-{image}@sha256:abc\" }}"
                 )
             })
             .collect();
@@ -484,7 +484,7 @@ mod tests {
             crate::deployment::images_path(root),
             "{ \"version\": \"v9.9.9\", \"images\": { \
              \"agent-crewai\": { \
-             \"reference\": \"ghcr.io/copilotkit/openbot-agent-crewai@sha256:abc\" } } }",
+             \"reference\": \"ghcr.io/copilotkit/shardsopenbot-agent-crewai@sha256:abc\" } } }",
         )
         .expect("manifest is written");
     }
@@ -519,7 +519,7 @@ mod tests {
         let crate::env::PickedHarness::Installed { image, .. } = picked else {
             panic!("crewai should install a harness image");
         };
-        assert_eq!(image, "ghcr.io/copilotkit/openbot-agent-crewai@sha256:abc");
+        assert_eq!(image, "ghcr.io/copilotkit/shardsopenbot-agent-crewai@sha256:abc");
         let _ = std::fs::remove_dir_all(&root);
     }
 
@@ -654,7 +654,7 @@ mod tests {
         else {
             panic!("crewai should install a harness image");
         };
-        assert_eq!(image, "ghcr.io/copilotkit/openbot-agent-crewai@sha256:abc");
+        assert_eq!(image, "ghcr.io/copilotkit/shardsopenbot-agent-crewai@sha256:abc");
         assert_eq!(port, 4202);
         assert!(!mastra);
         assert!(remote_agent_id.is_empty());
@@ -678,7 +678,7 @@ mod tests {
             panic!("mastra should install a harness image");
         };
         assert!(mastra);
-        assert_eq!(remote_agent_id, "openbot");
+        assert_eq!(remote_agent_id, "shardsopenbot");
         let _ = std::fs::remove_dir_all(&root);
     }
 
@@ -738,7 +738,7 @@ mod tests {
     THE SAME BUG THREE TIMES. First the names were built from the ids and matched nothing a release
     publishes. Then the version stopped being appended, so an engine read the bare name as
     `:latest`. Then the name was correct and tagged and still unqualified, so Podman resolved
-    `openbot-agent-langgraph-agui:v0.0.8` to `docker.io/library/...` and the person was told access
+    `shardsopenbot-agent-langgraph-agui:v0.0.8` to `docker.io/library/...` and the person was told access
     was denied. Each one is a perfectly good string, each one failed at the pull on a first run, and
     the fix is that no reference is built here at all: they are read from the release's manifest.
     */
@@ -805,7 +805,7 @@ mod tests {
         assert!(unmarked.is_empty(), "unmarked harnesses: {unmarked:?}");
     }
 
-    /// Mastra is offered, and the row is the assertion that the bridge on OpenBot's side works.
+    /// Mastra is offered, and the row is the assertion that the bridge on ShardsOpenBot's side works.
     /// It was out while the only thing a harness could mount served the wrong protocol; it is in
     /// because `remoteTransport` dials Mastra's own API instead. Removing the row means that path
     /// regressed, so this fails rather than the picker quietly shrinking.

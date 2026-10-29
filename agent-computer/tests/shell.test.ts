@@ -17,7 +17,8 @@ const workspaceHome = "/workspace/sales";
 
 const secrets = {
   KEY_ENCRYPTION_KEY: "deployment-key",
-  DATABASE_URL: "postgres://openbot:openbot@127.0.0.1/openbot",
+  DATABASE_URL:
+    "postgres://shardsopenbot:shardsopenbot@127.0.0.1/shardsopenbot",
   OPENAI_API_KEY: "sk-secret",
   COMPUTER_TOKEN: "computer-token",
   INTELLIGENCE_API_KEY: "cpk-secret",
@@ -180,7 +181,7 @@ describe("the command that actually runs", () => {
   let root: string;
 
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), "openbot-shell-"));
+    root = await mkdtemp(join(tmpdir(), "shardsopenbot-shell-"));
   });
 
   afterEach(async () => {
@@ -315,7 +316,7 @@ describe("what a command cannot do to the computer", () => {
   let root: string;
 
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), "openbot-shell-limits-"));
+    root = await mkdtemp(join(tmpdir(), "shardsopenbot-shell-limits-"));
   });
 
   afterEach(async () => {

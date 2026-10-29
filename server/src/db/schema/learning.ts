@@ -1,7 +1,7 @@
 import type {
   LearningSettings,
   LearningSharingMode,
-} from "@openbot/shared/learning";
+} from "@shardsopenbot/shared/learning";
 import { sql } from "drizzle-orm";
 import {
   check,
@@ -39,7 +39,7 @@ export const learningThreadBindings = pgTable(
 
 /**
  * A person's own Learning space: the Intelligence Learning container every recording they make joins
- * (learning/personal-space.ts). A row means OpenBot saw the container exist, because it created it, Intelligence said
+ * (learning/personal-space.ts). A row means ShardsOpenBot saw the container exist, because it created it, Intelligence said
  * the id was already taken, or the runtime key read it. The id is derived from the person's, so the row only remembers
  * that it exists. It goes with its person; the container stays in Intelligence.
  */

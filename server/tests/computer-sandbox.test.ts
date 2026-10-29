@@ -15,7 +15,7 @@ import {
  */
 function providerWith(sandbox: unknown, seen: string[] = []) {
   return createSandboxComputerProvider({
-    namespace: "openbot",
+    namespace: "shardsopenbot",
     template: { podTemplate: { spec: { containers: [] } } },
     idleAfterMs: 60_000,
     apiServer: "https://kubernetes.default",
@@ -31,7 +31,7 @@ const running = (readyAt: string, node: string, ip: string) => ({
   metadata: { name: "bot-knowledge-abc" },
   spec: { operatingMode: "Running" },
   status: {
-    serviceFQDN: "bot-knowledge-abc.openbot.svc.cluster.local",
+    serviceFQDN: "bot-knowledge-abc.shardsopenbot.svc.cluster.local",
     nodeName: node,
     podIPs: [ip],
     conditions: [
@@ -129,7 +129,7 @@ describe("a computer that takes longer than the wait to start", () => {
 
   test("locate gives up with the still-starting error, not a sandbox failure", async () => {
     const provider = createSandboxComputerProvider({
-      namespace: "openbot",
+      namespace: "shardsopenbot",
       template: { podTemplate: { spec: { containers: [] } } },
       idleAfterMs: 60_000,
       apiServer: "https://kubernetes.default",
@@ -152,7 +152,7 @@ describe("a computer that takes longer than the wait to start", () => {
   test("locate answers within its own wait, well before a resume's budget runs out", async () => {
     // Held under a load balancer's idle timeout, so the person's request is answered, not cut.
     const provider = createSandboxComputerProvider({
-      namespace: "openbot",
+      namespace: "shardsopenbot",
       template: { podTemplate: { spec: { containers: [] } } },
       idleAfterMs: 60_000,
       apiServer: "https://kubernetes.default",
@@ -210,7 +210,7 @@ describe("the credential a sandbox call carries", () => {
     const sent: string[] = [];
     let current = "first";
     const provider = createSandboxComputerProvider({
-      namespace: "openbot",
+      namespace: "shardsopenbot",
       idleAfterMs: 60_000,
       template: { podTemplate: {} },
       apiServer: "https://cluster.test",
@@ -241,7 +241,7 @@ describe("the credential a sandbox call carries", () => {
  * Running when none exists, deleted on Suspended, and never changed while it runs.
  */
 const IMAGE = (tag: string) => ({
-  spec: { containers: [{ name: "computer", image: `openbot:${tag}` }] },
+  spec: { containers: [{ name: "computer", image: `shardsopenbot:${tag}` }] },
 });
 
 function fakeCluster(initial: {
@@ -263,7 +263,7 @@ function fakeCluster(initial: {
   const patches: { contentType: string; body: unknown }[] = [];
   const imageOf = (template: unknown) =>
     (template as ReturnType<typeof IMAGE>).spec.containers[0]?.image.replace(
-      "openbot:",
+      "shardsopenbot:",
       "",
     );
   // What the controller would do on its next reconcile.
@@ -282,7 +282,7 @@ function fakeCluster(initial: {
       volumeClaimTemplates: state.volumeClaimTemplates,
     },
     status: {
-      serviceFQDN: "bot-general-abc.openbot.svc.cluster.local",
+      serviceFQDN: "bot-general-abc.shardsopenbot.svc.cluster.local",
       conditions: [
         {
           type: "Suspended",
@@ -334,7 +334,7 @@ function fakeCluster(initial: {
 
 function providerOn(cluster: ReturnType<typeof fakeCluster>, tag: string) {
   return createSandboxComputerProvider({
-    namespace: "openbot",
+    namespace: "shardsopenbot",
     template: {
       podTemplate: IMAGE(tag),
       volumeClaimTemplates: [{ metadata: { name: "profile" } }],
@@ -423,7 +423,7 @@ describe("which id a computer is for", () => {
         containers: [
           {
             name: "computer",
-            image: "openbot:new",
+            image: "shardsopenbot:new",
             env: [
               { name: "PORT", value: "4100" },
               // One the template carried is replaced, never doubled.
@@ -434,7 +434,7 @@ describe("which id a computer is for", () => {
       },
     };
     await createSandboxComputerProvider({
-      namespace: "openbot",
+      namespace: "shardsopenbot",
       template: { podTemplate: template },
       idleAfterMs: 60_000,
       apiServer: "https://kubernetes.default",
@@ -515,7 +515,7 @@ describe("updating a computer on request", () => {
 
   test("a Bot with no computer has nothing to update", async () => {
     const provider = createSandboxComputerProvider({
-      namespace: "openbot",
+      namespace: "shardsopenbot",
       template: { podTemplate: IMAGE("new") },
       idleAfterMs: 60_000,
       apiServer: "https://kubernetes.default",

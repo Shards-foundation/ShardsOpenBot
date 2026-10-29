@@ -682,13 +682,13 @@ export function ComputerView({
               await refreshControl?.();
             }}
           >
-            <label className="block" htmlFor="openbot-secret">
+            <label className="block" htmlFor="shardsopenbot-secret">
               <span className="font-medium">The Bot needs </span>
               <span>{control.secretWanted}</span>
             </label>
             <div className="mt-1.5 flex gap-2">
               <input
-                id="openbot-secret"
+                id="shardsopenbot-secret"
                 type="password"
                 value={secret}
                 onChange={(event) => setSecret(event.target.value)}

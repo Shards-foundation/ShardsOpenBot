@@ -9,7 +9,7 @@ describe("connector tokens never reach a Bot's computer", () => {
       KEY_ENCRYPTION_KEY: placeholder,
       COMPOSIO_API_KEY: placeholder,
       GOOGLE_OAUTH_CLIENT_SECRET: placeholder,
-      DATABASE_URL: `postgres://openbot:${placeholder}@127.0.0.1/openbot`,
+      DATABASE_URL: `postgres://shardsopenbot:${placeholder}@127.0.0.1/shardsopenbot`,
       INTELLIGENCE_API_KEY: placeholder,
       SLACK_BOT_TOKEN: placeholder,
       EGRESS_PROXY_BOT_1: "http://127.0.0.1:3128",

@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import type { Message } from "@ag-ui/client";
 import {
   HeadlessToolSuspension,
-  OPENBOT_WAITING_METADATA,
+  SHARDSOPENBOT_WAITING_METADATA,
 } from "../src/headless-tools";
 import {
   settle,
@@ -108,7 +108,7 @@ describe("settle", () => {
       evidence({
         added: [REPLY],
         pendingInterrupts: [
-          interrupt({ [OPENBOT_WAITING_METADATA]: { kind: "question" } }),
+          interrupt({ [SHARDSOPENBOT_WAITING_METADATA]: { kind: "question" } }),
         ],
       }),
       "suspended",
@@ -143,7 +143,7 @@ describe("settle", () => {
         waiting,
         pendingInterrupts: [
           interrupt({
-            [OPENBOT_WAITING_METADATA]: {
+            [SHARDSOPENBOT_WAITING_METADATA]: {
               kind: "question",
               requestId: "other",
             },
@@ -159,7 +159,7 @@ describe("settle", () => {
       settle(
         evidence({
           pendingInterrupts: [
-            interrupt({ [OPENBOT_WAITING_METADATA]: { requestId: "r" } }),
+            interrupt({ [SHARDSOPENBOT_WAITING_METADATA]: { requestId: "r" } }),
           ],
         }),
       ).kind,

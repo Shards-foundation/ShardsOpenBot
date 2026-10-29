@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { BrowserState } from "../../shared/openbot-browser";
+import type { BrowserState } from "../../shared/shardsopenbot-browser";
 import type { BrowserRuntime } from "../src/browser-runtime";
 import {
   setEgressPolicy,
@@ -20,15 +20,15 @@ import type { Profiles } from "../src/profiles";
  * connections arrived anonymous and were judged by every policy on the computer, strictest first:
  * with a person's browser open, a Bot allowed to reach an internal service was refused, and two Bots
  * on one computer refused each other the same way. Here a Bot allowed everything, a Bot allowed
- * nothing and a person's hosted browser allowed only its OpenBot are all open at once, in real
+ * nothing and a person's hosted browser allowed only its ShardsOpenBot are all open at once, in real
  * Chromium, through the real filter, and each reaches exactly what its own policy allows.
  *
- * The person's browser comes first and its Recorder's worker reports to OpenBot as it connects,
+ * The person's browser comes first and its Recorder's worker reports to ShardsOpenBot as it connects,
  * before any page has loaded: the worker's own requests have to answer the filter's question too.
  *
- *   OPENBOT_COMPUTER_BROWSER=1 bun test tests/egress-browsers.test.ts
+ *   SHARDSOPENBOT_COMPUTER_BROWSER=1 bun test tests/egress-browsers.test.ts
  */
-const asked = process.env.OPENBOT_COMPUTER_BROWSER === "1";
+const asked = process.env.SHARDSOPENBOT_COMPUTER_BROWSER === "1";
 
 const FIXTURE = join(import.meta.dir, "fixtures", "recorder");
 const PERSON = "person-0123456789abcdef0123456789abcdef";
@@ -45,8 +45,8 @@ const RUNTIME: BrowserRuntime = {
 
 const reports: { method: string }[] = [];
 
-/** The OpenBot the person's browser may reach, which the fixture Recorder reports its calls to. */
-const openbot = asked
+/** The ShardsOpenBot the person's browser may reach, which the fixture Recorder reports its calls to. */
+const shardsopenbot = asked
   ? Bun.serve({
       hostname: "127.0.0.1",
       port: 0,
@@ -55,9 +55,12 @@ const openbot = asked
           reports.push((await request.json()) as { method: string });
           return new Response("");
         }
-        return new Response("<!doctype html><title>OpenBot</title>OpenBot", {
-          headers: { "content-type": "text/html" },
-        });
+        return new Response(
+          "<!doctype html><title>ShardsOpenBot</title>ShardsOpenBot",
+          {
+            headers: { "content-type": "text/html" },
+          },
+        );
       },
     })
   : undefined;
@@ -86,11 +89,11 @@ describe.skipIf(!asked)("browsers sharing a computer's egress filter", () => {
   let root = "";
   let profiles: Profiles;
   let routes: ReturnType<typeof Bun.serve>;
-  const OPENBOT = `http://127.0.0.1:${openbot?.port ?? 0}`;
+  const SHARDSOPENBOT = `http://127.0.0.1:${shardsopenbot?.port ?? 0}`;
   const INTERNAL = `http://127.0.0.1:${internal?.port ?? 0}/`;
 
   beforeAll(async () => {
-    root = await mkdtemp(join(tmpdir(), "openbot-egress-browsers-"));
+    root = await mkdtemp(join(tmpdir(), "shardsopenbot-egress-browsers-"));
     await startEgressFilter({ env: {} });
     /*
      * Every name the filter is asked for answers 127.0.0.1, where nothing listens on a web port. A
@@ -103,7 +106,11 @@ describe.skipIf(!asked)("browsers sharing a computer's egress filter", () => {
     setEgressPolicy(PERSON, {
       mode: "allowlist_only",
       rules: [
-        { type: "cidr", value: "127.0.0.1/32", ports: String(openbot?.port) },
+        {
+          type: "cidr",
+          value: "127.0.0.1/32",
+          ports: String(shardsopenbot?.port),
+        },
       ],
     });
     // A fresh copy of the module, as the other real-browser tests load it.
@@ -125,7 +132,7 @@ describe.skipIf(!asked)("browsers sharing a computer's egress filter", () => {
         host.handle(
           request,
           new URL(request.url).pathname,
-          request.headers.get("x-openbot-bot-id") ?? "",
+          request.headers.get("x-shardsopenbot-bot-id") ?? "",
         ),
     });
   }, 30_000);
@@ -135,7 +142,7 @@ describe.skipIf(!asked)("browsers sharing a computer's egress filter", () => {
     await profiles?.closeAll();
     setEgressResolver(null);
     await stopEgressFilter();
-    openbot?.stop(true);
+    shardsopenbot?.stop(true);
     internal?.stop(true);
     if (root) await rm(root, { recursive: true, force: true });
   }, 60_000);
@@ -143,7 +150,7 @@ describe.skipIf(!asked)("browsers sharing a computer's egress filter", () => {
   const person = (path: string, body: unknown) =>
     fetch(`http://127.0.0.1:${routes.port}${path}`, {
       method: "POST",
-      headers: { "x-openbot-bot-id": PERSON },
+      headers: { "x-shardsopenbot-bot-id": PERSON },
       body: JSON.stringify(body),
     });
 
@@ -154,10 +161,10 @@ describe.skipIf(!asked)("browsers sharing a computer's egress filter", () => {
     return page.evaluate(() => document.body?.innerText ?? "");
   };
 
-  test("the person's browser opens and its Recorder reaches OpenBot before any page has loaded", async () => {
+  test("the person's browser opens and its Recorder reaches ShardsOpenBot before any page has loaded", async () => {
     const opening = await person("/browser/open", {
       connection: {
-        openbotUrl: OPENBOT,
+        shardsopenbotUrl: SHARDSOPENBOT,
         token: "obr_fixture-token",
         connectionId: "connection-1",
         user: { id: "user-1", name: "Pat Example", email: "pat@example.com" },
@@ -167,7 +174,7 @@ describe.skipIf(!asked)("browsers sharing a computer's egress filter", () => {
     expect(((await opening.json()) as BrowserState).recorder?.connected).toBe(
       true,
     );
-    // The Recorder's worker told OpenBot about the connect, through the filter.
+    // The Recorder's worker told ShardsOpenBot about the connect, through the filter.
     expect(reports.map((report) => report.method)).toContain("connect");
   }, 60_000);
 
@@ -204,15 +211,15 @@ describe.skipIf(!asked)("browsers sharing a computer's egress filter", () => {
     );
   }, 60_000);
 
-  test("and no Bot borrows the person's allowance for their OpenBot", async () => {
-    expect(await shown(STRICT_BOT, OPENBOT)).toContain(
+  test("and no Bot borrows the person's allowance for their ShardsOpenBot", async () => {
+    expect(await shown(STRICT_BOT, SHARDSOPENBOT)).toContain(
       "is not on this deployment's network allowlist.",
     );
-    const opened = await person("/browser/navigate", { url: OPENBOT });
+    const opened = await person("/browser/navigate", { url: SHARDSOPENBOT });
     expect(opened.status).toBe(200);
     const page = await profiles.page(PERSON);
     expect(await page.evaluate(() => document.body.innerText)).toContain(
-      "OpenBot",
+      "ShardsOpenBot",
     );
   }, 60_000);
 });

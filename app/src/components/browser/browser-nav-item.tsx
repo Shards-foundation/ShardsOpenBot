@@ -1,6 +1,6 @@
-import type { RealBrowser } from "@openbot/shared/openbot-browser";
-import type { RecorderActivity } from "@openbot/shared/recorder-api";
-import type { RecorderPageState } from "@openbot/shared/recorder-page";
+import type { RealBrowser } from "@shardsopenbot/shared/shardsopenbot-browser";
+import type { RecorderActivity } from "@shardsopenbot/shared/recorder-api";
+import type { RecorderPageState } from "@shardsopenbot/shared/recorder-page";
 import { IconBrowser } from "@tabler/icons-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -46,23 +46,23 @@ const BUTTON_CLASS = "hover:bg-foreground/5 h-10";
  * The sidebar's Browser button, beside Bots, Capabilities and Connections: the person's own browser, with the Recorder
  * in it, in one click.
  *
- * Where OpenBot is open in Chrome or Edge, that browser is the person's own, and the button works with it
- * (`RecorderHere`): with the Recorder in it and connected to this OpenBot, the click opens a popover with Record and
+ * Where ShardsOpenBot is open in Chrome or Edge, that browser is the person's own, and the button works with it
+ * (`RecorderHere`): with the Recorder in it and connected to this ShardsOpenBot, the click opens a popover with Record and
  * Stop, which go to that Recorder; with the Recorder in it but not connected here, the click connects it, as Settings,
  * Browsers does, and the popover follows; with no Recorder in it, the click opens the Recorder's store page there in a
  * new tab (once the Recorder is published in that store).
  *
- * Everywhere else (OpenBot Desktop's own app window, Safari, Firefox), as before. Where the browser is a window on the
- * person's desktop (OpenBot Desktop, `shows: "native"`), the click opens it, or brings it to the front, and leaves the
- * person where they are in OpenBot: they record with the Recorder's own button in that window's toolbar. That window
+ * Everywhere else (ShardsOpenBot Desktop's own app window, Safari, Firefox), as before. Where the browser is a window on the
+ * person's desktop (ShardsOpenBot Desktop, `shows: "native"`), the click opens it, or brings it to the front, and leaves the
+ * person where they are in ShardsOpenBot: they record with the Recorder's own button in that window's toolbar. That window
  * is the person's own everyday Chrome or Edge once the Recorder is in it, and until then, where the Recorder is
  * published, the click opens its store page there for them to add it. Where it is a browser in the page (hosted
- * OpenBot, `shows: "screen"`), the click takes them to the Browser page, which is the browser.
+ * ShardsOpenBot, `shows: "screen"`), the click takes them to the Browser page, which is the browser.
  *
- * While any of the person's Recorders records (`activity`: the OpenBot browser's, or one in their everyday browser, or
+ * While any of the person's Recorders records (`activity`: the ShardsOpenBot browser's, or one in their everyday browser, or
  * the one in this browser, read from it directly), the button carries a red dot either way, named for the recording.
  *
- * Drawn only once the server has said OpenBot can run a browser for this person (`available`), and, in Chrome or Edge,
+ * Drawn only once the server has said ShardsOpenBot can run a browser for this person (`available`), and, in Chrome or Edge,
  * once this browser has said whether the Recorder is in it. While either is asked, and when the server cannot be asked,
  * there is no button, rather than one that opens a page saying there is nothing there or changes what it is a moment
  * later.
@@ -102,8 +102,8 @@ function mayHoldRecorder(): boolean {
 }
 
 /**
- * The Recorder ids this OpenBot trusts, from the server, as Settings, Browsers asks for them: `undefined` while asked,
- * and `null` where the Recorder cannot be (no ids are asked for), or the server could not say. They are OpenBot's
+ * The Recorder ids this ShardsOpenBot trusts, from the server, as Settings, Browsers asks for them: `undefined` while asked,
+ * and `null` where the Recorder cannot be (no ids are asked for), or the server could not say. They are ShardsOpenBot's
  * configuration, so they are not asked again each time the person comes back to the tab.
  */
 function useRecorderIds(): readonly string[] | null | undefined {
@@ -118,8 +118,8 @@ function useRecorderIds(): readonly string[] | null | undefined {
 }
 
 /**
- * The Recorder in the browser OpenBot is open in: `undefined` while this browser is asked, and `unreachable` where
- * OpenBot cannot work with it, so the button is what it was before.
+ * The Recorder in the browser ShardsOpenBot is open in: `undefined` while this browser is asked, and `unreachable` where
+ * ShardsOpenBot cannot work with it, so the button is what it was before.
  */
 function useRecorderHere(
   ids: readonly string[] | null | undefined,
@@ -148,16 +148,16 @@ const REAL_BROWSER_NAMES: Record<RealBrowser, string> = {
  * that browser. Once it is added and connected, the same click brings that browser forward.
  */
 export function storeOpenedSentence(browser: RealBrowser): string {
-  return `The OpenBot Recorder's page is open in ${REAL_BROWSER_NAMES[browser]}. Add it there to record in your own browser.`;
+  return `The ShardsOpenBot Recorder's page is open in ${REAL_BROWSER_NAMES[browser]}. Add it there to record in your own browser.`;
 }
 
 /**
  * A button, not a link: it does something and goes nowhere. While the browser is opening it says so and takes no
  * further click, and when the server refuses, its sentence is a toast, because the person stays wherever they were in
- * OpenBot and the button has no page of its own to say it on.
+ * ShardsOpenBot and the button has no page of its own to say it on.
  *
- * Unless what opened is a browser in the page after all (`window: "screen"`): OpenBot Desktop opens one where it finds
- * no Chrome or Edge to use. Its window is the Browser page, so the click takes the person there, as a hosted OpenBot's
+ * Unless what opened is a browser in the page after all (`window: "screen"`): ShardsOpenBot Desktop opens one where it finds
+ * no Chrome or Edge to use. Its window is the Browser page, so the click takes the person there, as a hosted ShardsOpenBot's
  * button does; left where they were, they saw "Opening…" and then nothing, with the browser open on a page they could
  * not see.
  *
@@ -167,7 +167,7 @@ export function storeOpenedSentence(browser: RealBrowser): string {
  *
  * The refusal stays until the person closes it, as every error toast does (components/ui/toast.tsx), and goes once an
  * open succeeds, because it is no longer true. A click that opened the Recorder's store page in the person's own
- * browser says so in a short note of its own, because nothing else in OpenBot changes to show it.
+ * browser says so in a short note of its own, because nothing else in ShardsOpenBot changes to show it.
  */
 function OpenWindowButton({ activity }: { activity?: RecorderActivity }) {
   const open = useMutation(openBrowserMutationOptions(queryClient));
@@ -226,14 +226,14 @@ const STORE_NAMES: Record<RecorderStore, string> = {
 };
 
 /**
- * What the person is told when the click opened the Recorder's store page in a new tab of the browser OpenBot is open
+ * What the person is told when the click opened the Recorder's store page in a new tab of the browser ShardsOpenBot is open
  * in: adding it there is what lets them record from here. Once it is added, the same click connects it.
  */
 export function storeTabSentence(store: RecorderStore): string {
-  return `The OpenBot Recorder's page is open in a new tab. Add it to ${STORE_NAMES[store]} to record from OpenBot.`;
+  return `The ShardsOpenBot Recorder's page is open in a new tab. Add it to ${STORE_NAMES[store]} to record from ShardsOpenBot.`;
 }
 
-/** The short note that waits in OpenBot for a person who opened the Recorder's store page in a new tab: one at a time,
+/** The short note that waits in ShardsOpenBot for a person who opened the Recorder's store page in a new tab: one at a time,
  * so a second click replaces it rather than stacking another under it. Settings, Browsers says the same. */
 export function noteStoreTabOpened(store: RecorderStore): void {
   toast.add({ id: STORE_TOAST, title: storeTabSentence(store), type: "info" });
@@ -242,7 +242,7 @@ export function noteStoreTabOpened(store: RecorderStore): void {
 /**
  * Chrome or Edge with no Recorder in it: a link to the Recorder's store page there, in a new tab, because it goes
  * somewhere (a link opens it from the keyboard as from the mouse, and no popup blocker stops it). The new tab takes the
- * person's attention, so a short note waits in OpenBot for when they come back.
+ * person's attention, so a short note waits in ShardsOpenBot for when they come back.
  */
 function StorePageLink({
   activity,
@@ -296,7 +296,7 @@ function dotFrom(
 
 /**
  * Where a connect the click started has got to, from its mutation, while the Recorder does not yet say it is connected:
- * null when none is under way, or when one finished with no Connect page to wait for (a trusted OpenBot, connected at
+ * null when none is under way, or when one finished with no Connect page to wait for (a trusted ShardsOpenBot, connected at
  * once: the mutation is pending until the Recorder has been asked again, so by then it says connected).
  */
 function connectProgress(
@@ -314,10 +314,10 @@ function connectProgress(
 }
 
 /**
- * The Recorder in the browser OpenBot is open in, in a popover from the Browser button. Connected to this OpenBot:
- * Record and Stop, through `openbot.record` and `openbot.stop`. Not connected here: the click that opens the popover
+ * The Recorder in the browser ShardsOpenBot is open in, in a popover from the Browser button. Connected to this ShardsOpenBot:
+ * Record and Stop, through `shardsopenbot.record` and `shardsopenbot.stop`. Not connected here: the click that opens the popover
  * connects it, as Settings, Browsers does, and the popover says how that goes until the Recorder answers connected,
- * when it shows Record. A trusted OpenBot (the organization's own, or OpenBot Desktop) is connected at once; anywhere
+ * when it shows Record. A trusted ShardsOpenBot (the organization's own, or ShardsOpenBot Desktop) is connected at once; anywhere
  * else the Recorder shows its Connect page, and the person confirms there.
  *
  * Base UI makes the button the popover's trigger (`aria-expanded`, `aria-haspopup`), moves focus into the popover as it
@@ -337,7 +337,7 @@ function RecorderHereButton({
   const record = useMutation(recordHereMutationOptions(queryClient));
   const stop = useMutation(stopHereMutationOptions(queryClient));
   /*
-   * The person's narration choice, kept on their account, goes with Record as OpenBot's own Record form passes it on, so
+   * The person's narration choice, kept on their account, goes with Record as ShardsOpenBot's own Record form passes it on, so
    * the Recorder opens a microphone only for a person who chose to narrate. One who never chose is asked first, by the
    * same question, and `asking` holds the task they named meanwhile.
    */

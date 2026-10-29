@@ -1,4 +1,4 @@
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import {
   RECORDER_CONNECT_STATUS,
   RECORDER_PAGE_MESSAGES,
@@ -6,22 +6,22 @@ import {
   type RecorderPageResult,
   type RecorderPageState,
   recorderPageMessageSchema,
-} from "@openbot/shared/recorder-page";
+} from "@shardsopenbot/shared/recorder-page";
 
 /**
- * A STAND-IN FOR THE RECORDER IN THE BROWSER OPENBOT IS OPEN IN, answering a page's `chrome.runtime.sendMessage` as
+ * A STAND-IN FOR THE RECORDER IN THE BROWSER SHARDSOPENBOT IS OPEN IN, answering a page's `chrome.runtime.sendMessage` as
  * the contract in shared/recorder-page.ts types it, while the Recorder's own side of that contract is another slice's
  * work.
  *
  * What it holds to, from the contract and from Chrome:
  * - Messages are checked with the contract's own strict schema; anything else, including any message type this
  *   Recorder does not know, is refused `{ ok: false, error: "invalid" }`, as the Recorder's router refuses one today.
- * - `openbot.state` tells a page that is not the connected OpenBot `{ connected: false }` and nothing more.
- * - `openbot.record` and `openbot.stop` answer `RecorderPageResult`; a refusal carries the Recorder's own sentence.
- * - `openbot.connect` connects a trusted OpenBot with no Connect page, answering `connected: true`, and leaves any
+ * - `shardsopenbot.state` tells a page that is not the connected ShardsOpenBot `{ connected: false }` and nothing more.
+ * - `shardsopenbot.record` and `shardsopenbot.stop` answer `RecorderPageResult`; a refusal carries the Recorder's own sentence.
+ * - `shardsopenbot.connect` connects a trusted ShardsOpenBot with no Connect page, answering `connected: true`, and leaves any
  *   other awaiting the person's Connect click (`confirm`), answering `awaitingConfirmation` and nothing about itself,
  *   as the Recorder does.
- * - `openbot.connect.status` says where that connect has got to: waiting, cancelled on the Connect page (`cancel`),
+ * - `shardsopenbot.connect.status` says where that connect has got to: waiting, cancelled on the Connect page (`cancel`),
  *   that tab closed without a choice (`closeTab`), or none.
  * - Chrome answers an id with no extension behind it with `lastError` set and no answer, and answers asynchronously.
  *
@@ -29,18 +29,18 @@ import {
  */
 export class FakeRecorder {
   readonly id: string;
-  /** Connected to the OpenBot this page is. */
+  /** Connected to the ShardsOpenBot this page is. */
   connected = false;
-  /** This OpenBot is one the Recorder connects with no Connect page (policy-pinned, or OpenBot Desktop). */
+  /** This ShardsOpenBot is one the Recorder connects with no Connect page (policy-pinned, or ShardsOpenBot Desktop). */
   trusted = false;
   older = false;
   /** A connect waiting for the person's Connect click on the Recorder's page. */
   awaitingConfirmation = false;
-  /** Where the last connect from this page has got to, as `openbot.connect.status` answers it. */
+  /** Where the last connect from this page has got to, as `shardsopenbot.connect.status` answers it. */
   private connectWait: RecorderConnectWait = "none";
-  /** What `openbot.connect` is refused with, when it is. */
+  /** What `shardsopenbot.connect` is refused with, when it is. */
   refuseConnect: string | null = null;
-  /** What `openbot.record` is refused with, when it is: the Recorder's own sentence ("Record from OpenBot's own tab."
+  /** What `shardsopenbot.record` is refused with, when it is: the Recorder's own sentence ("Record from ShardsOpenBot's own tab."
    * when a frame inside another page asks). */
   refuseRecord: string | null = null;
   phase: "idle" | "starting" | "recording" | "stopping" = "idle";
@@ -94,11 +94,11 @@ export class FakeRecorder {
   answer(raw: unknown): unknown {
     this.received.push(raw);
     const type = (raw as { type?: unknown } | null)?.type;
-    if (type === "openbot.ping")
+    if (type === "shardsopenbot.ping")
       return this.connected
         ? { ok: true, version: "1.0.0", installId: "c".repeat(32) }
         : { ok: true };
-    if (type === "openbot.connect") return this.connect(raw);
+    if (type === "shardsopenbot.connect") return this.connect(raw);
     if (this.older) return { ok: false, error: "invalid" };
     if (type === RECORDER_CONNECT_STATUS)
       return { ok: true, connect: this.connectWait };
@@ -136,7 +136,10 @@ export class FakeRecorder {
 
   private record(title: string): RecorderPageResult {
     if (!this.connected)
-      return { ok: false, error: "Connect the Recorder to OpenBot first." };
+      return {
+        ok: false,
+        error: "Connect the Recorder to ShardsOpenBot first.",
+      };
     if (this.refuseRecord) return { ok: false, error: this.refuseRecord };
     if (this.phase !== "idle")
       return { ok: false, error: "The Recorder is already recording." };
@@ -150,7 +153,10 @@ export class FakeRecorder {
 
   private stop(): RecorderPageResult {
     if (!this.connected)
-      return { ok: false, error: "Connect the Recorder to OpenBot first." };
+      return {
+        ok: false,
+        error: "Connect the Recorder to ShardsOpenBot first.",
+      };
     if (this.phase !== "recording")
       return { ok: false, error: "Nothing is being recorded." };
     this.recordings += 1;

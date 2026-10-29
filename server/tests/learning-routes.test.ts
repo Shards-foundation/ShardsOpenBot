@@ -27,7 +27,7 @@ function routes(role: "admin" | "user" = "admin") {
         },
       },
       requireUser,
-      ["https://openbot.example.com"],
+      ["https://shardsopenbot.example.com"],
     ),
   };
 }
@@ -56,7 +56,7 @@ test("rejects cross-origin and non-JSON writes before changing settings", async 
   ]) {
     expect(
       (
-        await app.request("https://openbot.example.com/settings", {
+        await app.request("https://shardsopenbot.example.com/settings", {
           method: "PUT",
           headers,
           body: JSON.stringify({
@@ -78,14 +78,17 @@ test("validates and persists a same-origin admin save", async () => {
     defaultTarget: { containerId: "support" },
     agents: { excluded: null },
   };
-  const response = await app.request("https://openbot.example.com/settings", {
-    method: "PUT",
-    headers: {
-      "content-type": "application/json",
-      origin: "https://openbot.example.com",
+  const response = await app.request(
+    "https://shardsopenbot.example.com/settings",
+    {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+        origin: "https://shardsopenbot.example.com",
+      },
+      body: JSON.stringify(settings),
     },
-    body: JSON.stringify(settings),
-  });
+  );
   expect(response.status).toBe(200);
   expect(await (await app.request("/settings")).json()).toEqual({ settings });
   expect(
@@ -135,7 +138,7 @@ test("the settings page assigns a newly created container on load and says why n
     settings: { enabled: true, defaultTarget: null, agents: {} },
     automatic: {
       state: "absent",
-      containerId: "openbot",
+      containerId: "shardsopenbot",
       canCreate: false,
       instructions: expect.stringContaining("bun scripts/setup-learning.ts"),
     },
@@ -144,10 +147,10 @@ test("the settings page assigns a newly created container on load and says why n
   expect(await (await app.request("/settings")).json()).toEqual({
     settings: {
       enabled: true,
-      defaultTarget: { containerId: "openbot" },
+      defaultTarget: { containerId: "shardsopenbot" },
       agents: {},
     },
-    automatic: { state: "assigned", containerId: "openbot" },
+    automatic: { state: "assigned", containerId: "shardsopenbot" },
   });
 });
 
@@ -179,23 +182,25 @@ test("an administrator creates the container with the deployment's credential, s
       await next();
     }) as MiddlewareHandler<{ Variables: AppVariables }>;
   const post = (app: ReturnType<typeof createLearningRoutes>, origin: string) =>
-    app.request("https://openbot.example.com/container", {
+    app.request("https://shardsopenbot.example.com/container", {
       method: "POST",
       headers: { "content-type": "application/json", origin },
       body: "{}",
     });
   const member = createLearningRoutes({ store, autoAssign }, actor("user"));
-  expect((await post(member, "https://openbot.example.com")).status).toBe(403);
+  expect((await post(member, "https://shardsopenbot.example.com")).status).toBe(
+    403,
+  );
   const admin = createLearningRoutes({ store, autoAssign }, actor("admin"));
   expect((await post(admin, "https://evil.example")).status).toBe(403);
   expect(creates).toBe(1);
-  const response = await post(admin, "https://openbot.example.com");
+  const response = await post(admin, "https://shardsopenbot.example.com");
   expect(response.status).toBe(200);
   expect(await response.json()).toEqual({
-    automatic: { state: "assigned", containerId: "openbot" },
+    automatic: { state: "assigned", containerId: "shardsopenbot" },
   });
   expect(creates).toBe(2);
   expect((await store.read()).defaultTarget).toEqual({
-    containerId: "openbot",
+    containerId: "shardsopenbot",
   });
 });

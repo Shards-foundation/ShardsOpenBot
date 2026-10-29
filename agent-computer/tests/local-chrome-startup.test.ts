@@ -19,7 +19,7 @@ describe("starting the local computer", () => {
     const config = localChromeConfiguration(
       {
         COMPUTER_TOKEN: "test-token",
-        OPENBOT_LOCAL_COMPUTER_DIR: "/tmp/openbot-local-test",
+        SHARDSOPENBOT_LOCAL_COMPUTER_DIR: "/tmp/shardsopenbot-local-test",
         PROFILES_DIR:
           "/Users/operator/Library/Application Support/Google/Chrome",
         WORKSPACE_DIR: "/Users/operator",
@@ -27,8 +27,12 @@ describe("starting the local computer", () => {
       "darwin",
       "/Users/operator",
     );
-    expect(config.env.PROFILES_DIR).toBe("/tmp/openbot-local-test/profiles");
-    expect(config.env.WORKSPACE_DIR).toBe("/tmp/openbot-local-test/workspace");
+    expect(config.env.PROFILES_DIR).toBe(
+      "/tmp/shardsopenbot-local-test/profiles",
+    );
+    expect(config.env.WORKSPACE_DIR).toBe(
+      "/tmp/shardsopenbot-local-test/workspace",
+    );
     expect(config.env.COMPUTER_BROWSER_BACKEND).toBe("local-chrome");
     expect(config.env.COMPUTER_BROWSER_MODE).toBe("headed");
     expect(config.env.COMPUTER_SANDBOX).toBe("on");
@@ -41,7 +45,7 @@ describe("starting the local computer", () => {
     expect(
       localChromeConfiguration(env, "darwin", "/Users/operator").root,
     ).toBe(
-      "/Users/operator/Library/Application Support/OpenBot/local-computer",
+      "/Users/operator/Library/Application Support/ShardsOpenBot/local-computer",
     );
     expect(
       localChromeConfiguration(
@@ -49,14 +53,16 @@ describe("starting the local computer", () => {
         "linux",
         "/home/operator",
       ).root,
-    ).toBe("/data/openbot/local-computer");
+    ).toBe("/data/shardsopenbot/local-computer");
     expect(
       localChromeConfiguration(
         { ...env, LOCALAPPDATA: "C:\\Users\\Operator\\AppData\\Local" },
         "win32",
         "C:\\Users\\Operator",
       ).root,
-    ).toBe("C:\\Users\\Operator\\AppData\\Local\\OpenBot\\local-computer");
+    ).toBe(
+      "C:\\Users\\Operator\\AppData\\Local\\ShardsOpenBot\\local-computer",
+    );
   });
 
   test("rejects a relative data directory, invalid port and an incompatible backend", () => {
@@ -64,7 +70,7 @@ describe("starting the local computer", () => {
     expect(() =>
       localChromeConfiguration({
         ...env,
-        OPENBOT_LOCAL_COMPUTER_DIR: "profiles",
+        SHARDSOPENBOT_LOCAL_COMPUTER_DIR: "profiles",
       }),
     ).toThrow("absolute");
     expect(() => localChromeConfiguration({ ...env, PORT: "0" })).toThrow(

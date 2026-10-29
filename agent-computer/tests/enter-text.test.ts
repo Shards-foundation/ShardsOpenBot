@@ -10,9 +10,9 @@ import { enterText, FieldValueError } from "../src/enter-text";
  * Industry dropdown used `fill`, which waits on a `<select>` until it times out; the server reported
  * that as a ref gone stale, the Bot's turn ended, and no account was ever saved.
  *
- *   OPENBOT_COMPUTER_BROWSER=1 bun test tests/enter-text.test.ts
+ *   SHARDSOPENBOT_COMPUTER_BROWSER=1 bun test tests/enter-text.test.ts
  */
-const asked = process.env.OPENBOT_COMPUTER_BROWSER === "1";
+const asked = process.env.SHARDSOPENBOT_COMPUTER_BROWSER === "1";
 const ACTING = { timeout: 2_000 };
 
 const FORM = `<!doctype html><title>New account</title>

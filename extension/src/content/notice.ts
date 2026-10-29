@@ -6,7 +6,7 @@
  * trusted events.
  */
 
-export const NOTICE_TAG = "openbot-recorder-notice";
+export const NOTICE_TAG = "shardsopenbot-recorder-notice";
 
 export const NOTICE_TOKENS = {
   light: {

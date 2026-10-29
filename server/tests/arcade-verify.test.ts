@@ -214,7 +214,7 @@ function build(
   const args = new Array(createApp.length) as unknown as Parameters<
     typeof createApp
   >;
-  args[0] = loadConfig(testEnvironment({ OPENBOT_APP_URL: APP_URL }));
+  args[0] = loadConfig(testEnvironment({ SHARDSOPENBOT_APP_URL: APP_URL }));
   args[1] = {
     handler: () => new Response(null, { status: 204 }),
     api: {
@@ -281,7 +281,7 @@ function verify(
   options?: Parameters<typeof build>[1],
 ) {
   return build(who, options).request(
-    `http://openbot.test/api/plugins/arcade/verify${query}`,
+    `http://shardsopenbot.test/api/plugins/arcade/verify${query}`,
   );
 }
 
@@ -2143,7 +2143,9 @@ describe("a completion the deployment could not report", () => {
  * same way the browser would read it.
  */
 test("the session cookie is SameSite=Lax, which is what lets it survive the return leg", () => {
-  const config = loadConfig(testEnvironment({ OPENBOT_APP_URL: APP_URL }));
+  const config = loadConfig(
+    testEnvironment({ SHARDSOPENBOT_APP_URL: APP_URL }),
+  );
   const auth = createAuth(config, database);
   expect(getCookies(auth.options).sessionToken.attributes.sameSite).toBe("lax");
 });

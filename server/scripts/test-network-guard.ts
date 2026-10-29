@@ -57,7 +57,7 @@
  * This is at `net.Socket#connect` only, where a lookup can be checked. Every other entry point
  * (`fetch`, `http(s).request`/`get`, `http2`, `WebSocket`) stays loopback-only, and
  * `Bun.connect`/UDP take the same literal-address rule but no names.
- * Why not a named opt-out like `OPENBOT_LIVE_*`: `bun run test:ci` runs every file in ONE process,
+ * Why not a named opt-out like `SHARDSOPENBOT_LIVE_*`: `bun run test:ci` runs every file in ONE process,
  * so a flag one suite set would unguard every file after it.
  *
  * WHAT IS NOT GUARDED, AND WHY — none of these is how any code in this repository talks to a vendor:
@@ -68,9 +68,9 @@
  * run this preload; and DNS lookups, which resolve a name but connect to nothing.
  * `server/tests/test-network-guard.test.ts` plants a call through every guarded entry point.
  *
- * HOW A SUITE THAT IS MEANT TO DIAL OPTS OUT: any `OPENBOT_LIVE_*` variable with a non-empty value.
- * The three live suites already set one — `OPENBOT_LIVE_COMPOSIO`, `OPENBOT_LIVE_ARCADE` and
- * `OPENBOT_LIVE_SCREEN` are set by their `test:live-*` scripts in `package.json`, which also refuse
+ * HOW A SUITE THAT IS MEANT TO DIAL OPTS OUT: any `SHARDSOPENBOT_LIVE_*` variable with a non-empty value.
+ * The three live suites already set one — `SHARDSOPENBOT_LIVE_COMPOSIO`, `SHARDSOPENBOT_LIVE_ARCADE` and
+ * `SHARDSOPENBOT_LIVE_SCREEN` are set by their `test:live-*` scripts in `package.json`, which also refuse
  * to run without a key, so a live suite remains deliberate and credentialed and stays skipped
  * otherwise.
  */
@@ -84,7 +84,8 @@ import { syncBuiltinESMExports } from "node:module";
 import net from "node:net";
 
 const liveRun = Object.entries(process.env).some(
-  ([name, value]) => name.startsWith("OPENBOT_LIVE_") && (value ?? "").trim(),
+  ([name, value]) =>
+    name.startsWith("SHARDSOPENBOT_LIVE_") && (value ?? "").trim(),
 );
 
 /** Loopback, in every spelling a URL or a Node request option can arrive in. */
@@ -130,18 +131,18 @@ function isDatabaseHost(host: string): boolean {
  * unambiguous. `server/tests/test-network-guard.test.ts` reads it; nothing in `server/src` may.
  */
 declare global {
-  var openbotTestNetworkRefusals: string[] | undefined;
+  var shardsopenbotTestNetworkRefusals: string[] | undefined;
 }
 
-globalThis.openbotTestNetworkRefusals = [];
+globalThis.shardsopenbotTestNetworkRefusals = [];
 
 const explanation =
   "Tests do not use the network: stub the transport this call goes through (and stub it BEFORE " +
   "constructing any client, which binds `fetch` once), or, for a deliberate vendor suite, set an " +
-  "OPENBOT_LIVE_* variable as `bun run test:live-*` does. Guard: server/scripts/test-network-guard.ts.";
+  "SHARDSOPENBOT_LIVE_* variable as `bun run test:live-*` does. Guard: server/scripts/test-network-guard.ts.";
 
 function refuse(target: string): Error {
-  globalThis.openbotTestNetworkRefusals?.push(target);
+  globalThis.shardsopenbotTestNetworkRefusals?.push(target);
   return new Error(`A test tried to reach ${target}. ${explanation}`);
 }
 
@@ -333,7 +334,7 @@ if (!liveRun) {
         const body = `Refused by the test network guard. ${explanation}`;
         socket.end(
           "HTTP/1.1 403 Forbidden\r\nConnection: close\r\n" +
-            "X-Openbot-Test-Network-Guard: refused\r\nContent-Type: text/plain\r\n" +
+            "X-ShardsOpenbot-Test-Network-Guard: refused\r\nContent-Type: text/plain\r\n" +
             `Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`,
         );
       },

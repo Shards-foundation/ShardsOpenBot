@@ -15,7 +15,7 @@ import {
   browserNavigateRequestSchema,
   browserRecordingRequestSchema,
   browserTabsRequestSchema,
-} from "@openbot/shared/openbot-browser";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   createMemoryHistory,
@@ -43,7 +43,7 @@ import {
 import { settleReactWork } from "./settle-react-work";
 
 /**
- * The Browser page, against the server's Browser routes as the contract in shared/openbot-browser.ts defines them.
+ * The Browser page, against the server's Browser routes as the contract in shared/shardsopenbot-browser.ts defines them.
  * Those routes are another slice's work, so they are stood in for here: every body this page sends is parsed with the
  * contract's own schemas, and every answer is a contract type. The sidebar's Browser button has its own file
  * (browser-nav-item.test.tsx).
@@ -352,7 +352,7 @@ function draw(ui: ReactNode) {
 const opens = () =>
   writes.filter((write) => write.path === browserApiPaths.open).length;
 
-test("on OpenBot Desktop the page opens the browser once, says it is a window on the desktop, and brings it forward", async () => {
+test("on ShardsOpenBot Desktop the page opens the browser once, says it is a window on the desktop, and brings it forward", async () => {
   const view = draw(<BrowserPage />);
   expect(await view.findByText("Google Chrome")).toBeTruthy();
   expect(
@@ -375,7 +375,7 @@ test("on OpenBot Desktop the page opens the browser once, says it is a window on
   expect(view.getByText("Google Chrome")).toBeTruthy();
 });
 
-test("on OpenBot Desktop Record starts a recording named for the task, which shows its time and actions until Stop", async () => {
+test("on ShardsOpenBot Desktop Record starts a recording named for the task, which shows its time and actions until Stop", async () => {
   const view = draw(<BrowserPage />);
   const user = userEvent.setup({ document });
   const name = await view.findByRole("textbox", { name: "Task name" });
@@ -565,7 +565,7 @@ test("an action the page has not read yet when Stop is pressed still counts: the
 });
 
 test("Record is offered while the Recorder is disconnected: the server connects it first", async () => {
-  // Disconnecting the OpenBot browser in Settings leaves the Recorder signed out until something asks again; Record is
+  // Disconnecting the ShardsOpenBot browser in Settings leaves the Recorder signed out until something asks again; Record is
   // that ask, and the server reconnects the browser before it starts.
   state = {
     ...nativeState(),
@@ -589,7 +589,7 @@ test("Record is offered while the Recorder is disconnected: the server connects 
   );
 });
 
-test("on hosted OpenBot the page is the browser: its tabs, its address and its live screen, driven at once", async () => {
+test("on hosted ShardsOpenBot the page is the browser: its tabs, its address and its live screen, driven at once", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const view = draw(<BrowserPage />);
@@ -623,7 +623,7 @@ test("on hosted OpenBot the page is the browser: its tabs, its address and its l
   // The bar of the tab that shows now: switching tabs starts it again from that tab's own address.
   const bar = view.getByRole("textbox", { name: "Address" });
   await user.clear(bar);
-  await user.type(bar, "openbot.ai{Enter}");
+  await user.type(bar, "shardsopenbot.ai{Enter}");
   await user.type(bar, "how to file an expense report{Enter}");
   await waitFor(() =>
     expect(
@@ -653,7 +653,7 @@ test("on hosted OpenBot the page is the browser: its tabs, its address and its l
       {
         path: "/api/browser/navigate",
         method: "POST",
-        body: { url: "https://openbot.ai" },
+        body: { url: "https://shardsopenbot.ai" },
       },
       {
         path: "/api/browser/navigate",
@@ -666,7 +666,7 @@ test("on hosted OpenBot the page is the browser: its tabs, its address and its l
   );
 });
 
-test("on hosted OpenBot the page narrates a recording, and Stop sends the phrase being said before the recording ends", async () => {
+test("on hosted ShardsOpenBot the page narrates a recording, and Stop sends the phrase being said before the recording ends", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const recognitions = installChrome();
@@ -739,7 +739,7 @@ test("on hosted OpenBot the page narrates a recording, and Stop sends the phrase
   ).toBeTruthy();
 });
 
-test("on hosted OpenBot a narration the Recorder refused says why, beside the narration switch", async () => {
+test("on hosted ShardsOpenBot a narration the Recorder refused says why, beside the narration switch", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   refusals = {
@@ -761,12 +761,12 @@ test("on hosted OpenBot a narration the Recorder refused says why, beside the na
   ).toBeTruthy();
 });
 
-test("on hosted OpenBot narration that cannot hear the person shows its switch off, and turning it on tries again", async () => {
+test("on hosted ShardsOpenBot narration that cannot hear the person shows its switch off, and turning it on tries again", async () => {
   // The fourth end-to-end run: in a browser with no microphone the page said narration was off while its switch read on.
   for (const [error, sentence] of [
     [
       "not-allowed",
-      "OpenBot can't use your microphone, so narration is off. Allow the microphone for this site, then turn narration on again. Recording still works.",
+      "ShardsOpenBot can't use your microphone, so narration is off. Allow the microphone for this site, then turn narration on again. Recording still works.",
     ],
     [
       "audio-capture",
@@ -813,7 +813,7 @@ test("on hosted OpenBot narration that cannot hear the person shows its switch o
   }
 });
 
-test("on hosted OpenBot narration whose speech service cannot be reached stays on: it tries again by itself", async () => {
+test("on hosted ShardsOpenBot narration whose speech service cannot be reached stays on: it tries again by itself", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const chrome = installRefusingChrome();
@@ -846,7 +846,7 @@ test("Record and Stop the server refused say the server's sentence where the per
     openAnswer = answerFor(shape);
     refusals = {
       [browserApiPaths.recording]:
-        "This browser is no longer connected to OpenBot. Open it from OpenBot again.",
+        "This browser is no longer connected to ShardsOpenBot. Open it from ShardsOpenBot again.",
     };
     const view = draw(<BrowserPage />);
     const user = userEvent.setup({ document });
@@ -856,7 +856,7 @@ test("Record and Stop the server refused say the server's sentence where the per
     );
     await user.click(view.getByRole("button", { name: "Record" }));
     expect((await view.findByRole("alert")).textContent).toBe(
-      "This browser is no longer connected to OpenBot. Open it from OpenBot again.",
+      "This browser is no longer connected to ShardsOpenBot. Open it from ShardsOpenBot again.",
     );
 
     // A recording the Recorder will not stop.
@@ -884,7 +884,7 @@ test("Record and Stop the server refused say the server's sentence where the per
   }
 });
 
-test("on hosted OpenBot a refused Record is shown even after a tab that would not close", async () => {
+test("on hosted ShardsOpenBot a refused Record is shown even after a tab that would not close", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   refusals = { [browserApiPaths.tabs]: "There is no such tab." };
@@ -911,7 +911,7 @@ test("on hosted OpenBot a refused Record is shown even after a tab that would no
   );
 });
 
-test("on OpenBot Desktop the narration row says what the Recorder hears, as it reports it", async () => {
+test("on ShardsOpenBot Desktop the narration row says what the Recorder hears, as it reports it", async () => {
   const recorder = (voice: NonNullable<BrowserApiState["recorder"]>["voice"]) =>
     ({
       connected: true,
@@ -952,7 +952,7 @@ test("on OpenBot Desktop the narration row says what the Recorder hears, as it r
   }
 });
 
-test("on hosted OpenBot in a browser with no speech recognition, the page says narration is unavailable and Record still works", async () => {
+test("on hosted ShardsOpenBot in a browser with no speech recognition, the page says narration is unavailable and Record still works", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const view = draw(<BrowserPage />);
@@ -990,7 +990,7 @@ const starts = () =>
       (write.body as { action?: string }).action === "start",
   );
 
-test("Record asks whether to narrate before the first recording, keeps the answer, and tells the Recorder, on OpenBot Desktop", async () => {
+test("Record asks whether to narrate before the first recording, keeps the answer, and tells the Recorder, on ShardsOpenBot Desktop", async () => {
   narrationChoice = null;
   const view = draw(<BrowserPage />);
   const user = userEvent.setup({ document });
@@ -1075,7 +1075,7 @@ test("a choice that cannot be read records without narration and asks nothing", 
   expect(preferenceWrites()).toEqual([]);
 });
 
-test("on hosted OpenBot a yes to the narration question listens, on the person's computer, and the bar says it is listening", async () => {
+test("on hosted ShardsOpenBot a yes to the narration question listens, on the person's computer, and the bar says it is listening", async () => {
   narrationChoice = null;
   state = screenState();
   openAnswer = answerFor("screen");
@@ -1109,7 +1109,7 @@ test("on hosted OpenBot a yes to the narration question listens, on the person's
   );
 });
 
-test("on hosted OpenBot a person who chose not to narrate is never listened to, and turning the switch on keeps the new choice", async () => {
+test("on hosted ShardsOpenBot a person who chose not to narrate is never listened to, and turning the switch on keeps the new choice", async () => {
   narrationChoice = "off";
   state = screenState();
   openAnswer = answerFor("screen");
@@ -1136,7 +1136,7 @@ test("on hosted OpenBot a person who chose not to narrate is never listened to, 
   ]);
 });
 
-test("on hosted OpenBot a language still to be downloaded is asked for on the switch's click, and narration waits for it", async () => {
+test("on hosted ShardsOpenBot a language still to be downloaded is asked for on the switch's click, and narration waits for it", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   // Chrome answers downloadable for a language this page has not asked for yet, and downloads only on a click.
@@ -1178,7 +1178,7 @@ test("on hosted OpenBot a language still to be downloaded is asked for on the sw
   });
 }, 15_000);
 
-test("on hosted OpenBot a browser that cannot keep speech on the computer never listens, and says why", async () => {
+test("on hosted ShardsOpenBot a browser that cannot keep speech on the computer never listens, and says why", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const recognitions = installChrome(null);
@@ -1191,7 +1191,7 @@ test("on hosted OpenBot a browser that cannot keep speech on the computer never 
   await user.click(view.getByRole("button", { name: "Record" }));
   expect(
     await view.findByText(
-      "This browser can't turn speech into text on your computer, and OpenBot sends your voice nowhere else, so narration is off. Recording still works.",
+      "This browser can't turn speech into text on your computer, and ShardsOpenBot sends your voice nowhere else, so narration is off. Recording still works.",
     ),
   ).toBeTruthy();
   expect(recognitions).toHaveLength(0);
@@ -1364,11 +1364,11 @@ test("with the live screen connected, the page's controls keep their keys, and t
   // An address typed into the bar goes to the page that opens, as Chrome's address bar does: the screen has the keys.
   const address = view.getByRole("textbox", { name: "Address" });
   await user.clear(address);
-  await user.type(address, "openbot.ai{Enter}");
+  await user.type(address, "shardsopenbot.ai{Enter}");
   expect(document.activeElement).toBe(screen);
 });
 
-/** What the server says of a person's browser that is there and not answering, on an OpenBot with sign-in. */
+/** What the server says of a person's browser that is there and not answering, on an ShardsOpenBot with sign-in. */
 const NOT_ANSWERING =
   "Your browser isn't answering. If it doesn't come back soon, ask an admin for help.";
 
@@ -1458,7 +1458,7 @@ test("arriving while the browser is not answering, the page says so rather than 
   expect(view.getByRole("button", { name: "Try again" })).toBeTruthy();
 });
 
-test("on OpenBot Desktop a window that is not answering says so in its row", async () => {
+test("on ShardsOpenBot Desktop a window that is not answering says so in its row", async () => {
   state = { ...nativeState(), problem: NOT_ANSWERING };
   const view = draw(<BrowserPage />);
   expect(await view.findByText("Google Chrome")).toBeTruthy();
@@ -1485,12 +1485,12 @@ test("while the browser opens, the page shows no loading placeholder, then the b
   expect(await view.findByText("Google Chrome")).toBeTruthy();
 });
 
-test("where OpenBot cannot run a browser for the person, the page says so and opens nothing", async () => {
+test("where ShardsOpenBot cannot run a browser for the person, the page says so and opens nothing", async () => {
   state = { ...nativeState(), available: false, open: false };
   const view = draw(<BrowserPage />);
   expect(
     await view.findByText(
-      "OpenBot isn't set up to run a browser for you. Ask an admin.",
+      "ShardsOpenBot isn't set up to run a browser for you. Ask an admin.",
     ),
   ).toBeTruthy();
   expect(opens()).toBe(0);
@@ -1500,17 +1500,17 @@ test("where the server says why there is no browser of the person's own, the pag
   // Every Bot shares one computer here, which is no place for a person's browser: a Bot's shell there could read the
   // cookies in its profile (server/src/browser/host.ts).
   const why =
-    "This OpenBot can't open a browser of your own, because its Bots share one computer.";
+    "This ShardsOpenBot can't open a browser of your own, because its Bots share one computer.";
   state = { ...screenState(), available: false, open: false, note: why };
   const view = draw(<BrowserPage />);
   expect(await view.findByText(why)).toBeTruthy();
   expect(opens()).toBe(0);
 });
 
-test("on OpenBot Desktop with no Chrome or Edge it can open, the browser in the page says why", async () => {
+test("on ShardsOpenBot Desktop with no Chrome or Edge it can open, the browser in the page says why", async () => {
   // Chrome installed only as a Flatpak, which used to be said only in Desktop's log.
   const why =
-    "OpenBot can't open the Flatpak version of Google Chrome, so install Chrome from google.com/chrome to use your own browser.";
+    "ShardsOpenBot can't open the Flatpak version of Google Chrome, so install Chrome from google.com/chrome to use your own browser.";
   state = { ...screenState(), note: why };
   openAnswer = answerFor("screen");
   const view = draw(<BrowserPage />);

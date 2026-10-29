@@ -760,7 +760,8 @@ const ALLOW: Allowed[] = [
       '"dialling a stored agent endpoint"',
       '"a hop to another host does not take the signed run with it"',
     ],
-    expression: "expect(forwarded.forwardedProps?.openbotRun).toBeUndefined()",
+    expression:
+      "expect(forwarded.forwardedProps?.shardsopenbotRun).toBeUndefined()",
     finding: "NEW (round 2 did not find this)",
   },
   {
@@ -1003,9 +1004,9 @@ const ALLOW: Allowed[] = [
     shape: "b",
     context: [
       '"a remote Mastra Bot"',
-      '"keeps only authoritative OpenBot governance through the runtime clone and native Mastra request"',
+      '"keeps only authoritative ShardsOpenBot governance through the runtime clone and native Mastra request"',
     ],
-    expression: "expect(run?.forwardedProps?.openbotRun).toBeUndefined()",
+    expression: "expect(run?.forwardedProps?.shardsopenbotRun).toBeUndefined()",
     finding: "NEW (round 2 did not find this)",
   },
   {

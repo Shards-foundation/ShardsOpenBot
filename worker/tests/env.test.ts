@@ -4,7 +4,7 @@ import { loadWorkerEnv, routineRunUrl } from "../src/env";
 const base = () => ({
   WORKER_SHARED_SECRET: "secret",
   SERVER_INTERNAL_URL: "http://server:3001",
-  DATABASE_URL: "postgres://localhost:5432/openbot",
+  DATABASE_URL: "postgres://localhost:5432/shardsopenbot",
   HOSTNAME: "laptop",
 });
 
@@ -14,7 +14,7 @@ describe("worker env", () => {
     expect(rest).toEqual({
       workerSharedSecret: "secret",
       serverInternalUrl: "http://server:3001",
-      databaseUrl: "postgres://localhost:5432/openbot",
+      databaseUrl: "postgres://localhost:5432/shardsopenbot",
     });
     expect(owner).toMatch(/^routines\/laptop-[0-9a-f]{8}$/);
   });
@@ -41,10 +41,10 @@ describe("worker env", () => {
     const env = loadWorkerEnv({
       ...base(),
       WORKER_SHARED_SECRET: "  secret  ",
-      DATABASE_URL: "  postgres://localhost:5432/openbot  ",
+      DATABASE_URL: "  postgres://localhost:5432/shardsopenbot  ",
     });
     expect(env.workerSharedSecret).toBe("secret");
-    expect(env.databaseUrl).toBe("postgres://localhost:5432/openbot");
+    expect(env.databaseUrl).toBe("postgres://localhost:5432/shardsopenbot");
   });
 
   test.each([

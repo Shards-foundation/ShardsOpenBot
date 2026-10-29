@@ -27,7 +27,7 @@ import { userPreferencesQueryOptions } from "@/lib/settings/message-list";
 import { settleReactWork } from "./settle-react-work";
 
 /*
- * OpenBot's destinations live in one list (`lib/navigation.ts`) that the sidebar and every skin draw
+ * ShardsOpenBot's destinations live in one list (`lib/navigation.ts`) that the sidebar and every skin draw
  * from. This holds the sidebar to that list exactly: the same entries, in the same order, at the
  * same addresses, with Admin only for admins. A destination added to the list and not drawn, or
  * drawn here and not added to the list, fails.
@@ -89,7 +89,7 @@ function renderSidebar(role: "admin" | "user") {
     messageListEmphasis: "thread",
     selfHostBannerDismissed: true,
     narration: null,
-    skin: "openbot",
+    skin: "shardsopenbot",
   });
   queryClient.setQueryData(agentKeys.list(false), []);
   queryClient.setQueryDefaults(botLifecycleKeys.attention, {

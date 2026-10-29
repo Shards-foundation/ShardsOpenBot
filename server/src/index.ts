@@ -3,10 +3,10 @@ import {
   CopilotKitIntelligence,
   IntelligenceAgentRunner,
 } from "@copilotkit/runtime/v2";
-import { computerGuidance } from "@openbot/shared/bot-prompt";
-import { isPersonBrowserId } from "@openbot/shared/openbot-browser";
-import { workOwner } from "@openbot/shared/work-owner";
-import { createTurnRunner } from "@openbot/toolkit/run-turn";
+import { computerGuidance } from "@shardsopenbot/shared/bot-prompt";
+import { isPersonBrowserId } from "@shardsopenbot/shared/shardsopenbot-browser";
+import { workOwner } from "@shardsopenbot/shared/work-owner";
+import { createTurnRunner } from "@shardsopenbot/toolkit/run-turn";
 import { and, eq, isNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { createActivityStore } from "./activity/activity";
@@ -102,7 +102,7 @@ import { createChannelTitler } from "./channels/titler";
 import { headlessComponentCatalog } from "./components/headless";
 import { createSandboxedStore } from "./components/sandboxed";
 import { createComponentStore } from "./components/store";
-import { openbotAddress } from "./browser/address";
+import { shardsopenbotAddress } from "./browser/address";
 import { personBrowserEgressPolicy } from "./browser/egress";
 import {
   directBrowserComputers,
@@ -307,7 +307,7 @@ const learningProbeIntelligence = createIntelligenceClient(
   config.runtime.intelligence,
 );
 /*
- * Who can create the `openbot` container here: never the runtime key. A service token the operator
+ * Who can create the `shardsopenbot` container here: never the runtime key. A service token the operator
  * configured (local evaluation installs), or a CopilotKit CLI login on this machine, which is what a
  * laptop running `bun run start` has. Neither, and the log and Admin say exactly what to run instead.
  */
@@ -321,7 +321,7 @@ const learningApiOrigin = (() => {
 const learningCanCreate =
   learningApiOrigin !== undefined &&
   (config.learningSetup !== undefined || cliLoginPresent());
-/** The credential that can create a Learning container, for the `openbot` default and for each person's own space. */
+/** The credential that can create a Learning container, for the `shardsopenbot` default and for each person's own space. */
 const learningCredentials = (apiUrl: string): LearningContainerCredentials => ({
   directory: process.cwd(),
   apiUrl,
@@ -534,17 +534,17 @@ const { resolveRequestActor, identifyUser, identifyActor } = createRequestActor(
     rolesForUser: (id) => roleRepository.rolesForUser(id),
   },
 );
-// Where a person's own OpenBot browser may go: not where Bots may, but where their browser on their own laptop would
-// (browser/egress.ts). On OpenBot Desktop's host-side computer that is their own desktop, so everywhere.
+// Where a person's own ShardsOpenBot browser may go: not where Bots may, but where their browser on their own laptop would
+// (browser/egress.ts). On ShardsOpenBot Desktop's host-side computer that is their own desktop, so everywhere.
 const personBrowserPolicy = personBrowserEgressPolicy({
   native: config.browser !== undefined,
   allowPrivateHosts: config.computer?.allowPrivateHosts ?? false,
-  openbotUrls: [config.publicUrl, config.appUrl],
+  shardsopenbotUrls: [config.publicUrl, config.appUrl],
   gatewayUrl: config.runtime.intelligence.gatewayWsUrl,
 });
 // Each computer is pushed its network policy on the way to the action that woke it, because a
 // computer refuses every connection until one arrives (see `withPolicyPushOnWake`). A person's own
-// browser is found where it runs (OPENBOT_BROWSER_URL, else the same provider) and pushed theirs.
+// browser is found where it runs (SHARDSOPENBOT_BROWSER_URL, else the same provider) and pushed theirs.
 const computerProvider = config.computer
   ? withPolicyPushOnWake(
       withPersonBrowsers(
@@ -937,7 +937,7 @@ const signInService = computerGateway
  *
  * THERE IS NO `?? "composio"` HERE ANY MORE, AND THAT WAS A BUG RATHER THAN A SHORTHAND.
  * Configuration names no provider for three different reasons, and the one that matters is "both
- * keys set, OPENBOT_BROKER_PROVIDER unset" — legal, documented, and exactly what a deployment
+ * keys set, SHARDSOPENBOT_BROKER_PROVIDER unset" — legal, documented, and exactly what a deployment
  * migrating off Composio sits in while it ends its old accounts. Defaulting it to `composio` gave
  * the plugin store and the shared-use store a filter that excludes every Arcade row this deployment
  * holds, so live Arcade connections read as absent and the accounts behind them could not be
@@ -962,7 +962,7 @@ if (providerConfiguration.kind === "ambiguous") {
    * the screens stay honest, the vendor calls stay impossible.
    */
   console.warn(
-    `${providerConfiguration.configured.map((provider) => BROKERED_PROFILE[provider].envVar).join(" and ")} are both set and OPENBOT_BROKER_PROVIDER names neither, so no broker is active: connected apps can be neither connected nor revoked until it is set. Existing connections are read as ${BROKERED_PROFILE[brokerProvider].vendor}'s.`,
+    `${providerConfiguration.configured.map((provider) => BROKERED_PROFILE[provider].envVar).join(" and ")} are both set and SHARDSOPENBOT_BROKER_PROVIDER names neither, so no broker is active: connected apps can be neither connected nor revoked until it is set. Existing connections are read as ${BROKERED_PROFILE[brokerProvider].vendor}'s.`,
   );
 }
 const sharedUseStore = createSharedUseStore(database, brokerProvider);
@@ -1292,7 +1292,7 @@ const hostAccessBroker = createHostAccessBroker(Date.now, {
 // grant, the policy and the audit row are exactly where they were. Host-folder tools are also
 // server-dispatched: the selected Bot and the signed-in owner are bound here, then the desktop worker
 // receives only opaque grant ids and relative paths.
-// Memory lives in CopilotKit Intelligence when this deployment is entitled to it, and in OpenBot's own
+// Memory lives in CopilotKit Intelligence when this deployment is entitled to it, and in ShardsOpenBot's own
 // tables when it is not; see memory/store.ts. Its own client, like the thread reader's: the
 // constructor opens nothing.
 const personalMemoryStore = createMemoryStore(database, {
@@ -2542,7 +2542,7 @@ const app = createApp(
   // Native host-folder sessions are session-only: grants disappear with this server process and the
   // desktop worker must authenticate with a fresh token for this run.
   hostAccessBroker,
-  process.env.OPENBOT_DESKTOP_HOST_TOKEN,
+  process.env.SHARDSOPENBOT_DESKTOP_HOST_TOKEN,
   async (input) => {
     const proactiveRefusal = await guardProactiveCallback(
       input,
@@ -2593,8 +2593,10 @@ const app = createApp(
   // Absent without a key, which leaves the routes reporting no broker rather than listing apps
   // nobody could connect.
   composio ?? undefined,
-  process.env.OPENBOT_MODEL_OAUTH_FILE?.trim()
-    ? createProviderOAuthProxy(process.env.OPENBOT_MODEL_OAUTH_FILE.trim())
+  process.env.SHARDSOPENBOT_MODEL_OAUTH_FILE?.trim()
+    ? createProviderOAuthProxy(
+        process.env.SHARDSOPENBOT_MODEL_OAUTH_FILE.trim(),
+      )
     : undefined,
   createUserPreferencesStore(database),
   {
@@ -2620,7 +2622,7 @@ const app = createApp(
       recorder: demonstrationRecorder,
     },
     recorder: recorderExtension,
-    // Only where a person's browser can run: OpenBot Desktop's host-side computer, or computers Bots run on that give
+    // Only where a person's browser can run: ShardsOpenBot Desktop's host-side computer, or computers Bots run on that give
     // each its own. Where every Bot shares one, the routes have no computers and say why (browser/host.ts).
     ...(computerGateway || config.browser
       ? {
@@ -2647,8 +2649,8 @@ const app = createApp(
               ? { token: config.computer?.token ?? config.browser?.token }
               : {}),
             recorder: recorderExtension,
-            openbotUrl: openbotAddress(config),
-            // On a single-user OpenBot the person is its admin: a setup failure is theirs to see to.
+            shardsopenbotUrl: shardsopenbotAddress(config),
+            // On a single-user ShardsOpenBot the person is its admin: a setup failure is theirs to see to.
             singleUser: config.singleUser,
           },
         }
@@ -2764,4 +2766,4 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
   });
 }
 
-console.info(`OpenBot server listening on http://127.0.0.1:${port}`);
+console.info(`ShardsOpenBot server listening on http://127.0.0.1:${port}`);

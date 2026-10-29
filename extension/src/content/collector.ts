@@ -6,7 +6,7 @@ import {
   maskCollectorEvent,
   sanitiseForIntelligence,
   trimEvent,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { AGENT_TARGET_FIELD, type AgentTarget } from "../shared/agent-target";
 import { type ActionCapture, installActionCapture } from "./actions";
 import type { SensitivityTracker } from "./masking-context";

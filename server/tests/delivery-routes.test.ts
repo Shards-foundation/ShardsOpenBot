@@ -145,7 +145,7 @@ const sender = (
   user = "slack:T1:U1",
   conversation: unknown = { id: "D0123456789", kind: "im" },
 ) => ({
-  description: "openbot.sender",
+  description: "shardsopenbot.sender",
   value: JSON.stringify({ user, event: "Ev9", conversation }),
 });
 async function run(
@@ -239,7 +239,7 @@ test("a link code binds the verified sender to the challenge's own scope", async
 });
 const IDENTITY_CODE = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const EXPIRED =
-  "That link code expired, was already used, or is for another app. Create a new one in OpenBot.";
+  "That link code expired, was already used, or is for another app. Create a new one in ShardsOpenBot.";
 function identityFixture(
   outcome?: "linked" | "conflict" | "invalid",
   live = true,
@@ -287,12 +287,12 @@ test("an identity code from a Slack sender is redeemed through the adapter", asy
     ...linkMessage(IDENTITY_CODE),
   });
   expect(said(result.events)).toBe(
-    "Linked your Slack account to OpenBot. You can see it under Connections.",
+    "Linked your Slack account to ShardsOpenBot. You can see it under Connections.",
   );
   expect(redeemed).toEqual([[IDENTITY_CODE, { teamId: "T1", userId: "U1" }]]);
 });
 const CANCELLED =
-  "That code was posted where others could see it, so I cancelled it. Create a new one in OpenBot and send it to me in a direct message.";
+  "That code was posted where others could see it, so I cancelled it. Create a new one in ShardsOpenBot and send it to me in a direct message.";
 test("an identity code sent where others can read it is cancelled, never redeemed", async () => {
   for (const conversation of [{ id: "C0123456789", kind: "channel" }, null]) {
     const { f, redeemed, discarded } = identityFixture("linked");
@@ -335,7 +335,7 @@ test("a Reachability code still links from a shared conversation", async () => {
 const observedMessage = (content: string) => ({
   context: [
     {
-      description: "openbot.sender",
+      description: "shardsopenbot.sender",
       value: JSON.stringify({
         user: "slack:T1:U1",
         event: "Ev50",
@@ -406,7 +406,7 @@ test("an identity code conflict gets the already-linked reply", async () => {
     ...linkMessage(IDENTITY_CODE),
   });
   expect(said(result.events)).toBe(
-    "This Slack account is already linked to another OpenBot user.",
+    "This Slack account is already linked to another ShardsOpenBot user.",
   );
 });
 test("an invalid identity code gets the expired reply", async () => {
@@ -526,14 +526,14 @@ test("verified Slack events feed the owners' triggers once, and observe-only run
   mention.event = "Ev10";
   await run(f, {
     context: [
-      { description: "openbot.sender", value: JSON.stringify(mention) },
+      { description: "shardsopenbot.sender", value: JSON.stringify(mention) },
     ],
     messages: [{ id: "m2", role: "user", content: "<@UBOT> hi" }],
   });
   const observed = await run(f, {
     context: [
       {
-        description: "openbot.sender",
+        description: "shardsopenbot.sender",
         value: JSON.stringify({
           user: "slack:T1:U1",
           event: "Ev11",
@@ -715,7 +715,7 @@ test("a chart the Bot drew is drawn natively by the Channel, and its follow-up r
   expect(said(result.events)).toBe("github.com led the front page.");
   const start = result.events.find((e) => e.type === "TOOL_CALL_START");
   expect(start).toMatchObject({ toolCallName: "render_chart" });
-  expect(start.toolCallId).toStartWith("openbot-component-");
+  expect(start.toolCallId).toStartWith("shardsopenbot-component-");
   const args = JSON.parse(
     result.events.find((e) => e.type === "TOOL_CALL_ARGS").delta,
   );
@@ -849,12 +849,12 @@ test("a chart drawn natively in Slack or Teams says where its figures came from"
 });
 test("a channel message from a colleague who never linked still reaches the owners' Slack triggers", async () => {
   // Whose triggers fire is decided by each owner's channel membership in the ingest, never by the
-  // author's own link: the author here has no OpenBot binding at all.
+  // author's own link: the author here has no ShardsOpenBot binding at all.
   const f = fixture({ bound: false });
   const observed = await run(f, {
     context: [
       {
-        description: "openbot.sender",
+        description: "shardsopenbot.sender",
         value: JSON.stringify({
           user: "slack:T1:U9COLLEAGUE",
           event: "Ev42",

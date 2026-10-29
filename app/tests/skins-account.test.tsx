@@ -7,7 +7,7 @@ import {
   test,
 } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { UserPreferences } from "@openbot/shared/user-preferences";
+import type { UserPreferences } from "@shardsopenbot/shared/user-preferences";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   createMemoryHistory,
@@ -43,7 +43,7 @@ import { settleReactWork } from "./settle-react-work";
  * The skin is saved on the person's account. These drive it the way a person does: the picker on
  * Settings, a reload whose cached skin is not the account's, signing out on a shared machine, and
  * the account's skin changing under a screen only the old skin had. The API is a fake that answers
- * in the shapes OpenBot's endpoints send; the store, the sync, the picker and the routes are real.
+ * in the shapes ShardsOpenBot's endpoints send; the store, the sync, the picker and the routes are real.
  */
 
 class OfflineWebSocket extends EventTarget {
@@ -153,7 +153,7 @@ function renderSettings() {
 test("picking a skin draws it at once and saves it on the account", async () => {
   signedIn();
   serve("GET /api/settings/preferences", {
-    preferences: preferences("openbot"),
+    preferences: preferences("shardsopenbot"),
   });
   const save = Promise.withResolvers<Response>();
   answers.set("PATCH /api/settings/preferences", () => save.promise);
@@ -258,7 +258,7 @@ test("signing out forgets the cached skin, so the next person starts from the de
   expect(cachedSkin()).toBe("openduet");
   serve("POST /api/auth/sign-out", { success: true });
 
-  // The one sign-out every menu uses: OpenBot's sidebar and each skin's own.
+  // The one sign-out every menu uses: ShardsOpenBot's sidebar and each skin's own.
   await queryClient
     .getMutationCache()
     .build(queryClient, signOutMutationOptions(queryClient))
@@ -266,7 +266,7 @@ test("signing out forgets the cached skin, so the next person starts from the de
 
   expect(cachedSkin()).toBeNull();
   expect(document.documentElement.dataset.skin).toBeUndefined();
-  expect(getSkinId()).toBe("openbot");
+  expect(getSkinId()).toBe("shardsopenbot");
   expect(queryClient.getQueryData(authKeys.currentUser())).toBeUndefined();
 });
 

@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DEFAULT_WORKSPACE_LIMITS } from "../src/workspace";
 
-const asked = process.env.OPENBOT_FILE_DOWNLOAD_HTTP === "1";
+const asked = process.env.SHARDSOPENBOT_FILE_DOWNLOAD_HTTP === "1";
 const TOKEN = "file-download-http-test-token";
 const BOT = "file-download-http";
 
@@ -39,8 +39,8 @@ function api(path: string, authenticated = true) {
   return fetch(`${base}${path}`, {
     headers: authenticated
       ? {
-          "x-openbot-bot-id": BOT,
-          "x-openbot-computer-token": TOKEN,
+          "x-shardsopenbot-bot-id": BOT,
+          "x-shardsopenbot-computer-token": TOKEN,
         }
       : {},
   });

@@ -2,7 +2,7 @@
 # Create the cluster the first time, and hand the API a password every time.
 #
 # Bound to loopback, but no longer trust-auth. The process beside it is not the only client: the
-# Bot's shell runs in this same container, and under trust it could `psql -h 127.0.0.1 -U openbot`
+# Bot's shell runs in this same container, and under trust it could `psql -h 127.0.0.1 -U shardsopenbot`
 # with no password and reach the audit trail, the policy store, and the credential vault as the
 # instance owner. A generated password closes that: the shell has no way to learn it (its own
 # environment is an allow-list that does not carry the URL), and scram refuses a connection without
@@ -52,13 +52,13 @@ if [ ! -s "$DATA/PG_VERSION" ]; then
   PWTMP="$(mktemp)"
   printf '%s' "$PW" > "$PWTMP"
   chown postgres:postgres "$PWTMP"
-  s6-setuidgid postgres "$BIN/initdb" -D "$DATA" -A scram-sha-256 -U openbot --pwfile="$PWTMP" >/dev/null
+  s6-setuidgid postgres "$BIN/initdb" -D "$DATA" -A scram-sha-256 -U shardsopenbot --pwfile="$PWTMP" >/dev/null
   rm -f "$PWTMP"
 
   s6-setuidgid postgres "$BIN/pg_ctl" -D "$DATA" -o "-c listen_addresses=127.0.0.1" -w start >/dev/null
   # Over TCP with the password now, since the cluster no longer trusts an unauthenticated connection.
-  PGPASSWORD="$PW" s6-setuidgid postgres "$BIN/createdb" -h 127.0.0.1 -U openbot openbot
-  PGPASSWORD="$PW" s6-setuidgid postgres "$BIN/psql" -h 127.0.0.1 -U openbot -d openbot -c 'CREATE EXTENSION IF NOT EXISTS vector' >/dev/null
+  PGPASSWORD="$PW" s6-setuidgid postgres "$BIN/createdb" -h 127.0.0.1 -U shardsopenbot shardsopenbot
+  PGPASSWORD="$PW" s6-setuidgid postgres "$BIN/psql" -h 127.0.0.1 -U shardsopenbot -d shardsopenbot -c 'CREATE EXTENSION IF NOT EXISTS vector' >/dev/null
   s6-setuidgid postgres "$BIN/pg_ctl" -D "$DATA" -w stop >/dev/null
 fi
 
@@ -69,6 +69,6 @@ fi
 # does not read.
 if [ -s "$PW_FILE" ]; then
   PW="$(cat "$PW_FILE")"
-  printf 'postgres://openbot:%s@127.0.0.1:5432/openbot' "$PW" \
+  printf 'postgres://shardsopenbot:%s@127.0.0.1:5432/shardsopenbot' "$PW" \
     > /run/s6/container_environment/DATABASE_URL
 fi

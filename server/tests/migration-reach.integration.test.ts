@@ -32,7 +32,7 @@ administrative.pathname = "/postgres";
 const created: string[] = [];
 
 async function throwawayDatabase(): Promise<string> {
-  const name = `openbot_reach_${Math.random().toString(36).slice(2, 10)}`;
+  const name = `shardsopenbot_reach_${Math.random().toString(36).slice(2, 10)}`;
   const admin = postgres(administrative.href, { max: 1, onnotice: () => {} });
   try {
     await admin.unsafe(`CREATE DATABASE "${name}"`);

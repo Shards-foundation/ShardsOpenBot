@@ -1,4 +1,4 @@
-import type { RecorderConnection } from "@openbot/shared/recorder-api";
+import type { RecorderConnection } from "@shardsopenbot/shared/recorder-api";
 import { IconBrowser } from "@tabler/icons-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Fragment, useState } from "react";
@@ -36,7 +36,7 @@ const connectedAt = new Intl.DateTimeFormat(undefined, {
   timeStyle: "short",
 });
 
-/** The browsers signed in to this OpenBot as you, each with a Disconnect that revokes its sign-in. The row of the copy
+/** The browsers signed in to this ShardsOpenBot as you, each with a Disconnect that revokes its sign-in. The row of the copy
  * in this browser (`thisInstallId`, from This browser) says so. */
 export function ConnectedBrowsers({
   thisInstallId,
@@ -94,8 +94,8 @@ function ConnectedBrowserRow({
   // is open in, which every row's dialog used to say.
   const which = here
     ? "this browser"
-    : connection.via === "openbot-browser"
-      ? "your OpenBot browser"
+    : connection.via === "shardsopenbot-browser"
+      ? "your ShardsOpenBot browser"
       : connection.label;
   return (
     <>
@@ -106,14 +106,14 @@ function ConnectedBrowserRow({
         <ItemContent>
           <ItemTitle>{name}</ItemTitle>
           <ItemDescription>
-            {connection.via === "openbot-browser"
-              ? "Your OpenBot browser, connected "
+            {connection.via === "shardsopenbot-browser"
+              ? "Your ShardsOpenBot browser, connected "
               : "Connected "}
             {connectedAt.format(new Date(connection.createdAt))}
             {connection.via === "desktop"
-              ? " from OpenBot Desktop"
+              ? " from ShardsOpenBot Desktop"
               : connection.via === "web"
-                ? " from OpenBot"
+                ? " from ShardsOpenBot"
                 : ""}
             ,{" "}
             {connection.lastUsedAt
@@ -143,9 +143,9 @@ function ConnectedBrowserRow({
           </DialogHeader>
           <DialogBody className="mt-4 text-sm">
             <p>
-              OpenBot signs the Recorder in {which} out. It records nothing for
-              you until you connect it again, and a recording running there
-              stops.
+              ShardsOpenBot signs the Recorder in {which} out. It records
+              nothing for you until you connect it again, and a recording
+              running there stops.
             </p>
             {revoke.error ? (
               <p className="mt-2 text-destructive" role="alert">

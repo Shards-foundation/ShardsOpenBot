@@ -18,7 +18,7 @@ import { agents, users } from "./core";
 /**
  * Background research by one of a person's Bots.
  *
- * On by default: OpenBot writes the row when a person first talks to the Bot in a conversation with
+ * On by default: ShardsOpenBot writes the row when a person first talks to the Bot in a conversation with
  * it alone (memory/defaults.ts), and never again once they turn it off (`enabled = false`) or remove
  * it (`default_opt_outs`). Bounded by `interval_minutes` (one to twenty-four hours) so a Bot never
  * reads a person's apps more often than they chose. The run lands in its own thread, not

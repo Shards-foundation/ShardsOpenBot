@@ -7,7 +7,7 @@ import type {
   SaveVoiceSessionInput,
   VoiceSessionPage,
   VoiceSessionRecord,
-} from "@openbot/shared/voice-session";
+} from "@shardsopenbot/shared/voice-session";
 import { closingOf } from "./cut";
 import {
   forgetVoiceCall,
@@ -16,7 +16,7 @@ import {
   voiceCallOwner,
 } from "./outbox";
 
-export const VOICE_CHAT_ACTIVITY = "openbot-voice-chat";
+export const VOICE_CHAT_ACTIVITY = "shardsopenbot-voice-chat";
 export type VoiceChatEntry = VoiceSessionRecord & {
   saveState?: "saving" | "unsaved";
   saveError?: string;
@@ -95,7 +95,10 @@ export function saveVoiceSession(
         credentials: "include",
         signal: AbortSignal.timeout(30_000),
         keepalive: new TextEncoder().encode(payload).byteLength < 60_000,
-        headers: { "content-type": "application/json", "x-openbot-voice": "1" },
+        headers: {
+          "content-type": "application/json",
+          "x-shardsopenbot-voice": "1",
+        },
         body: payload,
       });
       // A proxy's error page is not JSON, and its parser message is no sentence for a person.

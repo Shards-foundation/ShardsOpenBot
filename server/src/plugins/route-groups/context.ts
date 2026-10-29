@@ -81,7 +81,7 @@ export function brokerRefusal(
  *
  * THE REMEDY AND THE READER HAD COME APART, WHICH IS WHAT THIS CLOSES. Both routes that check a
  * return address are `requireUser`, so the sentence they answer with reaches somebody who pressed
- * Connect — and `OPENBOT_APP_URL` is a variable they cannot set, named beside a vendor they may not
+ * Connect — and `SHARDSOPENBOT_APP_URL` is a variable they cannot set, named beside a vendor they may not
  * even be on. {@link BrokerReturnUrlError} answers them with neither now, which would leave the
  * operator's half nowhere at all if it were not written here: a misconfigured address would be
  * invisible to the one person who can correct it.
@@ -282,7 +282,7 @@ export function withVendorDeadline<T>(
   /*
    * A CALL THAT THROWS BEFORE IT RETURNS A PROMISE IS A REJECTION, NOT AN ESCAPE. The deadline is
    * already armed by this line, so invoking `call` bare inside the race would let a synchronous
-   * throw — `brokerReturnUrl` refusing a scheme-less `OPENBOT_APP_URL` while the callback builds its
+   * throw — `brokerReturnUrl` refusing a scheme-less `SHARDSOPENBOT_APP_URL` while the callback builds its
    * argument is the one that happens — leave this function before the race and its `.finally`
    * exist: the timer stays armed, aborts nothing anybody is waiting on and rejects `deadline` with
    * no one subscribed, and a caller's `.catch(...)` on the returned promise is skipped entirely.

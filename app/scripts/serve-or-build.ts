@@ -14,11 +14,11 @@ const defaultRootDir = resolve(defaultAppDir, "..");
 
 function pathsFromEnvironment(): BuildCachePaths {
   return {
-    rootDir: process.env.OPENBOT_BUILD_CACHE_ROOT_DIR
-      ? resolve(process.env.OPENBOT_BUILD_CACHE_ROOT_DIR)
+    rootDir: process.env.SHARDSOPENBOT_BUILD_CACHE_ROOT_DIR
+      ? resolve(process.env.SHARDSOPENBOT_BUILD_CACHE_ROOT_DIR)
       : defaultRootDir,
-    appDir: process.env.OPENBOT_BUILD_CACHE_APP_DIR
-      ? resolve(process.env.OPENBOT_BUILD_CACHE_APP_DIR)
+    appDir: process.env.SHARDSOPENBOT_BUILD_CACHE_APP_DIR
+      ? resolve(process.env.SHARDSOPENBOT_BUILD_CACHE_APP_DIR)
       : defaultAppDir,
   };
 }

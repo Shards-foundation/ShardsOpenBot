@@ -4,7 +4,7 @@ import type { AuditEventInput, AuditStore } from "../src/audit";
 import { loadConfig } from "../src/config";
 import { testEnvironment } from "./support/environment";
 
-const ADMIN = { id: "admin", email: "admin@openbot.test" };
+const ADMIN = { id: "admin", email: "admin@shardsopenbot.test" };
 
 function app(role = "admin") {
   const rows: AuditEventInput[] = [];

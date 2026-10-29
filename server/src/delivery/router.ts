@@ -1,5 +1,5 @@
 import { resolveUpdateRoute, type UpdateRoute } from "../agents/lifecycle";
-import type { DrawnComponent } from "@openbot/toolkit/run-turn";
+import type { DrawnComponent } from "@shardsopenbot/toolkit/run-turn";
 import type { WorkItem, WorkQueue } from "../work/queue";
 import type { ExpoPushTransport } from "./push";
 import type { DeliveryStore } from "./store";
@@ -476,7 +476,7 @@ export function createDeliveryRouter(deps: {
           throw new DeliveryRefusedError("Push device unavailable.");
         result = await deps.providers.push.send({
           token: device.token,
-          title: "OpenBot",
+          title: "ShardsOpenBot",
           body: row.text,
           channelId: row.channelId,
           kind: row.kind,

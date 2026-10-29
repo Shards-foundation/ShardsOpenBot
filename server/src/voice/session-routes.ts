@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import type { VoiceSessionRecord } from "@openbot/shared/voice-session";
+import type { VoiceSessionRecord } from "@shardsopenbot/shared/voice-session";
 import type { AgentActor } from "../agents/profile-types";
 import type { AppVariables } from "../auth/guards";
 import type { ChannelStore } from "../channels/routes";
@@ -52,7 +52,7 @@ export function createVoiceSessionRoutes(services?: VoiceSessionServices) {
         context.json({ error: "Voice transcript is too large." }, 413),
     }),
     async (context) => {
-      if (context.req.header("x-openbot-voice") !== "1")
+      if (context.req.header("x-shardsopenbot-voice") !== "1")
         return context.json({ error: "Invalid voice request." }, 403);
       if (!services)
         return context.json(

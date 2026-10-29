@@ -16,7 +16,7 @@
  * TWO AUDIENCES, TWO RULES. The two admin sentences (removing and enabling an app) name the broker,
  * because the admin is the one who holds its key. The connect, confirm, re-check and disconnect
  * sentences answer whoever pressed the button, and since the copy pass they name NO broker at all
- * (see `.claude/skills/openbot-copy/SKILL.md`): the broker is an internal that person cannot act
+ * (see `.claude/skills/shardsopenbot-copy/SKILL.md`): the broker is an internal that person cannot act
  * on. Neither rule lets a deployment read the other vendor's name.
  */
 import { describe, expect, test } from "bun:test";
@@ -189,7 +189,7 @@ function deployment(provider: BrokerProvider, wiring: Wiring = {}) {
       signedIn,
       async () => true,
       {
-        publicUrl: "https://openbot.example",
+        publicUrl: "https://shardsopenbot.example",
         appUrl: "appUrl" in wiring ? wiring.appUrl : "https://app.example",
         encryptionKey: `${"A".repeat(43)}=`,
         personHasAccess: async () => true,
@@ -201,7 +201,7 @@ function deployment(provider: BrokerProvider, wiring: Wiring = {}) {
 
   // Async so each is a `Promise<Response>`: `app.request` answers `Response | Promise<Response>`.
   const post = async (path: string, body: unknown = {}) =>
-    app.request(`http://openbot.test${path}`, {
+    app.request(`http://shardsopenbot.test${path}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
@@ -210,9 +210,12 @@ function deployment(provider: BrokerProvider, wiring: Wiring = {}) {
   return {
     toolkit: row.toolkit,
     remove: async () =>
-      app.request(`http://openbot.test/api/plugins/servers/${SERVER_ID}`, {
-        method: "DELETE",
-      }),
+      app.request(
+        `http://shardsopenbot.test/api/plugins/servers/${SERVER_ID}`,
+        {
+          method: "DELETE",
+        },
+      ),
     enable: () => post("/api/plugins/composio/apps", { slug: row.toolkit }),
     connect: (body?: unknown) =>
       post(`/api/plugins/servers/${SERVER_ID}/connect`, body ?? {}),
@@ -220,7 +223,7 @@ function deployment(provider: BrokerProvider, wiring: Wiring = {}) {
     recheck: () => post(`/api/plugins/servers/${SERVER_ID}/connection/recheck`),
     disconnect: async () =>
       app.request(
-        `http://openbot.test/api/plugins/servers/${SERVER_ID}/connection`,
+        `http://shardsopenbot.test/api/plugins/servers/${SERVER_ID}/connection`,
         { method: "DELETE" },
       ),
   };

@@ -281,7 +281,7 @@ export function createDeliveryWebhookRoutes(deps: {
   approvals?: PairedApprovals;
   /** Test seam; production uses the responsibilities lane's `ingestSlackEvent`. */
   ingestSlack?: OpenTagAgentDeps["ingestSlack"];
-  /** Redeems OpenBot linked-account codes sent to the Slack app in a DM; cancels one posted in a channel. */
+  /** Redeems ShardsOpenBot linked-account codes sent to the Slack app in a DM; cancels one posted in a channel. */
   identity?: OpenTagAgentDeps["identity"];
 }) {
   const routes = new Hono<{ Variables: AppVariables }>();
@@ -341,7 +341,7 @@ export function createDeliveryWebhookRoutes(deps: {
       const from = params.get("From"),
         id = params.get("MessageSid"),
         text = params.get("Body");
-      // Twilio answers these keywords itself and blocks sends after STOP, so OpenBot records the
+      // Twilio answers these keywords itself and blocks sends after STOP, so ShardsOpenBot records the
       // state, runs no turn and sends no second reply (Advanced Opt-Out guidance).
       const keyword = smsOptKeyword(params.get("OptOutType"), text);
       if (from && keyword) {

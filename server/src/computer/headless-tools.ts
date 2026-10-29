@@ -4,7 +4,7 @@ import { type AuditStore, recordAuditEvent } from "../audit";
 import {
   type HeadlessTool,
   HeadlessToolSuspension,
-} from "@openbot/toolkit/headless-tools";
+} from "@shardsopenbot/toolkit/headless-tools";
 import {
   type ActionActor,
   type ComputerGateway,

@@ -1047,7 +1047,7 @@ export function BrokeredAccountRow({
                 Approved per action
               </span>
             ) : (
-              /* The arrow says this leaves OpenBot for the vendor's consent page. It does. */
+              /* The arrow says this leaves ShardsOpenBot for the vendor's consent page. It does. */
               <Button
                 disabled={account.connecting}
                 onClick={() => {

@@ -359,7 +359,7 @@ export function App() {
           setWsUrl(values.INTELLIGENCE_GATEWAY_WS_URL);
         setAlreadyHeld({ ...values, saved });
         setOrganizationAuthorityUrl(
-          values.OPENBOT_ORGANIZATION_AUTH_URL ?? null,
+          values.SHARDSOPENBOT_ORGANIZATION_AUTH_URL ?? null,
         );
         return configured;
       } catch {
@@ -445,7 +445,7 @@ export function App() {
           )
         ) {
           // Already up from a previous window: show it, rather than a screen about it.
-          await invoke("show_openbot");
+          await invoke("show_shardsopenbot");
           setRunning(true);
           return;
         }
@@ -470,10 +470,10 @@ export function App() {
               MANAGED_INTELLIGENCE_GATEWAY_WS_URL,
             model: resumedModel,
             harness: resumedHarness,
-            ...(configured.values.OPENBOT_ORGANIZATION_AUTH_URL
+            ...(configured.values.SHARDSOPENBOT_ORGANIZATION_AUTH_URL
               ? {
                   organizationAuthUrl:
-                    configured.values.OPENBOT_ORGANIZATION_AUTH_URL,
+                    configured.values.SHARDSOPENBOT_ORGANIZATION_AUTH_URL,
                 }
               : {}),
           });
@@ -481,7 +481,7 @@ export function App() {
           setSteps((current) => settleProgress(current));
           setRunning(true);
           setRecoveryFailure(null);
-          await invoke("show_openbot");
+          await invoke("show_shardsopenbot");
         } catch (error) {
           if (active) recoverFromStart(error);
         } finally {
@@ -525,7 +525,7 @@ export function App() {
         step: "engine",
         ok: true,
         running: true,
-        detail: "Checking the software OpenBot needs.",
+        detail: "Checking the software ShardsOpenBot needs.",
       },
     ]);
     setPreparation({ key: installationKey, status: "preparing" });
@@ -579,13 +579,13 @@ export function App() {
         savedLaunch.current = installationKey;
         setStep("connect");
         setRefreshIntelligence(false);
-        await invoke("show_openbot");
+        await invoke("show_shardsopenbot");
         return;
       }
       /*
        * One screen short of the handover, on purpose.
        *
-       * The window used to become OpenBot here, the moment the stack was up. But up is not the
+       * The window used to become ShardsOpenBot here, the moment the stack was up. But up is not the
        * same as working: a refused key or a lapsed plan gives a stack that starts clean and a Bot
        * that cannot answer, and handing over at this point means somebody discovers that inside
        * the product with no idea which of their answers caused it. So the last screen asks a
@@ -673,7 +673,7 @@ export function App() {
   if (blockerFailure) {
     return (
       <main>
-        <h1>OpenBot could not check Windows setup</h1>
+        <h1>ShardsOpenBot could not check Windows setup</h1>
         <Failure problem={blockerFailure} />
       </main>
     );
@@ -682,7 +682,7 @@ export function App() {
   if (blocker) {
     return (
       <main>
-        <h1>OpenBot needs one thing first</h1>
+        <h1>ShardsOpenBot needs one thing first</h1>
         <div className="blocker">
           <h2>{titleFor(blocker)}</h2>
           <p>{instruction}</p>
@@ -694,7 +694,7 @@ export function App() {
   if (resuming || checkingResume) {
     return (
       <main>
-        <h1>{resuming ? "Starting OpenBot" : "Opening OpenBot"}</h1>
+        <h1>{resuming ? "Starting ShardsOpenBot" : "Opening ShardsOpenBot"}</h1>
         <p role="status">
           {resuming
             ? "Opening your saved setup…"
@@ -718,7 +718,7 @@ export function App() {
           }}
           onSignedIn={async () => {
             try {
-              await invoke("show_openbot");
+              await invoke("show_shardsopenbot");
               setRefreshOrganization(false);
               setRecoveryFailure(null);
               setRunning(true);
@@ -736,7 +736,7 @@ export function App() {
    * Install local software before showing either sign-in. A completed installation is retained
    * while somebody changes or retries their connection; changing its folder or Bot invalidates it.
    *
-   * Skipped entirely when a stack is already up: somebody returning to a running OpenBot is not
+   * Skipped entirely when a stack is already up: somebody returning to a running ShardsOpenBot is not
    * setting one up, and asking them to pick a Bot again would be the wizard asking twice.
    */
   if (!running && step === "welcome") {
@@ -786,12 +786,14 @@ export function App() {
         <div className="sheet">
           <p className="steps-of">Step 2 of 4</p>
           <h1>
-            {installationReady ? "Installation complete" : "Install OpenBot"}
+            {installationReady
+              ? "Installation complete"
+              : "Install ShardsOpenBot"}
           </h1>
           <p className="lede">
             {installationReady
-              ? "OpenBot’s local software is ready. Next, connect your AI and CopilotKit accounts."
-              : "Install the software OpenBot needs on this computer. This can take a few minutes. You’ll sign in after installation finishes."}
+              ? "ShardsOpenBot’s local software is ready. Next, connect your AI and CopilotKit accounts."
+              : "Install the software ShardsOpenBot needs on this computer. This can take a few minutes. You’ll sign in after installation finishes."}
           </p>
           {!installationReady && engine?.responding && (
             <p className="footnote">
@@ -800,7 +802,7 @@ export function App() {
             </p>
           )}
           <div className="field">
-            <label htmlFor="root">Where OpenBot lives</label>
+            <label htmlFor="root">Where ShardsOpenBot lives</label>
             <input
               id="root"
               disabled={busy}
@@ -857,7 +859,7 @@ export function App() {
                   ? "Installing…"
                   : preparation?.status === "failed"
                     ? "Retry installation"
-                    : "Install OpenBot"}
+                    : "Install ShardsOpenBot"}
               </button>
             )}
           </div>
@@ -881,7 +883,9 @@ export function App() {
           }
           onOpen={() => {
             savedLaunch.current = installationKey;
-            invoke("show_openbot").catch((error) => recoverFromStart(error));
+            invoke("show_shardsopenbot").catch((error) =>
+              recoverFromStart(error),
+            );
           }}
           onBack={changeModelAfterAskFailure}
         />
@@ -918,7 +922,7 @@ export function App() {
   if (!running && returningToInstallation && !refreshIntelligence) {
     return (
       <main>
-        <h1>OpenBot is stopped</h1>
+        <h1>ShardsOpenBot is stopped</h1>
         <p className="lede">
           Your installation and saved connections are ready to reopen.
         </p>
@@ -929,7 +933,7 @@ export function App() {
           disabled={busy || !installationReady || !modelCanStart()}
           onClick={() => start()}
         >
-          {busy ? "Starting…" : "Start OpenBot"}
+          {busy ? "Starting…" : "Start ShardsOpenBot"}
         </button>
         <button
           type="button"
@@ -996,17 +1000,17 @@ export function App() {
         )}
         <h1>
           {running && !displayedFailure
-            ? "OpenBot is running"
+            ? "ShardsOpenBot is running"
             : returningToInstallation
               ? "Refresh your CopilotKit connection"
               : "Connect to CopilotKit"}
         </h1>
         <p className="lede">
           {running && !displayedFailure
-            ? "The stack is up. OpenBot is in this window; the menu bar has it too, and stops it."
+            ? "The stack is up. ShardsOpenBot is in this window; the menu bar has it too, and stops it."
             : returningToInstallation
-              ? "Update this connection to reopen your existing OpenBot."
-              : "Local installation is complete. Connect CopilotKit, then start OpenBot."}
+              ? "Update this connection to reopen your existing ShardsOpenBot."
+              : "Local installation is complete. Connect CopilotKit, then start ShardsOpenBot."}
         </p>
 
         {!running && (
@@ -1016,7 +1020,7 @@ export function App() {
 
             This screen used to ask for a key whose only source was two terminal commands, which is
             the one thing the audience rule forbids. Somebody on managed CopilotKit now signs in and
-            OpenBot creates the key for the project they pick. Somebody running their own
+            ShardsOpenBot creates the key for the project they pick. Somebody running their own
             Intelligence has a key this sign-in knows nothing about, so the field moves down there
             with the addresses it belongs with.
           */}
@@ -1067,7 +1071,7 @@ export function App() {
               </>
             ) : projects ? (
               <>
-                <p className="lede">Which project should OpenBot use?</p>
+                <p className="lede">Which project should ShardsOpenBot use?</p>
                 <fieldset className="picker">
                   <legend className="sr-only">Project</legend>
                   {projects.map((project) => (
@@ -1136,8 +1140,8 @@ export function App() {
             ) : (
               <>
                 <p className="lede">
-                  OpenBot keeps your conversations in CopilotKit. Sign in and it
-                  sets the rest up for you.
+                  ShardsOpenBot keeps your conversations in CopilotKit. Sign in
+                  and it sets the rest up for you.
                 </p>
                 <div className="row connection-actions">
                   <button
@@ -1174,9 +1178,9 @@ export function App() {
               <summary>Point at your own Intelligence server</summary>
               <p className="footnote" style={{ margin: "0.6rem 0 0.75rem" }}>
                 Enter your Intelligence server’s addresses, then sign in to
-                choose a project. OpenBot creates its Learning container for
-                you. Sign-in requires Chrome or Microsoft Edge. You can also use
-                an existing project key.
+                choose a project. ShardsOpenBot creates its Learning container
+                for you. Sign-in requires Chrome or Microsoft Edge. You can also
+                use an existing project key.
               </p>
               <div className="field">
                 <label htmlFor="key">Project key</label>
@@ -1237,12 +1241,12 @@ export function App() {
             <details>
               <summary>Sign in through your organization</summary>
               <p className="footnote">
-                Enter your organization’s OpenBot address to use its sign-in and
-                access rules.
+                Enter your organization’s ShardsOpenBot address to use its
+                sign-in and access rules.
               </p>
               <div className="field">
                 <label htmlFor="organization-authority">
-                  Organization OpenBot URL
+                  Organization ShardsOpenBot URL
                 </label>
                 <input
                   id="organization-authority"
@@ -1250,7 +1254,7 @@ export function App() {
                   onChange={(event) =>
                     setOrganizationAuthorityUrl(event.target.value)
                   }
-                  placeholder="https://openbot.your-company.com"
+                  placeholder="https://shardsopenbot.your-company.com"
                   spellCheck={false}
                 />
               </div>
@@ -1301,19 +1305,19 @@ export function App() {
                 /*
                  * The refusal is shown, not swallowed.
                  *
-                 * `show_openbot` answers with "OpenBot is not answering on port 3010 yet, so there
+                 * `show_shardsopenbot` answers with "ShardsOpenBot is not answering on port 3010 yet, so there
                  * is nothing to show" when the app host process is not up, and this button dropped
-                 * it on the floor. Clicking it then did nothing at all, on a screen headed "OpenBot
+                 * it on the floor. Clicking it then did nothing at all, on a screen headed "ShardsOpenBot
                  * is running", which is the worst of both: a true sentence was available and the
                  * window threw it away. The Ask screen's copy of this call always showed it.
                  */
                 onClick={() =>
-                  invoke("show_openbot").catch((error) =>
+                  invoke("show_shardsopenbot").catch((error) =>
                     recoverFromStart(error),
                   )
                 }
               >
-                Show OpenBot
+                Show ShardsOpenBot
               </button>
               <button
                 type="button"
@@ -1321,7 +1325,7 @@ export function App() {
                 onClick={stop}
                 disabled={busy}
               >
-                Stop OpenBot
+                Stop ShardsOpenBot
               </button>
             </>
           ) : (
@@ -1341,7 +1345,7 @@ export function App() {
                 root.trim() === ""
               }
             >
-              {busy ? "Working…" : "Start OpenBot"}
+              {busy ? "Working…" : "Start ShardsOpenBot"}
             </button>
           )}
         </div>

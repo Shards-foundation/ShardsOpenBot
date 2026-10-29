@@ -10,7 +10,7 @@
 --
 -- So DELETE becomes possible only under conditions the deleting statement has to state out loud:
 --
---   * the session sets `openbot.audit_retention_days` to a positive whole number, and
+--   * the session sets `shardsopenbot.audit_retention_days` to a positive whole number, and
 --   * the row is older than that many days.
 --
 -- The setting is transaction-local in the sweep, so the permission cannot leak past the statement
@@ -30,7 +30,7 @@ BEGIN
   -- `true` so a session that never set it reads NULL instead of raising, which is the ordinary case
   -- and has to stay a plain refusal.
   BEGIN
-    retention_days := nullif(current_setting('openbot.audit_retention_days', true), '')::integer;
+    retention_days := nullif(current_setting('shardsopenbot.audit_retention_days', true), '')::integer;
   EXCEPTION WHEN others THEN
     retention_days := NULL;
   END;

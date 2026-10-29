@@ -23,9 +23,9 @@ fn main() {
             .find(|candidate| candidate.is_file())
             .expect("Cargo's compiler must resolve on its build PATH")
     };
-    println!("cargo:rustc-env=OPENBOT_TEST_RUSTC={}", compiler.display());
+    println!("cargo:rustc-env=SHARDSOPENBOT_TEST_RUSTC={}", compiler.display());
     println!(
-        "cargo:rustc-env=OPENBOT_TEST_TOOL_PATH={}",
+        "cargo:rustc-env=SHARDSOPENBOT_TEST_TOOL_PATH={}",
         tool_path.to_string_lossy()
     );
     println!("cargo:rerun-if-env-changed=RUSTC");

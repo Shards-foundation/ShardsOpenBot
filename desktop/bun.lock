@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "openbot-desktop",
+      "name": "shardsopenbot-desktop",
       "dependencies": {
         "@tauri-apps/api": "^2",
         "react": "^19.2.0",

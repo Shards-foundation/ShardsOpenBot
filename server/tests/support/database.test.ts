@@ -9,16 +9,19 @@ describe("TEST_DATABASE_URL", () => {
   test("refuses the live development database even when DATABASE_URL names it", () => {
     expect(() =>
       testDatabaseUrlFrom({
-        TEST_DATABASE_URL: "postgres://openbot:openbot@localhost:5432/openbot",
-        DATABASE_URL: "postgres://openbot:openbot@localhost:5432/openbot_test",
+        TEST_DATABASE_URL:
+          "postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot",
+        DATABASE_URL:
+          "postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot_test",
       }),
-    ).toThrow(/live openbot database/);
+    ).toThrow(/live shardsopenbot database/);
   });
 
   test("does not read DATABASE_URL as a fallback", () => {
     expect(() =>
       testDatabaseUrlFrom({
-        DATABASE_URL: "postgres://openbot:openbot@localhost:5432/openbot_test",
+        DATABASE_URL:
+          "postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot_test",
       }),
     ).toThrow(/TEST_DATABASE_URL/);
   });
@@ -27,8 +30,10 @@ describe("TEST_DATABASE_URL", () => {
     expect(
       testDatabaseUrlFrom({
         TEST_DATABASE_URL:
-          "postgres://openbot:openbot@localhost:5432/openbot_test",
+          "postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot_test",
       }),
-    ).toBe("postgres://openbot:openbot@localhost:5432/openbot_test");
+    ).toBe(
+      "postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot_test",
+    );
   });
 });

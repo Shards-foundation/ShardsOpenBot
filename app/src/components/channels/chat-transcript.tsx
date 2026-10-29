@@ -63,7 +63,7 @@ import type { CardPlace } from "@/lib/copilot/carry-on";
 import {
   readConnectPrompt,
   SHOW_APP_ACCESS_TOOL,
-} from "@openbot/shared/connect-prompt";
+} from "@shardsopenbot/shared/connect-prompt";
 import { cn } from "@/lib/utils";
 import { VOICE_CHAT_ACTIVITY, type VoiceChatEntry } from "@/lib/voice/archive";
 import {

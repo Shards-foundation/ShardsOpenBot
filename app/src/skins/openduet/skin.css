@@ -2,17 +2,17 @@
  * OpenDuet: neutral greys with a cool bias, one violet accent used in a few fixed places, four
  * status colours for how work stands, frosted glass for the chrome that floats over a screen, and
  * Inter set with the single-storey a and flat-topped 3. The values are OpenDuet's own
- * (`openduet/openbot/app/src/styles.css`), so a screen drawn here reads as the same product.
+ * (`openduet/shardsopenbot/app/src/styles.css`), so a screen drawn here reads as the same product.
  *
  * Light is `:root[data-skin="openduet"]` and dark is `:root[data-skin="openduet"].dark`, and every
- * token is set in both: the skin's selector outranks OpenBot's `.dark`, so a token set only for
+ * token is set in both: the skin's selector outranks ShardsOpenBot's `.dark`, so a token set only for
  * light would leak into dark.
  */
 
 :root[data-skin="openduet"] {
   color-scheme: light;
 
-  /* OpenBot's shadcn tokens, so every OpenBot page drawn inside the frame wears OpenDuet. */
+  /* ShardsOpenBot's shadcn tokens, so every ShardsOpenBot page drawn inside the frame wears OpenDuet. */
   --background: #f6f6f8;
   --foreground: #18181b;
   --card: #ffffff;
@@ -197,7 +197,7 @@
   /*
    * OpenDuet's five sizes, in rem so they follow the person's text size. Weights are not part of
    * a size: 600 for titles, 500 for rows, chips and buttons, 400 otherwise. In the utilities layer,
-   * and scoped to the skin, so a size given to one of OpenBot's primitives outranks the primitive's
+   * and scoped to the skin, so a size given to one of ShardsOpenBot's primitives outranks the primitive's
    * own `text-*`.
    */
   [data-skin="openduet"] .openduet-type-display {
@@ -254,7 +254,7 @@
 }
 
 /*
- * Inside the frame, OpenBot's own controls take OpenDuet's shape: buttons are pills, and every
+ * Inside the frame, ShardsOpenBot's own controls take OpenDuet's shape: buttons are pills, and every
  * control is at least 44px to tap, the smallest thing a finger can hit. The primitives mark
  * themselves with `data-slot`, so one rule covers every page without touching any of them. A link
  * drawn as a button sits inside a sentence and keeps its line height.
@@ -279,7 +279,7 @@
 
 /*
  * A conversation's composer floats inset from the column's edges, as OpenDuet's does, with its
- * focus ring off the screen's edge. OpenBot draws it in a column with no side padding.
+ * focus ring off the screen's edge. ShardsOpenBot draws it in a column with no side padding.
  */
 [data-skin="openduet"] [data-openduet-frame] [data-slot="composer-column"] {
   padding-inline: 12px;

@@ -10,7 +10,7 @@ import {
   maskCollectorEvent,
   normaliseSecret,
   sha256HexSync,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { AGENT_TARGET_FIELD } from "../shared/agent-target";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>

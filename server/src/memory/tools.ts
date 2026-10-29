@@ -6,7 +6,7 @@ import {
 } from "@ag-ui/client";
 import { defer, from, type Observable, switchMap } from "rxjs";
 import { z } from "zod";
-import type { GrantedTool } from "@openbot/toolkit/granted-tool";
+import type { GrantedTool } from "@shardsopenbot/toolkit/granted-tool";
 import type { MemoryIngestion } from "./ingestion";
 import type { MemoryStore } from "./store";
 import {
@@ -43,22 +43,28 @@ export class PersonalMemoryMiddleware extends Middleware {
               ...(content
                 ? [
                     {
-                      id: "openbot:personal-memory",
+                      id: "shardsopenbot:personal-memory",
                       role: "system" as const,
                       content,
                     },
                   ]
                 : []),
               ...input.messages.filter(
-                (message) => message.id !== "openbot:personal-memory",
+                (message) => message.id !== "shardsopenbot:personal-memory",
               ),
             ],
             context: [
               ...input.context.filter(
-                (entry) => entry.description !== "OpenBot personal memory",
+                (entry) =>
+                  entry.description !== "ShardsOpenBot personal memory",
               ),
               ...(content
-                ? [{ description: "OpenBot personal memory", value: content }]
+                ? [
+                    {
+                      description: "ShardsOpenBot personal memory",
+                      value: content,
+                    },
+                  ]
                 : []),
             ],
           },

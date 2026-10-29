@@ -357,8 +357,8 @@ function TriggerRow({
             </div>
           ) : (
             <p className="text-amber-600 text-xs dark:text-amber-500">
-              Email isn't set up on OpenBot yet, so this address can't receive
-              mail. An admin has to turn it on.
+              Email isn't set up on ShardsOpenBot yet, so this address can't
+              receive mail. An admin has to turn it on.
             </p>
           ))}
         {generated && (
@@ -531,7 +531,7 @@ function NewTriggerDialog({
         <DialogHeader>
           <DialogTitle>Add trigger</DialogTitle>
           <DialogDescription>
-            Something outside OpenBot that starts this responsibility.
+            Something outside ShardsOpenBot that starts this responsibility.
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="mt-4 overflow-y-auto">

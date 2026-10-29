@@ -92,7 +92,7 @@ function build(who: string, provider: Provider) {
     typeof createApp
   >;
   args[0] = loadConfig(
-    testEnvironment({ OPENBOT_APP_URL: "https://app.example" }),
+    testEnvironment({ SHARDSOPENBOT_APP_URL: "https://app.example" }),
   );
   args[1] = {
     handler: () => new Response(null, { status: 204 }),
@@ -121,7 +121,7 @@ function run(provider: Provider = "arcade") {
     docs: `GoogleDocs${tag}`,
     slack: `Slack${tag}`,
     person: `person-${tag}`,
-    shared: `openbot-deployment:acme:${tag}`,
+    shared: `shardsopenbot-deployment:acme:${tag}`,
   };
   toolkits.push(names.gmail, names.calendar, names.docs, names.slack);
   revokes = [];
@@ -178,11 +178,11 @@ const trailFor = async (names: string[]) =>
 
 const preview = (n: ReturnType<typeof run>, toolkit: string) =>
   build(n.person, n.provider).request(
-    `http://openbot.test/api/plugins/servers/${n.id(toolkit)}/connection/siblings`,
+    `http://shardsopenbot.test/api/plugins/servers/${n.id(toolkit)}/connection/siblings`,
   );
 const disconnect = (n: ReturnType<typeof run>, toolkit: string) =>
   build(n.person, n.provider).request(
-    `http://openbot.test/api/plugins/servers/${n.id(toolkit)}/connection`,
+    `http://shardsopenbot.test/api/plugins/servers/${n.id(toolkit)}/connection`,
     { method: "DELETE" },
   );
 

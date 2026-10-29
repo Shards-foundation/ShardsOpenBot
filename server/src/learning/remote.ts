@@ -12,8 +12,8 @@ import {
 import { map, Observable, type Subscription } from "rxjs";
 import type { AcquireLearnedSkills, LearnedSkillInvocation } from "./runtime";
 
-const CATALOG_ID = "openbot:learned-skills";
-const CATALOG_CONTEXT = "OpenBot learned skills";
+const CATALOG_ID = "shardsopenbot:learned-skills";
+const CATALOG_CONTEXT = "ShardsOpenBot learned skills";
 const RESERVED_TOOLS = new Set([
   "copilotkit_load_skill",
   "copilotkit_read_skill_file",
@@ -256,7 +256,7 @@ export class RemoteLearnedSkillsMiddleware extends Middleware {
           if (subscriber.closed) return;
           subscriber.next({
             type: EventType.RUN_ERROR,
-            code: "OPENBOT_LEARNED_SKILLS_ERROR",
+            code: "SHARDSOPENBOT_LEARNED_SKILLS_ERROR",
             message:
               error instanceof Error
                 ? error.message

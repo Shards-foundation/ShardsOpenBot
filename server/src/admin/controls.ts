@@ -18,7 +18,7 @@
  * never loaded refuses everything it is asked about. Every async check reads the database fresh.
  */
 
-import { isPersonBrowserId } from "@openbot/shared/openbot-browser";
+import { isPersonBrowserId } from "@shardsopenbot/shared/shardsopenbot-browser";
 import { and, eq, inArray, like, sql } from "drizzle-orm";
 import postgres from "postgres";
 import {
@@ -79,7 +79,7 @@ export type EnterpriseDeps = {
   auditStore: AuditStore;
   provider?: ComputerProvider;
   computerToken?: string;
-  /** Where a person's own OpenBot browser may go (browser/egress.ts): pushed to it instead of a Bot's policy, which says
+  /** Where a person's own ShardsOpenBot browser may go (browser/egress.ts): pushed to it instead of a Bot's policy, which says
    * where Bots may go. Absent, a person's browser is pushed `deny_all`, the answer for a computer with no policy. */
   personBrowserPolicy?: EgressPolicy;
   /** Pushed to every computer with its policy; see `computer/policy-network.ts`. */

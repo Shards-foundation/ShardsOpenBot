@@ -4,7 +4,7 @@
 
 ## Where it runs
 
-OpenBot is deployed as several server processes behind a load balancer, serving a whole company.
+ShardsOpenBot is deployed as several server processes behind a load balancer, serving a whole company.
 Consecutive requests from the same person reach different processes, and the process that answered a
 WebSocket upgrade is rarely the one that answers the next call on that conversation.
 

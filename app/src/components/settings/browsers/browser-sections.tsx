@@ -1,7 +1,7 @@
 import {
   RECORDER_DISCLOSURE,
   RECORDER_DISCLOSURE_TITLE,
-} from "@openbot/shared/recorder-disclosure";
+} from "@shardsopenbot/shared/recorder-disclosure";
 import { useState } from "react";
 import { PageSection } from "@/components/layout/page-shell";
 import { RecorderCollectsRows } from "@/components/recorder/recorder-collects";

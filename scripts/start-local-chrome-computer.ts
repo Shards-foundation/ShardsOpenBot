@@ -19,7 +19,7 @@ export function localChromeConfiguration(
 ) {
   if (!env.COMPUTER_TOKEN?.trim()) {
     throw new Error(
-      "COMPUTER_TOKEN is required. Use the same secret as the local OpenBot API.",
+      "COMPUTER_TOKEN is required. Use the same secret as the local ShardsOpenBot API.",
     );
   }
   if (
@@ -33,21 +33,23 @@ export function localChromeConfiguration(
   const path = platform === "win32" ? win32 : posix;
   const dataHome =
     platform === "darwin"
-      ? path.join(userHome, "Library", "Application Support", "OpenBot")
+      ? path.join(userHome, "Library", "Application Support", "ShardsOpenBot")
       : platform === "win32"
         ? path.join(
             env.LOCALAPPDATA || path.join(userHome, "AppData", "Local"),
-            "OpenBot",
+            "ShardsOpenBot",
           )
         : path.join(
             env.XDG_DATA_HOME || path.join(userHome, ".local", "share"),
-            "openbot",
+            "shardsopenbot",
           );
   const root =
-    env.OPENBOT_LOCAL_COMPUTER_DIR?.trim() ||
+    env.SHARDSOPENBOT_LOCAL_COMPUTER_DIR?.trim() ||
     path.join(dataHome, "local-computer");
   if (!path.isAbsolute(root))
-    throw new Error("OPENBOT_LOCAL_COMPUTER_DIR must be an absolute path.");
+    throw new Error(
+      "SHARDSOPENBOT_LOCAL_COMPUTER_DIR must be an absolute path.",
+    );
   const port = env.PORT?.trim() || "4101";
   if (!/^\d+$/.test(port) || Number(port) < 1 || Number(port) > 65535) {
     throw new Error("PORT must be a whole number between 1 and 65535.");

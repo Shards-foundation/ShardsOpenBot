@@ -3,17 +3,17 @@
  * for durable threads and memory. Configuration the product cannot function without belongs at the
  * boot boundary.
  */
-import { intelligenceApiKey } from "@openbot/shared/intelligence-key";
+import { intelligenceApiKey } from "@shardsopenbot/shared/intelligence-key";
 import {
   isLearningContainerId,
   type LearningTarget,
-} from "@openbot/shared/learning";
+} from "@shardsopenbot/shared/learning";
 import {
   BROWSER_ABSENT_ENV,
   BROWSER_URL_ENV,
   type BrowserAbsence,
   isBrowserAbsence,
-} from "@openbot/shared/openbot-browser";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
 import { singleUserEnabled } from "./auth/dev-actor";
 import { normalizeDomain } from "./auth/email-domain";
 import { organizationAuthority } from "./auth/organization";
@@ -184,15 +184,15 @@ export type HandoffCaps = {
 
 export type DeploymentConfig = {
   /**
-   * Browser extension ids OpenBot trusts as the Recorder besides its own fixed id, for a fork or a
-   * build signed with another key. From OPENBOT_RECORDER_EXTRA_EXTENSION_IDS, never from NODE_ENV.
+   * Browser extension ids ShardsOpenBot trusts as the Recorder besides its own fixed id, for a fork or a
+   * build signed with another key. From SHARDSOPENBOT_RECORDER_EXTRA_EXTENSION_IDS, never from NODE_ENV.
    */
   recorder: { extraExtensionIds: string[] };
   /** Optional environment default. A saved Admin setting takes precedence. */
   learning?: LearningTarget;
   /**
-   * Whether OpenBot assigns the Intelligence project's `openbot` Learning container as the default
-   * when nobody has chosen one (learning/auto-assign.ts). On unless OPENBOT_LEARNING_AUTO_ASSIGN is
+   * Whether ShardsOpenBot assigns the Intelligence project's `shardsopenbot` Learning container as the default
+   * when nobody has chosen one (learning/auto-assign.ts). On unless SHARDSOPENBOT_LEARNING_AUTO_ASSIGN is
    * "false" or "0", and off whenever CPK_INTELLIGENCE_LEARNING_CONTAINER_ID names a container. It
    * never overrides a saved Admin setting. It creates the container only with a credential that can
    * (see `learningSetup`), never with the runtime key.
@@ -209,8 +209,8 @@ export type DeploymentConfig = {
    */
   learningSetup?: { serviceToken: string; projectId: string };
   /**
-   * Memory sources and background research OpenBot switches on for each person (memory/defaults.ts).
-   * Both on unless OPENBOT_MEMORY_SOURCE_DEFAULTS or OPENBOT_PROACTIVE_DEFAULTS is "false" or "0".
+   * Memory sources and background research ShardsOpenBot switches on for each person (memory/defaults.ts).
+   * Both on unless SHARDSOPENBOT_MEMORY_SOURCE_DEFAULTS or SHARDSOPENBOT_PROACTIVE_DEFAULTS is "false" or "0".
    * Switching either off stops new defaults and leaves every existing row as it is.
    */
   memoryDefaults: { sources: boolean; research: boolean };
@@ -273,7 +273,7 @@ export type DeploymentConfig = {
    */
   arcadeApiKey: string | undefined;
   /**
-   * Which tool broker the operator asked for, from `OPENBOT_BROKER_PROVIDER`. Only read and
+   * Which tool broker the operator asked for, from `SHARDSOPENBOT_BROKER_PROVIDER`. Only read and
    * validated here: which provider is active is decided elsewhere. Unset is `undefined`.
    */
   brokerProvider: BrokerProvider | undefined;
@@ -285,7 +285,7 @@ export type DeploymentConfig = {
    * configuration rather than from the incoming request: a redirect URI assembled out of a Host
    * header is one an attacker has a say in.
    *
-   * `OPENBOT_PUBLIC_URL` when set, otherwise `BETTER_AUTH_URL`, which is the same public address for
+   * `SHARDSOPENBOT_PUBLIC_URL` when set, otherwise `BETTER_AUTH_URL`, which is the same public address for
    * every deployment that has real sign-in. Undefined only where neither exists, which is a local
    * deployment running without authentication — and there is nothing to connect there anyway.
    */
@@ -303,7 +303,7 @@ export type DeploymentConfig = {
    * the API and has to send the person back to a page, so a relative redirect would put them on the
    * API's origin, where no page exists.
    *
-   * `OPENBOT_APP_URL` when set, otherwise the first `TRUSTED_ORIGINS` entry, which is already defined
+   * `SHARDSOPENBOT_APP_URL` when set, otherwise the first `TRUSTED_ORIGINS` entry, which is already defined
    * as where the app is served from. Falls back to the API's own public URL, which is right for a
    * deployment serving both from one origin.
    */
@@ -331,7 +331,7 @@ export type DeploymentConfig = {
     google?: { clientId: string; clientSecret: string };
   };
   auth?: AuthConfig;
-  /** Customer OpenBot authority for employee desktop sessions, separate from Intelligence. */
+  /** Customer ShardsOpenBot authority for employee desktop sessions, separate from Intelligence. */
   organizationAuthUrl?: string;
   /**
    * Admit everybody as one fixed administrator instead of requiring sign-in.
@@ -340,7 +340,7 @@ export type DeploymentConfig = {
    * reaching somewhere other people can get to.
    */
   singleUser: boolean;
-  /** Names OpenBot on the analytics the runtime already sends. Off with OPENBOT_ACCESSIBILITY_DISABLED. */
+  /** Names ShardsOpenBot on the analytics the runtime already sends. Off with SHARDSOPENBOT_ACCESSIBILITY_DISABLED. */
   accessibility: boolean;
   /**
    * Whether a Bot may answer with an interface it wrote itself.
@@ -358,7 +358,7 @@ export type DeploymentConfig = {
    * nothing at all, which is a worse answer than never offering it.
    *
    * On by default. A deployment that cannot allow generated interfaces can explicitly opt out with
-   * OPENBOT_GENERATIVE_UI=false or OPENBOT_GENERATIVE_UI=0.
+   * SHARDSOPENBOT_GENERATIVE_UI=false or SHARDSOPENBOT_GENERATIVE_UI=0.
    *
    * What it runs is sandboxed by the SDK, in an iframe with no same-origin access to this app, so a
    * generated interface reaches this deployment's data only through what the host hands it. This
@@ -367,11 +367,11 @@ export type DeploymentConfig = {
    */
   generativeUi: boolean;
   /**
-   * Whether the signed-in app shows the banner offering help self-hosting OpenBot.
+   * Whether the signed-in app shows the banner offering help self-hosting ShardsOpenBot.
    *
    * On by default, because a fresh clone is somebody evaluating the template. A fork that runs
-   * OpenBot for its own organization turns it off with OPENBOT_SELF_HOST_BANNER=false or
-   * OPENBOT_SELF_HOST_BANNER=0, since its people have nothing to self-host. This is the operator's
+   * ShardsOpenBot for its own organization turns it off with SHARDSOPENBOT_SELF_HOST_BANNER=false or
+   * SHARDSOPENBOT_SELF_HOST_BANNER=0, since its people have nothing to self-host. This is the operator's
    * switch only; a deployment on a paid Intelligence plan hides the bar too (self-host-banner.ts).
    */
   selfHostBanner: boolean;
@@ -388,14 +388,14 @@ export type DeploymentConfig = {
    */
   computer?: ComputerConfig;
   /**
-   * The computer that runs people's own OpenBot browsers here when it is not the Bots' (`OPENBOT_BROWSER_URL`): OpenBot
+   * The computer that runs people's own ShardsOpenBot browsers here when it is not the Bots' (`SHARDSOPENBOT_BROWSER_URL`): ShardsOpenBot
    * Desktop's host-side local Chrome computer, so a person's browser is a window on their own desktop while Bots'
    * computers stay where they are. Called with the same COMPUTER_TOKEN as every computer. Absent, the Bots' computer
    * provider runs people's browsers too.
    */
   browser?: { url: string; token?: string };
   /**
-   * Why OpenBot Desktop found no browser of the person's own to run on this machine (`OPENBOT_BROWSER_ABSENT`), which
+   * Why ShardsOpenBot Desktop found no browser of the person's own to run on this machine (`SHARDSOPENBOT_BROWSER_ABSENT`), which
    * the person is told beside whatever browser runs for them instead. A name this server does not know is left out:
    * Desktop and the deployment it runs are released apart, and an explanation is no reason to refuse to start.
    */
@@ -463,11 +463,11 @@ function optional(environment: Environment, name: string): string | undefined {
 }
 
 function brokerProvider(environment: Environment): BrokerProvider | undefined {
-  const raw = optional(environment, "OPENBOT_BROKER_PROVIDER");
+  const raw = optional(environment, "SHARDSOPENBOT_BROKER_PROVIDER");
   if (raw === undefined) return undefined;
   if (raw !== "composio" && raw !== "arcade") {
     throw new Error(
-      `OPENBOT_BROKER_PROVIDER must be "composio" or "arcade", got "${raw}". Leave it unset to choose by which API key is configured.`,
+      `SHARDSOPENBOT_BROKER_PROVIDER must be "composio" or "arcade", got "${raw}". Leave it unset to choose by which API key is configured.`,
     );
   }
   return raw;
@@ -538,7 +538,7 @@ function keyEncryptionKey(environment: Environment): string {
  * the flag cannot answer, which is not "is this production" but "can anybody else reach it".
  *
  * NOT `NODE_ENV`. It looks like the signal and is not one here: `Dockerfile` sets
- * `NODE_ENV=production` for every container and `openbot.commonEnv` sets it for every chart
+ * `NODE_ENV=production` for every container and `shardsopenbot.commonEnv` sets it for every chart
  * install, including the local trial the chart's own `validation.yaml` offers. Gating on it would
  * refuse a mode the chart advertises and would fail the image-boot job in CI, which runs exactly
  * this combination on purpose.
@@ -561,15 +561,15 @@ function singleUserAllowed(
   if (!singleUserEnabled(environment, hasProvider)) return false;
 
   const reachable = [
-    optional(environment, "OPENBOT_PUBLIC_URL"),
-    optional(environment, "OPENBOT_APP_URL"),
+    optional(environment, "SHARDSOPENBOT_PUBLIC_URL"),
+    optional(environment, "SHARDSOPENBOT_APP_URL"),
     ...commaSeparated(environment, "TRUSTED_ORIGINS"),
   ].filter((value): value is string => value !== undefined);
 
   const published = reachable.filter((value) => reachOf(value) === "public");
   if (published.length > 0) {
     throw new Error(
-      `OPENBOT_SINGLE_USER admits every request as one administrator with no sign-in, so it cannot be combined with an address the public internet reaches: ${published.join(", ")}. Configure GOOGLE_OAUTH_*, MICROSOFT_OAUTH_* or OKTA_OAUTH_* with BETTER_AUTH_SECRET and BETTER_AUTH_URL, or serve it somewhere only you reach.`,
+      `SHARDSOPENBOT_SINGLE_USER admits every request as one administrator with no sign-in, so it cannot be combined with an address the public internet reaches: ${published.join(", ")}. Configure GOOGLE_OAUTH_*, MICROSOFT_OAUTH_* or OKTA_OAUTH_* with BETTER_AUTH_SECRET and BETTER_AUTH_URL, or serve it somewhere only you reach.`,
     );
   }
 
@@ -581,7 +581,7 @@ function singleUserAllowed(
   const shared = reachable.filter((value) => reachOf(value) === "private");
   if (shared.length > 0) {
     console.warn(
-      `OPENBOT_SINGLE_USER admits every request as one administrator with no sign-in, and this deployment answers on an address beyond this machine: ${shared.join(", ")}. Anybody on that network is that administrator. Configure a sign-in provider before anybody else is on it.`,
+      `SHARDSOPENBOT_SINGLE_USER admits every request as one administrator with no sign-in, and this deployment answers on an address beyond this machine: ${shared.join(", ")}. Anybody on that network is that administrator. Configure a sign-in provider before anybody else is on it.`,
     );
   }
 
@@ -589,11 +589,11 @@ function singleUserAllowed(
 }
 
 /**
- * How far an address reaches, which is the question `OPENBOT_SINGLE_USER` actually turns on.
+ * How far an address reaches, which is the question `SHARDSOPENBOT_SINGLE_USER` actually turns on.
  *
  * Not two answers but three, because the middle one is most of the deployments this flag exists
  * for. "No sign-in, one administrator" is a thing people run on a home server at `192.168.1.10`,
- * over Tailscale at `100.something`, on a VPN, or at `openbot.local`. None of those is loopback and
+ * over Tailscale at `100.something`, on a VPN, or at `shardsopenbot.local`. None of those is loopback and
  * none of them is a stranger's to reach, so refusing them would refuse the feature's own audience
  * while the operator's only recourse is to turn off the flag that describes what they are doing.
  *
@@ -891,7 +891,7 @@ function authConfig(
   /*
    * A list this deployment cannot enforce is worse than no list.
    *
-   * `common` is multi-tenant, and OpenBot never sets `requireEmailVerification` or reads
+   * `common` is multi-tenant, and ShardsOpenBot never sets `requireEmailVerification` or reads
    * `users.emailVerified`, so the address a rule is applied to is one the signing-in tenant's own
    * administrator wrote. Anybody may create a tenant. So an allowlist under `common` refuses the
    * honest and admits the rest, while reading on the Boundaries page as though it were a control.
@@ -1023,7 +1023,7 @@ function runtimeCapabilities(environment: Environment): RuntimeCapabilities {
   /*
    * Optional, and only ever a second address for the same gateway. The browser opens the gateway
    * itself, at the address `/info` gives it, so a server that reaches Intelligence somewhere the
-   * browser cannot follow names the browser's address here. The server in OpenBot Desktop's
+   * browser cannot follow names the browser's address here. The server in ShardsOpenBot Desktop's
    * container does: it reaches local Intelligence at `host.docker.internal`, and the window on the
    * host reaches the same gateway at `localhost`. Unset, the browser is given `gatewayWsUrl`, as
    * before.
@@ -1216,7 +1216,7 @@ function computerConfig(environment: Environment): ComputerConfig | undefined {
       ),
       templateFile:
         optional(environment, "COMPUTER_SANDBOX_TEMPLATE_FILE") ??
-        "/etc/openbot/sandbox-template.json",
+        "/etc/shardsopenbot/sandbox-template.json",
       allowPrivateHosts,
       ...(computerToken ? { token: computerToken } : {}),
       ...(policy ? { policy } : {}),
@@ -1289,7 +1289,7 @@ function actionPolicy(environment: Environment): ActionPolicy | undefined {
  * Zero is a legitimate value and means off. It is not the same as a malformed one.
  */
 function accessibilityEnabled(environment: Environment): boolean {
-  const off = optional(environment, "OPENBOT_ACCESSIBILITY_DISABLED");
+  const off = optional(environment, "SHARDSOPENBOT_ACCESSIBILITY_DISABLED");
   return off !== "true" && off !== "1";
 }
 
@@ -1309,13 +1309,13 @@ function accessibilityEnabled(environment: Environment): boolean {
  * interface that nothing renders. See DeploymentConfig.generativeUi.
  */
 function generativeUiEnabled(environment: Environment): boolean {
-  const value = optional(environment, "OPENBOT_GENERATIVE_UI");
+  const value = optional(environment, "SHARDSOPENBOT_GENERATIVE_UI");
   return value !== "false" && value !== "0";
 }
 
 /** Same rule as generated interfaces: on unless explicitly "false" or "0". */
 function selfHostBannerEnabled(environment: Environment): boolean {
-  const value = optional(environment, "OPENBOT_SELF_HOST_BANNER");
+  const value = optional(environment, "SHARDSOPENBOT_SELF_HOST_BANNER");
   return value !== "false" && value !== "0";
 }
 
@@ -1399,7 +1399,7 @@ export function loadConfig(
   const auth = authConfig(environment, google);
   const organizationAuthValue = optional(
     environment,
-    "OPENBOT_ORGANIZATION_AUTH_URL",
+    "SHARDSOPENBOT_ORGANIZATION_AUTH_URL",
   );
   const organizationAuthUrl = organizationAuthValue
     ? organizationAuthority(organizationAuthValue)
@@ -1407,13 +1407,13 @@ export function loadConfig(
   const managedAgent = managedAgentConfig(environment);
   const githubApp = githubAppConfig(environment);
   const publicUrl = (
-    optional(environment, "OPENBOT_PUBLIC_URL") ?? auth?.baseUrl
+    optional(environment, "SHARDSOPENBOT_PUBLIC_URL") ?? auth?.baseUrl
   )?.replace(/\/+$/, "");
   // GitHub sends people back to this address after they approve. Without it linking is silently
   // switched off, so say so at start-up instead.
   if (githubApp && !publicUrl) {
     throw new Error(
-      "GITHUB_APP_CLIENT_ID needs OPENBOT_PUBLIC_URL (or BETTER_AUTH_URL) so GitHub can send people back to this server.",
+      "GITHUB_APP_CLIENT_ID needs SHARDSOPENBOT_PUBLIC_URL (or BETTER_AUTH_URL) so GitHub can send people back to this server.",
     );
   }
   const workerSharedSecret = optional(environment, "WORKER_SHARED_SECRET");
@@ -1439,9 +1439,9 @@ export function loadConfig(
     brokerProvider: brokerProvider(environment),
     publicUrl,
     appUrl: (
-      optional(environment, "OPENBOT_APP_URL") ??
+      optional(environment, "SHARDSOPENBOT_APP_URL") ??
       commaSeparated(environment, "TRUSTED_ORIGINS")[0] ??
-      optional(environment, "OPENBOT_PUBLIC_URL") ??
+      optional(environment, "SHARDSOPENBOT_PUBLIC_URL") ??
       auth?.baseUrl
     )?.replace(/\/+$/, ""),
     tenantPackageDirectory:
@@ -1452,8 +1452,8 @@ export function loadConfig(
     learningAutoAssign: learningAutoAssignEnabled(environment),
     ...learningSetupCredential(environment),
     memoryDefaults: {
-      sources: switchedOn(environment, "OPENBOT_MEMORY_SOURCE_DEFAULTS"),
-      research: switchedOn(environment, "OPENBOT_PROACTIVE_DEFAULTS"),
+      sources: switchedOn(environment, "SHARDSOPENBOT_MEMORY_SOURCE_DEFAULTS"),
+      research: switchedOn(environment, "SHARDSOPENBOT_PROACTIVE_DEFAULTS"),
     },
     agentStallTimeoutMs: agentStallTimeoutMs(environment),
     auditRetentionDays: auditRetentionDays(environment),
@@ -1491,19 +1491,22 @@ export function loadConfig(
 function learningAutoAssignEnabled(environment: Environment): boolean {
   if (optional(environment, "CPK_INTELLIGENCE_LEARNING_CONTAINER_ID"))
     return false;
-  const value = optional(environment, "OPENBOT_LEARNING_AUTO_ASSIGN");
+  const value = optional(environment, "SHARDSOPENBOT_LEARNING_AUTO_ASSIGN");
   return value !== "false" && value !== "0";
 }
 
 /** Comma separated, each trimmed, each a Chrome extension id (32 letters a to p). */
 function recorderExtraExtensionIds(environment: Environment): string[] {
-  const value = optional(environment, "OPENBOT_RECORDER_EXTRA_EXTENSION_IDS");
+  const value = optional(
+    environment,
+    "SHARDSOPENBOT_RECORDER_EXTRA_EXTENSION_IDS",
+  );
   if (!value) return [];
   const ids = value.split(",").map((id) => id.trim());
   for (const id of ids) {
     if (!/^[a-p]{32}$/.test(id))
       throw new Error(
-        `OPENBOT_RECORDER_EXTRA_EXTENSION_IDS lists "${id}", which is not an extension id. An id is 32 letters from a to p; separate several with commas.`,
+        `SHARDSOPENBOT_RECORDER_EXTRA_EXTENSION_IDS lists "${id}", which is not an extension id. An id is 32 letters from a to p; separate several with commas.`,
       );
   }
   return ids;
@@ -1524,7 +1527,7 @@ function learningSetupCredential(environment: Environment): {
   if (!serviceToken && !projectId) return {};
   if (!serviceToken || !projectId)
     throw new Error(
-      "INTELLIGENCE_SERVICE_TOKEN and INTELLIGENCE_PROJECT_ID go together: the token creates the openbot Learning container in that project. Set both, or neither.",
+      "INTELLIGENCE_SERVICE_TOKEN and INTELLIGENCE_PROJECT_ID go together: the token creates the shardsopenbot Learning container in that project. Set both, or neither.",
     );
   if (!/^[1-9][0-9]{0,15}$/.test(projectId))
     throw new Error(

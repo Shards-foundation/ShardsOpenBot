@@ -2,46 +2,52 @@ import { expect, test } from "bun:test";
 import {
   isAllowedGatewayUrl,
   isRecordablePage,
-  normaliseOpenBotOrigin,
+  normaliseShardsOpenBotOrigin,
 } from "../src/shared/origin";
 
 test("accepts an HTTPS origin, with or without the trailing slash", () => {
-  expect(normaliseOpenBotOrigin("https://openbot.example.test")).toEqual({
+  expect(
+    normaliseShardsOpenBotOrigin("https://shardsopenbot.example.test"),
+  ).toEqual({
     ok: true,
-    origin: "https://openbot.example.test",
+    origin: "https://shardsopenbot.example.test",
   });
-  expect(normaliseOpenBotOrigin("https://openbot.example.test/")).toEqual({
+  expect(
+    normaliseShardsOpenBotOrigin("https://shardsopenbot.example.test/"),
+  ).toEqual({
     ok: true,
-    origin: "https://openbot.example.test",
+    origin: "https://shardsopenbot.example.test",
   });
 });
 
 test("accepts HTTP only on a loopback address with a port", () => {
-  expect(normaliseOpenBotOrigin("http://127.0.0.1:7470")).toEqual({
+  expect(normaliseShardsOpenBotOrigin("http://127.0.0.1:7470")).toEqual({
     ok: true,
     origin: "http://127.0.0.1:7470",
   });
-  expect(normaliseOpenBotOrigin("http://[::1]:7470")).toEqual({
+  expect(normaliseShardsOpenBotOrigin("http://[::1]:7470")).toEqual({
     ok: true,
     origin: "http://[::1]:7470",
   });
-  expect(normaliseOpenBotOrigin("http://127.0.0.1").ok).toBe(false);
+  expect(normaliseShardsOpenBotOrigin("http://127.0.0.1").ok).toBe(false);
 });
 
 test("refuses HTTP to any other host and says HTTPS is needed", () => {
-  const result = normaliseOpenBotOrigin("http://openbot.example.test");
+  const result = normaliseShardsOpenBotOrigin(
+    "http://shardsopenbot.example.test",
+  );
   expect(result.ok).toBe(false);
   if (!result.ok) expect(result.reason).toContain("HTTPS");
-  expect(normaliseOpenBotOrigin("http://localhost:3000").ok).toBe(false);
+  expect(normaliseShardsOpenBotOrigin("http://localhost:3000").ok).toBe(false);
 });
 
 test("refuses userinfo, a path, a query, garbage and other schemes", () => {
-  expect(normaliseOpenBotOrigin("https://u:p@x.test").ok).toBe(false);
-  expect(normaliseOpenBotOrigin("https://x.test/app?y=1").ok).toBe(false);
-  expect(normaliseOpenBotOrigin("https://x.test/app").ok).toBe(false);
-  expect(normaliseOpenBotOrigin("https://x.test/#frag").ok).toBe(false);
-  expect(normaliseOpenBotOrigin("not a url").ok).toBe(false);
-  expect(normaliseOpenBotOrigin("ftp://x.test").ok).toBe(false);
+  expect(normaliseShardsOpenBotOrigin("https://u:p@x.test").ok).toBe(false);
+  expect(normaliseShardsOpenBotOrigin("https://x.test/app?y=1").ok).toBe(false);
+  expect(normaliseShardsOpenBotOrigin("https://x.test/app").ok).toBe(false);
+  expect(normaliseShardsOpenBotOrigin("https://x.test/#frag").ok).toBe(false);
+  expect(normaliseShardsOpenBotOrigin("not a url").ok).toBe(false);
+  expect(normaliseShardsOpenBotOrigin("ftp://x.test").ok).toBe(false);
 });
 
 test("gateway URLs need WSS except on the loopback address", () => {

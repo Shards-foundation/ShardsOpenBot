@@ -52,7 +52,7 @@ const FIXTURE = join(import.meta.dir, "fixtures", "recorder");
 let scratch: string[] = [];
 
 async function tempDir(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), "openbot-person-rules-"));
+  const dir = await mkdtemp(join(tmpdir(), "shardsopenbot-person-rules-"));
   scratch.push(dir);
   return dir;
 }
@@ -88,7 +88,7 @@ describe("finding the built Recorder", () => {
   test("no directory, a relative one, or the Recorder's source is refused, saying which", async () => {
     const unset = await findRecorder(undefined);
     expect(unset.ok).toBe(false);
-    if (!unset.ok) expect(unset.error).toContain("OPENBOT_RECORDER_DIR");
+    if (!unset.ok) expect(unset.error).toContain("SHARDSOPENBOT_RECORDER_DIR");
 
     const relative = await findRecorder("extension/dist");
     expect(relative.ok).toBe(false);
@@ -98,7 +98,7 @@ describe("finding the built Recorder", () => {
     const source = await findRecorder(join(REPO, "extension"));
     expect(source.ok).toBe(false);
     if (!source.ok) {
-      expect(source.error).toContain("not a built OpenBot Recorder");
+      expect(source.error).toContain("not a built ShardsOpenBot Recorder");
       expect(source.error).toContain("manifest.json");
     }
   });
@@ -127,7 +127,7 @@ describe("finding the built Recorder", () => {
     if (!noWorker.ok) expect(noWorker.error).toContain("service-worker.js");
   });
 
-  test("its setup and connect pages are the ones a browser OpenBot opened closes", () => {
+  test("its setup and connect pages are the ones a browser ShardsOpenBot opened closes", () => {
     const id = RECORDER_EXTENSION_ID;
     expect(isRecorderSetupPage(`chrome-extension://${id}/setup.html`, id)).toBe(
       true,
@@ -154,7 +154,7 @@ describe("finding the person's browser on Linux", () => {
 
   test("the launcher on the PATH is looked for after the vendor's package, and only one that runs counts", async () => {
     // NixOS's shape: no /opt, the vendor's launcher name on the PATH.
-    dir = await mkdtemp(join(tmpdir(), "openbot-linux-path-"));
+    dir = await mkdtemp(join(tmpdir(), "shardsopenbot-linux-path-"));
     const edge = join(dir, "microsoft-edge");
     await writeFile(edge, "#!/bin/sh\nexec true\n", { mode: 0o755 });
     // Not executable: a file that happens to have the name.
@@ -181,7 +181,7 @@ describe("launching a person's browser", () => {
     "darwin",
   );
 
-  test("a native window starts with exactly what OpenBot's control needs, and no test default that stops a person using it as their own", () => {
+  test("a native window starts with exactly what ShardsOpenBot's control needs, and no test default that stops a person using it as their own", () => {
     // Started without Playwright, so this is its whole command line: none of Playwright's defaults is under it.
     expect(native.args).toEqual([
       "--remote-debugging-pipe",
@@ -391,7 +391,7 @@ describe("the person's password manager hookups", () => {
     ).toBe(onePassword);
   });
 
-  test("OpenBot Desktop's own Recorder host is not copied: the launcher connects the Recorder itself", async () => {
+  test("ShardsOpenBot Desktop's own Recorder host is not copied: the launcher connects the Recorder itself", async () => {
     const theirs = await tempDir();
     const ours = join(await tempDir(), "NativeMessagingHosts");
     await writeFile(
@@ -480,7 +480,7 @@ describe("which computer a person's browser may run on", () => {
       kind: "one",
       id: PERSON,
     });
-    // OpenBot Desktop's host-side computer.
+    // ShardsOpenBot Desktop's host-side computer.
     expect(computerOwner({ COMPUTER_PEOPLE_ONLY: "on" })).toEqual({
       kind: "people",
     });
@@ -540,7 +540,7 @@ describe("an address a person types", () => {
     expect(addressFrom("chrome://settings")).toBeNull();
     expect(addressFrom("data:text/html,hi")).toBeNull();
     // A search, which the app turns into an address of its own choosing.
-    expect(addressFrom("openbot recorder")).toBeNull();
+    expect(addressFrom("shardsopenbot recorder")).toBeNull();
     expect(addressFrom("intranet")).toBeNull();
   });
 });
@@ -614,7 +614,7 @@ describe("a page that did not open, said to the person", () => {
   });
 });
 
-describe("a browser that cannot start here, said to whoever runs OpenBot", () => {
+describe("a browser that cannot start here, said to whoever runs ShardsOpenBot", () => {
   /*
    * Playwright 1.62.1's own messages. The first two were captured from real launches on this Mac
    * (PLAYWRIGHT_BROWSERS_PATH pointing at an empty folder, and a channel whose browser is not

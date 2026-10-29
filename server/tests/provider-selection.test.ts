@@ -104,7 +104,7 @@ describe("assertActivatable", () => {
     expect(caught).toBeInstanceOf(BrokerRefusalError);
     const sentence = brokerSentence(caught) ?? "";
     expect(sentence).toContain("Composio");
-    expect(sentence).toContain("OPENBOT_BROKER_PROVIDER=composio");
+    expect(sentence).toContain("SHARDSOPENBOT_BROKER_PROVIDER=composio");
     expect(sentence).toContain("connected-accounts page");
     expect(sentence).toContain("removes an app");
     expect(sentence).not.toContain("sunset");
@@ -154,7 +154,7 @@ describe("assertActivatable", () => {
     const sentence = brokerSentence(caught);
     expect(sentence).toContain("Composio cannot be activated");
     expect(sentence).toContain("1 brokered connection still belongs to Arcade");
-    expect(sentence).toContain("OPENBOT_BROKER_PROVIDER=arcade");
+    expect(sentence).toContain("SHARDSOPENBOT_BROKER_PROVIDER=arcade");
     expect(sentence).not.toContain("sunset");
   });
 });
@@ -218,7 +218,7 @@ describe("selectProviderWiring", () => {
         f.create,
       ),
     ).toThrow(
-      /COMPOSIO_API_KEY.*ARCADE_API_KEY.*OPENBOT_BROKER_PROVIDER|OPENBOT_BROKER_PROVIDER.*COMPOSIO_API_KEY.*ARCADE_API_KEY/s,
+      /COMPOSIO_API_KEY.*ARCADE_API_KEY.*SHARDSOPENBOT_BROKER_PROVIDER|SHARDSOPENBOT_BROKER_PROVIDER.*COMPOSIO_API_KEY.*ARCADE_API_KEY/s,
     );
     expect(f.calls).toEqual([]);
   });
@@ -238,7 +238,7 @@ describe("selectProviderWiring", () => {
     const sentence = (caught as Error).message;
     expect(sentence).not.toContain("composio-secret");
     expect(sentence).not.toContain("arcade-secret");
-    expect(sentence).toContain("OPENBOT_BROKER_PROVIDER");
+    expect(sentence).toContain("SHARDSOPENBOT_BROKER_PROVIDER");
   });
 
   test("both keys with a provider named installs only the named one", () => {
@@ -292,13 +292,13 @@ describe("selectProviderWiring", () => {
         { composioApiKey: "c", brokerProvider: "arcade" },
         f.create,
       ),
-    ).toThrow(/OPENBOT_BROKER_PROVIDER=arcade.*ARCADE_API_KEY/);
+    ).toThrow(/SHARDSOPENBOT_BROKER_PROVIDER=arcade.*ARCADE_API_KEY/);
     expect(() =>
       selectProviderWiring(
         { arcadeApiKey: "a", brokerProvider: "composio" },
         f.create,
       ),
-    ).toThrow(/OPENBOT_BROKER_PROVIDER=composio.*COMPOSIO_API_KEY/);
+    ).toThrow(/SHARDSOPENBOT_BROKER_PROVIDER=composio.*COMPOSIO_API_KEY/);
     expect(() =>
       selectProviderWiring({ brokerProvider: "arcade" }, f.create),
     ).toThrow(/ARCADE_API_KEY/);

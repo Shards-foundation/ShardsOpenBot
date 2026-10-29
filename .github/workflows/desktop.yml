@@ -15,7 +15,7 @@ on:
     paths: ["desktop/**", "shared/harnesses.json", "shared/marks/**", "shared/recorder-extension.json", "package.json", ".github/workflows/desktop.yml"]
   workflow_call:
     secrets:
-      OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET:
+      SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET:
         required: false
 
 permissions:
@@ -108,30 +108,30 @@ jobs:
         working-directory: desktop
         env:
           APPLE_SIGNING_IDENTITY: ${{ matrix.platform.name == 'macos' && '-' || '' }}
-          OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID: ${{ vars.OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID }}
-          OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET: ${{ secrets.OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET }}
-          OPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT: ${{ vars.OPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT }}
+          SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID: ${{ vars.SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID }}
+          SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET: ${{ secrets.SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET }}
+          SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT: ${{ vars.SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT }}
       - name: Verify packaged Mac version and ad-hoc signature
         if: matrix.platform.name == 'macos'
         run: |
           # Tauri removes the temporary .app after producing a DMG. Check its payload.
           images=(desktop/src-tauri/target/release/bundle/dmg/*.dmg)
           test "${#images[@]}" -eq 1
-          mount="$RUNNER_TEMP/openbot-version-check"
+          mount="$RUNNER_TEMP/shardsopenbot-version-check"
           mkdir -p "$mount"
           hdiutil attach -readonly -nobrowse -mountpoint "$mount" "${images[0]}"
           trap 'hdiutil detach "$mount"' EXIT
-          export OPENBOT_VERIFY_APP="$mount/OpenBot.app"
+          export SHARDSOPENBOT_VERIFY_APP="$mount/ShardsOpenBot.app"
           python3 - <<'PY'
           import json, os, pathlib, plistlib, subprocess
           build = json.loads(pathlib.Path('desktop/build-version.json').read_text())
-          app = pathlib.Path(os.environ['OPENBOT_VERIFY_APP'])
+          app = pathlib.Path(os.environ['SHARDSOPENBOT_VERIFY_APP'])
           info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
           for key, expected in {
               'CFBundleShortVersionString': build['releaseVersion'],
               'CFBundleVersion': build['releaseVersion'],
-              'OpenBotBuildVersion': build['version'],
-              'OpenBotSourceRevision': build['sourceSha'],
+              'ShardsOpenBotBuildVersion': build['version'],
+              'ShardsOpenBotSourceRevision': build['sourceSha'],
           }.items():
               if info.get(key) != expected:
                   raise SystemExit(f'{key}: expected {expected}, got {info.get(key)}')
@@ -165,7 +165,7 @@ jobs:
           $messages = @(cargo test --locked --lib --no-run --message-format=json)
           if ($LASTEXITCODE -ne 0) { throw 'Could not build the native setup test.' }
           $executables = @($messages | ForEach-Object { $_ | ConvertFrom-Json } | Where-Object {
-            $_.reason -eq 'compiler-artifact' -and $_.target.name -eq 'openbot_desktop_lib' -and
+            $_.reason -eq 'compiler-artifact' -and $_.target.name -eq 'shardsopenbot_desktop_lib' -and
             $_.profile.test -and $_.executable
           } | ForEach-Object { $_.executable } | Select-Object -Unique)
           if ($executables.Count -ne 1) { throw 'Expected exactly one current desktop library test executable.' }
@@ -178,7 +178,7 @@ jobs:
       # the machine you are trying it on, which is not what anybody installs.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: openbot-desktop-${{ matrix.platform.name }}
+          name: shardsopenbot-desktop-${{ matrix.platform.name }}
           path: |
             desktop/src-tauri/target/release/bundle/**/*.dmg
             desktop/src-tauri/target/release/bundle/**/*.exe

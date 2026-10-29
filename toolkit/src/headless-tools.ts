@@ -13,7 +13,7 @@ import { Observable, type Subscription } from "rxjs";
 import { withApprovalContext } from "./continuation";
 import type { AuditInitiator } from "./initiator";
 
-/** Client tools supplied by OpenBot when the caller has no browser. */
+/** Client tools supplied by ShardsOpenBot when the caller has no browser. */
 export type HeadlessTool = {
   definition: Tool;
   /**
@@ -28,7 +28,7 @@ export type HeadlessTool = {
 };
 
 /** Where a suspended run's waiting details ride on its AG-UI interrupt. */
-export const OPENBOT_WAITING_METADATA = "openbotWaiting";
+export const SHARDSOPENBOT_WAITING_METADATA = "shardsopenbotWaiting";
 
 export type HeadlessWaiting = {
   kind: string;
@@ -231,7 +231,7 @@ export class HeadlessToolsMiddleware extends Middleware {
                 };
                 subscriber.next({
                   type: EventType.CUSTOM,
-                  name: "openbot.headless.waiting",
+                  name: "shardsopenbot.headless.waiting",
                   value: {
                     ...failure.waiting,
                     message: failure.message,
@@ -248,7 +248,7 @@ export class HeadlessToolsMiddleware extends Middleware {
                         toolCallId: call.id,
                         reason: "human_input",
                         message: failure.message,
-                        metadata: { openbotWaiting: failure.waiting },
+                        metadata: { shardsopenbotWaiting: failure.waiting },
                       },
                     ],
                   },
@@ -319,7 +319,7 @@ export class HeadlessToolsMiddleware extends Middleware {
           if (subscriber.closed) return;
           subscriber.next({
             type: EventType.RUN_ERROR,
-            code: "OPENBOT_HEADLESS_TOOL_ERROR",
+            code: "SHARDSOPENBOT_HEADLESS_TOOL_ERROR",
             message: error instanceof Error ? error.message : String(error),
           });
           subscriber.complete();

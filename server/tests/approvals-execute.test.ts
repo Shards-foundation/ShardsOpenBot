@@ -43,7 +43,7 @@ function harness(overrides: Partial<ApprovedActionDependencies> = {}) {
       return { text: "sent", isError: false };
     },
     answer: (result: { text: string }) => result.text,
-    privateShareToolRef: "openbot/private_share",
+    privateShareToolRef: "shardsopenbot/private_share",
     refusalMarker: "REFUSED:",
     personInitiator: PERSON,
     coordinationCall: async (input: unknown) => {
@@ -202,7 +202,7 @@ test("a hand-off approved after its run's assertion expired keeps the run's dept
     target: { bot: "research-desk" },
     continuation: {
       ...continuation("message_bot", args),
-      forwardedProps: { openbotRun: signed },
+      forwardedProps: { shardsopenbotRun: signed },
     },
   });
   const { execute, coordination } = harness({

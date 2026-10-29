@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authed/_app/bot")({
  * WHATEVER THIS DEPLOYMENT ACTUALLY HAS. The default used to be a hardcoded `risk-analyst`, a name
  * from a tenant package this one is not: on a clone that ships anything else, opening this screen
  * without naming a Bot took the whole page down to an unstyled error boundary, because the chat
- * throws when asked for an agent the runtime never synced. OpenBot exists to be forked, so a Bot
+ * throws when asked for an agent the runtime never synced. ShardsOpenBot exists to be forked, so a Bot
  * name written into a route is a defect on every fork but the one it came from.
  *
  * A named Bot that this deployment does not have is answered in a sentence rather than thrown,

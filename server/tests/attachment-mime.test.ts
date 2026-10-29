@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { classifyAttachment, namesNoFormat } from "@openbot/shared/attachments";
+import {
+  classifyAttachment,
+  namesNoFormat,
+} from "@shardsopenbot/shared/attachments";
 import { sniffMimeType } from "../src/channels/attachment-mime";
 
 /**

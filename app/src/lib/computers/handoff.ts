@@ -1,13 +1,13 @@
 import type {
   BrowserChallenge,
   HandoffRequest,
-} from "@openbot/shared/computer-control";
+} from "@shardsopenbot/shared/computer-control";
 import { callComputer, type ToolOutcome } from "./call";
 import { cancelControl, readControl } from "./control";
 
 export type PendingHandoff = { requestId: string; toolCallId: string };
 const active = new Map<string, number>();
-const key = (botId: string) => `openbot:pending-handoff:${botId}`;
+const key = (botId: string) => `shardsopenbot:pending-handoff:${botId}`;
 
 /** Bookkeeping only. Never persist page text, credentials, or the human's input. */
 export function pendingHandoff(botId: string): PendingHandoff | null {

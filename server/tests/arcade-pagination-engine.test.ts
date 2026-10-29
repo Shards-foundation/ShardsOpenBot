@@ -82,7 +82,7 @@ const connectionRow = (n: number, status: string | null = "active") => ({
   // OMITTED when the engine says `null`, as the wire may omit it.
   ...(status === null ? {} : { connection_status: status }),
   // A provider INSTANCE id, never a provider type: see arcade-adapter-connections.test.ts.
-  provider_id: "google-openbot",
+  provider_id: "google-shardsopenbot",
   provider_type: "oauth2",
   provider_user_info: { name: `person ${n}` },
   scopes: [],
@@ -116,7 +116,7 @@ function toolProviderOf(options: EngineOptions, n: number): string {
 const authProviderRows = (count: number) =>
   Array.from({ length: count }, (_, n) =>
     n === count - 1
-      ? { id: "google-openbot", provider_id: "google", type: "oauth2" }
+      ? { id: "google-shardsopenbot", provider_id: "google", type: "oauth2" }
       : { id: `filler-${n}`, provider_id: "github", type: "oauth2" },
   );
 
@@ -168,7 +168,11 @@ function startEngine(options: EngineOptions): Engine {
         if (options.authProviders === undefined) {
           return Response.json({
             items: [
-              { id: "google-openbot", provider_id: "google", type: "oauth2" },
+              {
+                id: "google-shardsopenbot",
+                provider_id: "google",
+                type: "oauth2",
+              },
             ],
             offset: 0,
             limit,

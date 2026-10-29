@@ -16,8 +16,8 @@ const noSessionAuth = {
 
 function authenticatedAs(
   userId: string,
-  email = "member@openbot.test",
-  name = "OpenBot Member",
+  email = "member@shardsopenbot.test",
+  name = "ShardsOpenBot Member",
   image = "https://example.test/member.png",
 ) {
   return {
@@ -34,7 +34,7 @@ describe("server authorization", () => {
       rolesForUser: async () => [],
     });
 
-    const response = await app.request("http://openbot.local/api/me");
+    const response = await app.request("http://shardsopenbot.local/api/me");
 
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual({
@@ -47,7 +47,9 @@ describe("server authorization", () => {
       rolesForUser: async () => ["user"],
     });
 
-    const response = await app.request("http://openbot.local/api/admin/status");
+    const response = await app.request(
+      "http://shardsopenbot.local/api/admin/status",
+    );
 
     expect(response.status).toBe(403);
     await expect(response.json()).resolves.toEqual({
@@ -60,14 +62,14 @@ describe("server authorization", () => {
       rolesForUser: async () => ["user"],
     });
 
-    const response = await app.request("http://openbot.local/api/me");
+    const response = await app.request("http://shardsopenbot.local/api/me");
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       user: {
         id: "member",
-        email: "member@openbot.test",
-        name: "OpenBot Member",
+        email: "member@shardsopenbot.test",
+        name: "ShardsOpenBot Member",
         image: "https://example.test/member.png",
         role: "user",
         // No store was passed, so this deployment tracks no onboarding and the app gates nobody.
@@ -81,7 +83,9 @@ describe("server authorization", () => {
       rolesForUser: async () => ["admin"],
     });
 
-    const response = await app.request("http://openbot.local/api/admin/status");
+    const response = await app.request(
+      "http://shardsopenbot.local/api/admin/status",
+    );
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ status: "ok" });

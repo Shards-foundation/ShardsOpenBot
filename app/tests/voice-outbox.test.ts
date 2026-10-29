@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { SaveVoiceSessionInput } from "@openbot/shared/voice-session";
+import type { SaveVoiceSessionInput } from "@shardsopenbot/shared/voice-session";
 import { authKeys } from "../src/lib/auth/queries";
 import {
   forgetVoiceCall,
@@ -58,9 +58,9 @@ test("the captured call owner allows recovery when signing out clears authentica
 test("malformed stored entries do not hide a valid recoverable call", () => {
   signIn("alice");
   rememberVoiceCall(call);
-  localStorage.setItem("openbot:voice-outbox:alice:channel:broken", "{");
+  localStorage.setItem("shardsopenbot:voice-outbox:alice:channel:broken", "{");
   localStorage.setItem(
-    "openbot:voice-outbox:alice:channel:invalid",
+    "shardsopenbot:voice-outbox:alice:channel:invalid",
     JSON.stringify({ ...call, transcript: [{}] }),
   );
   expect(recoverVoiceCalls("channel")).toEqual([call]);

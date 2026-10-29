@@ -36,7 +36,7 @@
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { type BrowserContext, chromium, type Page } from "playwright";
-import { isPersonBrowserId } from "../../shared/openbot-browser";
+import { isPersonBrowserId } from "../../shared/shardsopenbot-browser";
 import { profileDirectoryFor } from "./bot-id";
 import { chooseEvictions, chooseIdle, keptOpen } from "./browser-eviction";
 import { type BrowserRuntime, browserRuntimeFromEnv } from "./browser-runtime";
@@ -581,7 +581,7 @@ export function createProfiles(
       dir,
       runtime,
       recorder: open.recorder,
-      // A hosted browser runs on OpenBot's network, so it goes through the egress filter like any
+      // A hosted browser runs on ShardsOpenBot's network, so it goes through the egress filter like any
       // other browser here. A native window is the person's own browser on their own machine, and
       // reaches the network the way their everyday browser does.
       proxy: window === "screen" ? egressFor(botId, process.env) : null,

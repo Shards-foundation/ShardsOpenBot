@@ -6,12 +6,12 @@ from ag_ui.core import RunAgentInput
 from claude_agent_sdk._internal.transport.subprocess_cli import SubprocessCLITransport
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.adapter import OpenBotClaudeAgentAdapter
+from src.adapter import ShardsOpenBotClaudeAgentAdapter
 from src.model_mode import conversation_content
 
 
 def test_model_mode_disables_native_and_ambient_tools():
-    adapter = OpenBotClaudeAgentAdapter(name="model", model_only=True)
+    adapter = ShardsOpenBotClaudeAgentAdapter(name="model", model_only=True)
     request = RunAgentInput.model_validate(
         {
             "threadId": "knowledge-channel",

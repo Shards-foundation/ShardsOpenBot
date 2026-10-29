@@ -49,7 +49,7 @@ export function createVoiceRoutes(
     async (context, next) => {
       context.header("Cache-Control", "no-store");
       // Cross-origin HTML forms cannot set this header; this route grants no CORS access.
-      if (context.req.header("x-openbot-voice") !== "1") {
+      if (context.req.header("x-shardsopenbot-voice") !== "1") {
         return context.json({ error: "Invalid voice request." }, 403);
       }
       if (!provider || !channels || !profiles)

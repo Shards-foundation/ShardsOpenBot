@@ -1,6 +1,6 @@
-// The OpenBot address rule lives beside the Recorder's API in shared/, so OpenBot itself checks an address with the same
-// rule before it hands one to the Recorder (the OpenBot browser's connection).
-export { normaliseOpenBotOrigin } from "@openbot/shared/recorder-api";
+// The ShardsOpenBot address rule lives beside the Recorder's API in shared/, so ShardsOpenBot itself checks an address with the same
+// rule before it hands one to the Recorder (the ShardsOpenBot browser's connection).
+export { normaliseShardsOpenBotOrigin } from "@shardsopenbot/shared/recorder-api";
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "[::1]"]);
 

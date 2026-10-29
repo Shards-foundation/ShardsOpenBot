@@ -2,7 +2,7 @@
 // in the middle of a run and replays its Thread. The agent events wait for a run's start, never invent its end, and
 // record each run and each event once.
 import { describe, expect, test } from "bun:test";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import type { AgentObservation } from "../src/background/agent/observation";
 import {
   agentEventsFor,

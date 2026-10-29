@@ -35,7 +35,7 @@ describe("brokered_connections.provider", () => {
           provider: "arcade",
           app,
           holder: "deployment",
-          vendorUserId: `openbot-deployment:arcade:${app}`,
+          vendorUserId: `shardsopenbot-deployment:arcade:${app}`,
         }),
       ),
     ).toBe("inserted");

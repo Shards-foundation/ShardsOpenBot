@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RESEARCH_ROLES } from "@openbot/shared/research";
+import { RESEARCH_ROLES } from "@shardsopenbot/shared/research";
 
 /**
  * The four things a person decides about a skill.

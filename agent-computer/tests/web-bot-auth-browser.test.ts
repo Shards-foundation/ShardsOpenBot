@@ -28,10 +28,10 @@ import { setWebBotAuth } from "../src/web-bot-auth";
  * Asked for by name, like `webrtc-proxy.test.ts`: it launches a real Chromium.
  *
  *   cd agent-computer && bunx playwright install chromium
- *   OPENBOT_COMPUTER_BROWSER=1 COMPUTER_BROWSER_MODE=headless bun test tests/web-bot-auth-browser.test.ts
+ *   SHARDSOPENBOT_COMPUTER_BROWSER=1 COMPUTER_BROWSER_MODE=headless bun test tests/web-bot-auth-browser.test.ts
  */
-const asked = process.env.OPENBOT_COMPUTER_BROWSER === "1";
-const AGENT = "https://openbot.example.com";
+const asked = process.env.SHARDSOPENBOT_COMPUTER_BROWSER === "1";
+const AGENT = "https://shardsopenbot.example.com";
 
 type Seen = {
   path: string;
@@ -170,7 +170,7 @@ describe.skipIf(!asked)("Web Bot Auth from a Bot's browser", () => {
       throw new Error(`no such host ${host}`);
     });
     const { createProfiles } = await import("../src/profiles");
-    const root = await mkdtemp(join(tmpdir(), "openbot-web-bot-auth-"));
+    const root = await mkdtemp(join(tmpdir(), "shardsopenbot-web-bot-auth-"));
     const profiles = createProfiles(root);
     const bot = "web-bot-auth-test";
     // The site and the cross-origin server are allowed; the third server is not.

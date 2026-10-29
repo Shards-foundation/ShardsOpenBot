@@ -4,7 +4,7 @@ import {
   IconServer,
   IconTag,
 } from "@tabler/icons-react";
-import { RECORDER_DESTINATION } from "@openbot/shared/recorder-disclosure";
+import { RECORDER_DESTINATION } from "@shardsopenbot/shared/recorder-disclosure";
 import { useEffect, useState } from "react";
 import { PageRows, PageSection } from "@/components/layout/page-parts";
 import { Button } from "@/components/ui/button";
@@ -44,14 +44,14 @@ type Phase =
   | { kind: "cancelled" };
 
 /** Who asked. Any site can ask to connect, so a web request is said to come from a page at the address shown, never
- * from OpenBot: confirming that it is OpenBot is what the person is asked to do. */
+ * from ShardsOpenBot: confirming that it is ShardsOpenBot is what the person is asked to do. */
 const SOURCE = {
   web: "A page at this address in this browser asked to connect.",
-  desktop: "OpenBot Desktop on this computer asked.",
+  desktop: "ShardsOpenBot Desktop on this computer asked.",
 } as const;
 
 /**
- * The page that asks the person to confirm the OpenBot address before this browser signs in to it.
+ * The page that asks the person to confirm the ShardsOpenBot address before this browser signs in to it.
  * The address is the decision, so it is the first row, read only, in the monospace face.
  */
 export function ConnectPage() {
@@ -86,7 +86,7 @@ export function ConnectPage() {
   const connect = async (pending: Pending) => {
     setBusy(true);
     setMessage(null);
-    // No permission to ask for: the install granted access to every site, this OpenBot's included.
+    // No permission to ask for: the install granted access to every site, this ShardsOpenBot's included.
     const answer = await ask({
       type: "page.connect.decide",
       approve: true,
@@ -112,8 +112,8 @@ export function ConnectPage() {
 
   return (
     <Page
-      title="Connect this browser to OpenBot"
-      description={`Confirm this is your OpenBot. It signs this browser in. ${RECORDER_DESTINATION}`}
+      title="Connect this browser to ShardsOpenBot"
+      description={`Confirm this is your ShardsOpenBot. It signs this browser in. ${RECORDER_DESTINATION}`}
       width="prose"
     >
       {phase.kind === "ready" ? (
@@ -246,8 +246,8 @@ export function ConnectPage() {
         </p>
       ) : phase.kind === "none" ? (
         <p className="mt-8 text-muted-foreground text-sm" role="status">
-          No connection is waiting. Choose Connect this browser in OpenBot to
-          start one.
+          No connection is waiting. Choose Connect this browser in ShardsOpenBot
+          to start one.
         </p>
       ) : null}
     </Page>

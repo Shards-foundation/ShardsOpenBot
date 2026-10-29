@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, expect, test } from "bun:test";
 import type { Message, UserMessage } from "@ag-ui/core";
 import type { Attachment } from "@copilotkit/react-core/v2";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import { frameFiring } from "@openbot/shared/routine-firing";
+import { frameFiring } from "@shardsopenbot/shared/routine-firing";
 import {
   act,
   cleanup,

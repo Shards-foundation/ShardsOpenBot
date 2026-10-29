@@ -19,20 +19,20 @@
 
 # `type -P` rather than `command -v`: only a program on PATH counts, not a shell function or alias of
 # the same name that happens to be defined.
-openbot_windows_without() {
+shardsopenbot_windows_without() {
   [ "${OS:-}" = "Windows_NT" ] && ! type -P "$1" >/dev/null 2>&1
 }
 
 # PowerShell writes CRLF. A trailing `\r` would make an empty answer non-empty and a pid unusable.
-openbot_powershell() {
+shardsopenbot_powershell() {
   powershell.exe -NoProfile -NonInteractive -Command "$1" 2>/dev/null | tr -d '\r' || true
 }
 
 # What is listening on a TCP port, as "name (address)", or nothing when the port is free.
 holder() {
-  if openbot_windows_without lsof; then
-    OPENBOT_PORT="$1" openbot_powershell '
-      Get-NetTCPConnection -State Listen -LocalPort $env:OPENBOT_PORT -ErrorAction SilentlyContinue |
+  if shardsopenbot_windows_without lsof; then
+    SHARDSOPENBOT_PORT="$1" shardsopenbot_powershell '
+      Get-NetTCPConnection -State Listen -LocalPort $env:SHARDSOPENBOT_PORT -ErrorAction SilentlyContinue |
         Select-Object -First 1 |
         ForEach-Object { "{0} ({1}:{2})" -f (Get-Process -Id $_.OwningProcess).ProcessName, $_.LocalAddress, $_.LocalPort }'
     return 0
@@ -42,9 +42,9 @@ holder() {
 
 # The ids of whatever is listening on a TCP port, one per line.
 port_pids() {
-  if openbot_windows_without lsof; then
-    OPENBOT_PORT="$1" openbot_powershell '
-      Get-NetTCPConnection -State Listen -LocalPort $env:OPENBOT_PORT -ErrorAction SilentlyContinue |
+  if shardsopenbot_windows_without lsof; then
+    SHARDSOPENBOT_PORT="$1" shardsopenbot_powershell '
+      Get-NetTCPConnection -State Listen -LocalPort $env:SHARDSOPENBOT_PORT -ErrorAction SilentlyContinue |
         Select-Object -ExpandProperty OwningProcess -Unique'
     return 0
   fi
@@ -55,9 +55,9 @@ port_pids() {
 # there both forms stop it outright. A stopped process takes a moment to go, so this waits for it,
 # up to five seconds, rather than let the next check see it still there.
 kill_pids() {
-  if openbot_windows_without lsof; then
-    OPENBOT_PIDS="$*" openbot_powershell '
-      $ids = @($env:OPENBOT_PIDS -split " " | Where-Object { $_ -match "^[0-9]+$" })
+  if shardsopenbot_windows_without lsof; then
+    SHARDSOPENBOT_PIDS="$*" shardsopenbot_powershell '
+      $ids = @($env:SHARDSOPENBOT_PIDS -split " " | Where-Object { $_ -match "^[0-9]+$" })
       if ($ids) {
         Stop-Process -Force -Id $ids -ErrorAction SilentlyContinue
         Wait-Process -Id $ids -Timeout 5 -ErrorAction SilentlyContinue
@@ -71,13 +71,13 @@ kill_pids() {
 # asked, stopped and waited for as `kill_pids` does. Windows records the executable as a path,
 # `C:\...\bun.exe` and sometimes quoted, so the first word is matched against the process name and
 # the rest against its command line.
-openbot_windows_matching() {
-  OPENBOT_PATTERN="$1" OPENBOT_STOP="${2:-}" openbot_powershell '
-    $name, $rest = $env:OPENBOT_PATTERN -split " ", 2
+shardsopenbot_windows_matching() {
+  SHARDSOPENBOT_PATTERN="$1" SHARDSOPENBOT_STOP="${2:-}" shardsopenbot_powershell '
+    $name, $rest = $env:SHARDSOPENBOT_PATTERN -split " ", 2
     $ids = @(Get-CimInstance Win32_Process |
       Where-Object { $_.Name -eq "$name.exe" -and $_.CommandLine -and $_.CommandLine.Contains(" $rest") } |
       ForEach-Object { $_.ProcessId })
-    if ($ids -and $env:OPENBOT_STOP) {
+    if ($ids -and $env:SHARDSOPENBOT_STOP) {
       Stop-Process -Force -Id $ids -ErrorAction SilentlyContinue
       Wait-Process -Id $ids -Timeout 5 -ErrorAction SilentlyContinue
     }
@@ -86,8 +86,8 @@ openbot_windows_matching() {
 
 # `pgrep -f <pattern>`: true when such a process is running.
 running() {
-  if openbot_windows_without pgrep; then
-    [ -n "$(openbot_windows_matching "$1")" ]
+  if shardsopenbot_windows_without pgrep; then
+    [ -n "$(shardsopenbot_windows_matching "$1")" ]
     return
   fi
   pgrep -f "$1" >/dev/null 2>&1
@@ -95,8 +95,8 @@ running() {
 
 # `pkill -f <pattern>`.
 stop_matching() {
-  if openbot_windows_without pkill; then
-    openbot_windows_matching "$1" stop >/dev/null
+  if shardsopenbot_windows_without pkill; then
+    shardsopenbot_windows_matching "$1" stop >/dev/null
     return 0
   fi
   pkill -f "$1" >/dev/null 2>&1 || true

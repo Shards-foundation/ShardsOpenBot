@@ -4,13 +4,13 @@ import {
   CopilotKitIntelligence,
   LearnedSkillsError,
 } from "@copilotkit/runtime/v2";
-import type { LearningSettings } from "@openbot/shared/learning";
+import type { LearningSettings } from "@shardsopenbot/shared/learning";
 import {
   type ExchangeResponse,
   RECORDER_SIGNED_OUT,
   recorderPaths,
-} from "@openbot/shared/recorder-api";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+} from "@shardsopenbot/shared/recorder-api";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { eq, inArray } from "drizzle-orm";
 import { createActorAgentResolver } from "../src/agents/agent-resolver";
 import { createApp } from "../src/app";
@@ -71,7 +71,7 @@ const getSession = async ({ headers }: { headers: Headers }) => {
 };
 const learning: LearningSettings = {
   enabled: true,
-  defaultTarget: { containerId: "openbot" },
+  defaultTarget: { containerId: "shardsopenbot" },
   agents: {},
 };
 const audits: AuditEventInput[] = [];
@@ -136,7 +136,7 @@ const runtime = mountCopilotRuntime(
   identifyActor,
   {
     learningSettings: createLearningSettingsStore(undefined, {
-      containerId: "openbot",
+      containerId: "shardsopenbot",
     }),
     trajectoryCapture: recorder.trajectoryCapture,
   },
@@ -162,7 +162,7 @@ const app = createApp(...args);
 
 const call = (path: string, init: RequestInit & { json?: unknown } = {}) => {
   const { json, headers, ...rest } = init;
-  return app.request(`http://openbot.test${path}`, {
+  return app.request(`http://shardsopenbot.test${path}`, {
     ...rest,
     headers: {
       ...(json === undefined ? {} : { "content-type": "application/json" }),
@@ -289,7 +289,7 @@ describe("the capture pass", () => {
     expect(await bindingOf(mine)).toEqual([{ userId: owner }]);
   });
 
-  test("the person's space was made once, on first need, and OpenBot remembers it", async () => {
+  test("the person's space was made once, on first need, and ShardsOpenBot remembers it", async () => {
     expect(created.filter((spec) => spec.id === OWNER_SPACE)).toHaveLength(1);
     expect(
       await database

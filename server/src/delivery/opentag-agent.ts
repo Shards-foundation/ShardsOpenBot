@@ -7,7 +7,7 @@
  * runs.
  */
 import { randomUUID } from "node:crypto";
-import type { DrawnComponent } from "@openbot/toolkit/run-turn";
+import type { DrawnComponent } from "@shardsopenbot/toolkit/run-turn";
 import { z } from "zod";
 import { type ApprovalDecision, approvalPreview } from "../approvals/types";
 import {
@@ -94,7 +94,7 @@ export type OpenTagAgentDeps = {
   /** Slack trigger ingest; defaults to the responsibilities lane's `ingestSlackEvent`. */
   ingestSlack?: (event: SlackTriggerEvent) => Promise<unknown>;
   /**
-   * OpenBot linked-account codes (Connections) from a Slack sender. Reachability
+   * ShardsOpenBot linked-account codes (Connections) from a Slack sender. Reachability
    * codes are checked first; this is used for any code that is not a live one (an expired or used
    * Reachability code falls through too, matches no account code, and gets the usual expired reply).
    * An account code is redeemed only in a direct message. One posted in a shared conversation is
@@ -149,7 +149,7 @@ const platformName = (transport: ChatTransport) =>
   transport === "teams" ? "Microsoft Teams" : "Slack";
 
 export function linkInstructions(transport: ChatTransport) {
-  return `I don't know who you are in OpenBot yet, so I did not run anything. In OpenBot, open the Bot's page, choose Reaching you and the conversation, pick ${platformName(transport)}, and send me the \`link <code>\` message it shows you.`;
+  return `I don't know who you are in ShardsOpenBot yet, so I did not run anything. In ShardsOpenBot, open the Bot's page, choose Reaching you and the conversation, pick ${platformName(transport)}, and send me the \`link <code>\` message it shows you.`;
 }
 
 export async function handleOpenTagRun(
@@ -230,7 +230,7 @@ export async function handleOpenTagRun(
         message:
           error instanceof DeliveryRefusedError
             ? error.message
-            : "OpenBot could not complete this turn. Try again, or open the conversation in OpenBot.",
+            : "ShardsOpenBot could not complete this turn. Try again, or open the conversation in ShardsOpenBot.",
       });
     }
   });
@@ -260,7 +260,7 @@ async function answer(
   const sender = senderFromContext(input);
   if (!sender)
     return {
-      text: "OpenTag did not say who sent this message, so OpenBot did not run anything. Update OpenTag to a version that forwards the OpenBot sender context.",
+      text: "OpenTag did not say who sent this message, so ShardsOpenBot did not run anything. Update OpenTag to a version that forwards the ShardsOpenBot sender context.",
     };
   // Something to watch, not to answer: feed the owner's Slack triggers and stay quiet.
   if (sender.observe) {
@@ -280,7 +280,7 @@ async function answer(
   if (code) return link(deps, sender, code.toLowerCase());
 
   // One event per Slack message: a mention is `app_mention` only, never also a `message`. Fed
-  // whether or not the author linked OpenBot: owners' triggers are decided by their own access.
+  // whether or not the author linked ShardsOpenBot: owners' triggers are decided by their own access.
   await feedSlackTriggers(deps, sender, {
     type: sender.mentioned ? "app_mention" : "message",
     text: message.text,
@@ -322,14 +322,16 @@ async function answer(
     const card = await approvalCard(deps, result.binding, approvalId);
     if (result.extras.approvals.length > 1)
       parts.push(
-        `${result.extras.approvals.length - 1} more approval request(s) are waiting on the Bot's page in OpenBot.`,
+        `${result.extras.approvals.length - 1} more approval request(s) are waiting on the Bot's page in ShardsOpenBot.`,
       );
     if (card) return { text: parts.join("\n\n"), interrupt: card };
     parts.push(
-      "Your Bot is waiting for an approval. Open the Bot's page in OpenBot to review it.",
+      "Your Bot is waiting for an approval. Open the Bot's page in ShardsOpenBot to review it.",
     );
   } else if (result.kind === "waiting" && !parts.length) {
-    parts.push("Your Bot is waiting for a person. Open OpenBot to continue.");
+    parts.push(
+      "Your Bot is waiting for a person. Open ShardsOpenBot to continue.",
+    );
   }
   return {
     text: parts.join("\n\n") || "Done.",
@@ -373,7 +375,7 @@ async function answerPrivately(
   for (const approvalId of result.extras.approvals)
     await deps.router.notify(scope, {
       id: approvalId,
-      text: `${bot?.name ?? "Your Bot"} is waiting for your approval. Open the Bot's page in OpenBot to review it.`,
+      text: `${bot?.name ?? "Your Bot"} is waiting for your approval. Open the Bot's page in ShardsOpenBot to review it.`,
       kind: "approval",
       requestId: approvalId,
     });
@@ -418,10 +420,10 @@ async function link(
     if (!sender.private) {
       if (await deps.identity.discard(code))
         return {
-          text: "That code was posted where others could see it, so I cancelled it. Create a new one in OpenBot and send it to me in a direct message.",
+          text: "That code was posted where others could see it, so I cancelled it. Create a new one in ShardsOpenBot and send it to me in a direct message.",
         };
       return {
-        text: "That link code expired, was already used, or is for another app. Create a new one in OpenBot.",
+        text: "That link code expired, was already used, or is for another app. Create a new one in ShardsOpenBot.",
       };
     }
     const outcome = await deps.identity.redeem(code, {
@@ -430,16 +432,16 @@ async function link(
     });
     if (outcome === "linked")
       return {
-        text: "Linked your Slack account to OpenBot. You can see it under Connections.",
+        text: "Linked your Slack account to ShardsOpenBot. You can see it under Connections.",
       };
     if (outcome === "conflict")
       return {
-        text: "This Slack account is already linked to another OpenBot user.",
+        text: "This Slack account is already linked to another ShardsOpenBot user.",
       };
   }
   if (!challenge || challenge.transport !== sender.transport)
     return {
-      text: "That link code expired, was already used, or is for another app. Create a new one in OpenBot.",
+      text: "That link code expired, was already used, or is for another app. Create a new one in ShardsOpenBot.",
     };
   const scope = await deps.scopeFor(
     challenge.ownerUserId,
@@ -452,7 +454,7 @@ async function link(
     !(await deps.store.consumeChallenge(code, challenge.ownerUserId))
   )
     return {
-      text: "That conversation changed. Create a new link code in OpenBot.",
+      text: "That conversation changed. Create a new link code in ShardsOpenBot.",
     };
   try {
     await deps.store.bind({
@@ -469,7 +471,7 @@ async function link(
   }
   const bot = await deps.store.botIdentity(scope.agentId);
   return {
-    text: `Linked. Messages you send me here now go to ${bot?.name ?? "your Bot"} in your OpenBot conversation, and its questions and approval requests will reach you here.`,
+    text: `Linked. Messages you send me here now go to ${bot?.name ?? "your Bot"} in your ShardsOpenBot conversation, and its questions and approval requests will reach you here.`,
   };
 }
 
@@ -511,15 +513,15 @@ async function decideFromCard(
     };
   if (!deps.approvals)
     return {
-      text: "Approvals from chat are unavailable on this deployment. Decide on the Bot's page in OpenBot.",
+      text: "Approvals from chat are unavailable on this deployment. Decide on the Bot's page in ShardsOpenBot.",
     };
   const person = parseChannelUser(resume.by);
   if (!person)
     return {
-      text: "This approval card did not say who answered it, so nothing was decided. Update OpenTag, or decide on the Bot's page in OpenBot.",
+      text: "This approval card did not say who answered it, so nothing was decided. Update OpenTag, or decide on the Bot's page in ShardsOpenBot.",
     };
   // The clicker is mapped exactly like a message sender; OpenTag already refused anyone but the
-  // named approver, and OpenBot then decides only as that binding's owner.
+  // named approver, and ShardsOpenBot then decides only as that binding's owner.
   const binding = await ownedBinding(deps, person);
   if (!binding)
     return {
@@ -542,7 +544,7 @@ async function decideFromCard(
     };
   if (record.status !== "pending")
     return {
-      text: "That approval was already decided. Check its result in OpenBot.",
+      text: "That approval was already decided. Check its result in ShardsOpenBot.",
     };
   const decision: ApprovalDecision = !resume.confirmed
     ? "deny"

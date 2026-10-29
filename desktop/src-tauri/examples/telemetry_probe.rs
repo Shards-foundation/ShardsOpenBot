@@ -1,5 +1,5 @@
-//! Exercise the production emitter against an explicit local receiver, without starting OpenBot.
-use openbot_desktop_lib::telemetry::{
+//! Exercise the production emitter against an explicit local receiver, without starting ShardsOpenBot.
+use shardsopenbot_desktop_lib::telemetry::{
     Architecture, Config, Context, Distribution, Engine, EventData, NumericVersion, Platform,
     RuntimeEnv, Step, Telemetry,
 };

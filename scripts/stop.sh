@@ -65,13 +65,13 @@ green() { printf '\033[32m%s\033[0m\n' "$1"; }
 red()   { printf '\033[31m%s\033[0m\n' "$1"; }
 info()  { printf '\033[2m%s\033[0m\n' "$1"; }
 
-# Does whatever holds this port answer as OpenBot, rather than merely answer?
+# Does whatever holds this port answer as ShardsOpenBot, rather than merely answer?
 #
 # The same question start.sh asks before starting, asked here for the opposite reason. Starting on
 # an occupied port is a failed run; killing the occupant of a port is somebody else's editor server
 # gone. So a port holder is only killed once it has identified itself, and is otherwise named and
 # left alone.
-identifies_as_openbot() {
+identifies_as_shardsopenbot() {
   local port="$1" name="$2"
   case "$name" in
     server)
@@ -80,7 +80,7 @@ identifies_as_openbot() {
       ;;
     app)
       curl -fsS --max-time 3 "http://localhost:$port/" 2>/dev/null \
-        | grep -qi '<title>[^<]*OpenBot'
+        | grep -qi '<title>[^<]*ShardsOpenBot'
       ;;
   esac
 }
@@ -97,8 +97,8 @@ stop_port() {
     info "  $name: not running on $port"
     return 0
   fi
-  if ! identifies_as_openbot "$port" "$name"; then
-    red "  $name: port $port is held by something that is not OpenBot: $who"
+  if ! identifies_as_shardsopenbot "$port" "$name"; then
+    red "  $name: port $port is held by something that is not ShardsOpenBot: $who"
     red "  Left it alone. Stop it yourself if it is in the way."
     return 0
   fi
@@ -116,7 +116,7 @@ stop_port() {
 }
 
 echo
-echo "OpenBot"
+echo "ShardsOpenBot"
 echo "======="
 
 info "1/4  App"
@@ -143,7 +143,7 @@ else
   info "  compose services: not running"
 fi
 
-COMPUTERS="$(docker ps -q --filter label=openbot.supervisor=true 2>/dev/null || true)"
+COMPUTERS="$(docker ps -q --filter label=shardsopenbot.supervisor=true 2>/dev/null || true)"
 if [ -z "$COMPUTERS" ]; then
   info "  Bot computers: none running"
 elif [ "$KEEP_COMPUTERS" = "true" ]; then

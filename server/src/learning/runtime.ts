@@ -13,13 +13,13 @@ import type {
   LearningDeliveryStatus,
   LearningSettings,
   LearningTarget,
-} from "@openbot/shared/learning";
+} from "@shardsopenbot/shared/learning";
 import { z } from "zod";
 import type { LearningSettingsStore } from "./settings";
 import type { OpenSkillSource } from "./sharing";
 
 // This published internal export is pinned to runtime 1.73.1. Keep its use here: the SDK owns
-// archive verification, refresh, revocation and stale-cache policy for every OpenBot framework.
+// archive verification, refresh, revocation and stale-cache policy for every ShardsOpenBot framework.
 export type LearnedSkillInvocation = {
   readonly catalog: string;
   readonly tools: readonly Tool[];

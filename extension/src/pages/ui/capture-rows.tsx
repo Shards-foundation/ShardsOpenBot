@@ -1,4 +1,4 @@
-import type { LearningSpaceState } from "@openbot/shared/recorder-api";
+import type { LearningSpaceState } from "@shardsopenbot/shared/recorder-api";
 import {
   IconMicrophone,
   IconMicrophoneOff,

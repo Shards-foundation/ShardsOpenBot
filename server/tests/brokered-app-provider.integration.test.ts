@@ -310,7 +310,7 @@ test("re-enabling leaves an administrator's Shared choice alone", async () => {
     provenance: "composio",
     authScheme: "OAUTH2",
     accountMode: "shared",
-    sharedVendorUserId: "openbot-deployment:test:abc",
+    sharedVendorUserId: "shardsopenbot-deployment:test:abc",
     addedBy: "admin@example.com",
   });
 
@@ -323,7 +323,7 @@ test("re-enabling leaves an administrator's Shared choice alone", async () => {
 
   const stored = await row("composio-bapshared");
   expect(stored?.accountMode).toBe("shared");
-  expect(stored?.sharedVendorUserId).toBe("openbot-deployment:test:abc");
+  expect(stored?.sharedVendorUserId).toBe("shardsopenbot-deployment:test:abc");
 });
 
 test("an app with no account to hold is left saying so", async () => {

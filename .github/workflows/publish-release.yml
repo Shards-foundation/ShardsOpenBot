@@ -146,20 +146,20 @@ jobs:
           # The version, the commit, and a moving latest. The version tag is the one to deploy; the
           # commit tag is how you find out what a running image actually contains.
           tags: |
-            ghcr.io/copilotkit/openbot:${{ needs.metadata.outputs.version }}
-            ghcr.io/copilotkit/openbot:${{ github.sha }}
-            ghcr.io/copilotkit/openbot:latest
+            ghcr.io/copilotkit/shardsopenbot:${{ needs.metadata.outputs.version }}
+            ghcr.io/copilotkit/shardsopenbot:${{ github.sha }}
+            ghcr.io/copilotkit/shardsopenbot:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: true
           sbom: true
       # BuildKit's own attestations above travel inside the image. This one is the record GitHub
-      # holds, and it is what `gh attestation verify oci://ghcr.io/copilotkit/openbot:vX.Y.Z
-      # -R CopilotKit/OpenBot` checks before anybody deploys it. Bound to the digest, never a tag,
+      # holds, and it is what `gh attestation verify oci://ghcr.io/copilotkit/shardsopenbot:vX.Y.Z
+      # -R CopilotKit/ShardsOpenBot` checks before anybody deploys it. Bound to the digest, never a tag,
       # because a tag can be moved to point at something else afterwards.
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          subject-name: ghcr.io/copilotkit/openbot
+          subject-name: ghcr.io/copilotkit/shardsopenbot
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
@@ -212,7 +212,7 @@ jobs:
       # reaches layers that came from somebody else's registry; without it only our own thin layers
       # change and the saving rounds to nothing. The cost is that these images no longer share layers
       # with a gzip pull of the same base, and that a client which cannot read zstd cannot read them,
-      # which is why this is here and not on the `openbot` image above: that one is pulled by servers
+      # which is why this is here and not on the `shardsopenbot` image above: that one is pulled by servers
       # with whatever they have, and these are pulled by an installer that ships Podman. After the
       # Chromium-only `agent-computer` Dockerfile change, while keeping Node/npm/npx from the
       # official Node 24.18.1 image, local zstd OCI layer descriptors measured 535.0 MiB on arm64
@@ -226,7 +226,7 @@ jobs:
           # `oci-mediatypes=true` because zstd layers have no Docker-schema2 media type to be
           # described by. It is buildx's default for this exporter and is stated rather than
           # assumed, since the push fails without it and the reason would not be obvious.
-          outputs: type=image,name=ghcr.io/copilotkit/openbot-${{ matrix.image }},push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true,compression=zstd,force-compression=true
+          outputs: type=image,name=ghcr.io/copilotkit/shardsopenbot-${{ matrix.image }},push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true,compression=zstd,force-compression=true
           # Scoped per image and per architecture. One shared scope would have ten builds
           # overwriting each other's cache and none of them reading their own.
           cache-from: type=gha,scope=${{ matrix.image }}-${{ matrix.platform.arch }}
@@ -292,7 +292,7 @@ jobs:
       - id: merge
         name: Write the tags over both architectures
         env:
-          REPOSITORY: ghcr.io/copilotkit/openbot-${{ matrix.image }}
+          REPOSITORY: ghcr.io/copilotkit/shardsopenbot-${{ matrix.image }}
           VERSION: ${{ needs.metadata.outputs.version }}
           COMMIT: ${{ github.sha }}
         run: |
@@ -319,7 +319,7 @@ jobs:
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          subject-name: ghcr.io/copilotkit/openbot-${{ matrix.image }}
+          subject-name: ghcr.io/copilotkit/shardsopenbot-${{ matrix.image }}
           subject-digest: ${{ steps.merge.outputs.digest }}
           push-to-registry: true
       # For the same reason the digests above travel as files: a matrix cannot hand a value to a
@@ -327,7 +327,7 @@ jobs:
       - name: Record the manifest
         env:
           NAME: ${{ matrix.image }}
-          REPOSITORY: ghcr.io/copilotkit/openbot-${{ matrix.image }}
+          REPOSITORY: ghcr.io/copilotkit/shardsopenbot-${{ matrix.image }}
           DIGEST: ${{ steps.merge.outputs.digest }}
         run: |
           set -euo pipefail
@@ -396,13 +396,13 @@ jobs:
             --arg version "$VERSION" \
             --arg digest "$DIGEST" \
             --arg commit "$COMMIT" \
-            --arg repository "ghcr.io/copilotkit/openbot" \
+            --arg repository "ghcr.io/copilotkit/shardsopenbot" \
             --argjson components "$components" \
             '{
               version: $version,
               commit: $commit,
               images: ({
-                openbot: {
+                shardsopenbot: {
                   repository: $repository,
                   digest: $digest,
                   reference: ($repository + "@" + $digest),

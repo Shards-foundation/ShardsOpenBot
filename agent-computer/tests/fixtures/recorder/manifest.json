@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "OpenBot Recorder (launcher fixture)",
+  "name": "ShardsOpenBot Recorder (launcher fixture)",
   "version": "0.0.0",
-  "description": "Stands in for the OpenBot Recorder in agent-computer's tests: its launcher API, exactly as shared/openbot-browser.ts types it, its debugger on the tab it records, and a page of its own a tab can show.",
+  "description": "Stands in for the ShardsOpenBot Recorder in agent-computer's tests: its launcher API, exactly as shared/shardsopenbot-browser.ts types it, its debugger on the tab it records, and a page of its own a tab can show.",
   "background": { "service_worker": "service-worker.js", "type": "module" },
   "permissions": ["storage", "tabs", "debugger"],
   "host_permissions": ["<all_urls>"],

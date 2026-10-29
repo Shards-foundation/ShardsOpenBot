@@ -422,8 +422,8 @@ describe("the content script entry", () => {
   afterEach(() => {
     uninstall?.();
     uninstall = undefined;
-    Reflect.deleteProperty(globals, "__openbotRecorderActive");
-    Reflect.deleteProperty(globals, "__openbotRecorderContent");
+    Reflect.deleteProperty(globals, "__shardsopenbotRecorderActive");
+    Reflect.deleteProperty(globals, "__shardsopenbotRecorderContent");
     GlobalRegistrator.unregister();
   });
 
@@ -435,7 +435,7 @@ describe("the content script entry", () => {
       // The service worker never answers: nothing but the frame's own flag can have started the capture.
       port.onMessage.addListener((m: ContentToBackground) => received.push(m));
     });
-    globals.__openbotRecorderActive = "d1";
+    globals.__shardsopenbotRecorderActive = "d1";
     document.body.innerHTML = `<button id="save">Save</button>`;
 
     await import("../src/content/index");
@@ -452,7 +452,7 @@ describe("the content script entry", () => {
       type: "content.event",
       event: { name: "click", value: { target: { tag: "button" } } },
     });
-    expect(globals.__openbotRecorderContent).toBe(true);
+    expect(globals.__shardsopenbotRecorderContent).toBe(true);
   });
 
   function trustedClick(el: Element | null | undefined) {
@@ -479,13 +479,13 @@ describe("the content script entry", () => {
     const port = ports[0];
     port.postMessage({ type: "background.notice", show: true, actions: 50 });
     await new Promise((resolve) => setTimeout(resolve, 20));
-    const oldNotice = document.querySelector("openbot-recorder-notice");
+    const oldNotice = document.querySelector("shardsopenbot-recorder-notice");
     expect(oldNotice).not.toBeNull();
 
     port.postMessage({ type: "background.capture", active: false });
     await new Promise((resolve) => setTimeout(resolve, 20));
 
-    expect(document.querySelector("openbot-recorder-notice")).toBeNull();
+    expect(document.querySelector("shardsopenbot-recorder-notice")).toBeNull();
     expect(oldNotice?.isConnected).toBe(false);
   });
 
@@ -496,7 +496,7 @@ describe("the content script entry", () => {
     chrome.runtime.onConnect.addListener((port) => {
       port.onMessage.addListener((m: ContentToBackground) => received.push(m));
     });
-    globals.__openbotRecorderActive = "d1";
+    globals.__shardsopenbotRecorderActive = "d1";
     document.body.innerHTML = `<div data-copilotkit-ignore><button id="skip">Skip</button></div><button id="keep">Keep</button>`;
     await import(`../src/content/index?fresh=${Date.now()}1`);
 
@@ -521,7 +521,7 @@ describe("the content script entry", () => {
     chrome.runtime.onConnect.addListener((port) => {
       ports.push(port);
     });
-    globals.__openbotRecorderActive = "d1";
+    globals.__shardsopenbotRecorderActive = "d1";
     document.body.innerHTML = `<button id="save">Save</button>`;
     let listening = 0;
     const add = window.addEventListener.bind(window);

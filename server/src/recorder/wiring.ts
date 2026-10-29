@@ -118,7 +118,7 @@ export function createRecorderExtension(deps: {
   /*
    * A connection is a sign-in of its own, so it lasts as the person's sign-in here does. Better Auth's session ends once
    * it has gone unused for its `expiresIn`; an organization session is a cookie that ends at its own expiry, and the
-   * connection carries a sealed copy of it, which must not outlive the cookie. A single-user OpenBot has no sign-in.
+   * connection carries a sealed copy of it, which must not outlive the cookie. A single-user ShardsOpenBot has no sign-in.
    */
   const lifetime: RecorderConnectionLifetime = config.singleUser
     ? null

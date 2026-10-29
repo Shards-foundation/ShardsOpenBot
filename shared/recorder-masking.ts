@@ -47,15 +47,15 @@ const CREDENTIAL_WORD =
 /** Metadata about a credential is not the credential (collector `METADATA`), checked first. */
 const METADATA =
   / (ids?|at|in|expires?|expiry|length|count|enabled|required|policy|hint|type) $/;
-/** OpenBot's addition: payment-card keys that are the entire key (plan Task 3, Decision 15). */
+/** ShardsOpenBot's addition: payment-card keys that are the entire key (plan Task 3, Decision 15). */
 const CARD_KEY = /^ (pin|cvv|cvc|csc) $/;
-/** OpenBot's addition: payment-card keys matched on the joined words (plan Task 3, Decision 15). */
+/** ShardsOpenBot's addition: payment-card keys matched on the joined words (plan Task 3, Decision 15). */
 const CARD_WORDS = /cardnumber|ccnumber|cardverification/;
-/** OpenBot's addition: one-time and verification code keys, matched on the joined words (`verificationCode`, `mfa_code`,
+/** ShardsOpenBot's addition: one-time and verification code keys, matched on the joined words (`verificationCode`, `mfa_code`,
  * `two_factor_code`, `smsCode`, `authCode`, `code_verifier`), never an ordinary code (`zipCode`, `promoCode`, `errorCode`). */
 const ONE_TIME_CODE_WORDS =
   /(?:verification|verify|verif|otp|totp|hotp|mfa|2fa|twofactor|2factor|twostep|2step|multifactor|sms|auth|authentication|authenticator|authorization|login|signin|logon|security|access|confirmation|onetime|recovery|backup)(?:code|pin|otp)|onetimepass|codeverifier|(?:mfa|2fa|twofactor|otp|totp)token/;
-/** OpenBot's addition: one-time code keys that are the last word or the entire key (`otp`, `totp`, `x-otp`). */
+/** ShardsOpenBot's addition: one-time code keys that are the last word or the entire key (`otp`, `totp`, `x-otp`). */
 const ONE_TIME_CODE_LAST = / (?:otp|totp|hotp|otc)s? $/;
 /** A bare `code` key: a one-time code when it holds 4 to 10 digits, or on a sign-in request (`codeHoldsSecret`). */
 const BARE_CODE = /^ codes? $/;

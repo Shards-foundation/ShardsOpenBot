@@ -37,7 +37,7 @@ export type CardPlace = {
   latest: boolean;
 };
 
-const MARK = "openbot:carried-on:";
+const MARK = "shardsopenbot:carried-on:";
 
 /** Marks kept here as well, for a browser that refuses `localStorage` (a private window, a policy). */
 const carriedHere = new Set<string>();

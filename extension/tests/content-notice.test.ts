@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import { startEventCapture } from "../src/content/collector";
 import { createSensitivityTracker } from "../src/content/masking-context";
 import { NOTICE_TAG, NOTICE_TOKENS, showNotice } from "../src/content/notice";
@@ -142,7 +142,7 @@ test("the notice sits above the page, fixed bottom-right, and removes itself", (
   expect(document.querySelector(NOTICE_TAG)).toBeNull();
 });
 
-test("the notice's colours are OpenBot's", () => {
+test("the notice's colours are ShardsOpenBot's", () => {
   const css = readFileSync(
     join(import.meta.dir, "../../app/src/theme.css"),
     "utf8",

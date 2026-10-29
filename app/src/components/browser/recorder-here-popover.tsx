@@ -1,4 +1,4 @@
-import type { RecorderPageState } from "@openbot/shared/recorder-page";
+import type { RecorderPageState } from "@shardsopenbot/shared/recorder-page";
 import { IconPlayerRecordFilled } from "@tabler/icons-react";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -68,8 +68,8 @@ function progress(
 }
 
 /**
- * Record and Stop in the popover from the sidebar's Browser button, for the Recorder in the browser OpenBot is open in,
- * read from its own report (`openbot.state`). Idle: a task name and Record, under what the last Stop saved, said as the
+ * Record and Stop in the popover from the sidebar's Browser button, for the Recorder in the browser ShardsOpenBot is open in,
+ * read from its own report (`shardsopenbot.state`). Idle: a task name and Record, under what the last Stop saved, said as the
  * Browser page says it. Recording: its name, how long it has run, its actions and Stop. A narrow column, so each part
  * stands on its own line.
  */
@@ -198,17 +198,17 @@ export type ConnectProgress =
 function connectSentence(progress: ConnectProgress): string {
   switch (progress.state) {
     case "idle":
-      return "The OpenBot Recorder in this browser isn't connected to OpenBot.";
+      return "The ShardsOpenBot Recorder in this browser isn't connected to ShardsOpenBot.";
     case "sending":
       return "Connecting this browser…";
     case "awaiting":
-      return "Confirm in the OpenBot Recorder tab that opened.";
+      return "Confirm in the ShardsOpenBot Recorder tab that opened.";
     case "expired":
       return "The request expired. Try again.";
     case "cancelled":
-      return "You cancelled in the OpenBot Recorder tab. Nothing was connected.";
+      return "You cancelled in the ShardsOpenBot Recorder tab. Nothing was connected.";
     case "closed":
-      return "The OpenBot Recorder tab closed before you confirmed. Nothing was connected.";
+      return "The ShardsOpenBot Recorder tab closed before you confirmed. Nothing was connected.";
     case "failed":
       return progress.message;
   }
@@ -224,7 +224,7 @@ const CONNECT_AGAIN: Partial<Record<ConnectProgress["state"], string>> = {
 };
 
 /**
- * The popover while the Recorder in this browser is being connected to this OpenBot, which the first click on the
+ * The popover while the Recorder in this browser is being connected to this ShardsOpenBot, which the first click on the
  * Browser button started: what is happening, the Recorder's refusal in its own sentence, or that the request ran out,
  * with a button to ask again.
  */
@@ -239,7 +239,7 @@ export function ConnectHerePanel({
   return (
     <>
       <PopoverHeader>
-        <PopoverTitle>Connect the OpenBot Recorder</PopoverTitle>
+        <PopoverTitle>Connect the ShardsOpenBot Recorder</PopoverTitle>
         <PopoverDescription
           className={failed ? "text-destructive" : undefined}
           role={failed ? "alert" : "status"}

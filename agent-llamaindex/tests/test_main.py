@@ -197,7 +197,7 @@ def test_a_run_reaches_the_model_the_setup_screen_chose(monkeypatch, provider, c
 
     main = importlib.reload(main)
     response = TestClient(main.app).post(
-        "/run", json=RUN, headers={"x-openbot-agent-token": TOKEN}
+        "/run", json=RUN, headers={"x-shardsopenbot-agent-token": TOKEN}
     )
 
     assert response.status_code == 200

@@ -5,7 +5,7 @@
 // emitted for the same traffic through its legacy sink.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import {
   type AgentEvents,
   createAgentEvents,

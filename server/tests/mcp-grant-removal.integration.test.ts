@@ -117,10 +117,10 @@ test("removing an app takes its grants with it, and adding it back grants nothin
   await store.addBrokeredApp({
     slug,
     title: `Removed ${suite}`,
-    by: "admin@openbot.test",
+    by: "admin@shardsopenbot.test",
     connection: { kind: "consent" },
   });
-  await store.grant("mcp", ref, botId, "admin@openbot.test");
+  await store.grant("mcp", ref, botId, "admin@shardsopenbot.test");
   expect(
     (await store.listForAgent(botId)).tools.map((tool) => tool.ref),
   ).toContain(ref);
@@ -129,14 +129,14 @@ test("removing an app takes its grants with it, and adding it back grants nothin
   await store.addBrokeredApp({
     slug: keptSlug,
     title: `Kept ${suite}`,
-    by: "admin@openbot.test",
+    by: "admin@shardsopenbot.test",
     connection: { kind: "consent" },
   });
-  await store.grant("mcp", keptRef, botId, "admin@openbot.test");
+  await store.grant("mcp", keptRef, botId, "admin@shardsopenbot.test");
 
   events.length = 0;
   useComposioClient(listing(actionName));
-  await store.removeServer(serverId, "admin@openbot.test");
+  await store.removeServer(serverId, "admin@shardsopenbot.test");
 
   const left = await database
     .select({ ref: pluginGrants.ref })
@@ -159,7 +159,7 @@ test("removing an app takes its grants with it, and adding it back grants nothin
   await store.addBrokeredApp({
     slug,
     title: `Removed ${suite}`,
-    by: "admin@openbot.test",
+    by: "admin@shardsopenbot.test",
     connection: { kind: "consent" },
   });
 
@@ -186,10 +186,10 @@ test("a re-added app a Bot was never granted again refuses the call", async () =
     await store.addBrokeredApp({
       slug: noAuthSlug,
       title: `No auth ${suite}`,
-      by: "admin@openbot.test",
+      by: "admin@shardsopenbot.test",
       connection: { kind: "no-auth" },
     });
-    await store.grant("mcp", noAuthRef, botId, "admin@openbot.test");
+    await store.grant("mcp", noAuthRef, botId, "admin@shardsopenbot.test");
 
     const before = await store.callTool({
       ref: noAuthRef,
@@ -199,11 +199,11 @@ test("a re-added app a Bot was never granted again refuses the call", async () =
     });
     expect(before.isError).toBe(false);
 
-    await store.removeServer(noAuthServerId, "admin@openbot.test");
+    await store.removeServer(noAuthServerId, "admin@shardsopenbot.test");
     await store.addBrokeredApp({
       slug: noAuthSlug,
       title: `No auth ${suite}`,
-      by: "admin@openbot.test",
+      by: "admin@shardsopenbot.test",
       connection: { kind: "no-auth" },
     });
 

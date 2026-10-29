@@ -3,7 +3,7 @@ import {
   DEFAULT_USER_PREFERENCES,
   isSkinId,
   type UserPreferences,
-} from "@openbot/shared/user-preferences";
+} from "@shardsopenbot/shared/user-preferences";
 import type { Database } from "./db/client";
 import { users } from "./db/schema";
 

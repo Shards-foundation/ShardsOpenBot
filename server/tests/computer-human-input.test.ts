@@ -17,7 +17,7 @@ import type { MiddlewareHandler } from "hono";
 
 const member = {
   id: "u1",
-  email: "member@openbot.test",
+  email: "member@shardsopenbot.test",
   role: "user",
 } as const;
 
@@ -52,7 +52,7 @@ function recordingGateway() {
 async function send(body: unknown, kind: string) {
   const { app, calls } = recordingGateway();
   const response = await app.request(
-    `http://openbot.test/bot-1/human/${kind}`,
+    `http://shardsopenbot.test/bot-1/human/${kind}`,
     {
       method: "POST",
       headers: { "content-type": "application/json" },

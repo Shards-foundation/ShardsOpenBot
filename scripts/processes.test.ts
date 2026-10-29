@@ -26,7 +26,7 @@ async function writeExecutable(path: string, contents: string) {
 }
 
 beforeEach(async () => {
-  directory = await mkdtemp(join(tmpdir(), "openbot-processes-"));
+  directory = await mkdtemp(join(tmpdir(), "shardsopenbot-processes-"));
   bin = join(directory, "bin");
   log = join(directory, "calls.log");
   await Bun.$`mkdir -p ${bin}`;
@@ -34,9 +34,9 @@ beforeEach(async () => {
   await writeExecutable(
     join(bin, "powershell.exe"),
     `#!/bin/sh
-printf 'argv=%s|port=%s|pattern=%s|stop=%s|pids=%s\\n' "$*" "\${OPENBOT_PORT:-}" "\${OPENBOT_PATTERN:-}" "\${OPENBOT_STOP:-}" "\${OPENBOT_PIDS:-}" >> "$CALLS"
+printf 'argv=%s|port=%s|pattern=%s|stop=%s|pids=%s\\n' "$*" "\${SHARDSOPENBOT_PORT:-}" "\${SHARDSOPENBOT_PATTERN:-}" "\${SHARDSOPENBOT_STOP:-}" "\${SHARDSOPENBOT_PIDS:-}" >> "$CALLS"
 case "$*" in
-  *ProcessName*) printf 'bun (127.0.0.1:%s)\\r\\n' "$OPENBOT_PORT" ;;
+  *ProcessName*) printf 'bun (127.0.0.1:%s)\\r\\n' "$SHARDSOPENBOT_PORT" ;;
   *-Unique*|*Win32_Process*) printf '4242\\r\\n' ;;
 esac
 `,

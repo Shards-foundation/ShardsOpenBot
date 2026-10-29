@@ -113,7 +113,7 @@ function tracked(path: string): boolean {
   );
 }
 
-describe("OpenBot Desktop's copied tree", () => {
+describe("ShardsOpenBot Desktop's copied tree", () => {
   test("every root workspace is in Desktop's copied tree", () => {
     const manifest = JSON.parse(
       readFileSync(join(repositoryRoot, "package.json"), "utf8"),
@@ -155,11 +155,11 @@ describe("OpenBot Desktop's copied tree", () => {
     }
   });
 
-  // The person's browser on OpenBot Desktop loads the Recorder from `extension/dist` in the
+  // The person's browser on ShardsOpenBot Desktop loads the Recorder from `extension/dist` in the
   // deployment, which installation builds there (preparation::build_recorder). Lay a deployment out
   // as Desktop does, install it as Desktop does, and build the Recorder as installation does.
   test("the Recorder builds inside Desktop's copied tree, with its own extension id", () => {
-    const root = mkdtempSync(join(tmpdir(), "openbot-desktop-tree-"));
+    const root = mkdtempSync(join(tmpdir(), "shardsopenbot-desktop-tree-"));
     try {
       layOutDeployment(root);
       bun(["install", "--frozen-lockfile", "--ignore-scripts"], root);

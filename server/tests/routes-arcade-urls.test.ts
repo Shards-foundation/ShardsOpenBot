@@ -140,7 +140,7 @@ function deployment(provider: BrokerProvider) {
       signedIn,
       async () => true,
       {
-        publicUrl: "https://openbot.example",
+        publicUrl: "https://shardsopenbot.example",
         appUrl: "https://app.example",
         encryptionKey: `${"A".repeat(43)}=`,
         personHasAccess: async () => true,
@@ -157,7 +157,7 @@ function deployment(provider: BrokerProvider) {
     toolkit: row.toolkit,
     confirm: () =>
       app.request(
-        `http://openbot.test/api/plugins/servers/${SERVER_ID}/connection/confirm`,
+        `http://shardsopenbot.test/api/plugins/servers/${SERVER_ID}/connection/confirm`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -166,7 +166,7 @@ function deployment(provider: BrokerProvider) {
       ),
     accountMode: () =>
       app.request(
-        `http://openbot.test/api/plugins/servers/${SERVER_ID}/account-mode`,
+        `http://shardsopenbot.test/api/plugins/servers/${SERVER_ID}/account-mode`,
         {
           method: "PUT",
           headers: { "content-type": "application/json" },
@@ -174,10 +174,10 @@ function deployment(provider: BrokerProvider) {
         },
       ),
     directory: () =>
-      app.request("http://openbot.test/api/plugins/composio/apps"),
+      app.request("http://shardsopenbot.test/api/plugins/composio/apps"),
     connect: () =>
       app.request(
-        `http://openbot.test/api/plugins/servers/${SERVER_ID}/connect`,
+        `http://shardsopenbot.test/api/plugins/servers/${SERVER_ID}/connect`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },

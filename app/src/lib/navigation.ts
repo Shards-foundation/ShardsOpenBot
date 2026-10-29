@@ -10,13 +10,13 @@ import { useQuery } from "@tanstack/react-query";
 import { currentUserQueryOptions } from "@/lib/auth/queries";
 
 /**
- * Where a person can go in OpenBot, in one list.
+ * Where a person can go in ShardsOpenBot, in one list.
  *
- * OpenBot's own sidebar draws it, and so does every skin that replaces the sidebar, so a destination
+ * ShardsOpenBot's own sidebar draws it, and so does every skin that replaces the sidebar, so a destination
  * added here reaches every frame at once. One left out of a frame's own copy would simply be
  * missing from that skin, with nothing failing to say so.
  *
- * `section` says where OpenBot's sidebar puts each entry: `primary` destinations sit in its footer,
+ * `section` says where ShardsOpenBot's sidebar puts each entry: `primary` destinations sit in its footer,
  * `account` ones in the menu under the person's name. A skin may group them its own way.
  *
  * Bots, Capabilities and Connections are each somebody's own, which is why they sit beside each

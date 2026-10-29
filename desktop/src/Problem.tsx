@@ -26,8 +26,8 @@ export function asProblem(thrown: unknown): Problem {
 function SetupHelp() {
   // Whitelabel builds can choose their own support page. Never prefill it with error data.
   const url =
-    import.meta.env.VITE_OPENBOT_SUPPORT_URL?.trim() ||
-    "https://github.com/CopilotKit/OpenBot/issues/new/choose";
+    import.meta.env.VITE_SHARDSOPENBOT_SUPPORT_URL?.trim() ||
+    "https://github.com/CopilotKit/ShardsOpenBot/issues/new/choose";
   return (
     <ExternalLink className="setup-help" href={url}>
       Get setup help

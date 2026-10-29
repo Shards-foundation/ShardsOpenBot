@@ -1,7 +1,10 @@
 import { ApprovalRefusedError } from "../approvals/types";
 import type { AuditInitiator } from "../audit";
-import { type GrantedTool, parametersFor } from "@openbot/toolkit/granted-tool";
-import { HeadlessToolSuspension } from "@openbot/toolkit/headless-tools";
+import {
+  type GrantedTool,
+  parametersFor,
+} from "@shardsopenbot/toolkit/granted-tool";
+import { HeadlessToolSuspension } from "@shardsopenbot/toolkit/headless-tools";
 import { markUntrusted } from "../untrusted-content";
 import {
   type CatalogueEntry,
@@ -11,8 +14,11 @@ import {
 import {
   addressedTo,
   SHOW_APP_ACCESS_TOOL,
-} from "@openbot/shared/connect-prompt";
-import { type ResearchRole, RESEARCH_TOOLS } from "@openbot/shared/research";
+} from "@shardsopenbot/shared/connect-prompt";
+import {
+  type ResearchRole,
+  RESEARCH_TOOLS,
+} from "@shardsopenbot/shared/research";
 import type { SelectableSkill } from "./selection";
 import {
   isDeploymentFault,

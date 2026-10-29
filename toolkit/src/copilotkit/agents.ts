@@ -23,7 +23,7 @@ import { nativeApprovalRun } from "../native-approval";
 import { historyOrEmpty } from "../thread-history";
 
 /**
- * The CopilotKit agents OpenBot runs its Bots as: a built-in Bot that will not send a broken
+ * The CopilotKit agents ShardsOpenBot runs its Bots as: a built-in Bot that will not send a broken
  * conversation, one whose tools are chosen when its run starts, a remote Bot that survives being
  * cloned, a Bot that is no longer there, and the platform client with one answer corrected.
  *
@@ -57,7 +57,9 @@ export class CloningRemoteAgent extends AbstractAgent {
 
   constructor(
     remote: AbstractAgent,
-    private readonly attachOpenBotMiddleware: (target: AbstractAgent) => void,
+    private readonly attachShardsOpenBotMiddleware: (
+      target: AbstractAgent,
+    ) => void,
   ) {
     super({
       agentId: remote.agentId,
@@ -71,7 +73,7 @@ export class CloningRemoteAgent extends AbstractAgent {
     if (this.remote.headers) {
       this.headers = { ...this.remote.headers };
     }
-    this.attachOpenBotMiddleware(this);
+    this.attachShardsOpenBotMiddleware(this);
   }
 
   run(input: RunAgentInput): Observable<BaseEvent> {
@@ -94,7 +96,7 @@ export class CloningRemoteAgent extends AbstractAgent {
     const clonedRemote = this.remote.clone() as AbstractAgent;
     const clone = new CloningRemoteAgent(
       clonedRemote,
-      this.attachOpenBotMiddleware,
+      this.attachShardsOpenBotMiddleware,
     );
     if (this.headers) {
       clone.headers = { ...this.headers };

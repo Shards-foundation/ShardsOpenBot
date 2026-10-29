@@ -10,19 +10,19 @@ services:
     # says it plainly: isolation is the container's job, a shell can reach whatever the container
     # can reach.
     #
-    # `migrate` reaches this by name, and so do `server` and `worker` when an installed OpenBot runs
+    # `migrate` reaches this by name, and so do `server` and `worker` when an installed ShardsOpenBot runs
     # them; those are all that belong here. In local development the API server and the worker run
     # on the host instead and connect through the published port below.
     environment:
-      POSTGRES_DB: openbot
-      POSTGRES_USER: openbot
-      POSTGRES_PASSWORD: openbot
+      POSTGRES_DB: shardsopenbot
+      POSTGRES_USER: shardsopenbot
+      POSTGRES_PASSWORD: shardsopenbot
     ports:
       # Loopback, like every other port in this file, and for the reason the network split above
       # exists. Published on every interface, this is reachable from the Bot's computer at the
       # container's default gateway, which is the host: taking `postgres` off that network removes
       # the name and leaves the address. Proven from inside `agent-computer`, where the gateway on
-      # :5432 answered and began authenticating as `openbot` on `openbot`, with the password in
+      # :5432 answered and began authenticating as `shardsopenbot` on `shardsopenbot`, with the password in
       # this file. The server on the host still reaches it, because that is what loopback is.
       # Both loopback addresses, because `localhost` is not one address.
       #
@@ -36,7 +36,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U openbot -d openbot"]
+      test: ["CMD-SHELL", "pg_isready -U shardsopenbot -d shardsopenbot"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -53,11 +53,11 @@ services:
     # default however its image is named. IMAGE_PULL_POLICY=missing makes it pull instead.
     #
     # Not a guarantee that nothing is built: a pull that fails falls back to building, silently,
-    # which is right for a developer and wrong for an installed OpenBot, where there is no
+    # which is right for a developer and wrong for an installed ShardsOpenBot, where there is no
     # toolchain and the honest answer is that the image could not be fetched. Anything shipping
     # these images to a machine that cannot build them overrides the `build` section away rather
     # than relying on this variable.
-    image: ${SERVER_IMAGE:-openbot-server:latest}
+    image: ${SERVER_IMAGE:-shardsopenbot-server:latest}
     pull_policy: ${IMAGE_PULL_POLICY:-build}
     # The server's own migrator, which is what this image actually ships: `drizzle-kit` is a
     # development dependency that `bun x` had to fetch at run time, and it is the one migrator that
@@ -66,7 +66,7 @@ services:
     # therefore one of the places that happens.
     command: ["bun", "scripts/migrate.ts"]
     environment:
-      DATABASE_URL: postgres://openbot:openbot@postgres:5432/openbot
+      DATABASE_URL: postgres://shardsopenbot:shardsopenbot@postgres:5432/shardsopenbot
     depends_on:
       postgres:
         condition: service_healthy
@@ -74,24 +74,24 @@ services:
     networks:
       - data
 
-  # OpenBot itself, the API and the app it serves, as an installed OpenBot runs it.
+  # ShardsOpenBot itself, the API and the app it serves, as an installed ShardsOpenBot runs it.
   #
   # BEHIND A PROFILE, BECAUSE A DEVELOPER'S SERVER IS ON THE HOST. `scripts/start.sh` runs the server
   # and the worker as host processes for hot reload, names the services it wants from this file, and
   # owns port 3001 while it does. Without the profile, a plain `docker compose up -d` would start a
   # second server beside that one, fighting it for the port and the routines. Naming `server` on the
-  # command line still starts it, profile or not, which is how an installed OpenBot asks for it.
+  # command line still starts it, profile or not, which is how an installed ShardsOpenBot asks for it.
   #
   # The image `migrate` runs, because it is one image: the API, the built app at `APP_DIST_DIR`, and
   # the worker below. A machine with that image needs Docker and nothing else, which is the point.
   server:
-    profiles: ["openbot"]
+    profiles: ["shardsopenbot"]
     build:
       context: .
       dockerfile: server/Dockerfile
-    # See migrate above for what pull_policy decides, and why an installed OpenBot overrides the
+    # See migrate above for what pull_policy decides, and why an installed ShardsOpenBot overrides the
     # `build` section away rather than trusting it.
-    image: ${SERVER_IMAGE:-openbot-server:latest}
+    image: ${SERVER_IMAGE:-shardsopenbot-server:latest}
     pull_policy: ${IMAGE_PULL_POLICY:-build}
     # The settings a host server reads with `--env-file=../.env`, so the two run the same deployment.
     # Optional, because `docker compose config` and a first start both come before anything wrote it.
@@ -109,14 +109,14 @@ services:
       PORT: "3001"
       SERVER_PORT: "3001"
       # Not production, as a host server is not. The image says production, and in production the
-      # server refuses `AGENT_COMPUTER_ALLOW_PRIVATE_HOSTS`, which a local OpenBot needs: its
+      # server refuses `AGENT_COMPUTER_ALLOW_PRIVATE_HOSTS`, which a local ShardsOpenBot needs: its
       # supervisor, computers and Bots are all at private addresses, on purpose. Empty rather than
       # `development`, because unset is what a host server has, and libraries that look at this
       # treat the two alike.
       NODE_ENV: ""
       # Every address below names a service on this network rather than the loopback port the host
       # server reaches it on.
-      DATABASE_URL: postgres://openbot:openbot@postgres:5432/openbot
+      DATABASE_URL: postgres://shardsopenbot:shardsopenbot@postgres:5432/shardsopenbot
       AGENT_COMPUTER_URL: http://agent-computer:4100
       # Per-Bot computers too, which is not automatic: the supervisor publishes each on a loopback
       # port unless `COMPUTER_NETWORK` names this project's `default` network, and a loopback port on
@@ -138,45 +138,45 @@ services:
       # have used, whatever this container uses itself.
       INTELLIGENCE_BROWSER_GATEWAY_WS_URL: ${INTELLIGENCE_GATEWAY_WS_URL:-}
       # The deployment's secrets, from the environment Compose runs in and then from `.env`, which
-      # Compose reads for these `${...}` and the host server reads for itself. OpenBot Desktop keeps
+      # Compose reads for these `${...}` and the host server reads for itself. ShardsOpenBot Desktop keeps
       # them out of that file and hands them to Compose in its environment, so they reach this
       # container only by being named here. The defaults are the ones every other service in this
       # file and `scripts/start.sh` agree on.
       AGENT_TOOL_TOKEN: ${AGENT_TOOL_TOKEN:-}
-      COMPUTER_TOKEN: ${COMPUTER_TOKEN:-openbot-dev-computer-token}
+      COMPUTER_TOKEN: ${COMPUTER_TOKEN:-shardsopenbot-dev-computer-token}
       KEY_ENCRYPTION_KEY: ${KEY_ENCRYPTION_KEY:-}
       MANAGED_AGENT_TOKEN: ${MANAGED_AGENT_TOKEN:-}
-      SUPERVISOR_TOKEN: ${SUPERVISOR_TOKEN:-openbot-dev-supervisor-token}
-      WORKER_SHARED_SECRET: ${WORKER_SHARED_SECRET:-openbot-dev-worker-secret}
+      SUPERVISOR_TOKEN: ${SUPERVISOR_TOKEN:-shardsopenbot-dev-supervisor-token}
+      WORKER_SHARED_SECRET: ${WORKER_SHARED_SECRET:-shardsopenbot-dev-worker-secret}
       INTELLIGENCE_API_KEY: ${INTELLIGENCE_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
       # The desktop's host-access broker proves itself with this. Minted per start and given to the
       # server alone, so it is named here and nowhere else in this file.
-      OPENBOT_DESKTOP_HOST_TOKEN: ${OPENBOT_DESKTOP_HOST_TOKEN:-}
+      SHARDSOPENBOT_DESKTOP_HOST_TOKEN: ${SHARDSOPENBOT_DESKTOP_HOST_TOKEN:-}
       # A Google or xAI sign-in, which the server reads and renews itself. The file is on the host,
-      # at `.openbot/model-oauth.json` beside this one, and reaches the container through the mount
+      # at `.shardsopenbot/model-oauth.json` beside this one, and reaches the container through the mount
       # below, so a host path here becomes the mount's. Empty stays empty: no sign-in, no file.
-      OPENBOT_MODEL_OAUTH_FILE: ${OPENBOT_MODEL_OAUTH_FILE:+/openbot/model-oauth.json}
+      SHARDSOPENBOT_MODEL_OAUTH_FILE: ${SHARDSOPENBOT_MODEL_OAUTH_FILE:+/shardsopenbot/model-oauth.json}
     # Who the server runs as. The image's own user by default. On Linux the desktop names the host's,
     # because the sign-in file below is the host user's and readable by nobody else, and a bind mount
     # there keeps the host's numbers; Docker Desktop's file sharing on macOS and Windows does not.
-    user: "${OPENBOT_SERVER_USER:-1001:1001}"
+    user: "${SHARDSOPENBOT_SERVER_USER:-1001:1001}"
     volumes:
       # The directory, not the file: the server renews the token by writing a sibling and renaming it
       # over the original, which a single-file mount cannot take. Not created here, because Docker
       # would create it as root on Linux and the desktop could then not write its sign-in into it;
       # whoever starts this service makes it first.
       - type: bind
-        source: ./.openbot
-        target: /openbot
+        source: ./.shardsopenbot
+        target: /shardsopenbot
         bind:
           create_host_path: false
     ports:
       # Two host ports, one process. The app's is the address a window is given: the server serves
       # the built app itself, so that one port reaches both halves on one origin. The server's is
-      # where everything else on the host already calls it, OpenBot Desktop's host-access broker
+      # where everything else on the host already calls it, ShardsOpenBot Desktop's host-access broker
       # among them. Loopback, for the reason every other port here is.
       - "127.0.0.1:${APP_PORT:-3010}:3001"
       - "[::1]:${APP_PORT:-3010}:3001"
@@ -204,19 +204,19 @@ services:
   # The routines worker, from the same image: the server's own sweep in a loop. See
   # `worker/src/index.ts` for why a local deployment has this rather than a CronJob.
   worker:
-    profiles: ["openbot"]
+    profiles: ["shardsopenbot"]
     build:
       context: .
       dockerfile: server/Dockerfile
-    image: ${SERVER_IMAGE:-openbot-server:latest}
+    image: ${SERVER_IMAGE:-shardsopenbot-server:latest}
     pull_policy: ${IMAGE_PULL_POLICY:-build}
     command: ["bun", "../worker/src/index.ts"]
     # Its three settings and nothing else. It is handed no `.env`: it does not read the deployment's
     # configuration, and the less this process holds, the less a mistake in it can spend.
     environment:
-      DATABASE_URL: postgres://openbot:openbot@postgres:5432/openbot
+      DATABASE_URL: postgres://shardsopenbot:shardsopenbot@postgres:5432/shardsopenbot
       SERVER_INTERNAL_URL: http://server:3001
-      WORKER_SHARED_SECRET: ${WORKER_SHARED_SECRET:-openbot-dev-worker-secret}
+      WORKER_SHARED_SECRET: ${WORKER_SHARED_SECRET:-shardsopenbot-dev-worker-secret}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -235,7 +235,7 @@ services:
       dockerfile: agent-computer/Dockerfile
     # Tagged explicitly because the supervisor starts one computer per Bot from this image by name,
     # and a Compose-derived name would change with the project.
-    image: ${COMPUTER_IMAGE:-openbot-agent-computer:latest}
+    image: ${COMPUTER_IMAGE:-shardsopenbot-agent-computer:latest}
     pull_policy: ${IMAGE_PULL_POLICY:-build}
     ports:
       # Loopback only. This process drives a browser holding real logins; COMPUTER_TOKEN is the
@@ -259,7 +259,7 @@ services:
       # the stack up working, while a plain `docker compose up -d` -- which this project's own
       # shutdown notes tell you to use -- hands the container an empty string instead. Reaches only
       # a loopback-bound port; a deployment sets a real value in .env.
-      COMPUTER_TOKEN: ${COMPUTER_TOKEN:-openbot-dev-computer-token}
+      COMPUTER_TOKEN: ${COMPUTER_TOKEN:-shardsopenbot-dev-computer-token}
       # Headed by default: full Chromium on the container's own X server, behind the same streamed
       # screen, which bot checks such as Cloudflare's challenge far less than headless. `headless`
       # still chooses headless, for a smaller footprint where the sites a Bot uses do not mind.
@@ -321,7 +321,7 @@ services:
 
   spire-agent:
     image: ghcr.io/spiffe/spire-agent:1.15.1
-    command: ["-config", "/opt/spire/conf/agent.conf", "-joinToken", "${SPIRE_JOIN_TOKEN:-openbot-dev-token}"]
+    command: ["-config", "/opt/spire/conf/agent.conf", "-joinToken", "${SPIRE_JOIN_TOKEN:-shardsopenbot-dev-token}"]
     # The agent must see the caller's process to map the Workload API peer to a Docker container. The
     # host PID namespace is required because the attestor reads the peer cgroup from that pid.
     pid: host
@@ -347,7 +347,7 @@ services:
       context: .
       dockerfile: supervisor/Dockerfile
     # Published by a release; see migrate above for what pull_policy decides.
-    image: ${SUPERVISOR_IMAGE:-openbot-supervisor:latest}
+    image: ${SUPERVISOR_IMAGE:-shardsopenbot-supervisor:latest}
     pull_policy: ${IMAGE_PULL_POLICY:-build}
     # The same file, because this process does not read these itself: it forwards every EGRESS_PROXY
     # key out of its own environment into each computer it creates, so it has to be given them first.
@@ -360,15 +360,15 @@ services:
       # services on the network from calling those verbs.
       # Defaulted for the same reason as agent-computer's above: so `docker compose up -d` by hand
       # configures the same stack scripts/start.sh does, rather than a silently unauthenticated one.
-      SUPERVISOR_TOKEN: ${SUPERVISOR_TOKEN:-openbot-dev-supervisor-token}
+      SUPERVISOR_TOKEN: ${SUPERVISOR_TOKEN:-shardsopenbot-dev-supervisor-token}
       # Handed to every computer this creates, so the server and the computers share one secret.
-      COMPUTER_TOKEN: ${COMPUTER_TOKEN:-openbot-dev-computer-token}
+      COMPUTER_TOKEN: ${COMPUTER_TOKEN:-shardsopenbot-dev-computer-token}
       # Forwarded into every per-Bot computer the supervisor creates. Headed, as above.
       COMPUTER_BROWSER_MODE: ${COMPUTER_BROWSER_MODE:-headed}
-      COMPUTER_IMAGE: ${COMPUTER_IMAGE:-openbot-agent-computer:latest}
+      COMPUTER_IMAGE: ${COMPUTER_IMAGE:-shardsopenbot-agent-computer:latest}
       # Which deployment the computers it creates belong to, so two stacks on one Docker host never
       # derive the same container and volume names for the same Bot.
-      COMPUTER_NAMESPACE: ${COMPUTER_NAMESPACE:-openbot}
+      COMPUTER_NAMESPACE: ${COMPUTER_NAMESPACE:-shardsopenbot}
       # Empty by default because the API server runs on the host in local development and reaches
       # computers by published loopback ports. Deployments running the server inside this network set
       # the network name so computers publish no host ports.
@@ -379,9 +379,9 @@ services:
       # Identity, when SPIRE is part of this deployment. The supervisor registers an entry per Bot
       # and mounts the agent's socket into that Bot's computer so it can fetch its own SVID.
       SPIRE_SOCKET: /tmp/spire-server/private/api.sock
-      SPIRE_TRUST_DOMAIN: openbot.local
-      SPIRE_AGENT_ID: spiffe://openbot.local/spire/agent/join_token/${SPIRE_JOIN_TOKEN:-openbot-dev-token}
-      SPIRE_AGENT_SOCKET_VOLUME: ${COMPOSE_PROJECT_NAME:-openbot}_spire-agent-socket
+      SPIRE_TRUST_DOMAIN: shardsopenbot.local
+      SPIRE_AGENT_ID: spiffe://shardsopenbot.local/spire/agent/join_token/${SPIRE_JOIN_TOKEN:-shardsopenbot-dev-token}
+      SPIRE_AGENT_SOCKET_VOLUME: ${COMPOSE_PROJECT_NAME:-shardsopenbot}_spire-agent-socket
     ports:
       # For the server on the host to ask for a Bot's computer.
       #
@@ -424,7 +424,7 @@ services:
       context: .
       dockerfile: agent-bot/Dockerfile
     # Published by a release; see migrate above for what pull_policy decides.
-    image: ${BOT_IMAGE:-openbot-agent-bot:latest}
+    image: ${BOT_IMAGE:-shardsopenbot-agent-bot:latest}
     pull_policy: ${IMAGE_PULL_POLICY:-build}
     ports:
       # Loopback, not every interface. The token is the boundary; this means an attacker needs to be
@@ -475,7 +475,7 @@ services:
       # Every harness refuses without this; it is what makes the endpoint the server's alone.
       MANAGED_AGENT_TOKEN: ${MANAGED_AGENT_TOKEN:-}
       # Deployment-owned tools use the same signed callback as agent-langgraph.
-      OPENBOT_TOOL_URL: ${OPENBOT_TOOL_URL:-http://host.docker.internal:3001/api/agent-tools/call}
+      SHARDSOPENBOT_TOOL_URL: ${SHARDSOPENBOT_TOOL_URL:-http://host.docker.internal:3001/api/agent-tools/call}
       AGENT_TOOL_TOKEN: ${AGENT_TOOL_TOKEN:-}
       # Whichever the model screen chose. A harness reads the one its provider needs and ignores the
       # rest, and the ones the choice did not imply are written empty rather than left stale: see
@@ -509,7 +509,7 @@ services:
       context: .
       dockerfile: agent-langgraph/Dockerfile
     # Published by a release; see migrate above for what pull_policy decides.
-    image: ${LANGGRAPH_IMAGE:-openbot-agent-langgraph:latest}
+    image: ${LANGGRAPH_IMAGE:-shardsopenbot-agent-langgraph:latest}
     pull_policy: ${IMAGE_PULL_POLICY:-build}
     ports:
       # Loopback, for the same reason as agent-bot above.
@@ -543,7 +543,7 @@ services:
       # Left as the default even though `server` above is now in this file, because the default is
       # what `scripts/start.sh` relies on and that server is on the host. A deployment that starts
       # `server` sets this to `http://server:3001/api/agent-tools/call`, for every Bot at once.
-      OPENBOT_TOOL_URL: ${OPENBOT_TOOL_URL:-http://host.docker.internal:3001/api/agent-tools/call}
+      SHARDSOPENBOT_TOOL_URL: ${SHARDSOPENBOT_TOOL_URL:-http://host.docker.internal:3001/api/agent-tools/call}
       AGENT_TOOL_TOKEN: ${AGENT_TOOL_TOKEN:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"

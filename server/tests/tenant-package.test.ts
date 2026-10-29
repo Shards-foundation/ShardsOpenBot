@@ -219,12 +219,12 @@ describe("a seeded Mastra Bot", () => {
 
   test("is seeded as its own kind, carrying the agent it names", () => {
     const [agent] = withAgent(
-      "{ id: research, name: Research, title: Research, role_description: Look things up., type: remote-mastra, endpoint: http://mastra.internal, remote_agent_id: openbot }",
+      "{ id: research, name: Research, title: Research, role_description: Look things up., type: remote-mastra, endpoint: http://mastra.internal, remote_agent_id: shardsopenbot }",
     ).agents;
     expect(agent?.type).toBe("remote_mastra");
     expect(agent?.configuration).toEqual({
       endpoint: "http://mastra.internal",
-      remoteAgentId: "openbot",
+      remoteAgentId: "shardsopenbot",
     });
   });
 
@@ -390,9 +390,9 @@ describe("tenant YAML validation", () => {
     ).toThrow("agent.avatar_seed must be a non-empty string");
   });
 
-  // A person's own OpenBot browser is a computer named `person-` and 32 hex digits, reached the way a Bot's is: a Bot
+  // A person's own ShardsOpenBot browser is a computer named `person-` and 32 hex digits, reached the way a Bot's is: a Bot
   // with that id would share its computer with the person whose browser it is.
-  test("rejects an agent whose id is the shape of a person's OpenBot browser, and keeps one that is not", () => {
+  test("rejects an agent whose id is the shape of a person's ShardsOpenBot browser, and keeps one that is not", () => {
     const withAgent = (id: string) =>
       validateTenantPackage({
         brand: "tenant: { id: fintech, product_name: Ledgerline }",
@@ -404,7 +404,7 @@ describe("tenant YAML validation", () => {
         themeCss: "",
       });
     expect(() => withAgent(`person-${"0a".repeat(16)}`)).toThrow(
-      /person's OpenBot browser/,
+      /person's ShardsOpenBot browser/,
     );
     expect(withAgent("person-helper").agents.map((agent) => agent.id)).toEqual([
       "person-helper",
@@ -440,7 +440,7 @@ describe("tenant YAML validation", () => {
       fileURLToPath(new URL("../../examples/fintech", import.meta.url)),
     );
 
-    expect(tenantPackage.tenantId).toBe("openbot");
+    expect(tenantPackage.tenantId).toBe("shardsopenbot");
     expect(tenantPackage.stylesheet).toBeNull();
     expect(tenantPackage.themeCss).toBe("");
     expect(tenantPackage.checksum).toMatch(/^[a-f0-9]{64}$/);
@@ -1125,7 +1125,9 @@ describe("expanding a package file against the environment", () => {
  */
 describe("skills a package ships", () => {
   test("editing only skills.yaml changes the loaded package checksum", async () => {
-    const directory = await mkdtemp(join(tmpdir(), "openbot-skills-checksum-"));
+    const directory = await mkdtemp(
+      join(tmpdir(), "shardsopenbot-skills-checksum-"),
+    );
     try {
       await cp(
         fileURLToPath(new URL("../../examples/fintech", import.meta.url)),

@@ -1,5 +1,5 @@
 {
-  "name": "@openbot/toolkit",
+  "name": "@shardsopenbot/toolkit",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
   "dependencies": {
     "@ag-ui/client": "1.0.2",
     "@copilotkit/runtime": "1.83.0",
-    "@openbot/shared": "workspace:*",
+    "@shardsopenbot/shared": "workspace:*",
     "rxjs": "7.8.1",
     "zod": "^4.4.3"
   },

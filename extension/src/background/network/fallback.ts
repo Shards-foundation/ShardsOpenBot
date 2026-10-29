@@ -2,7 +2,7 @@ import {
   type CapturedEvent,
   type JsonValue,
   maskNetworkEvent,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 
 export type PageFallback = {
   start(tabIds: number[]): Promise<boolean>;
@@ -12,16 +12,18 @@ export type PageFallback = {
   active(): boolean;
 };
 
-/** The hook (main-world/network-hook.ts) defines the symbols openbot.recorder.configure and openbot.recorder.stop on globalThis. */
+/** The hook (main-world/network-hook.ts) defines the symbols shardsopenbot.recorder.configure and shardsopenbot.recorder.stop on globalThis. */
 
 type Hook = Record<symbol, ((id?: string) => void) | undefined>;
 
 const configureHook = (id: string): void =>
-  (globalThis as unknown as Hook)[Symbol.for("openbot.recorder.configure")]?.(
-    id,
-  );
+  (globalThis as unknown as Hook)[
+    Symbol.for("shardsopenbot.recorder.configure")
+  ]?.(id);
 const stopHook = (): void =>
-  (globalThis as unknown as Hook)[Symbol.for("openbot.recorder.stop")]?.();
+  (globalThis as unknown as Hook)[
+    Symbol.for("shardsopenbot.recorder.stop")
+  ]?.();
 
 /**
  * Injects the page-network hook into the MAIN world of the recorded tabs only: never registerContentScripts, so an

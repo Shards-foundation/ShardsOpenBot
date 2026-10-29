@@ -61,7 +61,7 @@ test("a navigation a rule asks about comes back as needing its conversation, not
   });
   const actor: AuthenticatedActor = {
     id: "user-1",
-    email: "member@openbot.test",
+    email: "member@shardsopenbot.test",
     role: "user",
   };
   const asActor: MiddlewareHandler<{ Variables: AppVariables }> = async (
@@ -78,11 +78,14 @@ test("a navigation a rule asks about comes back as needing its conversation, not
     async () => true,
   );
 
-  const response = await app.request("http://openbot.test/bot-1/navigate", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ url: "https://example.com/" }),
-  });
+  const response = await app.request(
+    "http://shardsopenbot.test/bot-1/navigate",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url: "https://example.com/" }),
+    },
+  );
 
   expect(response.status).toBe(409);
   expect(await response.json()).toMatchObject({

@@ -14,9 +14,9 @@ import { type InputMessage, startScreencast } from "../src/screencast";
  * Home after it (the Mac's Return) the browser stopped answering DevTools. On Linux the same native code lets a
  * forwarded Ctrl+T open a tab, or Alt+ArrowLeft go back, in the person's browser rather than in the page.
  *
- *   OPENBOT_COMPUTER_BROWSER=1 bun test tests/screencast-keys-browser.test.ts
+ *   SHARDSOPENBOT_COMPUTER_BROWSER=1 bun test tests/screencast-keys-browser.test.ts
  */
-const asked = process.env.OPENBOT_COMPUTER_BROWSER === "1";
+const asked = process.env.SHARDSOPENBOT_COMPUTER_BROWSER === "1";
 
 /** How long the browser has to answer DevTools after a key: a healthy one answers in milliseconds. */
 const ANSWER_MS = 3_000;

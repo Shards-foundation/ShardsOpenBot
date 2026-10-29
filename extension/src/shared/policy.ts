@@ -1,23 +1,25 @@
-import { isAllowedGatewayUrl, normaliseOpenBotOrigin } from "./origin";
+import { isAllowedGatewayUrl, normaliseShardsOpenBotOrigin } from "./origin";
 
-/** `openbotUrlInvalid`: the policy names an address normaliseOpenBotOrigin refuses; every connect is then refused. */
+/** `shardsopenbotUrlInvalid`: the policy names an address normaliseShardsOpenBotOrigin refuses; every connect is then refused. */
 export type RecorderPolicy = {
-  openbotUrl: string | null;
-  openbotUrlInvalid: boolean;
+  shardsopenbotUrl: string | null;
+  shardsopenbotUrlInvalid: boolean;
   allowedIntelligenceUrls: string[] | null;
 };
 
-function openbotUrlFrom(
+function shardsopenbotUrlFrom(
   value: unknown,
-): Pick<RecorderPolicy, "openbotUrl" | "openbotUrlInvalid"> {
+): Pick<RecorderPolicy, "shardsopenbotUrl" | "shardsopenbotUrlInvalid"> {
   if (value === undefined)
-    return { openbotUrl: null, openbotUrlInvalid: false };
+    return { shardsopenbotUrl: null, shardsopenbotUrlInvalid: false };
   const checked =
-    typeof value === "string" ? normaliseOpenBotOrigin(value.trim()) : null;
+    typeof value === "string"
+      ? normaliseShardsOpenBotOrigin(value.trim())
+      : null;
   // The bad string is dropped here, so no surface can show or parse it.
   return checked?.ok
-    ? { openbotUrl: checked.origin, openbotUrlInvalid: false }
-    : { openbotUrl: null, openbotUrlInvalid: true };
+    ? { shardsopenbotUrl: checked.origin, shardsopenbotUrlInvalid: false }
+    : { shardsopenbotUrl: null, shardsopenbotUrlInvalid: true };
 }
 
 /** Absent: no restriction. Present: only the valid wss:// entries (ws:// for a loopback IP); none left refuses every pass.
@@ -37,7 +39,7 @@ function allowedUrlsFrom(value: unknown): string[] | null {
 
 function policyFrom(managed: Record<string, unknown>): RecorderPolicy {
   return {
-    ...openbotUrlFrom(managed.OpenBotUrl),
+    ...shardsopenbotUrlFrom(managed.ShardsOpenBotUrl),
     allowedIntelligenceUrls: allowedUrlsFrom(managed.AllowedIntelligenceUrls),
   };
 }
@@ -47,12 +49,15 @@ export async function readPolicy(): Promise<RecorderPolicy> {
 }
 
 /** Whether the policy lets this browser connect to (and stay connected to) `origin`: never under an invalid policy,
- * and only to the pinned OpenBot when one is pinned. */
-export function allowsOpenBot(policy: RecorderPolicy, origin: string): boolean {
-  if (policy.openbotUrlInvalid) return false;
-  if (policy.openbotUrl === null) return true;
-  const checked = normaliseOpenBotOrigin(origin);
-  return checked.ok && checked.origin === policy.openbotUrl;
+ * and only to the pinned ShardsOpenBot when one is pinned. */
+export function allowsShardsOpenBot(
+  policy: RecorderPolicy,
+  origin: string,
+): boolean {
+  if (policy.shardsopenbotUrlInvalid) return false;
+  if (policy.shardsopenbotUrl === null) return true;
+  const checked = normaliseShardsOpenBotOrigin(origin);
+  return checked.ok && checked.origin === policy.shardsopenbotUrl;
 }
 
 export function onPolicyChanged(

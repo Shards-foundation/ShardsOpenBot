@@ -21,22 +21,22 @@
 # lists `posix` exactly when bash was invoked as `sh`. A `BASH_VERSION` check alone cannot see that
 # case, because bash-as-sh sets that too — which is the case on every Mac, so it is the case that
 # actually happens.
-openbot_wrong_shell=""
+shardsopenbot_wrong_shell=""
 if [ -z "${BASH_VERSION:-}" ]; then
-  openbot_wrong_shell="a shell that is not bash"
+  shardsopenbot_wrong_shell="a shell that is not bash"
 else
   case ":${SHELLOPTS:-}:" in
-  *:posix:*) openbot_wrong_shell="bash in POSIX mode, which is what \`sh\` is" ;;
+  *:posix:*) shardsopenbot_wrong_shell="bash in POSIX mode, which is what \`sh\` is" ;;
   esac
 fi
 
-if [ -n "$openbot_wrong_shell" ]; then
+if [ -n "$shardsopenbot_wrong_shell" ]; then
   # The fix and not only the fault. "Wrong shell" is not actionable to somebody who typed the only
   # invocation they knew, so the line that follows is the one to retype. On stderr, so a caller
   # reading the progress output still sees it.
-  printf '\033[31m%s\033[0m\n' "This script is bash, and it is being read by $openbot_wrong_shell." >&2
+  printf '\033[31m%s\033[0m\n' "This script is bash, and it is being read by $shardsopenbot_wrong_shell." >&2
   printf '%s\n' "Run it as: bash scripts/$(basename "$0")" >&2
   exit 1
 fi
 
-unset openbot_wrong_shell
+unset shardsopenbot_wrong_shell

@@ -1,4 +1,4 @@
-import type { TurnRunner } from "@openbot/toolkit/run-turn";
+import type { TurnRunner } from "@shardsopenbot/toolkit/run-turn";
 import { z } from "zod";
 import type { RunAssertion } from "../agents/callback-token";
 import type { AgentActor } from "../agents/profile-types";

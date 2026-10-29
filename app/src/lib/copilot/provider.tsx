@@ -17,7 +17,7 @@ import { SkillTools } from "./skill-tools";
 /**
  * The CopilotKit client, wrapped once for the whole authenticated app.
  *
- * `credentials: "include"` is the load-bearing part. OpenBot authenticates with a Better Auth
+ * `credentials: "include"` is the load-bearing part. ShardsOpenBot authenticates with a Better Auth
  * session cookie, and the runtime endpoint sits behind the same guard as every other API route, so
  * without it every run is rejected as anonymous while the rest of the app looks signed in.
  *
@@ -49,7 +49,7 @@ export function CopilotProvider({ children }: { children: ReactNode }) {
        * while this query is still in flight.
        *
        * The object carries guidance only. It does not turn anything on that the server has not
-       * already turned on; it replaces the SDK's shadcn-flavoured house style with OpenBot's.
+       * already turned on; it replaces the SDK's shadcn-flavoured house style with ShardsOpenBot's.
        */
       {...(capabilities?.generativeUi
         ? { openGenerativeUI: { designSkill: GENERATIVE_UI_DESIGN_SKILL } }

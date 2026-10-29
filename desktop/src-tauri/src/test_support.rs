@@ -5,7 +5,7 @@ static NEXT_TEMP_ROOT: AtomicU64 = AtomicU64::new(0);
 
 pub(crate) fn temp_root(label: &str) -> PathBuf {
     let next = NEXT_TEMP_ROOT.fetch_add(1, Ordering::Relaxed);
-    let path = std::env::temp_dir().join(format!("openbot-{label}-{}-{next}", std::process::id()));
+    let path = std::env::temp_dir().join(format!("shardsopenbot-{label}-{}-{next}", std::process::id()));
     let _ = std::fs::remove_dir_all(&path);
     path
 }
@@ -13,10 +13,10 @@ pub(crate) fn temp_root(label: &str) -> PathBuf {
 /// Runtime PATH belongs to the scenario under test; the compiler and linker tools belong to
 /// Cargo's build environment. Neither an inherited runtime RUSTC nor another test can replace it.
 pub(crate) fn compile_fixture(source: &std::path::Path, binary: &std::path::Path) {
-    let output = std::process::Command::new(env!("OPENBOT_TEST_RUSTC"))
-        .env("PATH", env!("OPENBOT_TEST_TOOL_PATH"))
+    let output = std::process::Command::new(env!("SHARDSOPENBOT_TEST_RUSTC"))
+        .env("PATH", env!("SHARDSOPENBOT_TEST_TOOL_PATH"))
         // Source filenames can include executable suffixes, which are invalid crate names.
-        .args(["--crate-name", "openbot_test_fixture"])
+        .args(["--crate-name", "shardsopenbot_test_fixture"])
         .arg(source)
         .arg("-o")
         .arg(binary)
@@ -33,7 +33,7 @@ pub(crate) fn compile_fixture(source: &std::path::Path, binary: &std::path::Path
 /// parent suite stays parallel; unrelated HTTP, compiler, and ownership tests keep their PATH.
 /// Return true in the parent after the child passes, so the caller can return immediately.
 pub(crate) fn isolated_process(test: &str) -> bool {
-    const MARKER: &str = "OPENBOT_ISOLATED_TEST";
+    const MARKER: &str = "SHARDSOPENBOT_ISOLATED_TEST";
     if std::env::var(MARKER).ok().as_deref() == Some(test) {
         return false;
     }

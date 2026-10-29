@@ -2,7 +2,7 @@
 // end to end: the real service worker and the real offscreen document over a fake Intelligence, as held-steps.test.ts
 // runs them. The service worker's step timers run on the test's clock; the document runs on the browser's timers.
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import { IDBKeyRange as FakeIDBKeyRange, IDBFactory } from "fake-indexeddb";
 import {
   installRecording,
@@ -46,7 +46,7 @@ async function until(check: () => boolean | Promise<boolean>, label: string) {
   }
 }
 
-// ---- The fake OpenBot and Intelligence --------------------------------------------------------
+// ---- The fake ShardsOpenBot and Intelligence --------------------------------------------------------
 
 let gateway: FakeGateway;
 function route(request: Request): Response | null {
@@ -159,8 +159,8 @@ function startWorker() {
     }),
     acceptPageNetworkEvent: () => null,
     readPolicy: async () => ({
-      openbotUrl: null,
-      openbotUrlInvalid: false,
+      shardsopenbotUrl: null,
+      shardsopenbotUrlInvalid: false,
       allowedIntelligenceUrls: null,
     }),
     hasHostPermission: async () => true,
@@ -274,7 +274,7 @@ beforeEach(async () => {
     setTimeout(runDocument, 0);
   });
   fake.storage.local.set("connection", {
-    openbotUrl: gateway.httpUrl,
+    shardsopenbotUrl: gateway.httpUrl,
     token: "obr_one",
     connectionId: "c-obr_one",
     user: ada,

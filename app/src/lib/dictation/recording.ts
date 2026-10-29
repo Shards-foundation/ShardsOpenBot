@@ -3,7 +3,7 @@ import {
   dictationExtension,
   dictationMediaType,
   MAX_DICTATION_BYTES,
-} from "@openbot/shared/dictation";
+} from "@shardsopenbot/shared/dictation";
 
 export interface Recording {
   /** Shared with the visualizer; the recorder owns this stream's lifetime. */
@@ -120,7 +120,7 @@ export async function transcribeRecording(
   const response = await fetch("/api/audio/transcriptions", {
     method: "POST",
     credentials: "include",
-    headers: { "x-openbot-dictation": "1" },
+    headers: { "x-shardsopenbot-dictation": "1" },
     body,
     signal: AbortSignal.any([
       signal,

@@ -38,7 +38,7 @@ async function runStartWithStaleServerProbe(
   }: Run = {},
 ) {
   const root =
-    await Bun.$`mktemp -d ${tmpdir()}/openbot-start-guard-XXXXXX`.text();
+    await Bun.$`mktemp -d ${tmpdir()}/shardsopenbot-start-guard-XXXXXX`.text();
   const directory = root.trim();
   const fakeBin = join(directory, "bin");
   const scripts = join(directory, "scripts");
@@ -60,8 +60,8 @@ async function runStartWithStaleServerProbe(
     "MANAGED_AGENT_TOKEN=managed-token",
     "AGENT_TOOL_TOKEN=agent-tool-token",
     "MANAGED_AGENT_AG_UI_URL=http://localhost:4201/ag-ui",
-    "OPENBOT_ONE_COMPUTER_EACH=true",
-    "DATABASE_URL=postgres://openbot:openbot@localhost:5432/openbot",
+    "SHARDSOPENBOT_ONE_COMPUTER_EACH=true",
+    "DATABASE_URL=postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot",
   ].filter(
     (line) =>
       ![...omitFromEnv, ...Object.keys(settings)].some((key) =>
@@ -109,7 +109,7 @@ if [[ "$args" == *"/api/copilotkit/info"* ]]; then
   exit 0
 fi
 if [[ "$args" == *"http://localhost:3010/"* ]]; then
-  printf '<title>OpenBot</title>'
+  printf '<title>ShardsOpenBot</title>'
   exit 0
 fi
 exit 0
@@ -300,7 +300,7 @@ describe("start.sh settings with no line in .env", () => {
 
 describe("start.sh one computer each", () => {
   /**
-   * `OPENBOT_ONE_COMPUTER_EACH=false` IN `.env` TURNS THE SUPERVISOR OFF, AS THE DOCS SAY.
+   * `SHARDSOPENBOT_ONE_COMPUTER_EACH=false` IN `.env` TURNS THE SUPERVISOR OFF, AS THE DOCS SAY.
    *
    * The key was read from the environment alone, so a `.env` line was ignored: the supervisor was
    * still started and the server still told to use it. docs/configuration.md says to set it "in
@@ -311,7 +311,7 @@ describe("start.sh one computer each", () => {
    */
   test("false in .env starts no supervisor", async () => {
     const result = await runStartWithStaleServerProbe(401, {
-      settings: { OPENBOT_ONE_COMPUTER_EACH: "false" },
+      settings: { SHARDSOPENBOT_ONE_COMPUTER_EACH: "false" },
     });
 
     expect({ exitCode: result.exitCode, stderr: result.stderr }).toEqual({
@@ -326,8 +326,8 @@ describe("start.sh one computer each", () => {
 
   test("false in the process environment starts no supervisor either", async () => {
     const result = await runStartWithStaleServerProbe(401, {
-      settings: { OPENBOT_ONE_COMPUTER_EACH: "true" },
-      processEnvironment: { OPENBOT_ONE_COMPUTER_EACH: "false" },
+      settings: { SHARDSOPENBOT_ONE_COMPUTER_EACH: "true" },
+      processEnvironment: { SHARDSOPENBOT_ONE_COMPUTER_EACH: "false" },
     });
 
     expect(result.exitCode).toBe(0);
@@ -335,7 +335,10 @@ describe("start.sh one computer each", () => {
   });
 
   test("true, or absent, still starts it", async () => {
-    for (const omitFromEnv of [[], ["OPENBOT_ONE_COMPUTER_EACH"]] as const) {
+    for (const omitFromEnv of [
+      [],
+      ["SHARDSOPENBOT_ONE_COMPUTER_EACH"],
+    ] as const) {
       const result = await runStartWithStaleServerProbe(401, { omitFromEnv });
 
       expect(result.exitCode).toBe(0);
@@ -348,7 +351,7 @@ describe("start.sh one computer each", () => {
 
 describe("start.sh Learning container check", () => {
   /**
-   * The server assigns `openbot` once it exists, but its runtime key cannot create it. start.sh asks
+   * The server assigns `shardsopenbot` once it exists, but its runtime key cannot create it. start.sh asks
    * the setup helper, without a browser or a prompt, to make sure it exists, and relays its last line.
    */
   test.each(["INTELLIGENCE_API_KEY", "CPK_INTELLIGENCE_API_KEY"])(
@@ -371,8 +374,8 @@ describe("start.sh Learning container check", () => {
       "a container is named",
       { CPK_INTELLIGENCE_LEARNING_CONTAINER_ID: "mine" },
     ],
-    ["it is switched off", { OPENBOT_LEARNING_AUTO_ASSIGN: "false" }],
-    ["it is switched off with 0", { OPENBOT_LEARNING_AUTO_ASSIGN: "0" }],
+    ["it is switched off", { SHARDSOPENBOT_LEARNING_AUTO_ASSIGN: "false" }],
+    ["it is switched off with 0", { SHARDSOPENBOT_LEARNING_AUTO_ASSIGN: "0" }],
   ])("is skipped when %s", async (_, settings) => {
     const result = await runStartWithStaleServerProbe(401, {
       settings: { INTELLIGENCE_API_KEY: "cpk-synthetic", ...settings },

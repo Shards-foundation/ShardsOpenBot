@@ -11,7 +11,7 @@ import {
   maskJsonValue,
   sanitiseForIntelligence,
   trimEvent,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 
 /** The fields that join one AG-UI event or message to another: kept as they are, since the masking's long-run rule would
  * otherwise take every UUID. */

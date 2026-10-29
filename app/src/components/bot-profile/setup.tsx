@@ -125,7 +125,7 @@ export function SetupSections({ agent }: { agent: AgentProfile }) {
                 <ItemContent>
                   <ItemTitle>System owned</ItemTitle>
                   <ItemDescription>
-                    Comes with OpenBot. It doesn't belong to a person.
+                    Comes with ShardsOpenBot. It doesn't belong to a person.
                   </ItemDescription>
                 </ItemContent>
               </Item>
@@ -169,7 +169,7 @@ function VisibilityRow({
           {error ??
             (agent.visibility === "private"
               ? "Only you can see it and start conversations with it."
-              : "Everyone on OpenBot can find and use it.")}
+              : "Everyone on ShardsOpenBot can find and use it.")}
         </ItemDescription>
       </ItemContent>
       <ItemActions>
@@ -333,7 +333,7 @@ function ConnectionSection({ agent }: { agent: AgentProfile }) {
               }
             >
               {builtIn
-                ? "Runs inside OpenBot. There's nothing to connect."
+                ? "Runs inside ShardsOpenBot. There's nothing to connect."
                 : agent.endpoint}
             </ItemDescription>
           </ItemContent>

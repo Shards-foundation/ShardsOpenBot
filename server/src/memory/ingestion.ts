@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readConnectPrompt } from "@openbot/shared/connect-prompt";
+import { readConnectPrompt } from "@shardsopenbot/shared/connect-prompt";
 import { accessFor } from "../plugins/access";
 import type { Decides } from "../plugins/broker";
 import { catalogueEntry } from "../plugins/catalogue";
@@ -394,7 +394,7 @@ export function createMemoryIngestion(options: {
       );
     },
     /**
-     * The memory source OpenBot would switch on by itself for each app this person connected that the
+     * The memory source ShardsOpenBot would switch on by itself for each app this person connected that the
      * Bot can read: one per app, and only for apps reached in the person's own account.
      *
      * An app the deployment shares, or one that needs no account, is not "an app the person

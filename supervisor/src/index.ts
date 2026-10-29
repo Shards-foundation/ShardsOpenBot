@@ -61,7 +61,7 @@ if (!token) {
   process.exit(1);
 }
 const image =
-  process.env.COMPUTER_IMAGE?.trim() || "openbot-agent-computer:latest";
+  process.env.COMPUTER_IMAGE?.trim() || "shardsopenbot-agent-computer:latest";
 const network = process.env.COMPUTER_NETWORK?.trim() || undefined;
 const runtime = process.env.COMPUTER_RUNTIME?.trim() || undefined;
 const resolvedMemory = computerMemoryBytes(process.env.COMPUTER_MEMORY_BYTES);

@@ -10,7 +10,7 @@ import {
   spyOn,
   test,
 } from "bun:test";
-import type { CapturedEvent } from "@openbot/shared/recorder-masking";
+import type { CapturedEvent } from "@shardsopenbot/shared/recorder-masking";
 import type { NetworkMode } from "../src/background/network";
 import {
   installRecording,
@@ -45,7 +45,7 @@ const ada = { id: "p1", name: "Ada", email: "ada@example.test" };
 const DEAL = "https://crm.example.test/deals/42";
 const NEXT_DEAL = "https://crm.example.test/deals/43";
 const SIGNED_OUT =
-  "This browser was disconnected from OpenBot. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.";
+  "This browser was disconnected from ShardsOpenBot. Your recording stopped, and everything in it is kept in this browser for 7 days, until you connect again.";
 const START_FAILED = "The recording could not start. Try again.";
 /** A card number typed into a sensitive field before the restart, and the digest the content script sent for it. */
 const SECRET = "4111111111111111";
@@ -58,14 +58,14 @@ const capturedEvent = (name: string, value: unknown): CapturedEvent => ({
   value: value as CapturedEvent["value"],
 });
 
-// ---- The fake OpenBot -------------------------------------------------------------------------
+// ---- The fake ShardsOpenBot -------------------------------------------------------------------------
 //
-// Nothing a restart finishes asks OpenBot anything: every request is recorded so the tests can say so. A restarted worker
-// tells OpenBot what it is doing again (activity.ts), which holds nothing recorded, so `asked` leaves those reports out.
+// Nothing a restart finishes asks ShardsOpenBot anything: every request is recorded so the tests can say so. A restarted worker
+// tells ShardsOpenBot what it is doing again (activity.ts), which holds nothing recorded, so `asked` leaves those reports out.
 
-const openbot = { calls: [] as string[] };
+const shardsopenbot = { calls: [] as string[] };
 const asked = () =>
-  openbot.calls.filter((call) => call !== "POST /api/recorder/activity");
+  shardsopenbot.calls.filter((call) => call !== "POST /api/recorder/activity");
 
 let server: ReturnType<typeof Bun.serve>;
 let origin = "";
@@ -75,7 +75,9 @@ beforeAll(() => {
     hostname: "127.0.0.1",
     port: 0,
     fetch(request) {
-      openbot.calls.push(`${request.method} ${new URL(request.url).pathname}`);
+      shardsopenbot.calls.push(
+        `${request.method} ${new URL(request.url).pathname}`,
+      );
       return Response.json({ error: "Not found." }, { status: 404 });
     },
   });
@@ -213,8 +215,8 @@ function doubles(): Partial<RecordingDeps> {
       return { ...event, value };
     },
     readPolicy: async () => ({
-      openbotUrl: null,
-      openbotUrlInvalid: false,
+      shardsopenbotUrl: null,
+      shardsopenbotUrlInvalid: false,
       allowedIntelligenceUrls: pinnedIntelligenceUrls,
     }),
     hasHostPermission: async () => true,
@@ -241,7 +243,7 @@ async function restartWorker() {
 
 function connect(user = ada, token = "obr_one") {
   fake.storage.local.set("connection", {
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token,
     connectionId: `c-${token}`,
     user,
@@ -290,7 +292,7 @@ const RECORDING = "rec-9";
 const seededRecord = (): DrainRecord => ({
   recordingId: RECORDING,
   title: "Update deal",
-  openbotUrl: origin,
+  shardsopenbotUrl: origin,
   userId: ada.id,
   userName: ada.name,
   trajectoryIds: ["00000000-0000-4000-8000-000000000009"],
@@ -319,7 +321,7 @@ function seed(
   fake.storage.session.set("stream", {
     recordingId: RECORDING,
     title: "Update deal",
-    openbotUrl: origin,
+    shardsopenbotUrl: origin,
     token: "obr_one",
     trajectoryId: active.trajectoryIds[0] ?? "",
     startedAt: active.startedAt,
@@ -349,7 +351,7 @@ beforeEach(() => {
   docPoll = setInterval(answerAsDocument, 1);
   timers = [];
   now = 1_800_000_000_000;
-  openbot.calls = [];
+  shardsopenbot.calls = [];
   network = {
     resumed: [],
     previous: [],
@@ -407,7 +409,7 @@ test("a service-worker restart during Stop finishes the stop with the document a
   expect(sentToDocument("offscreen.recover", port)).toEqual([
     {
       type: "offscreen.recover",
-      openbotUrl: origin,
+      shardsopenbotUrl: origin,
       token: "obr_one",
       allowedIntelligenceUrls: null,
       version: "0.3.0",
@@ -436,7 +438,7 @@ test("the document asked to report on a resumed stop is held to the organization
   expect(sentToDocument("offscreen.recover", port)).toEqual([
     {
       type: "offscreen.recover",
-      openbotUrl: origin,
+      shardsopenbotUrl: origin,
       token: "obr_one",
       allowedIntelligenceUrls: ["wss://intelligence.example.com"],
       version: "0.3.0",
@@ -557,7 +559,7 @@ test("a service-worker restart just after Stop moved the recording into the drai
   expect(sentToDocument("offscreen.recover", port)).toEqual([
     {
       type: "offscreen.recover",
-      openbotUrl: origin,
+      shardsopenbotUrl: origin,
       token: "obr_one",
       allowedIntelligenceUrls: null,
       version: "0.3.0",
@@ -669,7 +671,7 @@ test("a discard that cannot finish because the document never reconnects does no
   expect(drains().map((drain) => drain.recordingId)).toEqual(["rec-gone"]);
 });
 
-test("a service-worker restart mid-recording goes on checking the connection with OpenBot every 30 s", async () => {
+test("a service-worker restart mid-recording goes on checking the connection with ShardsOpenBot every 30 s", async () => {
   startWorker();
   await startRecording(7);
   await restartWorker();
@@ -679,10 +681,10 @@ test("a service-worker restart mid-recording goes on checking the connection wit
   expect(asked()).toEqual([]);
   await advance(30_000);
   await until(
-    () => openbot.calls.includes("GET /api/recorder/me"),
+    () => shardsopenbot.calls.includes("GET /api/recorder/me"),
     "the check after the restart",
   );
-  // OpenBot's answer here says nothing about the connection: the recording goes on.
+  // ShardsOpenBot's answer here says nothing about the connection: the recording goes on.
   expect((await state()).phase).toBe("recording");
 });
 

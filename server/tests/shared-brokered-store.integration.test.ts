@@ -10,7 +10,7 @@ import {
   mcpServers,
   mcpTools,
 } from "../src/db/schema";
-import { readConnectPrompt } from "@openbot/shared/connect-prompt";
+import { readConnectPrompt } from "@shardsopenbot/shared/connect-prompt";
 import { auditEvents } from "../src/db/schema";
 import {
   BrokerAccountGoneError,
@@ -27,7 +27,7 @@ const app = `team-gh-${suite}`;
 const bot = `bot-${suite}`;
 const admin = `admin-${suite}`;
 const asker = `asker-${suite}`;
-const VENDOR_ID = `openbot-deployment:acme-${suite}:R`;
+const VENDOR_ID = `shardsopenbot-deployment:acme-${suite}:R`;
 /*
  * A second row at the app's url. `zz-` sorts after `team-gh-` in any collation, so the seeded row
  * stays the one `brokeredAppRow` answers with — `order by id`, first row per url — and this is

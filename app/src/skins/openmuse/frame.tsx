@@ -42,7 +42,7 @@ import {
 import { NotificationsSheet } from "./notifications-sheet";
 import { type MuseIcon, RoundButton } from "./ui";
 
-/** The deployment's own name, from its brand.yaml: the name OpenBot's sidebar shows. */
+/** The deployment's own name, from its brand.yaml: the name ShardsOpenBot's sidebar shows. */
 const PRODUCT = appConfig.brand.productName;
 
 const TABS: { id: MuseTab; label: string; icon: MuseIcon }[] = [
@@ -54,12 +54,12 @@ const TABS: { id: MuseTab; label: string; icon: MuseIcon }[] = [
 ];
 
 /**
- * OpenMuse's shell around every OpenBot page: one centred column, the agent at the top, a bell for
- * what waits on you, and a floating pill of five tabs. The page itself is OpenBot's, untouched —
- * conversations are OpenBot's own chat routes, rendered as `children`.
+ * OpenMuse's shell around every ShardsOpenBot page: one centred column, the agent at the top, a bell for
+ * what waits on you, and a floating pill of five tabs. The page itself is ShardsOpenBot's, untouched —
+ * conversations are ShardsOpenBot's own chat routes, rendered as `children`.
  */
 export function OpenMuseFrame({ children }: { children: ReactNode }) {
-  // The roster's socket. OpenBot opens it in its sidebar, which this frame replaces.
+  // The roster's socket. ShardsOpenBot opens it in its sidebar, which this frame replaces.
   useChannelEvents();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -145,7 +145,7 @@ export function OpenMuseFrame({ children }: { children: ReactNode }) {
                 label="Open conversations and menu"
                 onClick={() => setSheet("menu")}
               >
-                {/* OpenBot's own "a Bot needs you" mark, worn as OpenMuse's dot. */}
+                {/* ShardsOpenBot's own "a Bot needs you" mark, worn as OpenMuse's dot. */}
                 <span className="openmuse-menu-badge">
                   <BotsNavBadge />
                 </span>
@@ -161,7 +161,7 @@ export function OpenMuseFrame({ children }: { children: ReactNode }) {
                 type="button"
               >
                 {/*
-                 * The Bot's own OpenBot avatar, the one its page and the Bots roster draw. With no Bot
+                 * The Bot's own ShardsOpenBot avatar, the one its page and the Bots roster draw. With no Bot
                  * yet, the deployment's own mark stands in.
                  */}
                 <span className="mt-1 mb-1 flex size-11 items-center justify-center min-[900px]:size-[52px] [&>[role=img]]:size-full! [&_svg]:size-full">
@@ -208,8 +208,8 @@ export function OpenMuseFrame({ children }: { children: ReactNode }) {
           </header>
         </div>
         {/*
-         * A tab's own screen sits in OpenMuse's 760px column. Any other OpenBot page, and a conversation
-         * with its side panel open, takes OpenBot's own width on a wide screen; the bars stay centred.
+         * A tab's own screen sits in OpenMuse's 760px column. Any other ShardsOpenBot page, and a conversation
+         * with its side panel open, takes ShardsOpenBot's own width on a wide screen; the bars stay centred.
          */}
         <main
           className={cn(
@@ -269,7 +269,7 @@ export function OpenMuseFrame({ children }: { children: ReactNode }) {
   );
 }
 
-/** Activity, Ideas and Goals are this skin's own screens; Apps is OpenBot's Connections. */
+/** Activity, Ideas and Goals are this skin's own screens; Apps is ShardsOpenBot's Connections. */
 function TabLink({
   tab,
   label,

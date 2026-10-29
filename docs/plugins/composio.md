@@ -227,7 +227,7 @@ for.
 ### A secret the person already holds
 
 This is most of the catalogue, and it is the kind that has no consent screen in it. **Connect** on a
-key app does not leave OpenBot: it asks Composio what the app wants, draws those boxes, and the
+key app does not leave ShardsOpenBot: it asks Composio what the app wants, draws those boxes, and the
 press after that carries what was typed in them.
 
 The boxes are the app's own. Their names, labels, help text, defaults and which of them are secret
@@ -455,7 +455,7 @@ the deployment's account.
 
 At `/connections`, a brokered app appears beside the OAuth connectors once an
 administrator has enabled it. Open it and press **Connect**. On a consent app — and on one whose
-OAuth client registers itself, which is the same trip from here — that leaves OpenBot for Composio's
+OAuth client registers itself, which is the same trip from here — that leaves ShardsOpenBot for Composio's
 consent screen and returns to the same page, or, for an administrator who started from the app's own
 page under `/admin/plugins`, back to that page, because leaving a page mid-task and being returned
 to a different one is the round trip this exists to remove. On an app whose secret the person
@@ -463,7 +463,7 @@ already holds, **Connect** goes nowhere: it opens a form and asks for it. The re
 is about the trip; the section above is about the form.
 
 **The address they come back to is built here, and a caller has no say in it.** It is this
-deployment's `OPENBOT_APP_URL` plus one of two known pages, so what a request can choose is which
+deployment's `SHARDSOPENBOT_APP_URL` plus one of two known pages, so what a request can choose is which
 page and never which site: an address taken from a body or a query would be an open redirect with a
 consent screen in front of it, which is the same reason this deployment's own OAuth flow narrows its
 `returnTo` to a name. A deployment with no app URL configured has no absolute address to hand over

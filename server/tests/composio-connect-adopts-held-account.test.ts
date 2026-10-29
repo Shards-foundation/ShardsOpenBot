@@ -48,7 +48,7 @@ const PERSON = `person-${suite}`;
 const ADMIN = `admin-${suite}`;
 /** Somebody else at this deployment, who holds an account the person pressing Connect does not. */
 const OTHER = `other-${suite}`;
-const DEPLOYMENT = `openbot-deployment:acme-${suite}:R`;
+const DEPLOYMENT = `shardsopenbot-deployment:acme-${suite}:R`;
 
 /**
  * Every app a test here makes, so the afterEach can take its rows back.
@@ -96,7 +96,7 @@ function composioHolding(
 ) {
   const config = {
     id: `ac_${toolkit}`,
-    name: `${toolkit} (OpenBot)`,
+    name: `${toolkit} (ShardsOpenBot)`,
     status: "ENABLED",
   };
   const asked = { listed: 0, minted: [] as string[] };
@@ -231,7 +231,7 @@ function signedInAs(
       session,
       async () => true,
       {
-        publicUrl: "https://openbot.example",
+        publicUrl: "https://shardsopenbot.example",
         appUrl: "https://app.example",
         encryptionKey: `${"A".repeat(43)}=`,
         personHasAccess: async () => true,
@@ -286,7 +286,7 @@ afterAll(async () => {
   await database.$client.end();
 });
 
-describe("Connect, where Composio already holds this person's account and OpenBot has no row", () => {
+describe("Connect, where Composio already holds this person's account and ShardsOpenBot has no row", () => {
   test("records the account Composio holds and answers connected, as confirm would", async () => {
     const toolkit = `github-${suite}-held`;
     await enable(toolkit, "personal");

@@ -7,7 +7,7 @@ import {
   test,
 } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import type { UserPreferences } from "@openbot/shared/user-preferences";
+import type { UserPreferences } from "@shardsopenbot/shared/user-preferences";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, waitFor } from "@testing-library/react";
 import { MessageListPreference } from "@/components/settings/message-list-preference";
@@ -111,7 +111,7 @@ test("successful writes update only the current account cache; failures preserve
         messageListEmphasis: "thread",
         selfHostBannerDismissed: false,
         narration: null,
-        skin: "openbot",
+        skin: "shardsopenbot",
       },
     });
   await mutation.execute({ messageListEmphasis: "thread" });
@@ -144,6 +144,6 @@ test("successful writes update only the current account cache; failures preserve
     messageListEmphasis: "thread",
     selfHostBannerDismissed: false,
     narration: null,
-    skin: "openbot",
+    skin: "shardsopenbot",
   });
 });

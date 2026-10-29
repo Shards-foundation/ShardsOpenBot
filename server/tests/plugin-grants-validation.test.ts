@@ -49,7 +49,7 @@ function appWith(
   ) => {
     context.set("actor", {
       id: "user-1",
-      email: "user@openbot.test",
+      email: "user@shardsopenbot.test",
       role: "admin",
     });
     await next();
@@ -76,7 +76,7 @@ describe("POST /api/plugins/grants", () => {
   ])("refuses %s with 400 and never reaches the store", async (_n, body) => {
     const calls = { grants: [] as unknown[], toolCalls: [] as unknown[] };
     const response = await appWith(calls).request(
-      "http://openbot.test/grants",
+      "http://shardsopenbot.test/grants",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -111,7 +111,7 @@ describe("POST /api/plugins/grants, for an app this deployment does not have", (
       serverLookups: [] as unknown[],
     };
     const response = await appWith(calls, ["added-app"]).request(
-      "http://openbot.test/grants",
+      "http://shardsopenbot.test/grants",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -140,7 +140,7 @@ describe("POST /api/plugins/grants, for an app this deployment does not have", (
       serverLookups: [] as unknown[],
     };
     const response = await appWith(calls, ["added-app"]).request(
-      "http://openbot.test/grants",
+      "http://shardsopenbot.test/grants",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -172,7 +172,7 @@ describe("POST /api/plugins/grants, for an app this deployment does not have", (
       serverLookups: [] as unknown[],
     };
     const response = await appWith(calls, ["added-app"]).request(
-      "http://openbot.test/grants",
+      "http://shardsopenbot.test/grants",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -204,7 +204,7 @@ describe("POST /api/plugins/grants, for an app this deployment does not have", (
       serverLookups: [] as unknown[],
     };
     const response = await appWith(calls, ["added-app"]).request(
-      "http://openbot.test/grants?kind=mcp&ref=missing-app%2FSEND_MESSAGE&agentId=bot-1",
+      "http://shardsopenbot.test/grants?kind=mcp&ref=missing-app%2FSEND_MESSAGE&agentId=bot-1",
       { method: "DELETE" },
     );
 
@@ -238,7 +238,7 @@ describe("POST /api/plugins/grants, for a skill nobody has written", () => {
       skillLookups: [] as unknown[],
     };
     const response = await appWith(calls, [], ["triage"]).request(
-      "http://openbot.test/grants",
+      "http://shardsopenbot.test/grants",
       grantSkill("standup"),
     );
 
@@ -253,7 +253,7 @@ describe("POST /api/plugins/grants, for a skill nobody has written", () => {
   test("a skill that is here is granted as before", async () => {
     const calls = { grants: [] as unknown[], toolCalls: [] as unknown[] };
     const response = await appWith(calls, [], ["triage"]).request(
-      "http://openbot.test/grants",
+      "http://shardsopenbot.test/grants",
       grantSkill("triage"),
     );
 
@@ -271,7 +271,7 @@ describe("POST /api/plugins/grants, for a skill nobody has written", () => {
       skillLookups: [] as unknown[],
     };
     const response = await appWith(calls, [], []).request(
-      "http://openbot.test/grants?kind=skill&ref=standup&agentId=bot-1",
+      "http://shardsopenbot.test/grants?kind=skill&ref=standup&agentId=bot-1",
       { method: "DELETE" },
     );
 
@@ -305,7 +305,7 @@ describe("DELETE /api/plugins/grants", () => {
       revokes: [] as unknown[],
     };
     const response = await appWith(calls).request(
-      `http://openbot.test/grants${query}`,
+      `http://shardsopenbot.test/grants${query}`,
       { method: "DELETE" },
     );
 
@@ -323,7 +323,7 @@ describe("DELETE /api/plugins/grants", () => {
       revokes: [] as unknown[],
     };
     const response = await appWith(calls).request(
-      "http://openbot.test/grants?kind=mcp&ref=%20tool%20&agentId=%20bot-1%20",
+      "http://shardsopenbot.test/grants?kind=mcp&ref=%20tool%20&agentId=%20bot-1%20",
       { method: "DELETE" },
     );
 
@@ -342,11 +342,14 @@ describe("POST /api/plugins/call", () => {
     ["a whitespace ref", { ref: "  ", agentId: "bot-1" }],
   ])("refuses %s with 400 and never reaches the store", async (_n, body) => {
     const calls = { grants: [] as unknown[], toolCalls: [] as unknown[] };
-    const response = await appWith(calls).request("http://openbot.test/call", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    const response = await appWith(calls).request(
+      "http://shardsopenbot.test/call",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    );
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
@@ -374,7 +377,7 @@ describe("POST /api/plugins/skills", () => {
     ) => {
       context.set("actor", {
         id: "user-1",
-        email: "user@openbot.test",
+        email: "user@shardsopenbot.test",
         role: "admin",
       });
       await next();
@@ -421,7 +424,7 @@ describe("POST /api/plugins/skills", () => {
   ])("refuses %s with 400 and never reaches the store", async (_n, body) => {
     const calls = { installs: [] as unknown[] };
     const response = await skillsApp(calls).request(
-      "http://openbot.test/skills",
+      "http://shardsopenbot.test/skills",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -436,7 +439,7 @@ describe("POST /api/plugins/skills", () => {
   test("a well-formed skill still installs", async () => {
     const calls = { installs: [] as unknown[] };
     const response = await skillsApp(calls).request(
-      "http://openbot.test/skills",
+      "http://shardsopenbot.test/skills",
       {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -475,7 +478,7 @@ describe("POST /api/plugins/grants, for a Bot that does not exist", () => {
   ])("refuses a grant of %s and never reaches the store", async (_n, body) => {
     const calls = { grants: [] as unknown[], toolCalls: [] as unknown[] };
     const response = await appWith(calls, ["tool"], ["triage"]).request(
-      "http://openbot.test/grants",
+      "http://shardsopenbot.test/grants",
       grant(body),
     );
 
@@ -492,7 +495,7 @@ describe("POST /api/plugins/grants, for a Bot that does not exist", () => {
   ])("grants %s to a Bot that is there, as before", async (_n, body) => {
     const calls = { grants: [] as unknown[], toolCalls: [] as unknown[] };
     const response = await appWith(calls, ["tool"], ["triage"]).request(
-      "http://openbot.test/grants",
+      "http://shardsopenbot.test/grants",
       grant(body),
     );
 

@@ -6,7 +6,7 @@ import userEvent from "@testing-library/user-event";
 import { ReachingYou } from "@/components/delivery/reaching-you";
 import { settleReactWork } from "./settle-react-work";
 
-/** A Bot's Reaching you page: where this Bot's conversations continue outside OpenBot. */
+/** A Bot's Reaching you page: where this Bot's conversations continue outside ShardsOpenBot. */
 
 beforeAll(() => GlobalRegistrator.register());
 afterEach(cleanup);

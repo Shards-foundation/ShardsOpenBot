@@ -223,7 +223,7 @@ export function MemorySources({ agentId: fixedBot }: { agentId?: string }) {
           <DialogHeader>
             <DialogTitle>Add a source</DialogTitle>
             <DialogDescription>
-              OpenBot reads it now, then every 15 minutes while it's on.
+              ShardsOpenBot reads it now, then every 15 minutes while it's on.
             </DialogDescription>
           </DialogHeader>
           <DialogBody className="mt-4 overflow-y-auto">
@@ -255,7 +255,7 @@ export function MemorySources({ agentId: fixedBot }: { agentId?: string }) {
                         .filter(Boolean);
                     else if (setting.schema.type === "object")
                       throw new Error(
-                        "This one has settings OpenBot can't show. Choose another.",
+                        "This one has settings ShardsOpenBot can't show. Choose another.",
                       );
                     else values[setting.name] = value;
                   }

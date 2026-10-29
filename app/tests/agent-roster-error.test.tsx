@@ -179,7 +179,7 @@ test("a failed REFETCH on / keeps the roster and does not disclaim the composer"
   // evidence that the composer is not the disabled, nothing-to-send-to state its alert describes.
   expect(
     await view.findByText(
-      "OpenBot picks the right Bot.",
+      "ShardsOpenBot picks the right Bot.",
       { exact: false },
       HOME_FIND_TIMEOUT,
     ),

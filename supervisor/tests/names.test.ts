@@ -45,7 +45,7 @@ describe("the ids a supervisor will accept", () => {
 
   test("ids that could name somebody else's container are refused", () => {
     for (const id of [
-      "openbot-postgres", // starts plausibly, still only ever becomes <namespace>-computer-*
+      "shardsopenbot-postgres", // starts plausibly, still only ever becomes <namespace>-computer-*
       "../postgres",
       "postgres:latest", // a tag
       "bot id", // whitespace
@@ -85,14 +85,14 @@ describe("the ids a supervisor will accept", () => {
 
   test("the ownership labels are stable", () => {
     // Stop and reset filter on these. Renaming one widens what the supervisor will act on.
-    expect(OWNER_LABEL).toBe("openbot.supervisor");
-    expect(BOT_LABEL).toBe("openbot.bot-id");
-    expect(NAMESPACE_LABEL).toBe("openbot.namespace");
+    expect(OWNER_LABEL).toBe("shardsopenbot.supervisor");
+    expect(BOT_LABEL).toBe("shardsopenbot.bot-id");
+    expect(NAMESPACE_LABEL).toBe("shardsopenbot.namespace");
   });
 
   test("the default namespace is the one existing deployments already use", () => {
     // Containers created before the namespace existed carry no namespace label and are read as this
     // one, so changing it would orphan every computer a running deployment already owns.
-    expect(DEFAULT_NAMESPACE).toBe("openbot");
+    expect(DEFAULT_NAMESPACE).toBe("shardsopenbot");
   });
 });

@@ -14,7 +14,7 @@
 
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
-import { HANDED_OVER } from "@openbot/shared/handoff-markers";
+import { HANDED_OVER } from "@shardsopenbot/shared/handoff-markers";
 import {
   type ApprovalGate,
   ApprovalRefusedError,
@@ -23,7 +23,7 @@ import {
 import { type AuditStore, PERSON_INITIATOR, recordAuditEvent } from "../audit";
 import type { Database } from "../db/client";
 import { workItems } from "../db/schema";
-import type { GrantedTool } from "@openbot/toolkit/granted-tool";
+import type { GrantedTool } from "@shardsopenbot/toolkit/granted-tool";
 import { REFUSAL_MARKER } from "../plugins/tools";
 import type {
   CheckPrivateShare,
@@ -254,7 +254,7 @@ async function sharePermission(
     return `${input.refused}: ${verdict.message}`;
   const initiator = continuation?.initiator;
   if (initiator && initiator.kind !== "person") throw verdict.suspension;
-  return `${input.refused} yet: ${verdict.message} Tell the person you are waiting for their permission on your page in OpenBot.`;
+  return `${input.refused} yet: ${verdict.message} Tell the person you are waiting for their permission on your page in ShardsOpenBot.`;
 }
 
 /** Re-exported so callers of this module do not need to know where it is declared. */

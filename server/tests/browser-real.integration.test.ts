@@ -1,10 +1,10 @@
 // The Browser button and the person's own everyday browser, through the real routes and the real database: each
 // Recorder's report of what it is recording is kept against its connection, the state's red dot (`activity`) reads the
-// newest live one from any of the person's Recorders, and on OpenBot Desktop the state lists the person's own browsers
+// newest live one from any of the person's Recorders, and on ShardsOpenBot Desktop the state lists the person's own browsers
 // and whether a Recorder in one is connected through Desktop (`real`), while Browser brings that browser forward, or
-// opens the Recorder's store page in it, or (before the Recorder is published) opens the OpenBot browser as before.
-// The computer is a stand-in that answers its routes exactly as the contract types them (shared/openbot-browser.ts):
-// the real-browser routes are OpenBot Desktop's host-side computer's, another slice's work.
+// opens the Recorder's store page in it, or (before the Recorder is published) opens the ShardsOpenBot browser as before.
+// The computer is a stand-in that answers its routes exactly as the contract types them (shared/shardsopenbot-browser.ts):
+// the real-browser routes are ShardsOpenBot Desktop's host-side computer's, another slice's work.
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
 import {
@@ -19,19 +19,19 @@ import {
   type RealBrowserOpenResponse,
   realBrowserComputerPaths,
   realBrowserRequestSchema,
-} from "@openbot/shared/openbot-browser";
+} from "@shardsopenbot/shared/shardsopenbot-browser";
 import {
   type ExchangeResponse,
   RECORDER_SIGNED_OUT,
   type RecorderActivity,
   recorderPaths,
-} from "@openbot/shared/recorder-api";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+} from "@shardsopenbot/shared/recorder-api";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { createApp } from "../src/app";
 import type { AuditEventInput } from "../src/audit";
 import { DEV_ACTOR, initializeDevActorUser } from "../src/auth/dev-actor";
-import { openbotAddress } from "../src/browser/address";
+import { shardsopenbotAddress } from "../src/browser/address";
 import { personBrowserEgressPolicy } from "../src/browser/egress";
 import {
   gatewayBrowserComputers,
@@ -62,7 +62,7 @@ const cy = { id: `${prefix}-cy`, email: `${prefix}-cy@example.test` };
 const PEOPLE = { ada, ben, cy } as const;
 type Person = keyof typeof PEOPLE;
 const COMPUTER_TOKEN = "browser-real-computer-token";
-const PUBLIC = "https://openbot.example.com";
+const PUBLIC = "https://shardsopenbot.example.com";
 // This slice's own ports: the stand-in computer, and one nothing listens on.
 const COMPUTER_PORT = 7880;
 const NOTHING_PORT = 7881;
@@ -77,7 +77,7 @@ const PUBLISHED = {
 
 /** Every request the computer took, as `<method> <path>`, with the body of each real-browser POST. */
 const asked: { line: string; body?: unknown }[] = [];
-/** The OpenBot browsers it has open, by person browser id. */
+/** The ShardsOpenBot browsers it has open, by person browser id. */
 const browsers = new Map<string, BrowserState & { token?: string }>();
 /** The connection each browser's Recorder keeps in its profile, which outlives the browser being closed. */
 const recorderKeeps = new Map<string, LauncherConnection>();
@@ -91,17 +91,19 @@ const STORE_HOSTS = [
   "microsoftedge.microsoft.com",
 ];
 
-/** The computer's routes as the contract types them: the token, a person's browser id in `x-openbot-bot-id` (400 for
- * anything else), and each body read against the contract's schema. The real-browser routes refuse what OpenBot
+/** The computer's routes as the contract types them: the token, a person's browser id in `x-shardsopenbot-bot-id` (400 for
+ * anything else), and each body read against the contract's schema. The real-browser routes refuse what ShardsOpenBot
  * Desktop's host-side computer refuses: a front with a url, and a store url that is not an https store page. */
 const computer = Bun.serve({
   hostname: "127.0.0.1",
   port: COMPUTER_PORT,
   async fetch(request) {
     const url = new URL(request.url);
-    if (request.headers.get("x-openbot-computer-token") !== COMPUTER_TOKEN)
+    if (
+      request.headers.get("x-shardsopenbot-computer-token") !== COMPUTER_TOKEN
+    )
       return Response.json({ error: "Unauthorized." }, { status: 401 });
-    const id = request.headers.get("x-openbot-bot-id") ?? "";
+    const id = request.headers.get("x-shardsopenbot-bot-id") ?? "";
     const sent = request.method === "POST" ? await request.text() : "";
     const body = sent ? JSON.parse(sent) : undefined;
     asked.push({ line: `${request.method} ${url.pathname}`, body });
@@ -202,7 +204,7 @@ const computer = Bun.serve({
   },
 });
 
-// ---- OpenBot, as index.ts builds it ------------------------------------------------------------
+// ---- ShardsOpenBot, as index.ts builds it ------------------------------------------------------------
 
 const auditStore = { insert: async (_event: AuditEventInput) => {} };
 const roleRepository = { rolesForUser: async () => ["user" as const] };
@@ -224,9 +226,9 @@ const better = {
 };
 
 /**
- * One OpenBot: hosted (people's browsers on computers of their own beside the Bots', as a supervisor or a Sandbox gives
- * them, shown as a screen), or OpenBot Desktop (`desktop`: people's browsers on its host-side computer,
- * `OPENBOT_BROWSER_URL`, as windows on the person's own desktop).
+ * One ShardsOpenBot: hosted (people's browsers on computers of their own beside the Bots', as a supervisor or a Sandbox gives
+ * them, shown as a screen), or ShardsOpenBot Desktop (`desktop`: people's browsers on its host-side computer,
+ * `SHARDSOPENBOT_BROWSER_URL`, as windows on the person's own desktop).
  */
 function build(
   options: {
@@ -246,14 +248,14 @@ function build(
         : undefined;
   const config = loadConfig(
     testEnvironment({
-      // A single-user OpenBot is reached only from this machine: its window's own loopback address.
-      OPENBOT_PUBLIC_URL: options.singleUser ? undefined : PUBLIC,
+      // A single-user ShardsOpenBot is reached only from this machine: its window's own loopback address.
+      SHARDSOPENBOT_PUBLIC_URL: options.singleUser ? undefined : PUBLIC,
       AGENT_COMPUTER_URL: computerUrl,
       COMPUTER_TOKEN,
-      ...(browserUrl ? { OPENBOT_BROWSER_URL: browserUrl } : {}),
+      ...(browserUrl ? { SHARDSOPENBOT_BROWSER_URL: browserUrl } : {}),
       ...(options.singleUser
         ? {
-            OPENBOT_SINGLE_USER: "true",
+            SHARDSOPENBOT_SINGLE_USER: "true",
             BETTER_AUTH_URL: undefined,
             BETTER_AUTH_SECRET: undefined,
             GOOGLE_OAUTH_CLIENT_ID: undefined,
@@ -266,7 +268,7 @@ function build(
   const personPolicy = personBrowserEgressPolicy({
     native: config.browser !== undefined,
     allowPrivateHosts: false,
-    openbotUrls: [config.publicUrl, config.appUrl],
+    shardsopenbotUrls: [config.publicUrl, config.appUrl],
     gatewayUrl: config.runtime.intelligence.gatewayWsUrl,
   });
   const provider = withPolicyPushOnWake(
@@ -319,22 +321,22 @@ function build(
       }),
       token: COMPUTER_TOKEN,
       recorder,
-      openbotUrl: openbotAddress(config),
+      shardsopenbotUrl: shardsopenbotAddress(config),
       singleUser: config.singleUser,
       ...(options.storeIds ? { storeIds: options.storeIds } : {}),
     },
   };
   return { app: createApp(...args), config };
 }
-type OpenBot = ReturnType<typeof build>;
+type ShardsOpenBot = ReturnType<typeof build>;
 
 const call = (
-  { app }: OpenBot,
+  { app }: ShardsOpenBot,
   path: string,
   init: RequestInit & { json?: unknown; as?: Person } = {},
 ) => {
   const { json, headers, as, ...rest } = init;
-  return app.request(`http://openbot.test${path}`, {
+  return app.request(`http://shardsopenbot.test${path}`, {
     ...rest,
     headers: {
       ...(json === undefined ? {} : { "content-type": "application/json" }),
@@ -346,21 +348,21 @@ const call = (
 };
 const bearer = (token: string) => ({ authorization: `Bearer ${token}` });
 
-/** A Recorder connecting as the person, as the real one does: a connect code minted for them (from OpenBot, or from
- * OpenBot Desktop's handoff), exchanged from the Recorder's own origin under the name it gives its browser. */
+/** A Recorder connecting as the person, as the real one does: a connect code minted for them (from ShardsOpenBot, or from
+ * ShardsOpenBot Desktop's handoff), exchanged from the Recorder's own origin under the name it gives its browser. */
 async function connect(
-  openbot: OpenBot,
+  shardsopenbot: ShardsOpenBot,
   as: Person | null,
   input: { via: "web" | "desktop"; label: string },
 ): Promise<ExchangeResponse> {
-  const minted = await call(openbot, recorderPaths.connectCodes, {
+  const minted = await call(shardsopenbot, recorderPaths.connectCodes, {
     method: "POST",
     ...(as ? { as } : {}),
     json: { via: input.via },
   });
   expect(minted.status).toBe(201);
   const { code } = (await minted.json()) as { code: string };
-  const exchanged = await call(openbot, recorderPaths.connections, {
+  const exchanged = await call(shardsopenbot, recorderPaths.connections, {
     method: "POST",
     headers: { origin: EXTENSION_ORIGIN },
     json: {
@@ -373,9 +375,13 @@ async function connect(
   return exchanged.json();
 }
 
-/** The Recorder telling OpenBot what it is doing, with its own bearer. */
-const report = (openbot: OpenBot, token: string, activity: unknown) =>
-  call(openbot, recorderPaths.activity, {
+/** The Recorder telling ShardsOpenBot what it is doing, with its own bearer. */
+const report = (
+  shardsopenbot: ShardsOpenBot,
+  token: string,
+  activity: unknown,
+) =>
+  call(shardsopenbot, recorderPaths.activity, {
     method: "POST",
     headers: bearer(token),
     json: activity,
@@ -390,14 +396,14 @@ const recordingReceipt = (startedAt = Date.now() - 20_000) =>
     actions: 4,
   }) satisfies RecorderActivity;
 
-async function stateOf(openbot: OpenBot, as?: Person) {
-  const response = await call(openbot, "/api/browser", as ? { as } : {});
+async function stateOf(shardsopenbot: ShardsOpenBot, as?: Person) {
+  const response = await call(shardsopenbot, "/api/browser", as ? { as } : {});
   expect(response.status).toBe(200);
   return (await response.json()) as BrowserApiState;
 }
 
-async function openAs(openbot: OpenBot, as?: Person) {
-  const response = await call(openbot, "/api/browser/open", {
+async function openAs(shardsopenbot: ShardsOpenBot, as?: Person) {
+  const response = await call(shardsopenbot, "/api/browser/open", {
     method: "POST",
     ...(as ? { as } : {}),
   });
@@ -450,16 +456,16 @@ afterAll(async () => {
   await database.$client.close();
 });
 
-describe("a Recorder tells OpenBot what it is recording", () => {
+describe("a Recorder tells ShardsOpenBot what it is recording", () => {
   test("its report is kept against its connection with when it arrived, and the next one replaces it", async () => {
-    const openbot = build();
-    const chrome = await connect(openbot, "ada", {
+    const shardsopenbot = build();
+    const chrome = await connect(shardsopenbot, "ada", {
       via: "web",
       label: "Google Chrome on macOS",
     });
     const before = Date.now();
     const recording = recordingReceipt();
-    const answered = await report(openbot, chrome.token, recording);
+    const answered = await report(shardsopenbot, chrome.token, recording);
     expect(answered.status).toBe(204);
     const [row] = await database
       .select()
@@ -471,7 +477,7 @@ describe("a Recorder tells OpenBot what it is recording", () => {
 
     // Stopped: the idle report takes the recording's place, rather than adding to it.
     expect(
-      (await report(openbot, chrome.token, { phase: "idle", actions: 0 }))
+      (await report(shardsopenbot, chrome.token, { phase: "idle", actions: 0 }))
         .status,
     ).toBe(204);
     const [after] = await database
@@ -483,15 +489,15 @@ describe("a Recorder tells OpenBot what it is recording", () => {
   });
 
   test("only a connected Recorder's bearer is taken, and only a report the contract types", async () => {
-    const openbot = build();
-    const chrome = await connect(openbot, "ada", {
+    const shardsopenbot = build();
+    const chrome = await connect(shardsopenbot, "ada", {
       via: "web",
       label: "Google Chrome on macOS",
     });
     // A signed-in person is not a Recorder.
     expect(
       (
-        await call(openbot, recorderPaths.activity, {
+        await call(shardsopenbot, recorderPaths.activity, {
           method: "POST",
           as: "ada",
           json: recordingReceipt(),
@@ -501,7 +507,7 @@ describe("a Recorder tells OpenBot what it is recording", () => {
     // Not JSON, and not a report.
     expect(
       (
-        await call(openbot, recorderPaths.activity, {
+        await call(shardsopenbot, recorderPaths.activity, {
           method: "POST",
           headers: { ...bearer(chrome.token), "content-type": "text/plain" },
           body: JSON.stringify(recordingReceipt()),
@@ -514,7 +520,7 @@ describe("a Recorder tells OpenBot what it is recording", () => {
       { ...recordingReceipt(), url: "https://example.com" },
       { phase: "recording", actions: -1 },
     ]) {
-      const refused = await report(openbot, chrome.token, wrong);
+      const refused = await report(shardsopenbot, chrome.token, wrong);
       expect([wrong, refused.status]).toEqual([wrong, 400]);
     }
     const [row] = await database
@@ -524,12 +530,16 @@ describe("a Recorder tells OpenBot what it is recording", () => {
     expect(row?.activity).toBeNull();
 
     // Disconnected: refused as every bearer route refuses a revoked connection, signed out, and nothing is kept.
-    const gone = await call(openbot, recorderPaths.currentConnection, {
+    const gone = await call(shardsopenbot, recorderPaths.currentConnection, {
       method: "DELETE",
       headers: bearer(chrome.token),
     });
     expect(gone.status).toBe(204);
-    const refused = await report(openbot, chrome.token, recordingReceipt());
+    const refused = await report(
+      shardsopenbot,
+      chrome.token,
+      recordingReceipt(),
+    );
     expect(refused.status).toBe(401);
     expect(((await refused.json()) as { code: string }).code).toBe(
       RECORDER_SIGNED_OUT,
@@ -544,8 +554,8 @@ describe("a Recorder tells OpenBot what it is recording", () => {
 
   test("a report that arrives after its connection was revoked is not kept", async () => {
     // The guard read the token before the revoke landed: the write itself refuses a revoked connection.
-    const openbot = build();
-    const chrome = await connect(openbot, "ada", {
+    const shardsopenbot = build();
+    const chrome = await connect(shardsopenbot, "ada", {
       via: "web",
       label: "Google Chrome on macOS",
     });
@@ -561,7 +571,7 @@ describe("a Recorder tells OpenBot what it is recording", () => {
       ),
     ).toBe(false);
     // Nor is one kept against another person's connection.
-    const bens = await connect(openbot, "ben", {
+    const bens = await connect(shardsopenbot, "ben", {
       via: "web",
       label: "Google Chrome on macOS",
     });
@@ -590,41 +600,44 @@ describe("a Recorder tells OpenBot what it is recording", () => {
 describe("the red dot follows any of the person's Recorders", () => {
   for (const surface of ["hosted", "Desktop"] as const)
     test(`a recording in the person's everyday browser lights it on ${surface}, and Stop puts it out`, async () => {
-      const openbot = build({ desktop: surface === "Desktop" });
-      const everyday = await connect(openbot, "ada", {
+      const shardsopenbot = build({ desktop: surface === "Desktop" });
+      const everyday = await connect(shardsopenbot, "ada", {
         via: surface === "Desktop" ? "desktop" : "web",
         label: "Google Chrome on macOS",
       });
-      expect((await stateOf(openbot, "ada")).activity).toBeUndefined();
+      expect((await stateOf(shardsopenbot, "ada")).activity).toBeUndefined();
       const recording = recordingReceipt();
-      await report(openbot, everyday.token, recording);
-      const state = await stateOf(openbot, "ada");
+      await report(shardsopenbot, everyday.token, recording);
+      const state = await stateOf(shardsopenbot, "ada");
       expect(state.activity).toEqual(recording);
-      // The OpenBot browser itself is not open, and nothing about it changed.
+      // The ShardsOpenBot browser itself is not open, and nothing about it changed.
       expect(state).toMatchObject({ open: false, tabs: [] });
       expect(state.recorder).toBeUndefined();
 
-      await report(openbot, everyday.token, { phase: "idle", actions: 0 });
-      expect((await stateOf(openbot, "ada")).activity).toBeUndefined();
+      await report(shardsopenbot, everyday.token, {
+        phase: "idle",
+        actions: 0,
+      });
+      expect((await stateOf(shardsopenbot, "ada")).activity).toBeUndefined();
       await removeConnections(ada.id);
     });
 
   test("a report older than 90 seconds lights nothing, and the newest recording is the one named", async () => {
-    const openbot = build();
-    const chrome = await connect(openbot, "ada", {
+    const shardsopenbot = build();
+    const chrome = await connect(shardsopenbot, "ada", {
       via: "web",
       label: "Google Chrome on macOS",
     });
-    const edge = await connect(openbot, "ada", {
+    const edge = await connect(shardsopenbot, "ada", {
       via: "web",
       label: "Microsoft Edge on Windows",
     });
-    await report(openbot, chrome.token, recordingReceipt());
+    await report(shardsopenbot, chrome.token, recordingReceipt());
     // A browser that quit mid-recording says nothing more: three missed 30-second reports later the dot is out.
     await reportedAgo(chrome.connection.id, 91_000);
-    expect((await stateOf(openbot, "ada")).activity).toBeUndefined();
+    expect((await stateOf(shardsopenbot, "ada")).activity).toBeUndefined();
     await reportedAgo(chrome.connection.id, 85_000);
-    expect((await stateOf(openbot, "ada")).activity?.title).toBe(
+    expect((await stateOf(shardsopenbot, "ada")).activity?.title).toBe(
       "Submit the receipt",
     );
 
@@ -634,86 +647,89 @@ describe("the red dot follows any of the person's Recorders", () => {
       title: "File the expense",
       actions: 0,
     } satisfies RecorderActivity;
-    await report(openbot, edge.token, other);
-    expect((await stateOf(openbot, "ada")).activity).toEqual(other);
+    await report(shardsopenbot, edge.token, other);
+    expect((await stateOf(shardsopenbot, "ada")).activity).toEqual(other);
     // The newer one stops: the older recording, still running, is named again.
-    await report(openbot, edge.token, { phase: "idle", actions: 0 });
-    expect((await stateOf(openbot, "ada")).activity?.title).toBe(
+    await report(shardsopenbot, edge.token, { phase: "idle", actions: 0 });
+    expect((await stateOf(shardsopenbot, "ada")).activity?.title).toBe(
       "Submit the receipt",
     );
     await removeConnections(ada.id);
   });
 
   test("another person's recording never lights mine, and a disconnected browser's report is gone with it", async () => {
-    const openbot = build();
-    const bens = await connect(openbot, "ben", {
+    const shardsopenbot = build();
+    const bens = await connect(shardsopenbot, "ben", {
       via: "web",
       label: "Google Chrome on macOS",
     });
-    await report(openbot, bens.token, recordingReceipt());
-    expect((await stateOf(openbot, "ada")).activity).toBeUndefined();
-    expect((await stateOf(openbot, "ben")).activity?.title).toBe(
+    await report(shardsopenbot, bens.token, recordingReceipt());
+    expect((await stateOf(shardsopenbot, "ada")).activity).toBeUndefined();
+    expect((await stateOf(shardsopenbot, "ben")).activity?.title).toBe(
       "Submit the receipt",
     );
     // Disconnected in Settings, Browsers while it recorded.
     const removed = await call(
-      openbot,
+      shardsopenbot,
       `/api/recorder/connections/${bens.connection.id}`,
       { method: "DELETE", as: "ben" },
     );
     expect(removed.status).toBe(204);
-    expect((await stateOf(openbot, "ben")).activity).toBeUndefined();
+    expect((await stateOf(shardsopenbot, "ben")).activity).toBeUndefined();
     await removeConnections(ben.id);
   });
 
-  test("the OpenBot browser's own Recorder, as its computer says now, is newer than any report", async () => {
-    const openbot = build({ desktop: true });
-    const opened = await openAs(openbot, "cy");
+  test("the ShardsOpenBot browser's own Recorder, as its computer says now, is newer than any report", async () => {
+    const shardsopenbot = build({ desktop: true });
+    const opened = await openAs(shardsopenbot, "cy");
     expect(opened.status).toBe(200);
     const computerId = personBrowserId(cy.id);
     const browser = browsers.get(computerId);
     if (!browser?.token) throw new Error("the browser did not open connected");
-    const everyday = await connect(openbot, "cy", {
+    const everyday = await connect(shardsopenbot, "cy", {
       via: "desktop",
       label: "Google Chrome on macOS",
     });
-    await report(openbot, everyday.token, recordingReceipt());
+    await report(shardsopenbot, everyday.token, recordingReceipt());
 
-    // Recording in the OpenBot browser too, as its computer reports it: that is the one named, being the newest.
+    // Recording in the ShardsOpenBot browser too, as its computer reports it: that is the one named, being the newest.
     browser.recorder = {
       ...(browser.recorder as LauncherState),
       phase: "recording",
-      recordingId: "rec-openbot",
+      recordingId: "rec-shardsopenbot",
       title: "Book the room",
       startedAt: Date.now() - 5_000,
       actions: 2,
     };
-    const both = await stateOf(openbot, "cy");
+    const both = await stateOf(shardsopenbot, "cy");
     expect(both.activity).toEqual({
       phase: "recording",
-      recordingId: "rec-openbot",
+      recordingId: "rec-shardsopenbot",
       title: "Book the room",
       startedAt: browser.recorder.startedAt as number,
       actions: 2,
     });
 
-    // The OpenBot browser's Recorder said it was recording, then stopped, and its idle report did not arrive: its
+    // The ShardsOpenBot browser's Recorder said it was recording, then stopped, and its idle report did not arrive: its
     // computer says idle now, which outranks the report, and the everyday browser's recording is the one shown.
-    const reported = await report(openbot, browser.token, {
+    const reported = await report(shardsopenbot, browser.token, {
       phase: "recording",
-      recordingId: "rec-openbot",
+      recordingId: "rec-shardsopenbot",
       title: "Book the room",
       startedAt: Date.now() - 5_000,
       actions: 2,
     });
     expect(reported.status).toBe(204);
-    await report(openbot, everyday.token, { phase: "idle", actions: 0 });
+    await report(shardsopenbot, everyday.token, { phase: "idle", actions: 0 });
     browser.recorder = { ...browser.recorder, phase: "idle", actions: 0 };
-    expect((await stateOf(openbot, "cy")).activity).toBeUndefined();
+    expect((await stateOf(shardsopenbot, "cy")).activity).toBeUndefined();
 
     // Closed: the computer says it holds no browser, and the report from before is not taken for one.
-    await call(openbot, "/api/browser/close", { method: "POST", as: "cy" });
-    expect((await stateOf(openbot, "cy")).activity).toBeUndefined();
+    await call(shardsopenbot, "/api/browser/close", {
+      method: "POST",
+      as: "cy",
+    });
+    expect((await stateOf(shardsopenbot, "cy")).activity).toBeUndefined();
     await removeConnections(cy.id);
   });
 
@@ -753,7 +769,7 @@ describe("the red dot follows any of the person's Recorders", () => {
   });
 });
 
-describe("OpenBot Desktop's state names the person's own browsers", () => {
+describe("ShardsOpenBot Desktop's state names the person's own browsers", () => {
   test("which are installed, and whether a Recorder in one is connected through Desktop", async () => {
     const desktop = build({ desktop: true });
     installed = ["chrome", "msedge"];
@@ -761,7 +777,7 @@ describe("OpenBot Desktop's state names the person's own browsers", () => {
       connected: false,
       browsers: ["chrome", "msedge"],
     });
-    // A browser connected from OpenBot in that browser (Connect this browser) is not the Desktop route.
+    // A browser connected from ShardsOpenBot in that browser (Connect this browser) is not the Desktop route.
     await connect(desktop, "ada", {
       via: "web",
       label: "Google Chrome on macOS",
@@ -787,7 +803,7 @@ describe("OpenBot Desktop's state names the person's own browsers", () => {
     });
     installed = ["chrome", "msedge"];
 
-    // Hosted OpenBot has no everyday browser of the person's to name.
+    // Hosted ShardsOpenBot has no everyday browser of the person's to name.
     expect((await stateOf(build(), "ada")).real).toBeUndefined();
     await removeConnections(ada.id);
   });
@@ -812,7 +828,7 @@ describe("OpenBot Desktop's state names the person's own browsers", () => {
   });
 });
 
-describe("Browser on OpenBot Desktop, with the person's own browser", () => {
+describe("Browser on ShardsOpenBot Desktop, with the person's own browser", () => {
   test("with the Recorder connected through Desktop it brings that browser forward: Edge when its name says so, else Chrome", async () => {
     const desktop = build({ desktop: true, storeIds: PUBLISHED });
     const connectionsBefore = async () =>
@@ -843,7 +859,7 @@ describe("Browser on OpenBot Desktop, with the person's own browser", () => {
         body: { browser: "msedge" },
       },
     ]);
-    // No OpenBot browser opened, and no Recorder connection minted for one.
+    // No ShardsOpenBot browser opened, and no Recorder connection minted for one.
     expect(browsers.has(personBrowserId(ada.id))).toBe(false);
     expect(await connectionsBefore()).toBe(minted);
 
@@ -922,7 +938,7 @@ describe("Browser on OpenBot Desktop, with the person's own browser", () => {
     });
   });
 
-  test("before the Recorder is published it opens the OpenBot browser as it always has, and asks nothing about their own", async () => {
+  test("before the Recorder is published it opens the ShardsOpenBot browser as it always has, and asks nothing about their own", async () => {
     // No store ids at all, as shipped until the Recorder is published.
     installed = ["chrome", "msedge"];
     const desktop = build({ desktop: true, storeIds: {} });
@@ -944,7 +960,7 @@ describe("Browser on OpenBot Desktop, with the person's own browser", () => {
     ).toEqual([]);
     await call(desktop, "/api/browser/close", { method: "POST", as: "ben" });
 
-    // Published only for a browser the person does not have: the OpenBot browser still.
+    // Published only for a browser the person does not have: the ShardsOpenBot browser still.
     installed = ["chrome"];
     const edgeOnly = build({
       desktop: true,
@@ -976,7 +992,7 @@ describe("Browser on OpenBot Desktop, with the person's own browser", () => {
     await removeConnections(ada.id);
   });
 
-  test("hosted OpenBot is unchanged: a Desktop connection and a published Recorder open the browser in the page", async () => {
+  test("hosted ShardsOpenBot is unchanged: a Desktop connection and a published Recorder open the browser in the page", async () => {
     const hosted = build({ storeIds: PUBLISHED });
     await connect(hosted, "cy", {
       via: "desktop",
@@ -996,7 +1012,7 @@ describe("Browser on OpenBot Desktop, with the person's own browser", () => {
   });
 });
 
-describe("OpenBot Desktop as it runs, for its one person", () => {
+describe("ShardsOpenBot Desktop as it runs, for its one person", () => {
   beforeAll(async () => {
     await initializeDevActorUser(database, true);
   });

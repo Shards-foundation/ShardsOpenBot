@@ -6,20 +6,20 @@ import { showNotice } from "./notice";
 import { contentHello, createContentPort } from "./port";
 
 type RecorderGlobals = typeof globalThis & {
-  __openbotRecorderContent?: boolean;
-  __openbotRecorderActive?: string;
+  __shardsopenbotRecorderContent?: boolean;
+  __shardsopenbotRecorderActive?: string;
 };
 
 /**
  * Injected by the service worker into each committed frame of a followed tab. A frame the worker flagged
- * (`__openbotRecorderActive`, set just before this script) starts capturing at once, without waiting for its
+ * (`__shardsopenbotRecorderActive`, set just before this script) starts capturing at once, without waiting for its
  * port, so nothing clicked or typed during the round trip is lost; any other frame starts on
  * `background.capture { active: true }`.
  */
 function startContentScript() {
   const flags = globalThis as RecorderGlobals;
-  if (flags.__openbotRecorderContent) return;
-  flags.__openbotRecorderContent = true;
+  if (flags.__shardsopenbotRecorderContent) return;
+  flags.__shardsopenbotRecorderContent = true;
 
   const port = createContentPort();
   port.post(contentHello());
@@ -99,7 +99,7 @@ function startContentScript() {
     stopCapture();
     removeMark();
   });
-  if (flags.__openbotRecorderActive) startCapture();
+  if (flags.__shardsopenbotRecorderActive) startCapture();
   port.onMessage((message) => {
     if (message.type === "background.capture") {
       if (message.active) startCapture();

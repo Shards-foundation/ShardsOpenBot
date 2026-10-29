@@ -152,7 +152,7 @@ export function mountConnectionRoutes({
      * row met `catalogueEntry`, which has never heard of `composio-linear`, and the person
      * pressing Connect was told the app "is not connected as an individual person" — the exact
      * opposite of true about the one kind of row that is ONLY ever connected as an individual
-     * person. On a deployment with no `OPENBOT_PUBLIC_URL` it failed one step earlier still,
+     * person. On a deployment with no `SHARDSOPENBOT_PUBLIC_URL` it failed one step earlier still,
      * refusing for want of a setting that has no bearing on a flow it does not enter.
      *
      * The app comes off the row's url via `appOfUrl` rather than off its id, for the reason the
@@ -658,7 +658,7 @@ export function mountConnectionRoutes({
       if (kind === "unreadable") {
         return context.json(
           {
-            error: `OpenBot can't tell how ${row.title} connects, so no account was made. Ask an admin to remove it under Plugins and add it again.`,
+            error: `ShardsOpenBot can't tell how ${row.title} connects, so no account was made. Ask an admin to remove it under Plugins and add it again.`,
           },
           400,
         );
@@ -674,8 +674,8 @@ export function mountConnectionRoutes({
        * hosted page having just granted access, with no route back to the deployment that asked
        * for it and nothing here knowing it happened.
        *
-       * The OAuth flow below refuses for its missing `OPENBOT_PUBLIC_URL` in these same terms and
-       * for this same reason. `OPENBOT_APP_URL` is the setting here because the two addresses are
+       * The OAuth flow below refuses for its missing `SHARDSOPENBOT_PUBLIC_URL` in these same terms and
+       * for this same reason. `SHARDSOPENBOT_APP_URL` is the setting here because the two addresses are
        * genuinely different: the API is one origin and the browser app is another, and it is a
        * page this person is coming back to rather than an endpoint.
        *
@@ -683,7 +683,7 @@ export function mountConnectionRoutes({
        * GIVES ONE GUARD EARLIER. Neither an app whose secret the person types nor one that needs no
        * credential at all mints a link or has a return leg, so this setting has no bearing on either
        * flow — and standing before the fork, this guard meant no key app and no no-auth app could be
-       * connected on a deployment without `OPENBOT_APP_URL`, refused in the name of a remedy that
+       * connected on a deployment without `SHARDSOPENBOT_APP_URL`, refused in the name of a remedy that
        * would not have helped. It stays after the one-account guard for
        * the reason that guard's own comment gives: somebody who already has an account attached is
        * told the step to take, rather than handed an operator's configuration complaint about a
@@ -693,7 +693,7 @@ export function mountConnectionRoutes({
         return context.json(
           {
             error:
-              "Connecting apps isn't set up yet. Ask an admin to set OPENBOT_APP_URL.",
+              "Connecting apps isn't set up yet. Ask an admin to set SHARDSOPENBOT_APP_URL.",
           },
           503,
         );
@@ -743,9 +743,9 @@ export function mountConnectionRoutes({
             toolkit,
             /*
              * THE REFUSAL ABOVE CHECKS THAT A SETTING IS SET; THIS CHECKS THAT IT IS AN ADDRESS.
-             * `appUrl` is an environment string — `OPENBOT_APP_URL`, or the first `TRUSTED_ORIGINS`
+             * `appUrl` is an environment string — `SHARDSOPENBOT_APP_URL`, or the first `TRUSTED_ORIGINS`
              * entry — and nothing between there and Composio has ever looked at it, so
-             * `openbot.example.com` with the scheme left off builds a callback that is not a
+             * `shardsopenbot.example.com` with the scheme left off builds a callback that is not a
              * callback. That failure lands after somebody has consented, on the vendor's page, where
              * this deployment cannot tell them anything; the guard moves it to before the link is
              * minted, where nobody has spent a consent on it yet.
@@ -816,7 +816,7 @@ export function mountConnectionRoutes({
           if (confirmed.connected) return context.json(confirmed);
           return context.json(
             {
-              error: `OpenBot was told an account for ${row.title} is already connected, but found none when it checked. Nothing was connected. Press Connect again, or ask an admin if it keeps happening.`,
+              error: `ShardsOpenBot was told an account for ${row.title} is already connected, but found none when it checked. Nothing was connected. Press Connect again, or ask an admin if it keeps happening.`,
             },
             409,
           );
@@ -835,7 +835,7 @@ export function mountConnectionRoutes({
       return context.json(
         {
           error:
-            "Connecting apps isn't set up yet. Ask an admin to set OPENBOT_PUBLIC_URL.",
+            "Connecting apps isn't set up yet. Ask an admin to set SHARDSOPENBOT_PUBLIC_URL.",
         },
         503,
       );
@@ -852,7 +852,7 @@ export function mountConnectionRoutes({
     /*
      * A dynamic entry introduces the deployment itself on first use; a manual one still waits
      * for an administrator. Registration lives here, on the one handler that already refuses
-     * without OPENBOT_PUBLIC_URL — the redirect URI it registers is guaranteed to exist.
+     * without SHARDSOPENBOT_PUBLIC_URL — the redirect URI it registers is guaranteed to exist.
      */
     /*
      * A vendor in the catalogue that nobody has added to this deployment reaches here, gets past
@@ -1377,7 +1377,7 @@ export function mountConnectionRoutes({
    * Answers `{ authorizationUrl }` and nothing else.
    *
    * ORDERING PRINCIPLE: EVERYTHING THAT CAN FAIL WITHOUT THE VENDOR RUNS BEFORE THE CLAIM; THE
-   * CLAIM IS THE LAST THING BEFORE THE MINT. A bad `OPENBOT_APP_URL` must not leave a live attempt
+   * CLAIM IS THE LAST THING BEFORE THE MINT. A bad `SHARDSOPENBOT_APP_URL` must not leave a live attempt
    * with no mint behind it, and the mint runs after the insert so a mint can never exist without a
    * row to correlate it.
    *
@@ -1448,7 +1448,7 @@ export function mountConnectionRoutes({
       return context.json(
         {
           error:
-            "Connecting apps isn't set up yet. Ask an admin to set OPENBOT_APP_URL.",
+            "Connecting apps isn't set up yet. Ask an admin to set SHARDSOPENBOT_APP_URL.",
         },
         503,
       );
@@ -1621,7 +1621,7 @@ export function mountConnectionRoutes({
        * construction, the adapter's own refusals are ours, and {@link VendorTimeoutError} is ours.
        *
        * NOT AN AUDIT ROW. Nothing here writes to `pending_authorizations`, and the attempt's
-       * missing trail rows are tracked in https://github.com/CopilotKit/OpenBot/issues/876, under
+       * missing trail rows are tracked in https://github.com/CopilotKit/ShardsOpenBot/issues/876, under
        * the claim and the expiry overwrite (B5e). Filing an event for this one branch while the
        * claim it follows files none would put half a lifecycle on the trail.
        */
@@ -1728,8 +1728,8 @@ export function mountConnectionRoutes({
       return context.json(
         {
           error: freed
-            ? "The app started that authorization, but OpenBot couldn't record it, so nothing was connected. Press Authorize again. It's safe to start over."
-            : "The app started that authorization, but OpenBot couldn't record it, so nothing was connected. This attempt expires within fifteen minutes. You can start over after that.",
+            ? "The app started that authorization, but ShardsOpenBot couldn't record it, so nothing was connected. Press Authorize again. It's safe to start over."
+            : "The app started that authorization, but ShardsOpenBot couldn't record it, so nothing was connected. This attempt expires within fifteen minutes. You can start over after that.",
         },
         500,
       );
@@ -1888,7 +1888,7 @@ export function mountConnectionRoutes({
    *
    * THIS ROUTE BREAKS THIS FILE'S JSON/401 CONVENTION DELIBERATELY, AND THE REASON IS WRITTEN HERE
    * SO NOBODY "FIXES" IT TO MATCH ITS NEIGHBOURS. Every other route in this file answers `fetch`
-   * from OpenBot's own pages, so JSON is what the caller can read and 401 is what an unauthenticated
+   * from ShardsOpenBot's own pages, so JSON is what the caller can read and 401 is what an unauthenticated
    * one deserves. Here the caller is a PERSON'S BROWSER, arriving on a top-level navigation from the
    * broker's own screen with a just-completed consent behind it — so an unauthenticated arrival is
    * sent to sign-in with a 303 and a `Location` CARRYING ITS `flow_id`, never answered 401. A 401
@@ -1993,7 +1993,7 @@ export function mountConnectionRoutes({
         return context.json(
           {
             error:
-              "OpenBot doesn't recognise you anymore, so nothing was recorded. Ask an admin to restore your access, then authorize again from the app's page.",
+              "ShardsOpenBot doesn't recognise you anymore, so nothing was recorded. Ask an admin to restore your access, then authorize again from the app's page.",
           },
           403,
         );

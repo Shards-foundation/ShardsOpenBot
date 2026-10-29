@@ -22,8 +22,8 @@ import { settleReactWork } from "./settle-react-work";
 
 /*
  * The rules OpenDuet's frame runs on. Which paths are tabs decides whether a screen has a tab bar
- * or a back disc; which column a path gets decides whether a page keeps OpenBot's width; and the
- * Tasks badge has to count exactly the rows OpenBot's own Needs input list draws.
+ * or a back disc; which column a path gets decides whether a page keeps ShardsOpenBot's width; and the
+ * Tasks badge has to count exactly the rows ShardsOpenBot's own Needs input list draws.
  */
 
 beforeAll(() => GlobalRegistrator.register());
@@ -38,7 +38,7 @@ afterAll(async () => {
 });
 
 describe("which tab a path is", () => {
-  test("every conversation OpenBot draws is Chat", () => {
+  test("every conversation ShardsOpenBot draws is Chat", () => {
     for (const path of [
       "/",
       "/channel/new",
@@ -91,13 +91,13 @@ describe("how wide the column is", () => {
     expect(columnFor("/s/tasks")).toBe("phone");
   });
 
-  test("a conversation with its computer or its Bot's details open has room for OpenBot's pane", () => {
+  test("a conversation with its computer or its Bot's details open has room for ShardsOpenBot's pane", () => {
     expect(columnFor("/channel/c-1", { watch: true })).toBe("pane");
     expect(columnFor("/channel/c-1", { settings: true })).toBe("pane");
     expect(columnFor("/bot", { watch: true })).toBe("pane");
   });
 
-  test("every other page keeps OpenBot's own width", () => {
+  test("every other page keeps ShardsOpenBot's own width", () => {
     for (const path of [
       "/bots",
       "/bots/b-1",
@@ -129,12 +129,12 @@ const request = (
 });
 
 /*
- * Found in review: Tasks drew approvals with its own copy of OpenBot's list. It now draws OpenBot's
+ * Found in review: Tasks drew approvals with its own copy of ShardsOpenBot's list. It now draws ShardsOpenBot's
  * `WaitingForYou`, and the only thing the skin still works out is the badge's number. This renders
- * OpenBot's list against the same inbox and holds the two to the same count, so a change to what
+ * ShardsOpenBot's list against the same inbox and holds the two to the same count, so a change to what
  * the list shows fails here rather than leaving a badge that disagrees with the screen.
  */
-test("the Tasks badge counts exactly what OpenBot's Needs input list draws", async () => {
+test("the Tasks badge counts exactly what ShardsOpenBot's Needs input list draws", async () => {
   const inbox: ApprovalInboxData = {
     enabled: true,
     requests: [

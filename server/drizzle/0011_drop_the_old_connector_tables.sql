@@ -14,7 +14,7 @@
 -- listening to those deliveries since the connector was removed, and the subscription expires on
 -- its own, but a deployment that wants it gone now must revoke it at the vendor.
 --
--- "Connector" still means something in OpenBot. The per-person plugin connectors live in the
+-- "Connector" still means something in ShardsOpenBot. The per-person plugin connectors live in the
 -- `plugins` schema, are unaffected here, and are what `/admin/plugins` configures.
 --
 -- Named in dependency order and dropped without CASCADE on purpose. CASCADE would also remove

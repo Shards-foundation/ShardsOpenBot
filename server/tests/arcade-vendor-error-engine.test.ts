@@ -133,7 +133,7 @@ describe("a refusal from Arcade is an Error this deployment wrote", () => {
         broker.authorize({
           account,
           toolkit: "Gmail",
-          returnUrl: "https://openbot.test/return",
+          returnUrl: "https://shardsopenbot.test/return",
           action: "Gmail.SendEmail",
         }),
     ],

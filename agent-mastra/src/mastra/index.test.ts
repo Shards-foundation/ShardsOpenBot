@@ -2,7 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { buildOpenBotInstructions, openbotBaseInstructions } from "./index";
+import {
+  buildShardsOpenBotInstructions,
+  shardsopenbotBaseInstructions,
+} from "./index";
 
 type ModelCase = {
   name: string;
@@ -82,7 +85,7 @@ async function configuredModelId(botModel: string | undefined) {
       "-e",
       [
         'const { mastra } = await import("./agent-mastra/src/mastra/index.ts");',
-        'const model = mastra.getAgent("openbot").model;',
+        'const model = mastra.getAgent("shardsopenbot").model;',
         "console.log(JSON.stringify({ modelId: model.modelId }));",
       ].join("\n"),
     ],
@@ -161,7 +164,7 @@ async function providerStartup(botProvider: string) {
       "-e",
       [
         'const { mastra } = await import("./agent-mastra/src/mastra/index.ts");',
-        'const model = mastra.getAgent("openbot").model;',
+        'const model = mastra.getAgent("shardsopenbot").model;',
         "console.log(JSON.stringify({ modelId: model.modelId }));",
       ].join("\n"),
     ],
@@ -170,46 +173,46 @@ async function providerStartup(botProvider: string) {
   return { exitCode, stderr };
 }
 
-describe("OpenBot Mastra receiver instructions", () => {
+describe("ShardsOpenBot Mastra receiver instructions", () => {
   test("delivers the learned catalog after the standing role and tool guidance", () => {
     expect(
-      buildOpenBotInstructions({
+      buildShardsOpenBotInstructions({
         requestContext: requestContextWith([
           {
-            description: "OpenBot learned skills",
+            description: "ShardsOpenBot learned skills",
             value: "Published skill: refunds",
           },
           {
-            description: "OpenBot signed run assertion",
+            description: "ShardsOpenBot signed run assertion",
             value: "secret-assertion",
           },
           {
-            description: "OpenBot standing role",
+            description: "ShardsOpenBot standing role",
             value: "Follow company policy.",
           },
         ]),
       }),
     ).toBe(
       [
-        openbotBaseInstructions,
+        shardsopenbotBaseInstructions,
         "Follow company policy.",
         "Published skill: refunds",
       ].join("\n\n"),
     );
   });
-  test("adds model-visible OpenBot role context in receiver order", () => {
-    const instructions = buildOpenBotInstructions({
+  test("adds model-visible ShardsOpenBot role context in receiver order", () => {
+    const instructions = buildShardsOpenBotInstructions({
       requestContext: requestContextWith([
         {
-          description: "OpenBot granted tools guidance",
+          description: "ShardsOpenBot granted tools guidance",
           value: "Use only the granted Slack tool.",
         },
         {
-          description: "OpenBot standing role",
+          description: "ShardsOpenBot standing role",
           value: "Use MODEL_BOUNDARY_MANAGED_ROLE in the answer.",
         },
         {
-          description: "OpenBot Bot id",
+          description: "ShardsOpenBot Bot id",
           value: "packaged-mastra-managed",
         },
       ]),
@@ -217,7 +220,7 @@ describe("OpenBot Mastra receiver instructions", () => {
 
     expect(instructions).toBe(
       [
-        openbotBaseInstructions,
+        shardsopenbotBaseInstructions,
         "Use MODEL_BOUNDARY_MANAGED_ROLE in the answer.",
         "Use only the granted Slack tool.",
       ].join("\n\n"),
@@ -225,16 +228,18 @@ describe("OpenBot Mastra receiver instructions", () => {
   });
 
   test("keeps ordinary Mastra calls on the base receiver instruction", () => {
-    expect(buildOpenBotInstructions()).toBe(openbotBaseInstructions);
+    expect(buildShardsOpenBotInstructions()).toBe(
+      shardsopenbotBaseInstructions,
+    );
     expect(
-      buildOpenBotInstructions({
+      buildShardsOpenBotInstructions({
         requestContext: requestContextWith("not ag-ui context entries"),
       }),
-    ).toBe(openbotBaseInstructions);
+    ).toBe(shardsopenbotBaseInstructions);
   });
 });
 
-describe("OpenBot Mastra model configuration", () => {
+describe("ShardsOpenBot Mastra model configuration", () => {
   const modelCases: ModelCase[] = [
     { name: "absent", expected: "gpt-4o-mini" },
     { name: "empty", value: "", expected: "gpt-4o-mini" },
@@ -257,7 +262,7 @@ describe("OpenBot Mastra model configuration", () => {
  * A provider this Bot cannot answer for is refused before it can fall into the OpenAI branch and
  * quietly answer with somebody else's model.
  */
-describe("OpenBot Mastra provider configuration", () => {
+describe("ShardsOpenBot Mastra provider configuration", () => {
   test("refuses a provider it loads no module for", async () => {
     const { exitCode, stderr } = await providerStartup("google");
 
@@ -273,7 +278,7 @@ describe("OpenBot Mastra provider configuration", () => {
   });
 });
 
-describe("OpenBot Mastra listen port configuration", () => {
+describe("ShardsOpenBot Mastra listen port configuration", () => {
   const validPortCases: PortCase[] = [
     { name: "absent", expected: 4213 },
     { name: "empty", value: "", expected: 4213 },
@@ -318,7 +323,7 @@ describe("OpenBot Mastra listen port configuration", () => {
   }
 });
 
-describe("OpenBot Mastra provider requests", () => {
+describe("ShardsOpenBot Mastra provider requests", () => {
   const choices: {
     provider: string;
     base: string;
@@ -485,7 +490,7 @@ describe("OpenBot Mastra provider requests", () => {
               `  return networkFetch(new Request(${JSON.stringify(provider.url.toString())} + url.pathname.slice(1) + url.search, request));`,
               "};",
               'const { mastra } = await import("./agent-mastra/src/mastra/index.ts");',
-              'const result = await mastra.getAgent("openbot").generate("Say hello");',
+              'const result = await mastra.getAgent("shardsopenbot").generate("Say hello");',
               "console.log(JSON.stringify({ text: result.text }));",
             ].join("\n"),
           ],

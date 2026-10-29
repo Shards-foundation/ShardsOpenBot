@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { numberFromEnv } from "../src/env";
 
-const NAME = "OPENBOT_TEST_NUMBER_FROM_ENV";
+const NAME = "SHARDSOPENBOT_TEST_NUMBER_FROM_ENV";
 
 afterEach(() => {
   delete process.env[NAME];

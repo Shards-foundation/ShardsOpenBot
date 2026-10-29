@@ -2,7 +2,7 @@
  * Whether the model this deployment's Bots run on is one its key can call, said once at boot.
  *
  * The tenant package names the model (`model.yaml`'s `default_model`), and the provider decides
- * whether a key may use it. A project key without access to that model passes every check OpenBot
+ * whether a key may use it. A project key without access to that model passes every check ShardsOpenBot
  * makes at start-up and fails at the first message, as "The model `…` does not exist or you do not
  * have access to it", in front of whoever sent it. One read of the provider's own model endpoint at
  * boot moves that to the log, where the person who can fix it is looking.
@@ -72,7 +72,7 @@ export function modelCheckOutcome(input: {
         provider,
         model,
         status,
-        fix: `${provider} refused the model key (${keyName} or the credential stored in OpenBot), so every Bot turn will fail until it is replaced.`,
+        fix: `${provider} refused the model key (${keyName} or the credential stored in ShardsOpenBot), so every Bot turn will fail until it is replaced.`,
       },
     };
   }

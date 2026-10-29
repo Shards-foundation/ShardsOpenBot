@@ -46,7 +46,7 @@ import { mintDeploymentVendorUserId } from "../src/plugins/shared-accounts";
  * WHAT THIS CREATES AND MUTATES IN THE ARCADE PROJECT THE KEY BELONGS TO (this is PRODUCTION if the
  * key is)
  * - ONE authorization attempt (`ar_...`) per successful mint, for ONE throwaway user id of the shape
- *   `openbot-deployment:live-arcade:<random>`. Several mints are attempted: the `next_uri` cases are
+ *   `shardsopenbot-deployment:live-arcade:<random>`. Several mints are attempted: the `next_uri` cases are
  *   expected to be refused, and if one is ever accepted it creates an attempt too.
  * - ONE completed CONSENT by YOU, at the third party (Github by default), and so ONE user-connection
  *   (`ac_...`) under that throwaway user id in Arcade. It is the only durable write.
@@ -78,7 +78,7 @@ import { mintDeploymentVendorUserId } from "../src/plugins/shared-accounts";
  * `requirements.authorization.oauth2.scopes`, never `requirements.met`.
  */
 const key = process.env.ARCADE_API_KEY?.trim();
-const live = process.env.OPENBOT_LIVE_ARCADE === "1" && Boolean(key);
+const live = process.env.SHARDSOPENBOT_LIVE_ARCADE === "1" && Boolean(key);
 
 const PORT = Number(process.env.ARCADE_LIVE_VERIFIER_PORT ?? "8765");
 const TOOLKIT = process.env.ARCADE_LIVE_TOOLKIT?.trim() || "Github";
@@ -592,13 +592,13 @@ describe.skipIf(!live)("Arcade, for real", () => {
    *
    * - on a TOOL LISTING, `requirements.authorization.provider_id` is the provider TYPE: `"google"`;
    * - on a USER CONNECTION ROW, `provider_id` is the provider INSTANCE id — an operator's
-   *   configuration of a type: `"google-openbot"`, `"cpk-poc"`, `"arcade-google"`;
+   *   configuration of a type: `"google-shardsopenbot"`, `"cpk-poc"`, `"arcade-google"`;
    * - on an AUTH-PROVIDER CONFIG (`admin.authProviders.list()`), `id` is the INSTANCE and
    *   `provider_id` is the TYPE, which is the only bridge between the two. Verbatim:
    *
    * ```
    * {"id":"cpk-poc",        "provider_id":"github", "type":"oauth2", "status":"active"}
-   * {"id":"google-openbot", "provider_id":"google", "type":"oauth2", "status":"active"}
+   * {"id":"google-shardsopenbot", "provider_id":"google", "type":"oauth2", "status":"active"}
    * {"id":"arcade-google",  "provider_id":"google", "type":"oauth2", "status":"active"}
    * ```
    *

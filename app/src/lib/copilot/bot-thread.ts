@@ -21,7 +21,7 @@ import { newId } from "../new-id";
  * pretending the history is there when the answer says it is.
  */
 
-const KEY = "openbot.bot-thread";
+const KEY = "shardsopenbot.bot-thread";
 
 /** The one place the storage key is built, so the getter and the setter can never drift apart. */
 export function botThreadKey(agentId: string): string {

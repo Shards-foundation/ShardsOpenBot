@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import {
@@ -29,7 +29,7 @@ import { TEST_POOL, testDatabaseUrl } from "./support/database";
 import { SESSION_LIFETIME_MS, testEnvironment } from "./support/environment";
 
 /*
- * The two ways OpenBot itself ends people's sessions, outside Better Auth's own routes, end their Recorders too:
+ * The two ways ShardsOpenBot itself ends people's sessions, outside Better Auth's own routes, end their Recorders too:
  * an administrator removing somebody (People), and SSO-required being turned on (Admin, Enterprise). Each through its
  * real route, on the real database, with the Recorder wired as index.ts wires it.
  */
@@ -99,7 +99,7 @@ const peopleStore = createPeopleStore(database, [], (userId) =>
   }),
 );
 
-/** OpenBot's own app, signed in as the administrator by a test cookie. */
+/** ShardsOpenBot's own app, signed in as the administrator by a test cookie. */
 function appAsAdmin() {
   const args = new Array(createApp.length) as unknown as Parameters<
     typeof createApp
@@ -195,7 +195,7 @@ async function connect(userId: string, installId: string) {
 }
 const me = async (token: string) =>
   (
-    await app.request("http://openbot.test/api/recorder/me", {
+    await app.request("http://shardsopenbot.test/api/recorder/me", {
       headers: { authorization: `Bearer ${token}` },
     })
   ).status;
@@ -209,14 +209,17 @@ const signedInSession = (userId: string) => ({
 test("removing somebody ends their browsers' Recorders with their sessions, and a removal that could not end them is finished by removing them again", async () => {
   const chrome = await connect(leaving.id, "a".repeat(32));
   const remove = () =>
-    app.request(`http://openbot.test/api/admin/people/${leaving.id}/access`, {
-      method: "POST",
-      headers: {
-        cookie: "test-session=admin",
-        "content-type": "application/json",
+    app.request(
+      `http://shardsopenbot.test/api/admin/people/${leaving.id}/access`,
+      {
+        method: "POST",
+        headers: {
+          cookie: "test-session=admin",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ revoked: true }),
       },
-      body: JSON.stringify({ revoked: true }),
-    });
+    );
 
   recorder = broken;
   const failed = await remove();

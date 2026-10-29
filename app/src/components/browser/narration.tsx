@@ -1,4 +1,4 @@
-import type { LauncherState } from "@openbot/shared/openbot-browser";
+import type { LauncherState } from "@shardsopenbot/shared/shardsopenbot-browser";
 import { IconMicrophone, IconMicrophoneOff } from "@tabler/icons-react";
 import { useId } from "react";
 import {
@@ -44,11 +44,11 @@ export function narrationProblemSentence(
     case "unsupported":
       return `Narration isn't available in this browser, so what you say isn't recorded. ${GOES_ON}`;
     case "on-device":
-      return `This browser can't turn speech into text on your computer, and OpenBot sends your voice nowhere else, so narration is off. ${GOES_ON}`;
+      return `This browser can't turn speech into text on your computer, and ShardsOpenBot sends your voice nowhere else, so narration is off. ${GOES_ON}`;
     case "speech-pack":
       return `Your browser has to download its ${languageName(language)} speech recognition to your computer first. Turn narration on to download it. ${GOES_ON}`;
     case "not-allowed":
-      return `OpenBot can't use your microphone, so narration is off. Allow the microphone for this site, then turn narration on again. ${GOES_ON}`;
+      return `ShardsOpenBot can't use your microphone, so narration is off. Allow the microphone for this site, then turn narration on again. ${GOES_ON}`;
     case "no-microphone":
       return `No microphone was found, or another app is using it. ${GOES_ON}`;
     case "service":
@@ -80,7 +80,7 @@ function nativeNarrationSentence(voice: LauncherState["voice"]): string {
   }
 }
 
-/** The narration row on OpenBot Desktop while nothing records: the person's choice, which the next Record passes on. */
+/** The narration row on ShardsOpenBot Desktop while nothing records: the person's choice, which the next Record passes on. */
 function narrationChoiceSentence(
   narration: Exclude<NarrationChoice["narration"], undefined>,
 ) {
@@ -95,7 +95,7 @@ function narrationChoiceSentence(
 }
 
 /**
- * The narration row on OpenBot Desktop. While nothing records it is the person's choice, a switch that takes effect at
+ * The narration row on ShardsOpenBot Desktop. While nothing records it is the person's choice, a switch that takes effect at
  * once: the next Record tells the Recorder in their browser whether to open the microphone. While a recording runs, the
  * Recorder hears the microphone itself, so the row says what it reports, read every second with the rest of the
  * browser's state, so a microphone that is muted or cannot be heard shows here while the person records.

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import {
   type RealBrowser,
   realBrowserComputerPaths,
-} from "../../shared/openbot-browser";
+} from "../../shared/shardsopenbot-browser";
 import { recorderStorePage } from "../../shared/recorder-extension";
 import { runnable } from "../src/person-launch";
 import {
@@ -121,10 +121,10 @@ describe("which store pages may be opened", () => {
     // The stores' own long form, with the listing's name before the id.
     expect(
       storePage(
-        `https://chromewebstore.google.com/detail/openbot-recorder/${STORE_ID}`,
+        `https://chromewebstore.google.com/detail/shardsopenbot-recorder/${STORE_ID}`,
       ),
     ).toBe(
-      `https://chromewebstore.google.com/detail/openbot-recorder/${STORE_ID}`,
+      `https://chromewebstore.google.com/detail/shardsopenbot-recorder/${STORE_ID}`,
     );
     // Normalised as a browser would: the host's case and a default port change nothing.
     expect(
@@ -166,7 +166,7 @@ describe("what the person's browser is started with", () => {
         LANG: "en_GB.UTF-8",
         COMPUTER_TOKEN: "computer-secret",
         COMPUTER_BROWSER_BACKEND: "local-chrome",
-        OPENBOT_RECORDER_DIR: "/deployment/extension/dist",
+        SHARDSOPENBOT_RECORDER_DIR: "/deployment/extension/dist",
         PORT: "4101",
         PROFILES_DIR: "/data/profiles",
         WORKSPACE_DIR: "/data/workspace",
@@ -196,7 +196,7 @@ describe("what the person's browser is started with", () => {
 });
 
 describe("finding the person's own browsers", () => {
-  test("where the OpenBot browser finds them, in its order, on each OS", async () => {
+  test("where the ShardsOpenBot browser finds them, in its order, on each OS", async () => {
     const at = (files: string[]) => async (path: string) =>
       files.includes(path);
     expect(
@@ -448,7 +448,7 @@ describe("bringing the person's browser forward, and opening the store page in i
         args: [
           "-c",
           LINUX_HANDOFF,
-          "openbot-real-browser",
+          "shardsopenbot-real-browser",
           launcher,
           EDGE_PAGE,
         ],
@@ -456,7 +456,12 @@ describe("bringing the person's browser forward, and opening the store page in i
       },
       {
         file: "/bin/sh",
-        args: ["-c", LINUX_HANDOFF, "openbot-real-browser", chromeLauncher],
+        args: [
+          "-c",
+          LINUX_HANDOFF,
+          "shardsopenbot-real-browser",
+          chromeLauncher,
+        ],
         env: shown,
       },
     ]);
@@ -475,7 +480,7 @@ describe("bringing the person's browser forward, and opening the store page in i
     expect(ran).toEqual([
       {
         file: "/bin/sh",
-        args: ["-c", LINUX_HANDOFF, "openbot-real-browser", nixChrome],
+        args: ["-c", LINUX_HANDOFF, "shardsopenbot-real-browser", nixChrome],
         env: { PATH: "/run/current-system/sw/bin", DISPLAY: ":0" },
       },
     ]);
@@ -608,7 +613,7 @@ describe("what the routes refuse", () => {
       ],
       [
         realBrowserComputerPaths.store,
-        { browser: "chrome", url: `${CHROME_PAGE}?ref=openbot` },
+        { browser: "chrome", url: `${CHROME_PAGE}?ref=shardsopenbot` },
         400,
       ],
       [
@@ -705,13 +710,13 @@ describe("the commands, run for real", () => {
       }),
     ).toEqual({ code: 3, stdout: "out one\n", stderr: "err\n" });
     await expect(
-      runCommand({ file: "/nonexistent/openbot-browser", args: [] }),
+      runCommand({ file: "/nonexistent/shardsopenbot-browser", args: [] }),
     ).rejects.toThrow();
   });
 
   test("Linux's hand-off returns at once and leaves what it started nobody's child but the system's", async () => {
     if (process.platform === "win32") return;
-    const dir = await mkdtemp(join(tmpdir(), "openbot-real-browser-"));
+    const dir = await mkdtemp(join(tmpdir(), "shardsopenbot-real-browser-"));
     scratch.push(dir);
     const said = join(dir, "said");
     // Stands in for the browser: it outlives the shell that started it, and says who its parent is
@@ -725,7 +730,13 @@ describe("the commands, run for real", () => {
     const started = Date.now();
     const result = await runCommand({
       file: "/bin/sh",
-      args: ["-c", LINUX_HANDOFF, "openbot-real-browser", browser, CHROME_PAGE],
+      args: [
+        "-c",
+        LINUX_HANDOFF,
+        "shardsopenbot-real-browser",
+        browser,
+        CHROME_PAGE,
+      ],
     });
     expect(result).toEqual({ code: 0, stdout: "", stderr: "" });
     expect(Date.now() - started).toBeLessThan(900);
@@ -749,7 +760,8 @@ describe("the commands, run for real", () => {
  * this runs where it needs none (macOS and Windows), or on Linux when that is asked for.
  */
 const canRunLocal =
-  process.platform !== "linux" || process.env.OPENBOT_HEADED_BROWSER === "1";
+  process.platform !== "linux" ||
+  process.env.SHARDSOPENBOT_HEADED_BROWSER === "1";
 const TOKEN = "real-browser-computer-token";
 
 type Computer = { base: string; child: ReturnType<typeof Bun.spawn> };
@@ -812,8 +824,8 @@ function callOn(
     method: options.body === undefined ? "GET" : "POST",
     headers: {
       "content-type": "application/json",
-      "x-openbot-computer-token": options.token ?? TOKEN,
-      "x-openbot-bot-id": options.botId ?? PERSON,
+      "x-shardsopenbot-computer-token": options.token ?? TOKEN,
+      "x-shardsopenbot-bot-id": options.botId ?? PERSON,
     },
     ...(options.body === undefined
       ? {}
@@ -826,9 +838,9 @@ let managed: Computer;
 
 beforeAll(async () => {
   if (!canRunLocal) return;
-  root = await mkdtemp(join(tmpdir(), "openbot-real-browser-computer-"));
+  root = await mkdtemp(join(tmpdir(), "shardsopenbot-real-browser-computer-"));
   [local, managed] = await Promise.all([
-    // OpenBot Desktop's: people's browsers and no Bot.
+    // ShardsOpenBot Desktop's: people's browsers and no Bot.
     startComputer("local", {
       COMPUTER_BROWSER_BACKEND: "local-chrome",
       COMPUTER_BROWSER_MODE: "headed",

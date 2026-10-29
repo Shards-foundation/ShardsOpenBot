@@ -293,7 +293,7 @@ describe("network policy selection", () => {
         sent.push({
           url,
           body: String(init.body),
-          bot: new Headers(init.headers).get("x-openbot-bot-id"),
+          bot: new Headers(init.headers).get("x-shardsopenbot-bot-id"),
         });
         return new Response("{}");
       }) as unknown as typeof fetch,

@@ -1,5 +1,5 @@
 import { DEV_ACTOR } from "./auth/dev-actor";
-import type { OpenBotRole } from "./auth/roles";
+import type { ShardsOpenBotRole } from "./auth/roles";
 import type { IdentifyActor, IdentifyUser } from "./copilot";
 import {
   RECORDER_BEARER_PREFIX,
@@ -7,14 +7,14 @@ import {
 } from "./recorder/guard";
 import { isTrajectoryConnectPath } from "./recorder/trajectory-gate";
 
-type RequestActor = { id: string; name: string; role: OpenBotRole };
+type RequestActor = { id: string; name: string; role: ShardsOpenBotRole };
 
 type SessionLike = {
   user: {
     id: string;
     email?: string | null;
     name?: string | null;
-    role?: OpenBotRole | null;
+    role?: ShardsOpenBotRole | null;
   };
 };
 
@@ -48,7 +48,7 @@ export function createRequestActor(deps: {
   singleUser: boolean;
   resolveRecorder?: RecorderResolver;
   getSession(headers: Headers): Promise<SessionLike | null | undefined>;
-  rolesForUser(userId: string): Promise<OpenBotRole[]>;
+  rolesForUser(userId: string): Promise<ShardsOpenBotRole[]>;
 }): {
   resolveRequestActor(request: Request): Promise<RequestActor>;
   identifyUser: IdentifyUser;

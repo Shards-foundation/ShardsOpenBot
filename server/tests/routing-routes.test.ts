@@ -29,7 +29,11 @@ import { createCoworkerRoutingService } from "../src/routing/service";
  * model is never asked a question the person already answered.
  */
 
-const ACTOR = { id: "u1", email: "person@openbot.test", role: "user" } as const;
+const ACTOR = {
+  id: "u1",
+  email: "person@shardsopenbot.test",
+  role: "user",
+} as const;
 
 const ROSTER = [
   {
@@ -40,7 +44,7 @@ const ROSTER = [
   },
   {
     id: "picked-harness",
-    name: "OpenBot",
+    name: "ShardsOpenBot",
     roleDescription: "the package-selected harness",
     visibility: "public",
   },
@@ -161,7 +165,7 @@ describe("choosing the default route target", () => {
         }),
         profile({
           id: "picked-harness",
-          name: "OpenBot",
+          name: "ShardsOpenBot",
           roleDescription: "the package-selected harness",
           visibility: "public",
         }),

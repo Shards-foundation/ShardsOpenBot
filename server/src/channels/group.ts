@@ -43,8 +43,8 @@ import {
 import { groupBotThreads, groupMessages } from "../db/schema/group";
 import { workItems } from "../db/schema/work";
 import type { CheckPrivateShare } from "../proactive/private-share";
-import type { TurnRunner } from "@openbot/toolkit/run-turn";
-import { HeadlessToolSuspension } from "@openbot/toolkit/headless-tools";
+import type { TurnRunner } from "@shardsopenbot/toolkit/run-turn";
+import { HeadlessToolSuspension } from "@shardsopenbot/toolkit/headless-tools";
 import type { WorkQueue } from "../work/queue";
 
 export const GROUP_TURN_KIND = "group.turn";
@@ -222,7 +222,7 @@ export function createGroupStore(
           .values({ kind: GROUP_TURN_KIND, key: turn.messageId, payload: turn })
           .onConflictDoNothing();
         await tx.execute(
-          sql`select pg_notify('openbot_work_offered', ${GROUP_TURN_KIND})`,
+          sql`select pg_notify('shardsopenbot_work_offered', ${GROUP_TURN_KIND})`,
         );
       });
     },

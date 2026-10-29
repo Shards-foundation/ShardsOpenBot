@@ -9,7 +9,7 @@ import type { ThreadLock } from "../ports";
  *
  * Advisory today: the platform applies its own fixed 120 seconds on acquire and renew whatever is
  * asked for (`THREAD_LOCK_TTL_SECONDS` in Intelligence's `apps/app-api/src/routes/thread-lock.ts`).
- * See `TURN_LIMITS` in `@openbot/toolkit/limits` for the headless turn's side of the same lock.
+ * See `TURN_LIMITS` in `@shardsopenbot/toolkit/limits` for the headless turn's side of the same lock.
  */
 export const THREAD_LOCK_TTL_SECONDS = 120;
 

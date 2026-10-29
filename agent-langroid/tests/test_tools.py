@@ -120,7 +120,7 @@ def body(*, tools=None, messages=None, thread=None):
 
 
 def run(client, request):
-    response = client.post("/", json=request, headers={"x-openbot-agent-token": "test-token"})
+    response = client.post("/", json=request, headers={"x-shardsopenbot-agent-token": "test-token"})
     assert response.status_code == 200
     events = [json.loads(line[5:]) for line in response.text.splitlines() if line.startswith("data:")]
     assert not [event for event in events if event["type"] == "RUN_ERROR"], events

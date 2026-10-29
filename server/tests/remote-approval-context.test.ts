@@ -4,7 +4,7 @@ import { of } from "rxjs";
 import { z } from "zod";
 import { currentApprovalContext } from "../src/approvals/types";
 import { buildAgents } from "../src/copilot";
-import { HeadlessToolSuspension } from "@openbot/toolkit/headless-tools";
+import { HeadlessToolSuspension } from "@shardsopenbot/toolkit/headless-tools";
 
 async function fixture(answered = false) {
   const requests: RunAgentInput[] = [];
@@ -99,7 +99,7 @@ test("remote client tool captures real provider call and canonical conversation 
       toolName: "mcp__vendor__write",
       args: { value: "actual" },
       state: { real: "provider-state" },
-      forwardedProps: { openbotRun: "signed-original-run" },
+      forwardedProps: { shardsopenbotRun: "signed-original-run" },
     });
     expect(
       f
@@ -110,7 +110,9 @@ test("remote client tool captures real provider call and canonical conversation 
             message.toolCalls?.some((call) => call.id === "provider-call"),
         ),
     ).toBe(true);
-    expect(f.requests[0]?.forwardedProps.openbotDeploymentTools).toEqual([]);
+    expect(f.requests[0]?.forwardedProps.shardsopenbotDeploymentTools).toEqual(
+      [],
+    );
     expect(result.newMessages.some((message) => message.role === "tool")).toBe(
       false,
     );

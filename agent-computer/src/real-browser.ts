@@ -1,7 +1,7 @@
 /**
  * THE PERSON'S OWN BROWSER: their everyday Google Chrome or Microsoft Edge, with their own profile,
- * extensions and logins, as opposed to the OpenBot-profile browser `browser-host.ts` opens. OpenBot
- * Desktop registers the Recorder with it from the store, and these routes do the two things OpenBot
+ * extensions and logins, as opposed to the ShardsOpenBot-profile browser `browser-host.ts` opens. ShardsOpenBot
+ * Desktop registers the Recorder with it from the store, and these routes do the two things ShardsOpenBot
  * then needs of it: bring it forward when its Recorder is connected, and open the Recorder's store
  * page in it while the Recorder is not there yet.
  *
@@ -11,7 +11,7 @@
  *
  * NOTHING HERE DRIVES THE BROWSER. It is not started on a DevTools pipe and no Playwright reaches it:
  * the person's everyday browser is started, or handed an address, the way the person's own desktop
- * does it, and is never this process's child. That last part matters as much as the first. OpenBot
+ * does it, and is never this process's child. That last part matters as much as the first. ShardsOpenBot
  * Desktop stops the computer by stopping its whole process tree (`stop_host_children`), so a browser
  * started as this process's child would be killed, with every tab the person had open, the next time
  * they pressed Stop. Each command below hands the browser to something else and exits:
@@ -24,7 +24,7 @@
  *   - Linux: the browser's own launcher script beside its executable (what `google-chrome` and
  *     `microsoft-edge` on the PATH are), started in the background of a shell that exits at once.
  *
- * Under the computer token, with the person's browser id in `x-openbot-bot-id`, like the person's
+ * Under the computer token, with the person's browser id in `x-shardsopenbot-bot-id`, like the person's
  * browser routes: the server is the only caller, for the signed-in person.
  */
 import { spawn } from "node:child_process";
@@ -34,7 +34,7 @@ import {
   type RealBrowser,
   realBrowserComputerPaths,
   realBrowserRequestSchema,
-} from "../../shared/openbot-browser";
+} from "../../shared/shardsopenbot-browser";
 import type { BrowserRuntime } from "./browser-runtime";
 import {
   browserExecutableCandidates,
@@ -46,7 +46,7 @@ import {
 
 type Environment = Record<string, string | undefined>;
 
-/** The person's own browsers, in the order OpenBot prefers them, as the OpenBot browser prefers them. */
+/** The person's own browsers, in the order ShardsOpenBot prefers them, as the ShardsOpenBot browser prefers them. */
 const REAL_BROWSERS: readonly RealBrowser[] = ["chrome", "msedge"];
 
 const NAMES: Record<RealBrowser, string> = {
@@ -72,9 +72,9 @@ const LINUX_LAUNCHERS: Record<RealBrowser, string> = {
   msedge: "microsoft-edge",
 };
 
-/** Why these routes are refused here: they act on a person's own desktop, which only OpenBot Desktop's computer is on. */
+/** Why these routes are refused here: they act on a person's own desktop, which only ShardsOpenBot Desktop's computer is on. */
 export const ONLY_ON_THE_PERSONS_DESKTOP =
-  "The person's own browser is reached only by the computer on their own desktop (OpenBot Desktop).";
+  "The person's own browser is reached only by the computer on their own desktop (ShardsOpenBot Desktop).";
 
 /** What the person is told when their browser was found and did not do what was asked. The reason goes to the log. */
 const NOT_BROUGHT_FORWARD =
@@ -162,7 +162,7 @@ export const runCommand: RunCommand = (command) =>
   });
 
 /**
- * The environment the person's browser starts in: this process's, which is OpenBot Desktop's and
+ * The environment the person's browser starts in: this process's, which is ShardsOpenBot Desktop's and
  * so the person's session's, without what this computer was given for itself (its token, its port
  * and folders, the Recorder's build), and on Linux with the person's own display rather than the
  * virtual one a headed computer draws its Bots' browsers on. `open` and `start` pass the environment
@@ -180,7 +180,7 @@ export function realBrowserEnv(
     const upper = name.toUpperCase();
     if (
       upper.startsWith("COMPUTER_") ||
-      upper.startsWith("OPENBOT_") ||
+      upper.startsWith("SHARDSOPENBOT_") ||
       ["PORT", "PROFILES_DIR", "WORKSPACE_DIR"].includes(upper)
     )
       continue;
@@ -192,7 +192,7 @@ export function realBrowserEnv(
 export type InstalledRealBrowser = { browser: RealBrowser; executable: string };
 
 /**
- * The person's own browsers installed here, found exactly where the OpenBot browser finds them
+ * The person's own browsers installed here, found exactly where the ShardsOpenBot browser finds them
  * (`browserExecutableCandidates`, Playwright's own stable-channel locations). Nothing is started.
  */
 export async function installedRealBrowsers(
@@ -381,7 +381,7 @@ export function createRealBrowserHost(options: RealBrowserHostOptions) {
         args: [
           "-c",
           LINUX_HANDOFF,
-          "openbot-real-browser",
+          "shardsopenbot-real-browser",
           launcher,
           ...address,
         ],
@@ -403,7 +403,7 @@ export function createRealBrowserHost(options: RealBrowserHostOptions) {
       return json(
         {
           error:
-            "The person's own browser is for a person: send their browser id (person- and 32 hex digits) in x-openbot-bot-id.",
+            "The person's own browser is for a person: send their browser id (person- and 32 hex digits) in x-shardsopenbot-bot-id.",
         },
         400,
       );

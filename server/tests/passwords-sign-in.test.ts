@@ -29,8 +29,11 @@ import {
 } from "../src/passwords/service";
 import { createMemoryPasswordStore } from "../src/passwords/store";
 import { originOf, type SignInRequestRecord } from "../src/passwords/types";
-import { createTurnRunner, type RunnerLike } from "@openbot/toolkit/run-turn";
-import { HeadlessToolSuspension } from "@openbot/toolkit/headless-tools";
+import {
+  createTurnRunner,
+  type RunnerLike,
+} from "@shardsopenbot/toolkit/run-turn";
+import { HeadlessToolSuspension } from "@shardsopenbot/toolkit/headless-tools";
 import { serverTurnAdmission } from "../src/agents/turn-admission";
 
 /**

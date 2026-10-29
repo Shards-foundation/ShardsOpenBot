@@ -235,7 +235,7 @@ export function parseConnectionHeaders(
  * The audit table has a foreign key to that table, so writing this id would fail the constraint and
  * lose the row entirely. Who it was is in the payload either way.
  */
-const DEV_ACTOR_EMAIL = "dev@openbot.local";
+const DEV_ACTOR_EMAIL = "dev@shardsopenbot.local";
 
 export function createAgentRoutes(
   store: AgentProfileStore,
@@ -458,7 +458,7 @@ export function createAgentRoutes(
       typeof body?.endpoint === "string" &&
       isManagedEndpoint(body.endpoint, managedRun.endpoints);
     const headers = {
-      ...(ours ? { "x-openbot-agent-token": managedRun.token } : {}),
+      ...(ours ? { "x-shardsopenbot-agent-token": managedRun.token } : {}),
       ...parsed.value,
     };
     const result = await testAgentConnection(body?.endpoint, {

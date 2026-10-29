@@ -1,5 +1,5 @@
-# The Bot's computer installs only the Playwright browser it launches, and carries the built OpenBot
-# Recorder for the person's browser it opens (the OpenBot Browser).
+# The Bot's computer installs only the Playwright browser it launches, and carries the built ShardsOpenBot
+# Recorder for the person's browser it opens (the ShardsOpenBot Browser).
 #
 # The image tag and Playwright dependency must be pinned to the same exact version. Bump both or
 # neither.
@@ -57,20 +57,20 @@ RUN bun install --frozen-lockfile
 COPY agent-computer/src ./src
 # index.ts imports ../../shared/file-download at runtime (shared/computer-control is type-only and
 # erased), demonstration.ts imports ../../shared/demonstration-rules, and the browser routes import
-# ../../shared/openbot-browser, so the files they need go where those paths resolve from /app/src.
+# ../../shared/shardsopenbot-browser, so the files they need go where those paths resolve from /app/src.
 COPY shared/file-download.ts /shared/file-download.ts
 COPY shared/demonstration-rules.ts /shared/demonstration-rules.ts
-# The OpenBot Browser's contract, which the browser routes check requests against. It imports zod,
+# The ShardsOpenBot Browser's contract, which the browser routes check requests against. It imports zod,
 # and a module resolves its imports from its own directory upward, which from /shared never reaches
 # /app/node_modules: so /shared is given that tree to resolve from, rather than a second install.
-COPY shared/openbot-browser.ts /shared/openbot-browser.ts
+COPY shared/shardsopenbot-browser.ts /shared/shardsopenbot-browser.ts
 COPY shared/recorder-extension.ts shared/recorder-extension.json /shared/
 RUN ln -s /app/node_modules /shared/node_modules
 
 # The built Recorder, put into every person's browser this computer opens. Without it the computer
 # still serves Bots and refuses to open a person's browser, saying why.
 COPY --from=recorder-build /src/extension/dist /recorder
-ENV OPENBOT_RECORDER_DIR=/recorder
+ENV SHARDSOPENBOT_RECORDER_DIR=/recorder
 
 # Durable working directory. Bot-produced files that must survive replacement live here.
 RUN mkdir -p /workspace

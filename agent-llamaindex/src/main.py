@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse
 from llama_index.llms.litellm import LiteLLM
 from llama_index.protocols.ag_ui.router import get_ag_ui_workflow_router
 
-TOKEN_HEADER = "x-openbot-agent-token"
+TOKEN_HEADER = "x-shardsopenbot-agent-token"
 
 
 def _model_id() -> str:

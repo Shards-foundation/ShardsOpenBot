@@ -84,7 +84,7 @@ export function serverMethods(context: StoreContext) {
      * the broker it was handed and write `?? "composio"` when there was none — which is a second
      * answer to the question {@link PluginStoreOptions.brokerProvider} argues must have exactly one.
      * The two came apart precisely where it hurt: a deployment with both keys set and
-     * `OPENBOT_BROKER_PROVIDER` unset is wired with no broker at all, so the routes read every
+     * `SHARDSOPENBOT_BROKER_PROVIDER` unset is wired with no broker at all, so the routes read every
      * `arcade://` row of this store with Composio's parser. Read from here, the parser the routes
      * use and the filter this store queries with cannot disagree.
      */

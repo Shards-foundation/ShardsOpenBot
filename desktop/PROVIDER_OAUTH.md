@@ -1,7 +1,7 @@
 # Model provider OAuth
 
-OpenBot's Google and xAI model connections are separate from signing in to
-OpenBot or CopilotKit. API keys remain available for both providers.
+ShardsOpenBot's Google and xAI model connections are separate from signing in to
+ShardsOpenBot or CopilotKit. API keys remain available for both providers.
 
 ## Google Gemini
 
@@ -16,25 +16,25 @@ client in a Google Cloud project with the Generative Language API enabled. Set
 these variables when building the desktop app to include its defaults. Runtime
 process environment variables can override those defaults:
 
-- `OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID`: that desktop client's ID.
-- `OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET`: the client secret, when issued.
-- `OPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT`: the project that supplies API quota.
+- `SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID`: that desktop client's ID.
+- `SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET`: the client secret, when issued.
+- `SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT`: the project that supplies API quota.
 
 For GitHub-built artifacts, configure repository Actions **variables** named
-`OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID` and
-`OPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT`, plus an Actions **secret** named
-`OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET` when the client has one. Both the
+`SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_ID` and
+`SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_QUOTA_PROJECT`, plus an Actions **secret** named
+`SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET` when the client has one. Both the
 Desktop artifact workflow and the Windows signing workflow pass these settings
 to the native build. They become defaults inside the distributed desktop app;
 the desktop client credential is not a user access or refresh token.
 
 When calling the Desktop workflow as a reusable workflow, pass its optional
-`OPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET` secret explicitly or use
+`SHARDSOPENBOT_GOOGLE_MODEL_OAUTH_CLIENT_SECRET` secret explicitly or use
 `secrets: inherit`. GitHub does not provide repository secrets to fork pull
 requests. Missing settings do not fail the build; API-key connections remain
 available, and Google sign-in requires a configured build or runtime settings.
 
-Do not reuse OpenBot's web SSO credentials (`GOOGLE_OAUTH_CLIENT_ID` and
+Do not reuse ShardsOpenBot's web SSO credentials (`GOOGLE_OAUTH_CLIENT_ID` and
 `GOOGLE_OAUTH_CLIENT_SECRET`): their callback and permissions serve a different
 purpose. Configure the consent screen and test users, and complete Google's
 verification requirements before wider distribution.
@@ -44,12 +44,12 @@ References: [Gemini API OAuth](https://ai.google.dev/gemini-api/docs/oauth) and
 
 ## xAI
 
-xAI sign-in uses device authorization: OpenBot opens the provider's verification
-page, the user approves the displayed code, and OpenBot receives refreshable
+xAI sign-in uses device authorization: ShardsOpenBot opens the provider's verification
+page, the user approves the displayed code, and ShardsOpenBot receives refreshable
 credentials. API calls use `https://api.x.ai/v1`.
 
 The integration follows the public OAuth flow in xAI's endorsed OpenCode
-integration. A distributor can set `OPENBOT_XAI_MODEL_OAUTH_CLIENT_ID` to an
+integration. A distributor can set `SHARDSOPENBOT_XAI_MODEL_OAUTH_CLIENT_ID` to an
 alternative registered client. Account entitlements and provider limits still
 apply.
 
@@ -58,7 +58,7 @@ References: [xAI's OpenCode integration](https://x.ai/news/grok-opencode) and
 
 ## Other build-time settings
 
-`VITE_OPENBOT_SUPPORT_URL` replaces the support link a startup failure offers. Unset, it points at
+`VITE_SHARDSOPENBOT_SUPPORT_URL` replaces the support link a startup failure offers. Unset, it points at
 this repository's issues. A whitelabel build points it at its own support channel.
 
 ## Credential lifecycle

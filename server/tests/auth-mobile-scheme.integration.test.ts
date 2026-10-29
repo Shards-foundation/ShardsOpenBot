@@ -29,7 +29,7 @@ async function sendsSessionTo(auth: ReturnType<typeof createAuth>) {
   const expoLoaded = (auth.options.plugins ?? []).some(
     (plugin) => plugin.id === "expo",
   );
-  return expoLoaded && context.isTrustedOrigin("openbotmobile://");
+  return expoLoaded && context.isTrustedOrigin("shardsopenbotmobile://");
 }
 afterEach(() => {
   delete process.env.EXPO_PROJECT_ID;

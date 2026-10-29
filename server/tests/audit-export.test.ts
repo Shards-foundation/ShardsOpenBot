@@ -29,7 +29,7 @@ const adminAuth = {
   handler: () => new Response(null, { status: 204 }),
   api: {
     getSession: async () => ({
-      user: { id: "admin", email: "admin@openbot.test" },
+      user: { id: "admin", email: "admin@shardsopenbot.test" },
     }),
   },
 };
@@ -202,7 +202,7 @@ describe("GET /api/admin/audit-events?format=csv", () => {
       { events: [event()], nextCursor: undefined },
     ]);
     const response = await appWith(reader).request(
-      "http://openbot.local/api/admin/audit-events?format=csv&eventType=computer.action_allowed",
+      "http://shardsopenbot.local/api/admin/audit-events?format=csv&eventType=computer.action_allowed",
     );
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/csv");
@@ -230,7 +230,7 @@ describe("GET /api/admin/audit-events?format=csv", () => {
       ),
     );
     const capped = await appWith(reader).request(
-      "http://openbot.local/api/admin/audit-events?format=csv",
+      "http://shardsopenbot.local/api/admin/audit-events?format=csv",
     );
     expect(capped.status).toBe(200);
     expect(capped.headers.get("x-audit-export-truncated")).toBe(
@@ -242,7 +242,7 @@ describe("GET /api/admin/audit-events?format=csv", () => {
 
     const { reader: small } = readerOf([{ events: [event()] }]);
     const whole = await appWith(small).request(
-      "http://openbot.local/api/admin/audit-events?format=csv",
+      "http://shardsopenbot.local/api/admin/audit-events?format=csv",
     );
     expect(whole.headers.get("x-audit-export-truncated")).toBeNull();
   });
@@ -251,7 +251,7 @@ describe("GET /api/admin/audit-events?format=csv", () => {
     const { reader } = readerOf([{ events: [event(), event()] }]);
     const { store, recorded } = storeOf();
     await appWith(reader, store).request(
-      "http://openbot.local/api/admin/audit-events?format=csv&eventType=computer.action_allowed&limit=5",
+      "http://shardsopenbot.local/api/admin/audit-events?format=csv&eventType=computer.action_allowed&limit=5",
     );
     expect(recorded).toHaveLength(1);
     expect(recorded[0]).toMatchObject({
@@ -274,7 +274,7 @@ describe("GET /api/admin/audit-events?format=csv", () => {
 
     // Reading the table is not an export.
     await appWith(reader, store).request(
-      "http://openbot.local/api/admin/audit-events",
+      "http://shardsopenbot.local/api/admin/audit-events",
     );
     expect(recorded).toHaveLength(1);
   });
@@ -282,7 +282,7 @@ describe("GET /api/admin/audit-events?format=csv", () => {
   test("an unknown format is a 400 naming the parameter", async () => {
     const { reader } = readerOf([{ events: [] }]);
     const response = await appWith(reader).request(
-      "http://openbot.local/api/admin/audit-events?format=xlsx",
+      "http://shardsopenbot.local/api/admin/audit-events?format=xlsx",
     );
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
@@ -293,7 +293,7 @@ describe("GET /api/admin/audit-events?format=csv", () => {
   test("a bad date filter is still a 400 on the export path, not a downloaded error", async () => {
     const { reader } = readerOf([{ events: [] }]);
     const response = await appWith(reader).request(
-      "http://openbot.local/api/admin/audit-events?format=csv&from=not-a-date",
+      "http://shardsopenbot.local/api/admin/audit-events?format=csv&from=not-a-date",
     );
     expect(response.status).toBe(400);
     expect(response.headers.get("content-type")).toContain("application/json");
@@ -302,7 +302,7 @@ describe("GET /api/admin/audit-events?format=csv", () => {
   test("the JSON list is unchanged when no format is asked for", async () => {
     const { reader } = readerOf([{ events: [event()] }]);
     const response = await appWith(reader).request(
-      "http://openbot.local/api/admin/audit-events?eventType=computer.action_allowed",
+      "http://shardsopenbot.local/api/admin/audit-events?eventType=computer.action_allowed",
     );
     expect(response.status).toBe(200);
     const body = (await response.json()) as { events: AuditEvent[] };

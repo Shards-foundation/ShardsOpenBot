@@ -27,7 +27,7 @@ import type { BaseEvent } from "@ag-ui/core";
 import type {
   CapturedEvent,
   JsonValue,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import { ReplaySubject } from "rxjs";
 import {
   AGENT_TARGET_FIELD,

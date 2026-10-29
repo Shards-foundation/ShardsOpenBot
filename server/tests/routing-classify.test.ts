@@ -196,7 +196,7 @@ describe("falling back to somebody who can actually answer", () => {
 
   test("names the one coworker that can reach the system in the message", async () => {
     const decision = await BROKEN.route(
-      "In my OpenBot PRD in Google Drive, list the proxy metrics.",
+      "In my ShardsOpenBot PRD in Google Drive, list the proxy metrics.",
       ROSTER,
       "general-assistant",
     );

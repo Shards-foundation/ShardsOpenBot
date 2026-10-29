@@ -4,7 +4,7 @@ import {
   RECORDER_SIGNED_OUT,
   RECORDER_TOKEN_PREFIX,
   TRAJECTORY_GATE_REFUSALS,
-} from "@openbot/shared/recorder-api";
+} from "@shardsopenbot/shared/recorder-api";
 import type { MiddlewareHandler } from "hono";
 import { DEV_ACTOR } from "../auth/dev-actor";
 import { emailDomainAllowed } from "../auth/email-domain";
@@ -13,7 +13,7 @@ import {
   AuthorityUnavailable,
   ORGANIZATION_SESSION_COOKIE,
 } from "../auth/organization";
-import type { OpenBotRole } from "../auth/roles";
+import type { ShardsOpenBotRole } from "../auth/roles";
 import { reasonWithoutStatement } from "../db/query-failure";
 import type { RecorderConnectionStore } from "./connections";
 import type { RecorderVariables } from "./variables";
@@ -63,7 +63,9 @@ export const RECORDER_BEARER_PREFIX = `Bearer ${RECORDER_TOKEN_PREFIX}`;
 /** How long the organization's verdict on one connection is trusted on this replica. */
 const ORGANIZATION_VERDICT_TTL_MS = 60_000;
 
-type OrganizationVerdict = { role: OpenBotRole } | { refused: "organization" };
+type OrganizationVerdict =
+  | { role: ShardsOpenBotRole }
+  | { refused: "organization" };
 /** The organization's verdicts on this replica, by connection id, oldest first. */
 export type OrganizationVerdictCache = Map<
   string,
@@ -80,7 +82,9 @@ function digestOf(header: string | undefined): string | null {
 }
 
 /** Admin beats user, exactly as `createRequireUser` decides. */
-function strongestRole(roles: OpenBotRole[]): OpenBotRole | undefined {
+function strongestRole(
+  roles: ShardsOpenBotRole[],
+): ShardsOpenBotRole | undefined {
   if (roles.includes("admin")) return "admin";
   if (roles.includes("user")) return "user";
   return undefined;
@@ -244,8 +248,8 @@ export function createRequireRecorder(
       {
         error:
           reason === "organization"
-            ? "Your organization sign-in ended. Connect this browser to OpenBot again."
-            : "This browser is no longer connected to OpenBot. Connect it again.",
+            ? "Your organization sign-in ended. Connect this browser to ShardsOpenBot again."
+            : "This browser is no longer connected to ShardsOpenBot. Connect it again.",
         code: RECORDER_SIGNED_OUT,
         reason:
           reason === "removed"

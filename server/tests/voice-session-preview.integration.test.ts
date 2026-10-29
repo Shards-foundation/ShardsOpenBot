@@ -2,7 +2,7 @@ import { afterAll, beforeAll, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
 import { eq, inArray, sql } from "drizzle-orm";
 import { Hono } from "hono";
-import type { SaveVoiceSessionInput } from "@openbot/shared/voice-session";
+import type { SaveVoiceSessionInput } from "@shardsopenbot/shared/voice-session";
 import { createAgentProfileStore } from "../src/agents/profile-store";
 import type { AppVariables } from "../src/auth/guards";
 import {
@@ -96,7 +96,10 @@ async function fixture() {
   async function post(app: ReturnType<typeof router>) {
     const response = await app.request("/sessions", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-openbot-voice": "1" },
+      headers: {
+        "content-type": "application/json",
+        "x-shardsopenbot-voice": "1",
+      },
       body: JSON.stringify(input),
     });
     expect(response.status).toBe(200);

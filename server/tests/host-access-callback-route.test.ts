@@ -74,7 +74,7 @@ describe("host access tools on the signed agent callback route", () => {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-openbot-agent-token": "legacy-agent-tool-token",
+        "x-shardsopenbot-agent-token": "legacy-agent-tool-token",
       },
       body: JSON.stringify({
         name: "host_read_file",

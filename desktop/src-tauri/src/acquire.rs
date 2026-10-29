@@ -77,10 +77,10 @@ impl StepOutcome {
 /// Its own, not `podman-machine-default`: somebody may already have a machine with their own work
 /// in it, and an installer that reconfigures or deletes it has taken something that was not
 /// offered.
-pub const MACHINE: &str = "openbot";
+pub const MACHINE: &str = "shardsopenbot";
 
 const USER_MODE_NETWORKING_FLAG: &str = "--user-mode-networking=true";
-const HOST_GATEWAY_CONFIG: &str = ".config/containers/containers.conf.d/90-openbot-host.conf";
+const HOST_GATEWAY_CONFIG: &str = ".config/containers/containers.conf.d/90-shardsopenbot-host.conf";
 
 fn podman(args: &[&str]) -> Result<String, String> {
     podman_with(args, || {
@@ -92,7 +92,7 @@ fn podman_with(
     args: &[&str],
     run: impl FnOnce() -> std::io::Result<std::process::Output>,
 ) -> Result<String, String> {
-    // Resolved, not named: right after OpenBot installs it, `podman` is not yet on this process's
+    // Resolved, not named: right after ShardsOpenBot installs it, `podman` is not yet on this process's
     // PATH. See the PATH rule in `engine.rs`.
     let output = run().map_err(|error| format!("could not run podman: {error}"))?;
     if output.status.success() {
@@ -215,7 +215,7 @@ fn prepare_user_mode_networking_before_start(
     let networking = owned_machine_networking(&listing)?;
     if networking.state.eq_ignore_ascii_case("running") && !networking.user_mode {
         return Err(format!(
-            "{MACHINE} is already running without Podman user-mode networking. Stop the OpenBot engine machine and start OpenBot again so host callbacks can be configured."
+            "{MACHINE} is already running without Podman user-mode networking. Stop the ShardsOpenBot engine machine and start ShardsOpenBot again so host callbacks can be configured."
         ));
     }
     if networking.state.eq_ignore_ascii_case("stopped") && !networking.user_mode {
@@ -278,7 +278,7 @@ fn configure_owned_windows_podman_for_compose(
     let networking = owned_machine_networking(&listing)?;
     if !networking.user_mode {
         return Err(format!(
-            "{MACHINE} is running without Podman user-mode networking. Stop the OpenBot engine machine and start OpenBot again so host callbacks can be configured."
+            "{MACHINE} is running without Podman user-mode networking. Stop the ShardsOpenBot engine machine and start ShardsOpenBot again so host callbacks can be configured."
         ));
     }
     configure_host_gateway_after_start(&mut run, true)
@@ -363,7 +363,7 @@ pub fn start_machine() -> StepOutcome {
 fn explain_machine_error(error: &str) -> String {
     if error.contains("WSL_E_LOCAL_SYSTEM_NOT_SUPPORTED") {
         return "WSL will not run as the system account, so this step has to run as you. \
-                Restart OpenBot without elevation."
+                Restart ShardsOpenBot without elevation."
             .into();
     }
     if error.contains("WSL_E_WSL_OPTIONAL_COMPONENT_REQUIRED") {
@@ -438,7 +438,7 @@ pub fn health_gate(address: &Address) -> StepOutcome {
 
 /// What to install, named, rather than seven errors about a file that is not there.
 ///
-/// A last resort, not the plan: OpenBot installs a Compose provider itself, so somebody only reads
+/// A last resort, not the plan: ShardsOpenBot installs a Compose provider itself, so somebody only reads
 /// this when that copy is missing or is not being found. The restart comes first for that reason,
 /// and the platform's own instruction is behind it.
 ///
@@ -461,15 +461,15 @@ pub fn missing_compose(binary: &str) -> String {
          sure `docker-compose` is on PATH."
     };
     format!(
-        "{binary} is answering, but it has no Compose to run the stack with, and OpenBot's own \
-         copy of one is not being found. Restart OpenBot and try again. If this comes back: \
+        "{binary} is answering, but it has no Compose to run the stack with, and ShardsOpenBot's own \
+         copy of one is not being found. Restart ShardsOpenBot and try again. If this comes back: \
          {install}"
     )
 }
 
 /// Where a downloaded installer is kept, so a failed run can be retried without downloading again.
 pub fn download_dir(cache: &Path) -> std::path::PathBuf {
-    cache.join("openbot-engine")
+    cache.join("shardsopenbot-engine")
 }
 
 #[cfg(test)]
@@ -522,7 +522,7 @@ mod tests {
     fn machine_inspect(state: &str, user_mode: bool) -> String {
         serde_json::json!([
             {
-                "Name": "openbot",
+                "Name": "shardsopenbot",
                 "State": state,
                 "UserModeNetworking": user_mode
             }
@@ -539,7 +539,7 @@ mod tests {
         .expect_err("nonzero podman must fail");
 
         assert!(
-            failure.contains("podman machine inspect openbot"),
+            failure.contains("podman machine inspect shardsopenbot"),
             "{failure}"
         );
         assert!(failure.contains("status 125"), "{failure}");
@@ -550,8 +550,8 @@ mod tests {
     #[test]
     fn machine_existence_uses_exact_json_names() {
         for (listing, expected) in [
-            (r#"[{"Name":"default"},{"Name":"openbot"}]"#, true),
-            (r#"[{"Name":"default"},{"Name":"openbot-old"}]"#, false),
+            (r#"[{"Name":"default"},{"Name":"shardsopenbot"}]"#, true),
+            (r#"[{"Name":"default"},{"Name":"shardsopenbot-old"}]"#, false),
             ("[]", false),
         ] {
             assert_eq!(
@@ -563,9 +563,9 @@ mod tests {
 
     #[test]
     fn existing_stopped_default_machine_is_not_initialized_again() {
-        // Podman 6.1.1 reports this stopped default machine as `openbot*` in --quiet output.
+        // Podman 6.1.1 reports this stopped default machine as `shardsopenbot*` in --quiet output.
         // JSON keeps its raw name and reports default/running state as separate fields.
-        let listing = r#"[{"Name":"openbot","Default":true,"Running":false,"VMType":"wsl"}]"#;
+        let listing = r#"[{"Name":"shardsopenbot","Default":true,"Running":false,"VMType":"wsl"}]"#;
         let mut init_called = false;
         let result = create_machine_with(
             2,
@@ -574,7 +574,7 @@ mod tests {
             || machine_exists_with(|| Ok(listing.into())),
             |_args| {
                 init_called = true;
-                Err("machine openbot already exists".into())
+                Err("machine shardsopenbot already exists".into())
             },
         );
         assert!(
@@ -582,7 +582,7 @@ mod tests {
             "existing stopped default machine was initialized again"
         );
         assert!(result.ok, "{result:?}");
-        assert_eq!(result.said, "openbot already exists.");
+        assert_eq!(result.said, "shardsopenbot already exists.");
     }
 
     #[test]
@@ -618,7 +618,7 @@ mod tests {
     #[test]
     fn malformed_machine_list_stops_create_and_keeps_the_response() {
         for listing in [
-            "openbot*",
+            "shardsopenbot*",
             "",
             "{}",
             "null",
@@ -672,7 +672,7 @@ mod tests {
             [
                 "machine",
                 "init",
-                "openbot",
+                "shardsopenbot",
                 "--cpus",
                 "4",
                 "--memory",
@@ -692,7 +692,7 @@ mod tests {
         prepare_user_mode_networking_before_start(
             &mut |args: &[&str]| {
                 calls.push(args.iter().map(|arg| (*arg).to_string()).collect());
-                if args == ["machine", "inspect", "openbot"] {
+                if args == ["machine", "inspect", "shardsopenbot"] {
                     return Ok(inspect.clone());
                 }
                 Ok(String::new())
@@ -704,8 +704,8 @@ mod tests {
         assert_eq!(
             calls,
             [
-                vec!["machine", "inspect", "openbot"],
-                vec!["machine", "set", "--user-mode-networking=true", "openbot"]
+                vec!["machine", "inspect", "shardsopenbot"],
+                vec!["machine", "set", "--user-mode-networking=true", "shardsopenbot"]
             ]
         );
     }
@@ -724,7 +724,7 @@ mod tests {
         )
         .expect_err("running machines without user-mode networking must not be treated as fixed");
 
-        assert_eq!(calls, [vec!["machine", "inspect", "openbot"]]);
+        assert_eq!(calls, [vec!["machine", "inspect", "shardsopenbot"]]);
         assert!(
             error.contains("without Podman user-mode networking"),
             "{error}"
@@ -737,7 +737,7 @@ mod tests {
             .expect_err("new networking inspection must not ignore malformed output");
 
         assert!(
-            error.contains("could not inspect openbot networking"),
+            error.contains("could not inspect shardsopenbot networking"),
             "{error}"
         );
     }
@@ -767,15 +767,15 @@ mod tests {
             |args| {
                 calls.push(args.iter().map(|arg| (*arg).to_string()).collect());
                 match args {
-                    ["machine", "inspect", "openbot"] => Ok(inspect.clone()),
-                    ["machine", "set", "--user-mode-networking=true", "openbot"] => {
+                    ["machine", "inspect", "shardsopenbot"] => Ok(inspect.clone()),
+                    ["machine", "set", "--user-mode-networking=true", "shardsopenbot"] => {
                         Ok(String::new())
                     }
-                    ["machine", "start", "openbot"] => Ok(String::new()),
-                    ["machine", "ssh", "openbot", "getent", "ahostsv4", "host.containers.internal"] => {
+                    ["machine", "start", "shardsopenbot"] => Ok(String::new()),
+                    ["machine", "ssh", "shardsopenbot", "getent", "ahostsv4", "host.containers.internal"] => {
                         Ok("192.168.127.254 STREAM host.containers.internal\n".into())
                     }
-                    ["machine", "ssh", "openbot", script]
+                    ["machine", "ssh", "shardsopenbot", script]
                         if script.contains("host_containers_internal_ip=\"192.168.127.254\"") =>
                     {
                         Ok(String::new())
@@ -787,26 +787,26 @@ mod tests {
         );
 
         assert!(result.ok, "{result:?}");
-        assert_eq!(result.said, "openbot started.");
+        assert_eq!(result.said, "shardsopenbot started.");
         assert_eq!(
             calls,
             vec![
-                vec!["machine", "inspect", "openbot"]
+                vec!["machine", "inspect", "shardsopenbot"]
                     .into_iter()
                     .map(str::to_string)
                     .collect::<Vec<_>>(),
-                vec!["machine", "set", "--user-mode-networking=true", "openbot"]
+                vec!["machine", "set", "--user-mode-networking=true", "shardsopenbot"]
                     .into_iter()
                     .map(str::to_string)
                     .collect::<Vec<_>>(),
-                vec!["machine", "start", "openbot"]
+                vec!["machine", "start", "shardsopenbot"]
                     .into_iter()
                     .map(str::to_string)
                     .collect::<Vec<_>>(),
                 vec![
                     "machine",
                     "ssh",
-                    "openbot",
+                    "shardsopenbot",
                     "getent",
                     "ahostsv4",
                     "host.containers.internal",
@@ -817,7 +817,7 @@ mod tests {
                 vec![
                     "machine".to_string(),
                     "ssh".to_string(),
-                    "openbot".to_string(),
+                    "shardsopenbot".to_string(),
                     host_gateway_config_script("192.168.127.254".parse().unwrap()),
                 ],
             ]
@@ -830,15 +830,15 @@ mod tests {
         let inspect = machine_inspect("running", true);
 
         configure_owned_windows_podman_for_compose(
-            &Address::new(Engine::Podman, Some("openbot".into())),
+            &Address::new(Engine::Podman, Some("shardsopenbot".into())),
             |args| {
                 calls.push(args.iter().map(|arg| (*arg).to_string()).collect());
                 match args {
-                    ["machine", "inspect", "openbot"] => Ok(inspect.clone()),
-                    ["machine", "ssh", "openbot", "getent", "ahostsv4", "host.containers.internal"] => {
+                    ["machine", "inspect", "shardsopenbot"] => Ok(inspect.clone()),
+                    ["machine", "ssh", "shardsopenbot", "getent", "ahostsv4", "host.containers.internal"] => {
                         Ok("192.168.127.254 STREAM host.containers.internal\n".into())
                     }
-                    ["machine", "ssh", "openbot", script]
+                    ["machine", "ssh", "shardsopenbot", script]
                         if script.contains("host_containers_internal_ip=\"192.168.127.254\"") =>
                     {
                         Ok(String::new())
@@ -865,7 +865,7 @@ mod tests {
             },
             true,
         )
-        .expect("borrowed Podman machines are outside OpenBot's provisioning scope");
+        .expect("borrowed Podman machines are outside ShardsOpenBot's provisioning scope");
 
         assert!(!called);
     }
@@ -881,7 +881,7 @@ mod tests {
     #[test]
     #[cfg(unix)]
     fn joined_podman_ssh_write_command_restarts_api_only_when_config_changes() {
-        let root = temp_root("openbot-host-gateway-home");
+        let root = temp_root("shardsopenbot-host-gateway-home");
         let home = root.join("home");
         let bin = root.join("bin");
         std::fs::create_dir_all(&home).unwrap();
@@ -1018,7 +1018,7 @@ mod tests {
     /// A step that worked has nothing behind it, because there is no failure to explain.
     #[test]
     fn a_step_that_worked_has_no_output_hidden_behind_it() {
-        let went = StepOutcome::went(Step::StartMachine, "openbot started.");
+        let went = StepOutcome::went(Step::StartMachine, "shardsopenbot started.");
         assert!(went.ok);
         assert_eq!(went.detail, None);
     }

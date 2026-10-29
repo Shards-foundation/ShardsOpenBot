@@ -2,12 +2,13 @@ import { expect, test } from "bun:test";
 import { loadConfig } from "../src/config";
 
 const environment = {
-  DATABASE_URL: "postgres://openbot:openbot@localhost:5432/openbot",
+  DATABASE_URL:
+    "postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot",
   KEY_ENCRYPTION_KEY: "b3BlbmJvdC1wcm9kdWN0aW9uLXRlc3Qta2V5LTMyMzI=",
   INTELLIGENCE_API_URL: "https://api.intelligence.copilotkit.ai",
   INTELLIGENCE_GATEWAY_WS_URL: "wss://realtime.intelligence.copilotkit.ai",
   INTELLIGENCE_API_KEY: "test-project-key",
-  OPENBOT_SINGLE_USER: "true",
+  SHARDSOPENBOT_SINGLE_USER: "true",
 };
 
 test("Learning is optional at startup even if a revision was left behind", () => {

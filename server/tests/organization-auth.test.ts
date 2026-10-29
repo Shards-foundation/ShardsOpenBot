@@ -45,7 +45,7 @@ test("missing local cookie requests focused refresh; transient authority failure
   const failure = async () =>
     (
       await app.request("/api/desktop/connection-failure", {
-        headers: { "x-openbot-desktop-host-token": "fixture-host-token" },
+        headers: { "x-shardsopenbot-desktop-host-token": "fixture-host-token" },
       })
     ).json();
   try {
@@ -68,7 +68,7 @@ test("missing local cookie requests focused refresh; transient authority failure
     expect(handoff.status).toBe(503);
     expect(await failure()).toBeNull();
     const cookie =
-      "openbot.organization-session=" +
+      "shardsopenbot.organization-session=" +
       Buffer.from(
         JSON.stringify({
           authority: authority.url.origin,
@@ -291,7 +291,7 @@ describe("official Better Auth desktop exchange", () => {
       verification: [],
     }),
     emailAndPassword: { enabled: true },
-    plugins: [electron({ clientID: "openbot-desktop" })],
+    plugins: [electron({ clientID: "shardsopenbot-desktop" })],
   });
   async function issue() {
     const signup = await auth.api.signUpEmail({
@@ -310,7 +310,7 @@ describe("official Better Auth desktop exchange", () => {
     const challenge = createHash("sha256").update(verifier).digest("base64url");
     const response = await auth.handler(
       new Request(
-        `${origin}/api/auth/electron/transfer-user?client_id=openbot-desktop&state=fixture-state&code_challenge=${challenge}`,
+        `${origin}/api/auth/electron/transfer-user?client_id=shardsopenbot-desktop&state=fixture-state&code_challenge=${challenge}`,
         {
           method: "POST",
           headers: { origin, cookie, "content-type": "application/json" },
@@ -409,7 +409,7 @@ describe("quiet verification of a forwarded cookie", () => {
         cookie: "better-auth.session_token=abc",
       }),
     ).toString("base64url");
-    cookieHeader = `openbot.organization-session=${value}`;
+    cookieHeader = `shardsopenbot.organization-session=${value}`;
   });
   afterEach(() => {
     authority.stop(true);
@@ -442,7 +442,7 @@ describe("quiet verification of a forwarded cookie", () => {
 
   test("a malformed cookie is a sign-out", async () => {
     expect(
-      await auth.verifySessionQuietly("openbot.organization-session=x"),
+      await auth.verifySessionQuietly("shardsopenbot.organization-session=x"),
     ).toBeNull();
   });
 
@@ -510,7 +510,7 @@ describe("the organization session cookie's own expiry", () => {
       const [cookie = ""] = (consumed.headers.get("set-cookie") ?? "").split(
         ";",
       );
-      const value = cookie.slice("openbot.organization-session=".length);
+      const value = cookie.slice("shardsopenbot.organization-session=".length);
       const written = JSON.parse(
         Buffer.from(value, "base64url").toString(),
       ) as { expiresAt: number };
@@ -519,7 +519,7 @@ describe("the organization session cookie's own expiry", () => {
       const session = (cookieValue: string) =>
         auth.api.getSession({
           headers: new Headers({
-            cookie: `openbot.organization-session=${cookieValue}`,
+            cookie: `shardsopenbot.organization-session=${cookieValue}`,
           }),
           query: { disableCookieCache: true },
         });

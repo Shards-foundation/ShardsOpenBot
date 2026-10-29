@@ -121,7 +121,9 @@ export class ProtectedAgentError extends Error {
 
 export class ManagedAgentUnavailableError extends Error {
   constructor() {
-    super("OpenBot has no managed Bot. Give this Bot its own AG-UI endpoint.");
+    super(
+      "ShardsOpenBot has no managed Bot. Give this Bot its own AG-UI endpoint.",
+    );
     this.name = "ManagedAgentUnavailableError";
   }
 }

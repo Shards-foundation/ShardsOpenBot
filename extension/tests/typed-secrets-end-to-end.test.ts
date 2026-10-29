@@ -16,7 +16,7 @@ import {
   type CapturedEvent,
   REDACTED,
   sha256HexSync,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 import {
   createNetworkCapture,
   type NetworkCaptureDeps,
@@ -267,7 +267,7 @@ async function recordInWorker(firstPage: string) {
     }, 0);
   });
   installed.storage.local.set("connection", {
-    openbotUrl: "http://127.0.0.1:9",
+    shardsopenbotUrl: "http://127.0.0.1:9",
     token: "obr_one",
     connectionId: "c-obr_one",
     user: { id: "p1", name: "Ada", email: "ada@example.test" },
@@ -303,8 +303,8 @@ async function recordInWorker(firstPage: string) {
       active: () => false,
     }),
     readPolicy: async () => ({
-      openbotUrl: null,
-      openbotUrlInvalid: false,
+      shardsopenbotUrl: null,
+      shardsopenbotUrlInvalid: false,
       allowedIntelligenceUrls: null,
     }),
     hasHostPermission: async () => true,

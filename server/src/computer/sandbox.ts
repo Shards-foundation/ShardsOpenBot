@@ -358,12 +358,12 @@ export function createSandboxComputerProvider(
         name: sandboxNameFor(botId),
         namespace: options.namespace,
         labels: {
-          "app.kubernetes.io/managed-by": "openbot",
-          "openbot.dev/component": "computer",
+          "app.kubernetes.io/managed-by": "shardsopenbot",
+          "shardsopenbot.dev/component": "computer",
         },
         // The Bot id as written, which the name above cannot always carry. The culler reads this
         // rather than trying to reverse the slug.
-        annotations: { "openbot.dev/bot-id": botId },
+        annotations: { "shardsopenbot.dev/bot-id": botId },
       },
       spec: {
         operatingMode: "Running",
@@ -648,7 +648,7 @@ export function createSandboxComputerProvider(
       return (body?.items ?? []).map((sandbox) => {
         const botId =
           (sandbox.metadata as { annotations?: Record<string, string> })
-            ?.annotations?.["openbot.dev/bot-id"] ??
+            ?.annotations?.["shardsopenbot.dev/bot-id"] ??
           sandbox.metadata?.name ??
           "";
         return {

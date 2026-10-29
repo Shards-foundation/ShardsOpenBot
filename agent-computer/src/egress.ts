@@ -22,7 +22,7 @@ import {
   type Server,
 } from "node:http";
 import { BlockList, connect, isIP, type Socket } from "node:net";
-import { isPersonBrowserId } from "../../shared/openbot-browser";
+import { isPersonBrowserId } from "../../shared/shardsopenbot-browser";
 
 /** A proxy as Playwright wants it: credentials separated from the URL. */
 export type Egress = {
@@ -446,7 +446,7 @@ const REFUSALS = {
     person: (host: string) =>
       `This browser never opens ${host}: it is a cloud metadata or link-local address, not a website.`,
     anyone: (host: string) =>
-      `${host} is a cloud metadata or link-local address, which OpenBot never opens.`,
+      `${host} is a cloud metadata or link-local address, which ShardsOpenBot never opens.`,
   },
   off: {
     bot: "Network access is turned off for this Bot's computer.",
@@ -828,7 +828,7 @@ function upstreamAddress(upstream: Egress): { host: string; port: number } {
 
 function refuse(socket: Socket, reason: string) {
   socket.end(
-    `HTTP/1.1 403 Forbidden\r\ncontent-type: text/plain\r\nx-openbot-egress: refused\r\ncontent-length: ${Buffer.byteLength(reason)}\r\n\r\n${reason}`,
+    `HTTP/1.1 403 Forbidden\r\ncontent-type: text/plain\r\nx-shardsopenbot-egress: refused\r\ncontent-length: ${Buffer.byteLength(reason)}\r\n\r\n${reason}`,
   );
 }
 
@@ -841,7 +841,7 @@ function refuse(socket: Socket, reason: string) {
  * https://www.rfc-editor.org/rfc/rfc9110#name-407-proxy-authentication-re
  */
 const PROXY_CHALLENGE =
-  'HTTP/1.1 407 Proxy Authentication Required\r\nproxy-authenticate: Basic realm="OpenBot"\r\ncontent-type: text/plain\r\nconnection: close\r\ncontent-length: 0\r\n\r\n';
+  'HTTP/1.1 407 Proxy Authentication Required\r\nproxy-authenticate: Basic realm="ShardsOpenBot"\r\ncontent-type: text/plain\r\nconnection: close\r\ncontent-length: 0\r\n\r\n';
 
 /** Open a tunnel to host:port, through the upstream proxy when there is one. */
 function tunnel(
@@ -986,7 +986,7 @@ export async function startEgressFilter(
     if (asks && !botId) {
       response
         .writeHead(407, {
-          "proxy-authenticate": 'Basic realm="OpenBot"',
+          "proxy-authenticate": 'Basic realm="ShardsOpenBot"',
           "content-type": "text/plain",
           connection: "close",
         })
@@ -1002,7 +1002,7 @@ export async function startEgressFilter(
       response
         .writeHead(403, {
           "content-type": "text/plain",
-          "x-openbot-egress": "refused",
+          "x-shardsopenbot-egress": "refused",
         })
         .end(decision.reason);
       return;

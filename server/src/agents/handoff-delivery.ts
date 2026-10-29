@@ -12,9 +12,9 @@
  * the work over, the second says it answered, and no row anywhere agrees.
  */
 import type { AbstractAgent, BaseEvent } from "@ag-ui/client";
-import { THREAD_LOCK_TTL_SECONDS } from "@openbot/toolkit/copilotkit/thread-lock";
-import { keepLease } from "@openbot/toolkit/lease";
-import type { ThreadLock, TurnAdmission } from "@openbot/toolkit/ports";
+import { THREAD_LOCK_TTL_SECONDS } from "@shardsopenbot/toolkit/copilotkit/thread-lock";
+import { keepLease } from "@shardsopenbot/toolkit/lease";
+import type { ThreadLock, TurnAdmission } from "@shardsopenbot/toolkit/ports";
 import type { Observable } from "rxjs";
 import type { AuditInitiator } from "../audit";
 import type { HandoffDelivery } from "./handoff-runner";
@@ -401,7 +401,7 @@ export function createHandoffDelivery(options: {
                  * gone. It is what stops the addressed Bot handing the work on for ever, and it is
                  * signed, so the Bot cannot edit its own depth on the way past.
                  */
-                forwardedProps: { openbotRun: assertion },
+                forwardedProps: { shardsopenbotRun: assertion },
               },
             }),
             deadlineMs,

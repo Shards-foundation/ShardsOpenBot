@@ -76,7 +76,7 @@ function runLangGraphAguiModelProbe(
     openaiApiKey?: string;
   } = {},
 ) {
-  const dir = mkdtempSync(join(tmpdir(), "openbot-langgraph-agui-"));
+  const dir = mkdtempSync(join(tmpdir(), "shardsopenbot-langgraph-agui-"));
   try {
     writeFileSync(
       join(dir, "ag_ui_langgraph.py"),
@@ -221,7 +221,7 @@ function runComposeConfig(env: Record<string, string>) {
       "--profile",
       "harness",
       "--profile",
-      "openbot",
+      "shardsopenbot",
       "config",
       "--format",
       "json",
@@ -230,7 +230,7 @@ function runComposeConfig(env: Record<string, string>) {
       cwd: join(import.meta.dir, ".."),
       env: {
         PATH: process.env.PATH ?? "",
-        PICKED_HARNESS_IMAGE: "openbot-agent-langgraph-agui:test",
+        PICKED_HARNESS_IMAGE: "shardsopenbot-agent-langgraph-agui:test",
         ...env,
       },
       encoding: "utf8",
@@ -588,12 +588,12 @@ test("carries per-Bot egress into the computer and the supervisor", () => {
 
 test("gives the selected harness the same governed callback as the framework Bot", () => {
   const config = runComposeConfig({
-    OPENBOT_TOOL_URL: "http://callback.example/api/agent-tools/call",
+    SHARDSOPENBOT_TOOL_URL: "http://callback.example/api/agent-tools/call",
     AGENT_TOOL_TOKEN: "synthetic-callback-token",
   });
   for (const service of ["agent-harness", "agent-langgraph"] as const) {
     expect(config.services[service].environment).toMatchObject({
-      OPENBOT_TOOL_URL: "http://callback.example/api/agent-tools/call",
+      SHARDSOPENBOT_TOOL_URL: "http://callback.example/api/agent-tools/call",
       AGENT_TOOL_TOKEN: "synthetic-callback-token",
     });
     expect(config.services[service].extra_hosts).toContain(
@@ -603,17 +603,17 @@ test("gives the selected harness the same governed callback as the framework Bot
 });
 
 /**
- * OpenBot's own server and worker, for an installed OpenBot, and out of a developer's way.
+ * ShardsOpenBot's own server and worker, for an installed ShardsOpenBot, and out of a developer's way.
  *
  * `scripts/start.sh` runs both on the host, so a plain `docker compose up -d` that also started them
  * would put a second server on port 3001 and a second worker on the routines. The profile is what
  * keeps that from happening; naming the service is still enough to start it.
  */
-test("keeps OpenBot's own server and worker behind a profile", () => {
+test("keeps ShardsOpenBot's own server and worker behind a profile", () => {
   const services = composeServices();
 
   for (const name of ["server", "worker"]) {
-    expect(services[name].profiles).toEqual(["openbot"]);
+    expect(services[name].profiles).toEqual(["shardsopenbot"]);
   }
 });
 
@@ -636,7 +636,7 @@ test("ships the worker in the server image", () => {
   const dockerfile = serverDockerfile();
 
   expect(dockerfile).toContain("COPY worker/src worker/src");
-  // The isolated install's link to `@openbot/shared`. Without it the worker's first import fails.
+  // The isolated install's link to `@shardsopenbot/shared`. Without it the worker's first import fails.
   expect(dockerfile).toContain(
     "COPY --from=deps /app/worker/node_modules worker/node_modules",
   );
@@ -657,14 +657,15 @@ test("gives the server container addresses, not the host's loopback", () => {
   expect(environment).toMatchObject({
     PORT: "3001",
     SERVER_PORT: "3001",
-    DATABASE_URL: "postgres://openbot:openbot@postgres:5432/openbot",
+    DATABASE_URL:
+      "postgres://shardsopenbot:shardsopenbot@postgres:5432/shardsopenbot",
     AGENT_COMPUTER_URL: "http://agent-computer:4100",
     COMPUTER_SUPERVISOR_URL: "http://supervisor:4300",
   });
   for (const [name, value] of Object.entries(environment)) {
     expect(`${name}=${value}`).not.toMatch(/localhost|127\.0\.0\.1|\[::1\]/);
   }
-  // Production refuses `AGENT_COMPUTER_ALLOW_PRIVATE_HOSTS`, which a local OpenBot needs.
+  // Production refuses `AGENT_COMPUTER_ALLOW_PRIVATE_HOSTS`, which a local ShardsOpenBot needs.
   expect(environment.NODE_ENV).toBe("");
 });
 
@@ -687,7 +688,7 @@ test("hands the desktop's host-access token to the server and nothing else", () 
   const holders = Object.entries(composeServices())
     .filter(([, service]) =>
       Object.keys(service.environment ?? {}).includes(
-        "OPENBOT_DESKTOP_HOST_TOKEN",
+        "SHARDSOPENBOT_DESKTOP_HOST_TOKEN",
       ),
     )
     .map(([name]) => name);
@@ -736,18 +737,20 @@ test("mounts the model sign-in folder into the server, and only there", () => {
 
   expect(server.volumes).toContainEqual({
     type: "bind",
-    source: "./.openbot",
-    target: "/openbot",
+    source: "./.shardsopenbot",
+    target: "/shardsopenbot",
     bind: { create_host_path: false },
   });
-  expect(server.environment?.OPENBOT_MODEL_OAUTH_FILE).toBe(
+  expect(server.environment?.SHARDSOPENBOT_MODEL_OAUTH_FILE).toBe(
     // biome-ignore lint/suspicious/noTemplateCurlyInString: the unexpanded placeholder is what is asserted.
-    "${OPENBOT_MODEL_OAUTH_FILE:+/openbot/model-oauth.json}",
+    "${SHARDSOPENBOT_MODEL_OAUTH_FILE:+/shardsopenbot/model-oauth.json}",
   );
   // biome-ignore lint/suspicious/noTemplateCurlyInString: the unexpanded placeholder is what is asserted.
-  expect(server.user).toBe("${OPENBOT_SERVER_USER:-1001:1001}");
+  expect(server.user).toBe("${SHARDSOPENBOT_SERVER_USER:-1001:1001}");
   for (const [name, service] of Object.entries(services)) {
     if (name === "server") continue;
-    expect(JSON.stringify(service.volumes ?? [])).not.toContain(".openbot");
+    expect(JSON.stringify(service.volumes ?? [])).not.toContain(
+      ".shardsopenbot",
+    );
   }
 });

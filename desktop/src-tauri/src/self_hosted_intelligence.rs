@@ -95,7 +95,7 @@ impl SigningIn {
         patience: Duration,
     ) -> Result<Arc<Self>, Problem> {
         let mut child = command.stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null()).spawn()
-            .map_err(|_| Problem::plain("The Intelligence sign-in helper could not start. Finish installing OpenBot and try again."))?;
+            .map_err(|_| Problem::plain("The Intelligence sign-in helper could not start. Finish installing ShardsOpenBot and try again."))?;
         let stdout = child.stdout.take().expect("piped stdout");
         let (sender, events) = mpsc::channel();
         std::thread::spawn(move || {
@@ -199,7 +199,7 @@ impl SigningIn {
         };
         if api_key.trim().is_empty()
             || normalize_api_url(&api_url)? != self.api_url
-            || learning_container_id != "openbot"
+            || learning_container_id != "shardsopenbot"
         {
             return Err(protocol_error());
         }
@@ -278,8 +278,8 @@ mod tests {
                     for line in io::stdin().lock().lines() {
                         let line = line.unwrap();
                         if line.contains("cancel") { return; }
-                        if mode == "mismatch" { println!("{}", r#"{"type":"connection","apiKey":"test-key","apiUrl":"https://other.test","learningContainerId":"openbot"}"#); }
-                        else { println!("{}", r#"{"type":"connection","apiKey":"test-key","apiUrl":"https://intelligence.test/","learningContainerId":"openbot"}"#); }
+                        if mode == "mismatch" { println!("{}", r#"{"type":"connection","apiKey":"test-key","apiUrl":"https://other.test","learningContainerId":"shardsopenbot"}"#); }
+                        else { println!("{}", r#"{"type":"connection","apiKey":"test-key","apiUrl":"https://intelligence.test/","learningContainerId":"shardsopenbot"}"#); }
                         return;
                     }
                 }
@@ -312,7 +312,7 @@ mod tests {
         let proof = signing.connect("7").unwrap();
         assert_eq!(proof.api_key, "test-key");
         assert_eq!(proof.api_url, "https://intelligence.test");
-        assert_eq!(proof.learning_container_id, "openbot");
+        assert_eq!(proof.learning_container_id, "shardsopenbot");
         assert!(signing.child.lock().unwrap().is_none());
     }
     #[test]
@@ -381,10 +381,10 @@ mod tests {
     #[ignore = "requires an isolated Intelligence server and interactive browser SSO"]
     fn live_self_hosted_browser_connection() {
         let root =
-            PathBuf::from(std::env::var("OPENBOT_LIVE_SELF_HOSTED_ROOT").expect("test root"));
-        let bun = PathBuf::from(std::env::var("OPENBOT_LIVE_SELF_HOSTED_BUN").expect("owned Bun"));
-        let api = std::env::var("OPENBOT_LIVE_SELF_HOSTED_API_URL").expect("test API");
-        let project = std::env::var("OPENBOT_LIVE_SELF_HOSTED_PROJECT_ID").expect("test project");
+            PathBuf::from(std::env::var("SHARDSOPENBOT_LIVE_SELF_HOSTED_ROOT").expect("test root"));
+        let bun = PathBuf::from(std::env::var("SHARDSOPENBOT_LIVE_SELF_HOSTED_BUN").expect("owned Bun"));
+        let api = std::env::var("SHARDSOPENBOT_LIVE_SELF_HOSTED_API_URL").expect("test API");
+        let project = std::env::var("SHARDSOPENBOT_LIVE_SELF_HOSTED_PROJECT_ID").expect("test project");
         let signing = SigningIn::begin(&root, &bun, &api).unwrap();
         let projects = signing.projects().unwrap();
         assert!(projects.iter().any(|candidate| candidate.id == project));
@@ -392,7 +392,7 @@ mod tests {
         let connection = signing.connect(&project).unwrap();
         assert!(!connection.api_key.is_empty());
         assert_eq!(connection.api_url, normalize_api_url(&api).unwrap());
-        assert_eq!(connection.learning_container_id, "openbot");
+        assert_eq!(connection.learning_container_id, "shardsopenbot");
         println!("self-hosted connection provisioned; browser helper exited");
     }
     /// Observe only descendants of this helper, never the user's browsers or another sign-in.
@@ -432,9 +432,9 @@ mod tests {
             }
         }
         let root =
-            PathBuf::from(std::env::var("OPENBOT_LIVE_SELF_HOSTED_ROOT").expect("test root"));
-        let bun = PathBuf::from(std::env::var("OPENBOT_LIVE_SELF_HOSTED_BUN").expect("owned Bun"));
-        let api = std::env::var("OPENBOT_LIVE_SELF_HOSTED_API_URL").expect("test API");
+            PathBuf::from(std::env::var("SHARDSOPENBOT_LIVE_SELF_HOSTED_ROOT").expect("test root"));
+        let bun = PathBuf::from(std::env::var("SHARDSOPENBOT_LIVE_SELF_HOSTED_BUN").expect("owned Bun"));
+        let api = std::env::var("SHARDSOPENBOT_LIVE_SELF_HOSTED_API_URL").expect("test API");
         let signing = SigningIn::begin(&root, &bun, &api).unwrap();
         let helper = signing.child.lock().unwrap().as_ref().unwrap().id();
         let deadline = Instant::now() + Duration::from_secs(30);

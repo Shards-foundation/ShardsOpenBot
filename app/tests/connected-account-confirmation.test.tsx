@@ -35,7 +35,7 @@ import {
  * never drawn is not shipped: the sibling list names what a Disconnect would also end and draws
  * NOTHING when there is none; an Arcade deployment's page never says Composio, in text or in
  * attributes; and a person's own page names no broker on either deployment, because the broker is
- * an internal a person cannot act on (see the openbot-copy skill). Where a vendor name is shown,
+ * an internal a person cannot act on (see the shardsopenbot-copy skill). Where a vendor name is shown,
  * on the admin pages, it comes from the provider vocabulary. The fourth is the landing parameter
  * the verifier's redirect carries.
  */

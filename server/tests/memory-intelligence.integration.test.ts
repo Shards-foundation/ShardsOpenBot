@@ -367,7 +367,7 @@ test("a memory only Intelligence holds is the person's own: recalled, edited and
   expect(fake.live(ada)).toEqual([]);
 });
 
-test("a memory OpenBot describes cannot be forgotten through its Intelligence id", async () => {
+test("a memory ShardsOpenBot describes cannot be forgotten through its Intelligence id", async () => {
   const memory = await store.create(ada, { content: "Has a dog" });
   const linked = (await rowOf(memory.id))?.intelligenceMemoryId;
   await expect(

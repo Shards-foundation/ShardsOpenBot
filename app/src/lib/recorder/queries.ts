@@ -1,5 +1,5 @@
-import type { RecorderConnectionsResponse } from "@openbot/shared/recorder-api";
-import { recorderPaths } from "@openbot/shared/recorder-api";
+import type { RecorderConnectionsResponse } from "@shardsopenbot/shared/recorder-api";
+import { recorderPaths } from "@shardsopenbot/shared/recorder-api";
 import { queryOptions } from "@tanstack/react-query";
 import { BROWSER_CLOSED_POLL_MS, BROWSER_POLL_MS } from "@/lib/browser/queries";
 import { client } from "@/lib/client";
@@ -13,7 +13,7 @@ import {
 export const recorderKeys = {
   all: ["recorder"] as const,
   connections: () => ["recorder", "connections"] as const,
-  /** The Recorder in the browser OpenBot is open in. Asked of the browser, never of the server. */
+  /** The Recorder in the browser ShardsOpenBot is open in. Asked of the browser, never of the server. */
   here: () => ["recorder", "here"] as const,
   /** Where one connect, by when it started, has got to on the Recorder's Connect page. Asked of the browser too. */
   connectWait: (id: string, since: number) =>
@@ -21,7 +21,7 @@ export const recorderKeys = {
 };
 
 /**
- * The browsers connected for this person, and the extension ids this OpenBot trusts.
+ * The browsers connected for this person, and the extension ids this ShardsOpenBot trusts.
  *
  * `awaiting` polls every 2 s while a "Connect this browser" request waits for the person to confirm
  * it in the Recorder's own tab.
@@ -47,7 +47,7 @@ const AWAITING_POLL_MS = 2000;
 /**
  * How often the Browser button asks the Recorder in this browser, from its last answer: every second while it records,
  * so the red dot and the elapsed time follow it at once, and rarely otherwise, so an idle Recorder's service worker is
- * not kept awake for nothing. Where it is not here at all, only when the person comes back to OpenBot's tab
+ * not kept awake for nothing. Where it is not here at all, only when the person comes back to ShardsOpenBot's tab
  * (`refetchOnWindowFocus`), which is when they will have added it from its store page.
  */
 function hereInterval(
@@ -64,8 +64,8 @@ function hereInterval(
 }
 
 /**
- * The Recorder in the browser OpenBot is open in (`findRecorderHere`), asked of the browser itself over
- * `externally_connectable`, among `ids`, the Recorder ids this OpenBot trusts. A query rather than a plain function
+ * The Recorder in the browser ShardsOpenBot is open in (`findRecorderHere`), asked of the browser itself over
+ * `externally_connectable`, among `ids`, the Recorder ids this ShardsOpenBot trusts. A query rather than a plain function
  * because it is read on a schedule and re-read after Record, Stop and Connect, as the server's state is; it never
  * throws, because every answer, the Recorder's absence included, is something the button shows.
  *

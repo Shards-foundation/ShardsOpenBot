@@ -116,7 +116,7 @@ async function validate(nativePath: string) {
     `Build the native telemetry_probe example first: ${nativePath}`,
   );
   const scratch = await mkdtemp(
-    join(tmpdir(), "openbot-telemetry-validation-"),
+    join(tmpdir(), "shardsopenbot-telemetry-validation-"),
   );
   const received: Captured[] = [];
   const server = Bun.serve({
@@ -298,7 +298,7 @@ async function validate(nativePath: string) {
       ]);
       assert.match(String(request.body.event_id), uuid);
       assert.deepEqual(request.body.package, {
-        name: "openbot-desktop",
+        name: "shardsopenbot-desktop",
         version: "0.0.9",
       });
       assert.deepEqual(object(request.body.global_properties), {
@@ -315,7 +315,7 @@ async function validate(nativePath: string) {
 
     const runtimeResult = await runtime({
       ...nativeEnv,
-      OPENBOT_UNKNOWN: "synthetic-private-value",
+      SHARDSOPENBOT_UNKNOWN: "synthetic-private-value",
     });
     assert.equal(runtimeResult.requests, 1);
     const runtimeRequest = received.at(-1);

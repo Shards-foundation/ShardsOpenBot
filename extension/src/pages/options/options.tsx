@@ -1,4 +1,4 @@
-import type { RecorderConnectVia } from "@openbot/shared/recorder-api";
+import type { RecorderConnectVia } from "@shardsopenbot/shared/recorder-api";
 import {
   IconBuildingSkyscraper,
   IconLink,
@@ -41,16 +41,17 @@ import { ask as askBackground } from "../ui/runtime";
 type OptionsDeps = { ask: typeof askBackground };
 
 const VIA: Record<RecorderConnectVia, string> = {
-  web: "Connected from OpenBot in your browser",
-  desktop: "Connected from OpenBot Desktop",
-  "openbot-browser": "Connected by OpenBot when it opened this browser",
+  web: "Connected from ShardsOpenBot in your browser",
+  desktop: "Connected from ShardsOpenBot Desktop",
+  "shardsopenbot-browser":
+    "Connected by ShardsOpenBot when it opened this browser",
 };
 
 function plural(count: number, one: string, many: string) {
   return `${count} ${count === 1 ? one : many}`;
 }
 
-/** The Recorder's one settings page: which OpenBot this browser is connected to, and how to disconnect it; whether the
+/** The Recorder's one settings page: which ShardsOpenBot this browser is connected to, and how to disconnect it; whether the
  * person narrates their recordings; and the sites they keep out of them, each with Record again. */
 export function Options({ deps }: { deps?: Partial<OptionsDeps> }) {
   const ask = deps?.ask ?? askBackground;
@@ -106,7 +107,7 @@ export function Options({ deps }: { deps?: Partial<OptionsDeps> }) {
 
   if (!state) {
     return (
-      <Page title="OpenBot Recorder" width="prose">
+      <Page title="ShardsOpenBot Recorder" width="prose">
         {error ? (
           <p className="mt-4 text-destructive text-sm" role="alert">
             {error}
@@ -123,7 +124,7 @@ export function Options({ deps }: { deps?: Partial<OptionsDeps> }) {
   const recording = state.state.phase !== "idle";
   const sending = Math.max(0, state.state.draining - (kept?.recordings ?? 0));
   return (
-    <Page title="OpenBot Recorder" width="prose">
+    <Page title="ShardsOpenBot Recorder" width="prose">
       <PageSection title="Connection">
         {connection ? (
           <PageRows>
@@ -132,9 +133,9 @@ export function Options({ deps }: { deps?: Partial<OptionsDeps> }) {
                 <IconLink />
               </ItemMedia>
               <ItemContent>
-                <ItemTitle>OpenBot address</ItemTitle>
+                <ItemTitle>ShardsOpenBot address</ItemTitle>
                 <ItemDescription className="line-clamp-none">
-                  {connection.openbotUrl}
+                  {connection.shardsopenbotUrl}
                 </ItemDescription>
               </ItemContent>
             </Item>
@@ -158,7 +159,7 @@ export function Options({ deps }: { deps?: Partial<OptionsDeps> }) {
               <ItemContent>
                 <ItemTitle>This browser</ItemTitle>
                 <ItemDescription>
-                  Disconnect this browser from OpenBot.
+                  Disconnect this browser from ShardsOpenBot.
                 </ItemDescription>
               </ItemContent>
               <ItemActions>
@@ -170,8 +171,8 @@ export function Options({ deps }: { deps?: Partial<OptionsDeps> }) {
           </PageRows>
         ) : (
           <PageEmpty>
-            This browser is not connected to OpenBot. Open OpenBot, go to
-            Settings, Browsers, and choose Connect this browser.
+            This browser is not connected to ShardsOpenBot. Open ShardsOpenBot,
+            go to Settings, Browsers, and choose Connect this browser.
           </PageEmpty>
         )}
         {error ? (
@@ -254,10 +255,10 @@ export function Options({ deps }: { deps?: Partial<OptionsDeps> }) {
           </PageRows>
         )}
       </PageSection>
-      {policy.openbotUrl ? (
+      {policy.shardsopenbotUrl ? (
         <PageSection
           title="Set by your organization"
-          description="Your organization chose which OpenBot this Recorder connects to."
+          description="Your organization chose which ShardsOpenBot this Recorder connects to."
         >
           <PageRows>
             <Item size="sm">
@@ -265,11 +266,11 @@ export function Options({ deps }: { deps?: Partial<OptionsDeps> }) {
                 <IconBuildingSkyscraper />
               </ItemMedia>
               <ItemContent>
-                <ItemTitle>OpenBot address</ItemTitle>
+                <ItemTitle>ShardsOpenBot address</ItemTitle>
               </ItemContent>
               <ItemActions>
                 <span className="text-muted-foreground text-sm">
-                  {policy.openbotUrl}
+                  {policy.shardsopenbotUrl}
                 </span>
               </ItemActions>
             </Item>

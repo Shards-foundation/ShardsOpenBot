@@ -1,7 +1,7 @@
 import catalogue from "./harnesses.json";
 
 /**
- * The agent harnesses OpenBot knows by name, read from the one file every language reads.
+ * The agent harnesses ShardsOpenBot knows by name, read from the one file every language reads.
  *
  * WHY A SHARED FILE. The list began in `desktop/src-tauri/src/harness.rs`, where it decides which
  * image the setup window runs. The web app's New Bot dialog needs the same names, summaries and
@@ -38,7 +38,7 @@ export type Harness = {
    * installs nothing. Null means `summary` is true everywhere and is used as-is.
    */
   webSummary: string | null;
-  /** The directory a release builds `openbot-<directory>` from, not the id. Null when none. */
+  /** The directory a release builds `shardsopenbot-<directory>` from, not the id. Null when none. */
   image: string | null;
   port: number | null;
   healthPath: string | null;

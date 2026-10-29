@@ -29,8 +29,8 @@ export function DatabaseReset({
         Delete the previous installation’s data?
       </h2>
       <p>
-        This permanently deletes the local OpenBot database, including saved
-        chats, Bots, and settings. Only continue if you want a fresh
+        This permanently deletes the local ShardsOpenBot database, including
+        saved chats, Bots, and settings. Only continue if you want a fresh
         installation and do not need that data.
       </p>
       <p>To keep your data, restore its original encryption key instead.</p>

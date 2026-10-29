@@ -3,7 +3,8 @@ export async function api<T>(
   path: string,
   input?: { method?: string; body?: unknown; signal?: AbortSignal },
 ): Promise<T> {
-  if (!path.startsWith("/api/")) throw new Error("Use an OpenBot API path.");
+  if (!path.startsWith("/api/"))
+    throw new Error("Use an ShardsOpenBot API path.");
   const cookie = await authClient.getCookie();
   const response = await fetch(`${serverUrl}${path}`, {
     method: input?.method,

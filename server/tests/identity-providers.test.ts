@@ -12,11 +12,11 @@ import { IdentityInputError } from "../src/identity/types";
 test("slackRealm keeps connection, installation and workspace", () => {
   expect(
     slackRealm({
-      connectionId: "openbot",
+      connectionId: "shardsopenbot",
       installationId: "I1",
       workspaceId: "T1",
     }),
-  ).toBe("openbot:I1:T1");
+  ).toBe("shardsopenbot:I1:T1");
 });
 
 test("slackRealm cannot be confused by a colon", () => {
@@ -53,7 +53,7 @@ test("each provider declares the proofs it accepts", () => {
 test("Slack tells the person to send the code to the app in a direct message", () => {
   const code = "123e4567-e89b-42d3-a456-426614174000";
   expect(PROVIDERS.slack.instruction?.(code)).toBe(
-    `Send this message to the OpenBot app in a direct message in Slack: link ${code}`,
+    `Send this message to the ShardsOpenBot app in a direct message in Slack: link ${code}`,
   );
   expect(PROVIDERS.github.instruction).toBeUndefined();
 });

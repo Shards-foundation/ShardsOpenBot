@@ -1,5 +1,5 @@
 import type { AbstractAgent } from "@ag-ui/client";
-import type { ComputerGuidance } from "@openbot/shared/bot-prompt";
+import type { ComputerGuidance } from "@shardsopenbot/shared/bot-prompt";
 import type { AuditInitiator } from "../audit";
 import type { AgentFetch, StallGuard } from "../channels/stall-guard";
 import {
@@ -75,7 +75,7 @@ export type ActorAgentResolverDependencies = {
 };
 
 /**
- * Resolves the coworkers available to one OpenBot actor.
+ * Resolves the coworkers available to one ShardsOpenBot actor.
  *
  * Every surface enters through this boundary so it shares the same visibility, grants, assertions,
  * skill selection, and endpoint dial policy for a person.

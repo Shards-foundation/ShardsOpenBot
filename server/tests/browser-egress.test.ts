@@ -1,5 +1,5 @@
-// Where a person's own OpenBot browser may go, judged by the computer's own filter rule (agent-computer/src/egress.ts,
-// which the server imports rather than copies) against real addresses: the open web, OpenBot and the Intelligence
+// Where a person's own ShardsOpenBot browser may go, judged by the computer's own filter rule (agent-computer/src/egress.ts,
+// which the server imports rather than copies) against real addresses: the open web, ShardsOpenBot and the Intelligence
 // gateway by name, and nothing a person's laptop could not reach.
 import { describe, expect, test } from "bun:test";
 import {
@@ -14,7 +14,10 @@ import {
 const cloud = personBrowserEgressPolicy({
   native: false,
   allowPrivateHosts: false,
-  openbotUrls: ["https://openbot.example.com", "https://app.example.com/"],
+  shardsopenbotUrls: [
+    "https://shardsopenbot.example.com",
+    "https://app.example.com/",
+  ],
   gatewayUrl: "wss://gateway.example.com/socket",
 });
 const allowed = (host: string, resolved: string[] = []) =>
@@ -72,34 +75,38 @@ describe("a person's browser on a computer in the cloud", () => {
     expect(allowed("split.example", ["93.184.215.14", "10.1.2.3"])).toBe(false);
   });
 
-  test("reaches OpenBot and the Intelligence gateway by name wherever they resolve, and only those names", () => {
-    expect(allowed("openbot.example.com", ["10.0.0.7"])).toBe(true);
+  test("reaches ShardsOpenBot and the Intelligence gateway by name wherever they resolve, and only those names", () => {
+    expect(allowed("shardsopenbot.example.com", ["10.0.0.7"])).toBe(true);
     expect(allowed("app.example.com", ["10.0.0.8"])).toBe(true);
     expect(allowed("gateway.example.com", ["172.20.1.1"])).toBe(true);
     expect(allowed("evil.example.com", ["10.0.0.7"])).toBe(false);
     // A cloud's metadata endpoint stays out whatever a name says.
-    expect(allowed("openbot.example.com", ["169.254.169.254"])).toBe(false);
+    expect(allowed("shardsopenbot.example.com", ["169.254.169.254"])).toBe(
+      false,
+    );
   });
 
-  test("OpenBot and the gateway by name are allowed on their own ports, never the name's others", () => {
+  test("ShardsOpenBot and the gateway by name are allowed on their own ports, never the name's others", () => {
     // Resolving inside the deployment, where the public ranges do not already allow them: a name on its own port only.
     const port = (host: string, to: number, resolved: string[]) =>
       egressDecision(cloud, host, to, resolved).allowed;
-    expect(port("openbot.example.com", 443, ["10.0.0.7"])).toBe(true);
-    expect(port("openbot.example.com", 8443, ["10.0.0.7"])).toBe(false);
+    expect(port("shardsopenbot.example.com", 443, ["10.0.0.7"])).toBe(true);
+    expect(port("shardsopenbot.example.com", 8443, ["10.0.0.7"])).toBe(false);
     expect(port("gateway.example.com", 443, ["172.20.1.1"])).toBe(true);
     expect(port("gateway.example.com", 5432, ["172.20.1.1"])).toBe(false);
     const ported = personBrowserEgressPolicy({
       native: false,
       allowPrivateHosts: false,
-      openbotUrls: ["http://openbot.internal:3001"],
+      shardsopenbotUrls: ["http://shardsopenbot.internal:3001"],
       gatewayUrl: "ws://gateway.internal:7103/socket",
     });
     expect(
-      egressDecision(ported, "openbot.internal", 3001, ["10.0.0.7"]).allowed,
+      egressDecision(ported, "shardsopenbot.internal", 3001, ["10.0.0.7"])
+        .allowed,
     ).toBe(true);
     expect(
-      egressDecision(ported, "openbot.internal", 80, ["10.0.0.7"]).allowed,
+      egressDecision(ported, "shardsopenbot.internal", 80, ["10.0.0.7"])
+        .allowed,
     ).toBe(false);
     expect(
       egressDecision(ported, "gateway.internal", 7103, ["10.0.0.8"]).allowed,
@@ -109,11 +116,11 @@ describe("a person's browser on a computer in the cloud", () => {
     ).toBe(false);
   });
 
-  test("an address given for OpenBot is allowed as that address alone, on its own port", () => {
+  test("an address given for ShardsOpenBot is allowed as that address alone, on its own port", () => {
     const literal = personBrowserEgressPolicy({
       native: false,
       allowPrivateHosts: false,
-      openbotUrls: ["http://10.0.0.9:3001"],
+      shardsopenbotUrls: ["http://10.0.0.9:3001"],
       gatewayUrl: "ws://[fd00::9]:7103",
     });
     expect(egressDecision(literal, "10.0.0.9", 3001).allowed).toBe(true);
@@ -123,13 +130,13 @@ describe("a person's browser on a computer in the cloud", () => {
     expect(egressDecision(literal, "fd00::9", 3001).allowed).toBe(false);
   });
 
-  // The end-to-end run's hosted OpenBot: it and the gateway both on 127.0.0.1, and the person's browser loaded the
+  // The end-to-end run's hosted ShardsOpenBot: it and the gateway both on 127.0.0.1, and the person's browser loaded the
   // Intelligence UI on 7555 and a probe on 7498 because the address was allowed on every port.
-  test("OpenBot and the gateway on one address let the browser reach those two ports, never the address's others", () => {
+  test("ShardsOpenBot and the gateway on one address let the browser reach those two ports, never the address's others", () => {
     const shared = personBrowserEgressPolicy({
       native: false,
       allowPrivateHosts: false,
-      openbotUrls: [undefined, "http://127.0.0.1:7460"],
+      shardsopenbotUrls: [undefined, "http://127.0.0.1:7460"],
       gatewayUrl: "ws://127.0.0.1:7053/socket",
     });
     const reach = (host: string, port: number, resolved: string[] = []) =>
@@ -152,7 +159,7 @@ describe("a person's browser on a computer in the cloud", () => {
     const defaults = personBrowserEgressPolicy({
       native: false,
       allowPrivateHosts: false,
-      openbotUrls: ["https://10.0.0.9", "http://localhost:3010"],
+      shardsopenbotUrls: ["https://10.0.0.9", "http://localhost:3010"],
       gatewayUrl: "wss://[fd00::9]/socket",
     });
     const reach = (host: string, port: number, resolved: string[] = []) =>
@@ -192,13 +199,13 @@ describe("a person's browser that may go everywhere", () => {
       personBrowserEgressPolicy({
         native: true,
         allowPrivateHosts: false,
-        openbotUrls: [],
+        shardsopenbotUrls: [],
         gatewayUrl: "wss://gateway.example.com",
       }),
       personBrowserEgressPolicy({
         native: false,
         allowPrivateHosts: true,
-        openbotUrls: [],
+        shardsopenbotUrls: [],
         gatewayUrl: "wss://gateway.example.com",
       }),
     ]) {

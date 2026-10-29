@@ -421,7 +421,7 @@ describe("a hop that failed for good", () => {
       // message survives.
       deliver: async () => {
         throw new Error(
-          "This deployment will not dial http://localhost:4201/ag-ui: that address is inside OpenBot's own network, so an agent may not live there.",
+          "This deployment will not dial http://localhost:4201/ag-ui: that address is inside ShardsOpenBot's own network, so an agent may not live there.",
         );
       },
     });

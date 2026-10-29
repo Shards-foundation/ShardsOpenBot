@@ -24,9 +24,9 @@ import {
  * which the machine running `bun test` is not required to have, so Playwright is imported only then.
  *
  *   cd agent-computer && bunx playwright install chromium
- *   OPENBOT_COMPUTER_BROWSER=1 bun test tests/sign-in.test.ts
+ *   SHARDSOPENBOT_COMPUTER_BROWSER=1 bun test tests/sign-in.test.ts
  */
-const asked = process.env.OPENBOT_COMPUTER_BROWSER === "1";
+const asked = process.env.SHARDSOPENBOT_COMPUTER_BROWSER === "1";
 const PASSWORD = "hunter2-not-for-the-model";
 const CODE = "482913";
 let browser: Browser;

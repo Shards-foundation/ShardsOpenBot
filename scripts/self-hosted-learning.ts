@@ -9,7 +9,7 @@ export type SetupProject = { id: string; name: string };
 export type LearningConnection = {
   apiKey: string;
   apiUrl: string;
-  learningContainerId: "openbot";
+  learningContainerId: "shardsopenbot";
 };
 type ApiResponse = { status: number; body: unknown };
 export type SetupBrowser = {
@@ -184,7 +184,7 @@ function verifiedContainer(body: unknown, projectId: string): boolean {
   return (
     object(body) &&
     object(body.container) &&
-    body.container.id === "openbot" &&
+    body.container.id === "shardsopenbot" &&
     String(body.container.projectId) === projectId
   );
 }
@@ -325,15 +325,15 @@ export async function setupSelfHostedLearning(options: {
     // Learning and key endpoints each authorize this project. Older Intelligence
     // releases support these routes without a separate project HEAD endpoint.
     const containers = `/api/learning/projects/${projectId}/containers`;
-    let container = await request(`${containers}/openbot`);
+    let container = await request(`${containers}/shardsopenbot`);
     if (
       container.status === 200 &&
       object(container.body) &&
       container.body.container === null
     ) {
       container = await request(containers, "POST", {
-        id: "openbot",
-        name: "OpenBot",
+        id: "shardsopenbot",
+        name: "ShardsOpenBot",
       });
       if (
         container.status === 409 &&
@@ -341,7 +341,7 @@ export async function setupSelfHostedLearning(options: {
         object(container.body.error) &&
         container.body.error.code === "LEARNING_CONTAINER_ALREADY_EXISTS"
       ) {
-        container = await request(`${containers}/openbot`);
+        container = await request(`${containers}/shardsopenbot`);
       }
     }
     if (
@@ -349,7 +349,7 @@ export async function setupSelfHostedLearning(options: {
       !verifiedContainer(container.body, projectId)
     ) {
       throw new SetupError(
-        "The openbot container could not be verified in the selected project. Check Learning access in Intelligence.",
+        "The shardsopenbot container could not be verified in the selected project. Check Learning access in Intelligence.",
       );
     }
     if (options.existingKey) {
@@ -357,11 +357,11 @@ export async function setupSelfHostedLearning(options: {
       return {
         apiKey: options.existingKey,
         apiUrl,
-        learningContainerId: "openbot",
+        learningContainerId: "shardsopenbot",
       };
     }
     const key = await request(`/api/projects/${projectId}/api-keys`, "POST", {
-      name: "OpenBot",
+      name: "ShardsOpenBot",
     });
     if (
       key.status !== 201 ||
@@ -378,7 +378,7 @@ export async function setupSelfHostedLearning(options: {
     return {
       apiKey: key.body.key.token,
       apiUrl,
-      learningContainerId: "openbot",
+      learningContainerId: "shardsopenbot",
     };
   } catch (error) {
     if (signal.aborted) {

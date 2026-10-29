@@ -18,7 +18,7 @@
  * keyed `relay:<hop key>`, so it is folded into the hop it carries the answer for, and the timer a
  * person is watching does not restart when the answer turns around.
  */
-import { TURN_LIMITS } from "@openbot/toolkit/limits";
+import { TURN_LIMITS } from "@shardsopenbot/toolkit/limits";
 import {
   and,
   eq,

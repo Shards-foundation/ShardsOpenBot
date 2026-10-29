@@ -1,7 +1,7 @@
 import {
   RECORDER_COLLECTS,
   type RecorderCollectedKind,
-} from "@openbot/shared/recorder-disclosure";
+} from "@shardsopenbot/shared/recorder-disclosure";
 import {
   IconDeviceFloppy,
   IconEyeOff,
@@ -31,7 +31,7 @@ const ICONS: Record<RecorderCollectedKind, typeof IconPointer> = {
 };
 
 /**
- * What a recording holds, one read-only row each (@openbot/shared/recorder-disclosure). Drawn by OpenBot's Settings,
+ * What a recording holds, one read-only row each (@shardsopenbot/shared/recorder-disclosure). Drawn by ShardsOpenBot's Settings,
  * Browsers before the first Connect and by the Recorder's own setup page (the extension builds with this app's
  * components), so the person reads the same list in both before anything is collected.
  */

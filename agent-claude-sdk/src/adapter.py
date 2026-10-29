@@ -44,7 +44,7 @@ class _Turn:
         return self.results[tool_id]
 
 
-class OpenBotClaudeAgentAdapter(ClaudeAgentAdapter):
+class ShardsOpenBotClaudeAgentAdapter(ClaudeAgentAdapter):
     def __init__(self, *args, model_only=False, **kwargs):
         super().__init__(*args, **kwargs)
         self._model_only = model_only
@@ -114,7 +114,7 @@ class OpenBotClaudeAgentAdapter(ClaudeAgentAdapter):
                     "hookSpecificOutput": {
                         "hookEventName": "PreToolUse",
                         "permissionDecision": "deny",
-                        "permissionDecisionReason": "Built-in Bots may only call tools supplied by the OpenBot server.",
+                        "permissionDecisionReason": "Built-in Bots may only call tools supplied by the ShardsOpenBot server.",
                     }
                 }
 
@@ -179,7 +179,7 @@ class OpenBotClaudeAgentAdapter(ClaudeAgentAdapter):
             async for event in self._run_query(input_data):
                 if event.type == EventType.RUN_ERROR and turn.authentication_failed:
                     event = event.model_copy(
-                        update={"code": "OPENBOT_MODEL_AUTH_REQUIRED"}
+                        update={"code": "SHARDSOPENBOT_MODEL_AUTH_REQUIRED"}
                     )
                 if (
                     event.type == EventType.TOOL_CALL_START
@@ -197,7 +197,7 @@ class OpenBotClaudeAgentAdapter(ClaudeAgentAdapter):
             await turn.queue.put(
                 RunErrorEvent(
                     message=str(error),
-                    code="OPENBOT_MODEL_AUTH_REQUIRED"
+                    code="SHARDSOPENBOT_MODEL_AUTH_REQUIRED"
                     if isinstance(error, ModelAuthenticationError)
                     else None,
                 )

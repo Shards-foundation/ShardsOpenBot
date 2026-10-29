@@ -20,14 +20,14 @@ bun scripts/setup-learning.ts
 ```
 
 For fresh managed setup, the helper provisions the selected project's key and creates or reuses
-its `openbot` Learning container. It writes `INTELLIGENCE_API_KEY` and
+its `shardsopenbot` Learning container. It writes `INTELLIGENCE_API_KEY` and
 `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID` to `.env` only after verifying the container. Existing
 keys and custom targets are preserved. For fresh self-hosted setup, set `INTELLIGENCE_API_URL`
 to the deployment's HTTPS API origin and run only `bun scripts/setup-learning.ts`. Install
 Chrome or Edge first: the helper opens an isolated browser window for the deployment's usual
-sign-in, lets you choose an accessible project, and creates or reuses `openbot` before minting
+sign-in, lets you choose an accessible project, and creates or reuses `shardsopenbot` before minting
 its runtime key. Local development may use a loopback HTTP origin. Existing key-only setups
-use authenticated Intelligence administration to create a container and assign it in OpenBot Admin.
+use authenticated Intelligence administration to create a container and assign it in ShardsOpenBot Admin.
 There is no managed licence step. Then add `OPENAI_API_KEY`.
 
 Start the stack:
@@ -54,7 +54,7 @@ Use `bun run dev` only when you want the app and API server without starting the
 | `supervisor`      | 4500 host / 4300 container |
 | PostgreSQL        | 5432                       |
 
-`start.sh` hands every selected Docker service to `docker compose up -d` on every run, so one whose configuration changed is recreated and an unchanged one is left as it is. It leaves an API server or app that already answers as OpenBot alone, restarts the API server when it refuses the worker's secret or has no routines route, and reports when a port is held by another process.
+`start.sh` hands every selected Docker service to `docker compose up -d` on every run, so one whose configuration changed is recreated and an unchanged one is left as it is. It leaves an API server or app that already answers as ShardsOpenBot alone, restarts the API server when it refuses the worker's secret or has no routines route, and reports when a port is held by another process.
 
 **Nothing here sweeps staged attachments.** A file dropped into the composer is stored before the
 message is sent, and the only thing that reclaims the ones never sent is
@@ -130,9 +130,9 @@ bun run test
 bun run build
 ```
 
-Integration tests expect a PostgreSQL database with pgvector. Point `TEST_DATABASE_URL` at a dedicated database such as `postgres://openbot:openbot@localhost:5432/openbot_test` before running them.
+Integration tests expect a PostgreSQL database with pgvector. Point `TEST_DATABASE_URL` at a dedicated database such as `postgres://shardsopenbot:shardsopenbot@localhost:5432/shardsopenbot_test` before running them.
 
-They refuse to use the application `openbot` database. `DATABASE_URL` is still the application setting, and the database client removes it from the process environment after opening a connection to preserve the Windows Bun connection fix, so tests use `TEST_DATABASE_URL` as their immutable fixture address. Running them against a deployment you are using puts test Bots in its audit trail and its activity reports, so create a separate database and migrate that before running the integration suite.
+They refuse to use the application `shardsopenbot` database. `DATABASE_URL` is still the application setting, and the database client removes it from the process environment after opening a connection to preserve the Windows Bun connection fix, so tests use `TEST_DATABASE_URL` as their immutable fixture address. Running them against a deployment you are using puts test Bots in its audit trail and its activity reports, so create a separate database and migrate that before running the integration suite.
 
 CI uses `bun run test:ci` to verify the expected test count in addition to normal tests.
 
@@ -140,13 +140,13 @@ CI uses `bun run test:ci` to verify the expected test count in addition to norma
 
 ```sh
 bash scripts/start.sh
-export OPENBOT_SMOKE_COOKIE='better-auth.session_token=...'
+export SHARDSOPENBOT_SMOKE_COOKIE='better-auth.session_token=...'
 bun run test:smoke
 ```
 
 It drives one journey over HTTP against the running stack, so it covers the joins the rest of the
 suite cannot reach: server to supervisor to computer, the gateway deciding before the browser acts,
-and the audit row landing. Point it elsewhere with `OPENBOT_API_URL`. Without a deployment it is
+and the audit row landing. Point it elsewhere with `SHARDSOPENBOT_API_URL`. Without a deployment it is
 skipped by `bun run test` and says what to start when asked for by name.
 
 The session is not optional and not a convenience. Every route the journey proves is behind
@@ -169,7 +169,7 @@ while the browser is still starting, a second connection taking the screen from 
 refusing input from the socket that owns it, and a browser closing by request or by the idle sweep.
 Those need `agent-computer/src/index.ts`, which imports Playwright at module scope, and `playwright`
 is declared only in `agent-computer/package.json`, which `bun install` at the root does not reach. So
-without `OPENBOT_LIVE_SCREEN=1` the files skip before importing anything, which is what keeps
+without `SHARDSOPENBOT_LIVE_SCREEN=1` the files skip before importing anything, which is what keeps
 `bun run test` and CI working where that dependency was never installed.
 
 ## Contribution checklist

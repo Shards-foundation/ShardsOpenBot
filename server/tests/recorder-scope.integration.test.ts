@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, spyOn, test } from "bun:test";
 import { randomUUID } from "node:crypto";
 import { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
-import type { ExchangeResponse } from "@openbot/shared/recorder-api";
-import { RECORDER_EXTENSION_ID } from "@openbot/shared/recorder-extension";
+import type { ExchangeResponse } from "@shardsopenbot/shared/recorder-api";
+import { RECORDER_EXTENSION_ID } from "@shardsopenbot/shared/recorder-extension";
 import { count, eq, inArray } from "drizzle-orm";
 import { GATED_ROUTES, runtimeRun } from "../src/admin/gate";
 import { createActorAgentResolver } from "../src/agents/agent-resolver";
@@ -149,7 +149,7 @@ const app = createApp(...args);
 
 const call = (path: string, init: RequestInit & { json?: unknown } = {}) => {
   const { json, headers, ...rest } = init;
-  return app.request(`http://openbot.test${path}`, {
+  return app.request(`http://shardsopenbot.test${path}`, {
     ...rest,
     headers: {
       ...(json === undefined ? {} : { "content-type": "application/json" }),

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { installOnDeviceSpeech } from "@openbot/shared/on-device-speech";
+import { installOnDeviceSpeech } from "@shardsopenbot/shared/on-device-speech";
 import {
   DOWNLOAD_POLL_MS,
   FLUSH_MS,
@@ -26,7 +26,7 @@ import {
 } from "./on-device-speech.fixture";
 
 /**
- * Narration on hosted OpenBot: the page transcribes the person with the browser's own speech recognition and stamps
+ * Narration on hosted ShardsOpenBot: the page transcribes the person with the browser's own speech recognition and stamps
  * each final phrase with when they started and stopped saying it. The rule is pinned against what Chrome 156 really
  * sent in a recorded run (browser-narration.fixture.ts), not against events written by hand.
  */

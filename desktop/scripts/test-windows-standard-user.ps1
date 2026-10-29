@@ -22,7 +22,7 @@ if ($LASTEXITCODE -ne 0 -or $listed -notcontains "${testName}: test") {
 
 $suffix = [Guid]::NewGuid().ToString('N')
 $userName = "obci_$($suffix.Substring(0, 12))"
-$directory = Join-Path $env:ProgramData "OpenBot-standard-user-$suffix"
+$directory = Join-Path $env:ProgramData "ShardsOpenBot-standard-user-$suffix"
 $userCreated = $false
 $directoryCreated = $false
 $process = $null
@@ -39,7 +39,7 @@ try {
     $password = 'aZ9!' + [Convert]::ToBase64String($passwordBytes)
     $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
     $user = New-LocalUser -Name $userName -Password $securePassword `
-        -Description 'OpenBot standard-user regression test' `
+        -Description 'ShardsOpenBot standard-user regression test' `
         -AccountExpires (Get-Date).AddHours(1)
     $userCreated = $true
     $userSid = $user.SID

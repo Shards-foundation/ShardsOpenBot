@@ -1,11 +1,11 @@
-import { describeDemonstrationTarget } from "@openbot/shared/demonstration-rules";
+import { describeDemonstrationTarget } from "@shardsopenbot/shared/demonstration-rules";
 import {
   holdsValue,
   isSensitiveTarget,
   MIN_DIGEST_LENGTH,
   normaliseSecret,
   sha256HexSync,
-} from "@openbot/shared/recorder-masking";
+} from "@shardsopenbot/shared/recorder-masking";
 
 const FIELD = "input, textarea, select, [contenteditable]";
 

@@ -1,6 +1,6 @@
 # Desktop telemetry
 
-Telemetry is enabled by default. Welcome discloses it without an opt-in gate. Launch OpenBot with either `COPILOTKIT_TELEMETRY_DISABLED=true` or `DO_NOT_TRACK=1` to disable both the desktop emitter and the runtime. Both variables accept `true` or `1`. Quit and relaunch after changing the environment. Opting out removes pending desktop events and prevents recording or replay.
+Telemetry is enabled by default. Welcome discloses it without an opt-in gate. Launch ShardsOpenBot with either `COPILOTKIT_TELEMETRY_DISABLED=true` or `DO_NOT_TRACK=1` to disable both the desktop emitter and the runtime. Both variables accept `true` or `1`. Quit and relaunch after changing the environment. Opting out removes pending desktop events and prevents recording or replay.
 
 The native emitter starts before credentials are available. It persists a random installation UUID and a bounded queue in the app's local data directory. It does not derive identity from the machine. The runtime receives the same UUID through `CPK_TELEMETRY_ID` and uses sampling rate 1; opt-out still takes precedence.
 
