@@ -14,7 +14,7 @@
     "@copilotkit/runtime": "1.83.0",
     "@shardsopenbot/shared": "workspace:*",
     "rxjs": "7.8.1",
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
