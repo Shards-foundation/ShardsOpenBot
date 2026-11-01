@@ -49,7 +49,8 @@ type Event = {
 // The same goes for fetch: happy-dom's Response.clone() pipes through a Node stream that loses the original's body, which
 // a browser's clone() does not, so the page's fetch here is the runtime's native one.
 const NativeResponse = Response;
-const nativeFetch = fetch;
+// Bun.fetch remains native even when another test has registered happy-dom on globalThis.
+const nativeFetch = Bun.fetch.bind(Bun);
 const MiB = 1024 * 1024;
 const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0, 1, 2, 3]);
 // A realistic sign-in and payment. None of these may reach Intelligence.
