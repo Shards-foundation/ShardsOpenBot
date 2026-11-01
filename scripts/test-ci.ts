@@ -22,11 +22,20 @@ async function writeStderr(text: string) {
 }
 
 // `bun run test` rather than `bun test`, so the pretest hook fires and the generated application
-// config exists before route imports need it.
-const proc = Bun.spawn(["bun", "run", "test"], {
-  stdout: "inherit",
-  stderr: "pipe",
-});
+// config exists before route imports need it. The page-network suite owns the global DOM, fetch,
+// and XMLHttpRequest objects, so it runs below in a fresh process instead of racing other suites.
+const proc = Bun.spawn(
+  [
+    "bun",
+    "run",
+    "test",
+    "--path-ignore-patterns=extension/tests/page-network-hook.test.ts",
+  ],
+  {
+    stdout: "inherit",
+    stderr: "pipe",
+  },
+);
 
 // Bun writes its summary to stderr, so it is captured and echoed rather than inherited.
 const stderr = await new Response(proc.stderr).text();
@@ -55,5 +64,16 @@ if (exitStatus !== 0) {
     process.exitCode = 1;
   } else {
     await writeStderr(`\n${count} tests ran (floor ${MINIMUM_TESTS}).\n`);
+  }
+
+  if (process.exitCode === undefined) {
+    const isolated = Bun.spawn(
+      ["bun", "run", "test", "extension/tests/page-network-hook.test.ts"],
+      { stdout: "inherit", stderr: "pipe" },
+    );
+    const isolatedStderr = await new Response(isolated.stderr).text();
+    await writeStderr(isolatedStderr);
+    const isolatedStatus = await isolated.exited;
+    if (isolatedStatus !== 0) process.exitCode = isolatedStatus;
   }
 }
