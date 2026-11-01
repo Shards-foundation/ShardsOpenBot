@@ -14,6 +14,11 @@ export {};
  */
 
 const MINIMUM_TESTS = 400;
+const ISOLATED_TEST_FILES = [
+  "extension/tests/page-network-hook.test.ts",
+  "server/tests/learning-agent.integration.test.ts",
+  "server/tests/plugin-routes.test.ts",
+] as const;
 
 async function writeStderr(text: string) {
   if (!text) return;
@@ -22,14 +27,15 @@ async function writeStderr(text: string) {
 }
 
 // `bun run test` rather than `bun test`, so the pretest hook fires and the generated application
-// config exists before route imports need it. The page-network suite owns the global DOM, fetch,
-// and XMLHttpRequest objects, so it runs below in a fresh process instead of racing other suites.
+// config exists before route imports need it. These suites own global DOM/fetch state or emit
+// expected error-path exceptions, so they run below in fresh processes instead of sharing Bun's
+// test process with unrelated suites.
 const proc = Bun.spawn(
   [
     "bun",
     "run",
     "test",
-    "--path-ignore-patterns=extension/tests/page-network-hook.test.ts",
+    `--path-ignore-patterns={${ISOLATED_TEST_FILES.join(",")}}`,
   ],
   {
     stdout: "inherit",
@@ -67,13 +73,18 @@ if (exitStatus !== 0) {
   }
 
   if (process.exitCode === undefined) {
-    const isolated = Bun.spawn(
-      ["bun", "run", "test", "extension/tests/page-network-hook.test.ts"],
-      { stdout: "inherit", stderr: "pipe" },
-    );
-    const isolatedStderr = await new Response(isolated.stderr).text();
-    await writeStderr(isolatedStderr);
-    const isolatedStatus = await isolated.exited;
-    if (isolatedStatus !== 0) process.exitCode = isolatedStatus;
+    for (const testFile of ISOLATED_TEST_FILES) {
+      const isolated = Bun.spawn(["bun", "run", "test", testFile], {
+        stdout: "inherit",
+        stderr: "pipe",
+      });
+      const isolatedStderr = await new Response(isolated.stderr).text();
+      await writeStderr(isolatedStderr);
+      const isolatedStatus = await isolated.exited;
+      if (isolatedStatus !== 0) {
+        process.exitCode = isolatedStatus;
+        break;
+      }
+    }
   }
 }
