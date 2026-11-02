@@ -45,8 +45,10 @@ beforeAll(() => {
   originalObserver = globalThis.ResizeObserver;
   globalThis.ResizeObserver = Observer;
 });
-afterEach(() => {
-  cleanup();
+afterEach(async () => {
+  await act(async () => {
+    cleanup();
+  });
   Observer.targets.clear();
 });
 afterAll(() => {

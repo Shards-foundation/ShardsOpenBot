@@ -18,6 +18,8 @@ const ISOLATED_TEST_FILES = [
   "extension/tests/page-network-hook.test.ts",
   "server/tests/learning-agent.integration.test.ts",
   "server/tests/plugin-routes.test.ts",
+  "app/tests/detail-panel.test.tsx",
+  "app/tests/sign-in-card.test.tsx",
 ] as const;
 
 async function writeStderr(text: string) {

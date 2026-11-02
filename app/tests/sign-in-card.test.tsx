@@ -1,12 +1,18 @@
 import { afterAll, afterEach, beforeAll, expect, test } from "bun:test";
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { CopilotKitProvider, useCopilotKit } from "@copilotkit/react-core/v2";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import {
   focusManager,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+} from "@testing-library/react";
 import type { ComponentType, ReactNode } from "react";
 import { SignInTool } from "@/lib/copilot/sign-in-tool";
 import { settleReactWork } from "./settle-react-work";
@@ -22,7 +28,11 @@ import { settleReactWork } from "./settle-react-work";
  */
 
 beforeAll(() => GlobalRegistrator.register());
-afterEach(cleanup);
+afterEach(async () => {
+  await act(async () => {
+    cleanup();
+  });
+});
 afterAll(async () => {
   await settleReactWork();
   GlobalRegistrator.unregister();
